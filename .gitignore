@@ -1,0 +1,10 @@
+Audio/
+Image/
+Model/
+.vs/
+Debug/
+DirectXTK-master/
+fonts/
+x64/
+Release/
+*.sdf

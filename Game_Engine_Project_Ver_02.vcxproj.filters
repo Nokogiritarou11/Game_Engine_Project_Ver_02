@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <FxCompile Include="Code\Shader\2D.fx">
+      <Filter>Sources\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Code\Shader\Default_Mesh.fx" />
+    <FxCompile Include="Code\Shader\Default_SkinMesh.fx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Code\Souse_File\Audio_Manager.cpp">
+      <Filter>Sources\Reaources</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Souse_File\DxSystem.cpp">
+      <Filter>Sources\Reaources</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Souse_File\Input_Manager.cpp">
+      <Filter>Sources\Reaources</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Souse_File\main.cpp">
+      <Filter>Sources\Reaources</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Souse_File\Shader.cpp">
+      <Filter>Sources\Reaources</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Souse_File\Texture.cpp">
+      <Filter>Sources\Reaources</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Souse_File\Object.cpp" />
+    <ClCompile Include="Code\Souse_File\GameObject.cpp" />
+    <ClCompile Include="Code\Souse_File\Component.cpp" />
+    <ClCompile Include="Code\Souse_File\Behaviour.cpp" />
+    <ClCompile Include="Code\Souse_File\MonoBehaviour.cpp" />
+    <ClCompile Include="Code\Souse_File\Transform.cpp" />
+    <ClCompile Include="Code\Souse_File\Material.cpp" />
+    <ClCompile Include="Code\Souse_File\Scene_Manager.cpp">
+      <Filter>Sources\Reaources</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Souse_File\GameObject_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\MonoBehaviour_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\Scene.cpp" />
+    <ClCompile Include="Code\Souse_File\Engine.cpp" />
+    <ClCompile Include="Code\Souse_File\Time.cpp" />
+    <ClCompile Include="Code\Souse_File\Renderer.cpp" />
+    <ClCompile Include="Code\Souse_File\Camera_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\Camera.cpp">
+      <Filter>Sources\Reaources</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Souse_File\Mesh_Renderer.cpp" />
+    <ClCompile Include="Code\Souse_File\Mesh.cpp" />
+    <ClCompile Include="Code\Souse_File\Render_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\SkinMesh_Renderer.cpp" />
+    <ClCompile Include="Code\Souse_File\Animator.cpp" />
+    <ClCompile Include="Code\Souse_File\Animator_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\Sprite_Renderer.cpp">
+      <Filter>Sources\Reaources</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Souse_File\Rect_Transform.cpp" />
+    <ClCompile Include="Code\Script\Souse\Enemy.cpp" />
+    <ClCompile Include="Code\Script\Souse\Player.cpp" />
+    <ClCompile Include="Code\Script\Souse\Game_Manager.cpp" />
+    <ClCompile Include="Code\Script\Souse\UI_Controller.cpp" />
+    <ClCompile Include="Code\Script\Souse\Title.cpp" />
+    <ClCompile Include="Code\Script\Souse\Kunai.cpp" />
+    <ClCompile Include="Code\Script\Souse\Pauser.cpp" />
+    <ClCompile Include="Code\Script\Souse\Attack_Decision.cpp" />
+    <ClCompile Include="Code\Script\Souse\Hit_Controller.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Code\Header_File\Audio_Manager.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Header_File\DxSystem.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Header_File\Input_Manager.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Header_File\misc.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Header_File\Original_Math.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Header_File\Scene.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Header_File\Shader.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Header_File\Texture.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Header_File\Object.h" />
+    <ClInclude Include="Code\Header_File\GameObject.h" />
+    <ClInclude Include="Code\Header_File\Component.h" />
+    <ClInclude Include="Code\Header_File\Behaviour.h" />
+    <ClInclude Include="Code\Header_File\MonoBehaviour.h" />
+    <ClInclude Include="Code\Header_File\Transform.h" />
+    <ClInclude Include="Code\Header_File\Material.h" />
+    <ClInclude Include="Code\Header_File\GameObject_Manager.h" />
+    <ClInclude Include="Code\Header_File\Scene_Manager.h" />
+    <ClInclude Include="Code\Header_File\MonoBehaviour_Manager.h" />
+    <ClInclude Include="Code\Header_File\Engine.h" />
+    <ClInclude Include="Code\Header_File\Time.h" />
+    <ClInclude Include="Code\Header_File\Renderer.h" />
+    <ClInclude Include="Code\Header_File\Camera_Manager.h" />
+    <ClInclude Include="Code\Header_File\Camera.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Header_File\Mesh_Renderer.h" />
+    <ClInclude Include="Code\Header_File\Mesh.h" />
+    <ClInclude Include="Code\Header_File\Render_Manager.h" />
+    <ClInclude Include="Code\Header_File\SkinMesh_Renderer.h" />
+    <ClInclude Include="Code\Header_File\Animator.h" />
+    <ClInclude Include="Code\Header_File\Animator_Manager.h" />
+    <ClInclude Include="Code\Header_File\Sprite_Renderer.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Header_File\RectTransform.h" />
+    <ClInclude Include="Code\Script\Header\Player.h" />
+    <ClInclude Include="Code\Script\Header\Enemy.h" />
+    <ClInclude Include="Code\Script\Header\All_Script.h" />
+    <ClInclude Include="Code\Script\Header\Game_Manager.h" />
+    <ClInclude Include="Code\Script\Header\UI_Controller.h" />
+    <ClInclude Include="Code\Script\Header\Title.h" />
+    <ClInclude Include="Code\Script\Header\Kunai.h" />
+    <ClInclude Include="Code\Script\Header\Pauser.h" />
+    <ClInclude Include="Code\Script\Header\Attack_Decision.h" />
+    <ClInclude Include="Code\Script\Header\Hit_Controller.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{49362b9b-b25d-4264-9a32-efb91def4971}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Headers">
+      <UniqueIdentifier>{41db6cb6-48ef-438b-a0cd-8896b99eab41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Reaources">
+      <UniqueIdentifier>{d24e19ad-27f5-4905-839e-aafa818a5eb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Shaders">
+      <UniqueIdentifier>{e65052c2-8536-4852-868b-3312e5769417}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

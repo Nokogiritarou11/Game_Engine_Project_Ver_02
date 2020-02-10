@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Sources\Resources">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Sources\Shaders">
+      <UniqueIdentifier>{a629d3af-e715-4986-89a0-f6494058df2f}</UniqueIdentifier>
+      <Extensions>hlsl;hlsli</Extensions>
+    </Filter>
+    <Filter Include="Sources\Headers">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Audio_Manager.cpp">
+      <Filter>Sources\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>Sources\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="framework.cpp">
+      <Filter>Sources\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Game_System.cpp">
+      <Filter>Sources\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="geometric_primitive.cpp">
+      <Filter>Sources\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Input_Manager.cpp">
+      <Filter>Sources\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Sources\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="player.cpp">
+      <Filter>Sources\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource_Manager.cpp">
+      <Filter>Sources\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="singleton.cpp">
+      <Filter>Sources\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="skinned_mesh.cpp">
+      <Filter>Sources\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="sprite.cpp">
+      <Filter>Sources\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="static_mesh.cpp">
+      <Filter>Sources\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="enemy.cpp">
+      <Filter>Sources\Resources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="static_mesh.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="sprite.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="skinned_mesh.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="singleton.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource_Manager.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="player.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="misc.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Input_Manager.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="high_resolution_timer.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="geometric_primitive.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Game_System.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="blender.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio_Manager.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="enemy.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="sprite_vs.hlsl">
+      <Filter>Sources\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="sprite_ps.hlsl">
+      <Filter>Sources\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="sprite_batch_ps.hlsl">
+      <Filter>Sources\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="sprite_batch_vs.hlsl">
+      <Filter>Sources\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="skinned_mesh_material_ps.hlsl">
+      <Filter>Sources\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="skinned_mesh_ps.hlsl">
+      <Filter>Sources\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="skinned_mesh_vs.hlsl">
+      <Filter>Sources\Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="sprite.hlsli">
+      <Filter>Sources\Shaders</Filter>
+    </None>
+    <None Include="sprite_batch.hlsli">
+      <Filter>Sources\Shaders</Filter>
+    </None>
+    <None Include="skinned_mesh.hlsli">
+      <Filter>Sources\Shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>

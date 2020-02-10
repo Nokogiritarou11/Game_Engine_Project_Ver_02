@@ -1,0 +1,283 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{0DDBE550-8551-4506-9A5A-4DD100C00C48}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>My3dgp</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Game_Engine_Project_Ver_02</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>.\Code\Script\Header;.\Code\Header_File;.\DirectXTK-master\Inc</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;d3d11.lib;dxgi.lib;DirectXTK.lib;wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>.\DirectXTK-master\Bin\Desktop_2019\Win32\Debug</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>.\Code\Script\Header;.\Code\Header_File;.\DirectXTK-master\Inc</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>.\DirectXTK-master\Bin\Desktop_2019\Win32\Release</AdditionalLibraryDirectories>
+      <AdditionalDependencies>DirectXTK.lib;d3d11.lib;dxgi.lib;wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Code\Script\Souse\Attack_Decision.cpp" />
+    <ClCompile Include="Code\Script\Souse\Enemy.cpp" />
+    <ClCompile Include="Code\Script\Souse\Game_Manager.cpp" />
+    <ClCompile Include="Code\Script\Souse\Hit_Controller.cpp" />
+    <ClCompile Include="Code\Script\Souse\Kunai.cpp" />
+    <ClCompile Include="Code\Script\Souse\Pauser.cpp" />
+    <ClCompile Include="Code\Script\Souse\Player.cpp" />
+    <ClCompile Include="Code\Script\Souse\Title.cpp" />
+    <ClCompile Include="Code\Script\Souse\UI_Controller.cpp" />
+    <ClCompile Include="Code\Souse_File\Animator.cpp" />
+    <ClCompile Include="Code\Souse_File\Animator_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\Audio_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\Behaviour.cpp" />
+    <ClCompile Include="Code\Souse_File\Camera.cpp" />
+    <ClCompile Include="Code\Souse_File\Camera_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\Component.cpp" />
+    <ClCompile Include="Code\Souse_File\DxSystem.cpp" />
+    <ClCompile Include="Code\Souse_File\Engine.cpp" />
+    <ClCompile Include="Code\Souse_File\GameObject.cpp" />
+    <ClCompile Include="Code\Souse_File\GameObject_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\Input_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\main.cpp" />
+    <ClCompile Include="Code\Souse_File\Material.cpp" />
+    <ClCompile Include="Code\Souse_File\Mesh.cpp" />
+    <ClCompile Include="Code\Souse_File\Mesh_Renderer.cpp" />
+    <ClCompile Include="Code\Souse_File\MonoBehaviour.cpp" />
+    <ClCompile Include="Code\Souse_File\MonoBehaviour_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\Object.cpp" />
+    <ClCompile Include="Code\Souse_File\Rect_Transform.cpp" />
+    <ClCompile Include="Code\Souse_File\Renderer.cpp" />
+    <ClCompile Include="Code\Souse_File\Render_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\Scene.cpp" />
+    <ClCompile Include="Code\Souse_File\Scene_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\Shader.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Code\Souse_File\SkinMesh_Renderer.cpp" />
+    <ClCompile Include="Code\Souse_File\Sprite_Renderer.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Code\Souse_File\Texture.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Code\Souse_File\Time.cpp" />
+    <ClCompile Include="Code\Souse_File\Transform.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Code\Header_File\Animator.h" />
+    <ClInclude Include="Code\Header_File\Animator_Manager.h" />
+    <ClInclude Include="Code\Header_File\Audio_Manager.h" />
+    <ClInclude Include="Code\Header_File\Behaviour.h" />
+    <ClInclude Include="Code\Header_File\Camera.h" />
+    <ClInclude Include="Code\Header_File\Camera_Manager.h" />
+    <ClInclude Include="Code\Header_File\Component.h" />
+    <ClInclude Include="Code\Header_File\DxSystem.h" />
+    <ClInclude Include="Code\Header_File\Engine.h" />
+    <ClInclude Include="Code\Header_File\GameObject.h" />
+    <ClInclude Include="Code\Header_File\GameObject_Manager.h" />
+    <ClInclude Include="Code\Header_File\Input_Manager.h" />
+    <ClInclude Include="Code\Header_File\Material.h" />
+    <ClInclude Include="Code\Header_File\Mesh.h" />
+    <ClInclude Include="Code\Header_File\Mesh_Renderer.h" />
+    <ClInclude Include="Code\Header_File\misc.h" />
+    <ClInclude Include="Code\Header_File\MonoBehaviour.h" />
+    <ClInclude Include="Code\Header_File\MonoBehaviour_Manager.h" />
+    <ClInclude Include="Code\Header_File\Object.h" />
+    <ClInclude Include="Code\Header_File\Original_Math.h" />
+    <ClInclude Include="Code\Header_File\RectTransform.h" />
+    <ClInclude Include="Code\Header_File\Renderer.h" />
+    <ClInclude Include="Code\Header_File\Render_Manager.h" />
+    <ClInclude Include="Code\Header_File\Scene.h" />
+    <ClInclude Include="Code\Header_File\Scene_Manager.h" />
+    <ClInclude Include="Code\Header_File\Shader.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Code\Header_File\SkinMesh_Renderer.h" />
+    <ClInclude Include="Code\Header_File\Sprite_Renderer.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Code\Header_File\Texture.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Code\Header_File\Time.h" />
+    <ClInclude Include="Code\Header_File\Transform.h" />
+    <ClInclude Include="Code\Script\Header\All_Script.h" />
+    <ClInclude Include="Code\Script\Header\Attack_Decision.h" />
+    <ClInclude Include="Code\Script\Header\Enemy.h" />
+    <ClInclude Include="Code\Script\Header\Game_Manager.h" />
+    <ClInclude Include="Code\Script\Header\Hit_Controller.h" />
+    <ClInclude Include="Code\Script\Header\Kunai.h" />
+    <ClInclude Include="Code\Script\Header\Pauser.h" />
+    <ClInclude Include="Code\Script\Header\Player.h" />
+    <ClInclude Include="Code\Script\Header\Title.h" />
+    <ClInclude Include="Code\Script\Header\UI_Controller.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Code\Shader\2D.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Code\Shader\Default_Mesh.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Code\Shader\Default_SkinMesh.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="DirectXTK-master\Audio\DirectXTKAudio_Desktop_2019_Win8.vcxproj">
+      <Project>{4f150a30-cecb-49d1-8283-6a3f57438cf5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="DirectXTK-master\DirectXTK_Desktop_2019.vcxproj">
+      <Project>{e0b52ae7-e160-4d32-bf3f-910b785e5a8e}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
