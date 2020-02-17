@@ -88,8 +88,9 @@ void Sprite_Renderer::Render(shared_ptr<Camera> Render_Camera)
 
 	// Šp“xŒvŽZ
 	float rx, ry;
-	float cos = cosf(XMConvertToRadians(trans->eulerAngles.z));
-	float sin = sinf(XMConvertToRadians(trans->eulerAngles.z));
+	float z = static_cast<Vector3>(transform->eulerAngles).z;
+	float cos = cosf(XMConvertToRadians(z));
+	float sin = sinf(XMConvertToRadians(z));
 	rx = data[0].Pos.x;
 	ry = data[0].Pos.y;
 	data[0].Pos.x = cos * rx + -sin * ry;

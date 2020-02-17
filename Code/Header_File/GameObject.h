@@ -11,8 +11,6 @@
 class GameObject : public Object
 {
 public:
-
-	GameObject();
 	~GameObject();
 
 	bool CompareTag(std::string _tag);
@@ -33,11 +31,13 @@ public:
 	static std::weak_ptr<GameObject> Find(std::string Name);
 	static std::weak_ptr<GameObject> FindWithTag(std::string Tag);
 
+	static unsigned long ID_Count;
 private:
 	bool Active = true;
 	bool Old_Active = true;
 
 	void Set_OnEnable_OnDisable(std::shared_ptr<Component> comp);
+	
 };
 
 template<class T>

@@ -59,12 +59,6 @@ void Enemy::Update()
 				case 0:
 					Enemy_Default();
 					break;
-				case 1:
-					Enemy_Sword();
-					break;
-				case 2:
-					Enemy_Heavy();
-					break;
 				}
 			}
 			else
@@ -184,7 +178,7 @@ void Enemy::Enemy_Default()
 	{
 		anim->Animation_Loop = true;
 		anim->Animation_Index = Wait_01;
-		transform->eulerAngles.y = -XMConvertToDegrees(atan2(target_pos.z - transform->position.z, target_pos.x - transform->position.x)) - 90;
+		transform->eulerAngles = Vector3(-90,-XMConvertToDegrees(atan2(target_pos.z - transform->position.z, target_pos.x - transform->position.x)) - 90,0);
 		timer += Time::deltaTime;
 		if (timer > Attack_timer)
 		{
@@ -212,10 +206,11 @@ void Enemy::Enemy_Default()
 				Audio_Manager::attack->Play();
 				shared_ptr<GameObject> w = Weapon.lock();
 				Vector3 pos = { 0,0,0 };
-				pos.x = transform->position.x + sin(XMConvertToRadians(transform->eulerAngles.y)) * -10;
-				pos.z = transform->position.z + cos(XMConvertToRadians(transform->eulerAngles.y)) * -10;
+				float y = static_cast<Vector3>(transform->eulerAngles).y;
+				pos.x = transform->position.x + sin(XMConvertToRadians(y)) * -10;
+				pos.z = transform->position.z + cos(XMConvertToRadians(y)) * -10;
 				w->transform->position = pos;
-				w->transform->eulerAngles = transform->eulerAngles;
+				w->transform->eulerAngles = static_cast<Vector3>(transform->eulerAngles);
 				w->SetActive(true);
 				Attack_State++;
 			}
@@ -230,34 +225,4 @@ void Enemy::Enemy_Default()
 			}
 		}
 	}
-}
-
-void Enemy::Enemy_Sword()
-{
-	shared_ptr<GameObject> p = player.lock();
-	Vector3 target_pos = p->transform->position;
-	shared_ptr<Animator> anim = animator.lock();
-
-	if (!Hit)
-	{
-		if (Move_State == 0)
-		{
-			transform->eulerAngles.y = -XMConvertToDegrees(atan2(target_pos.z - transform->position.z, target_pos.x - transform->position.x)) - 90;
-			transform->position.x -= sin(XMConvertToRadians(transform->eulerAngles.y)) * Attack_speed * Time::deltaTime;
-			transform->position.z -= cos(XMConvertToRadians(transform->eulerAngles.y)) * Attack_speed * Time::deltaTime;
-			float dis = Vector3::Distance(transform->position, p->transform->position);
-			if (dis < 5)
-			{
-				Move_State++;
-			}
-		}
-
-		if (Move_State == 1)
-		{
-			Move_State = 0;
-		}
-	}
-}
-void Enemy::Enemy_Heavy()
-{
 }

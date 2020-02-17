@@ -1,25 +1,23 @@
 #include "Scene.h"
-#include "GameObject_Manager.h"
 #include "MonoBehaviour_Manager.h"
 #include "Mesh_Renderer.h"
 #include "SkinMesh_Renderer.h"
 #include "Sprite_Renderer.h"
 #include "Animator.h"
 #include "Transform.h"
+#include "GameObject.h"
 #include "All_Script.h"
 using namespace std;
 
-Scene::Scene()
+shared_ptr<GameObject> Scene::Instance_GameObject(std::string name)
 {
-}
-
-Scene::~Scene()
-{
-}
-
-void Scene::Instance_GameObject(shared_ptr<GameObject> gameObject)
-{
-	gameObject_List.emplace_back(gameObject);
+	shared_ptr<GameObject> obj = make_shared<GameObject>();
+	obj->AddComponent<Transform>();
+	gameObject_List.emplace_back(obj);
+	obj->name = name;
+	obj->ID_Count++;
+	obj->ID = obj->ID_Count;
+	return obj;
 }
 
 void Scene::Destroy_GameObject(shared_ptr<GameObject> gameObject)
@@ -35,10 +33,43 @@ void Scene::Destroy_GameObject(shared_ptr<GameObject> gameObject)
 	}
 }
 
+weak_ptr<GameObject> Scene::Find(std::string Name)
+{
+	list<shared_ptr<GameObject>>::iterator itr_end = gameObject_List.end();
+	for (list<shared_ptr<GameObject>>::iterator itr = gameObject_List.begin(); itr != itr_end; itr++)
+	{
+		if ((*itr)->name == Name)
+		{
+			return *itr;
+		}
+	}
+}
+
+weak_ptr<GameObject> Scene::FindWithTag(std::string Tag)
+{
+	list<shared_ptr<GameObject>>::iterator itr_end = gameObject_List.end();
+	for (list<shared_ptr<GameObject>>::iterator itr = gameObject_List.begin(); itr != itr_end; itr++)
+	{
+		if ((*itr)->CompareTag(Tag))
+		{
+			return *itr;
+		}
+	}
+}
+
 void Scene::Update()
 {
-	GameObject_Manager::Update();
 	MonoBehaviour_Manager::Update();
+	for (list<shared_ptr<GameObject>>::iterator itr = gameObject_List.begin(); itr != gameObject_List.end();)
+	{
+		(*itr)->transform->Update();
+		itr++;
+	}
+}
+
+void Scene::Reset()
+{
+	gameObject_List.clear();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -317,6 +348,7 @@ void Game_02_Scene::Initialize()
 	camera->transform->position = { 2.5f,200,0.0f };
 	camera->transform->eulerAngles = { 90,0,0 };
 }
+
 void Game_03_Scene::Initialize()
 {
 	shared_ptr<GameObject> player = GameObject::Instantiate("player");

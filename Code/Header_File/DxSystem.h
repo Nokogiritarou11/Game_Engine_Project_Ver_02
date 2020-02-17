@@ -4,6 +4,8 @@
 #include <d3d11.h>
 #include <memory>
 #include <wrl.h>
+#include <Windows.h>
+#include <string.h>
 #include <DirectXMath.h>
 #include "Input_Manager.h"
 using Microsoft::WRL::ComPtr;
@@ -13,8 +15,12 @@ using Microsoft::WRL::ComPtr;
 #define SAFE_DELETE(x) if((x)){delete (x);(x)=NULL;}
 #define SAFE_DELETE_ARRAY(x) if(x){delete[] x; x=0;}
 
-
-
+#define Debug_Log( str, ... ) \
+      { \
+		wchar_t buffer[256]; \
+		wsprintfW(buffer, str, __VA_ARGS__); \
+		OutputDebugString(buffer); \
+      }
 
 class DxSystem {
 private:

@@ -3,7 +3,8 @@
 #include "Behaviour.h"
 #include "Input_Manager.h"
 #include "Audio_Manager.h"
-#include <SimpleMath.h>
+#include "Mathf.h"
+#include "Original_Math.h"
 #include "Time.h"
 
 class MonoBehaviour : public Behavior

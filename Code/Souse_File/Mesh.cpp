@@ -11,14 +11,6 @@
 using namespace std;
 using namespace DirectX;
 
-Mesh::Mesh()
-{
-}
-
-Mesh::~Mesh()
-{
-}
-
 shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename)
 {
 	shared_ptr<Mesh> mesh_ptr = make_shared<Mesh>();

@@ -2,12 +2,11 @@
 #include "Game_Manager.h"
 #include "Sprite_Renderer.h"
 #include "Player.h"
-#include "GameObject_Manager.h"
 #include "GameObject.h"
 
 void UI_Controller::Start()
 {
-	shared_ptr<GameObject> obj = GameObject_Manager::FindWithTag("Player").lock();
+	shared_ptr<GameObject> obj = GameObject::FindWithTag("Player").lock();
 	player = obj->GetComponent<Player>();
 
 	shared_ptr<GameObject> image_move = GameObject::Instantiate("Cursor_Move");

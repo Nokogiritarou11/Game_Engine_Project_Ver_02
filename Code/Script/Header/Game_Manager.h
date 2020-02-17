@@ -2,8 +2,8 @@
 #include "MonoBehaviour.h"
 #include "GameObject.h"
 #include "Transform.h"
+#include <Original_Math.h>
 using namespace DirectX;
-using namespace DirectX::SimpleMath;
 using namespace std;
 
 class Game_Manager : public MonoBehaviour

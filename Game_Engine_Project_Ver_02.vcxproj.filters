@@ -36,7 +36,6 @@
     <ClCompile Include="Code\Souse_File\Scene_Manager.cpp">
       <Filter>Sources\Reaources</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Souse_File\GameObject_Manager.cpp" />
     <ClCompile Include="Code\Souse_File\MonoBehaviour_Manager.cpp" />
     <ClCompile Include="Code\Souse_File\Scene.cpp" />
     <ClCompile Include="Code\Souse_File\Engine.cpp" />
@@ -98,7 +97,6 @@
     <ClInclude Include="Code\Header_File\MonoBehaviour.h" />
     <ClInclude Include="Code\Header_File\Transform.h" />
     <ClInclude Include="Code\Header_File\Material.h" />
-    <ClInclude Include="Code\Header_File\GameObject_Manager.h" />
     <ClInclude Include="Code\Header_File\Scene_Manager.h" />
     <ClInclude Include="Code\Header_File\MonoBehaviour_Manager.h" />
     <ClInclude Include="Code\Header_File\Engine.h" />
@@ -128,6 +126,8 @@
     <ClInclude Include="Code\Script\Header\Pauser.h" />
     <ClInclude Include="Code\Script\Header\Attack_Decision.h" />
     <ClInclude Include="Code\Script\Header\Hit_Controller.h" />
+    <ClInclude Include="Code\Header_File\Property.h" />
+    <ClInclude Include="Code\Header_File\Mathf.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Sources">

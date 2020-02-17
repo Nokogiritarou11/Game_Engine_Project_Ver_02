@@ -19,7 +19,7 @@ public:
 	Renderer();
 	~Renderer();
 
-	bool enabled;
+	bool enabled = true;
 	std::vector<std::shared_ptr<Material>> material;
 
 	virtual void Render(std::shared_ptr<Camera> Render_Camera) {};

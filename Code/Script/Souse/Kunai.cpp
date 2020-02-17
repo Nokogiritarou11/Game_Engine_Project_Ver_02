@@ -1,5 +1,4 @@
 #include "Kunai.h"
-#include "GameObject_Manager.h"
 #include "Game_Manager.h"
 #include "Attack_Decision.h"
 
@@ -15,8 +14,9 @@ void Kunai::Start()
 
 void Kunai::Update()
 {
-	transform->position.x -= sin(XMConvertToRadians(transform->eulerAngles.y)) * speed * Time::deltaTime;
-	transform->position.z -= cos(XMConvertToRadians(transform->eulerAngles.y)) * speed * Time::deltaTime;
+	float y = static_cast<Vector3>(transform->eulerAngles).y;
+	transform->position.x -= sin(XMConvertToRadians(y)) * speed * Time::deltaTime;
+	transform->position.z -= cos(XMConvertToRadians(y)) * speed * Time::deltaTime;
 	timer += Time::deltaTime;
 	if(timer > Disable_time)
 	{

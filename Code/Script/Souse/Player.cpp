@@ -38,7 +38,7 @@ void Player::Update()
 				if (Lposx != 0 || Lposy != 0)
 				{
 					anim->Animation_Index = Dash;
-					transform->eulerAngles.y = -XMConvertToDegrees(atan2(Lposy, Lposx)) - 90;
+					transform->eulerAngles = Vector3(-90,-XMConvertToDegrees(atan2(Lposy, Lposx)) - 90,0);
 					transform->position.x += Lposx * move_speed * Time::deltaTime;
 					transform->position.z += Lposy * move_speed * Time::deltaTime;
 					transform->position.x = min(max(-90, transform->position.x), 90);

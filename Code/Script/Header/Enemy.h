@@ -26,8 +26,6 @@ public:
 	void Damage();
 
 	void Enemy_Default();
-	void Enemy_Sword();
-	void Enemy_Heavy();
 
 private:
 	weak_ptr<GameObject> player;

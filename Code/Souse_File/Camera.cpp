@@ -4,11 +4,8 @@
 #include "Transform.h"
 #include "Camera_Manager.h"
 using namespace DirectX;
-using namespace std;
 
-Camera::Camera()
-{
-}
+using namespace std;
 
 void Camera::Initialize(std::shared_ptr<GameObject> obj)
 {
@@ -32,10 +29,10 @@ void Camera::Update()
 	// ビュー行列を作成
 	// カメラの設定
 	{
-		XMFLOAT4 eye = { transform->position.x,transform->position.y,transform->position.z ,0 };
+		Vector4 eye = { transform->position.x,transform->position.y,transform->position.z ,0 };
 		XMVECTOR eye_v = XMLoadFloat4(&eye);
 
-		XMVECTOR focus_v = eye_v + XMLoadFloat4(&transform->forward);
+		XMVECTOR focus_v = eye_v + XMLoadFloat3(&transform->forward);
 
 		XMVECTOR camForward = XMVector3Normalize(focus_v - eye_v);    // Get forward vector based on target
 		camForward = XMVectorSetY(camForward, 0.0f);    // set forwards y component to 0 so it lays only on
@@ -48,7 +45,7 @@ void Camera::Update()
 	}
 }
 
-XMFLOAT2 Camera::WorldToViewportPoint(XMFLOAT3 pos)
+Vector2 Camera::WorldToViewportPoint(Vector3 pos)
 {
 	XMVECTOR p = XMLoadFloat3(&pos);
 	XMVECTOR screen
@@ -64,7 +61,7 @@ XMFLOAT2 Camera::WorldToViewportPoint(XMFLOAT3 pos)
 			XMLoadFloat4x4(&V),
 			XMMatrixIdentity()
 		);
-	XMFLOAT2 re;
+	Vector2 re;
 	XMStoreFloat2(&re, screen);
 	return re;
 }

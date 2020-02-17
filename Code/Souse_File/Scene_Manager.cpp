@@ -1,7 +1,6 @@
 #include "Scene_Manager.h"
 #include "Animator_Manager.h"
 #include "Camera_Manager.h"
-#include "GameObject_Manager.h"
 #include "MonoBehaviour_Manager.h"
 #include "Render_Manager.h"
 using namespace std;
@@ -45,7 +44,7 @@ void Scene_Manager::Set_StartScene(string Scene_Name)
 			return;
 		}
 	}
-	
+
 }
 
 void Scene_Manager::LoadScene(string Scene_Name)
@@ -54,16 +53,28 @@ void Scene_Manager::LoadScene(string Scene_Name)
 	Next_Scene_Name = Scene_Name;
 }
 
-void Scene_Manager::Instance_GameObject(shared_ptr<GameObject> gameObject)
+shared_ptr<GameObject> Scene_Manager::Instance_GameObject(std::string name)
 {
 	shared_ptr<Scene> scene = Active_Scene.lock();
-	scene->Instance_GameObject(gameObject);
+	return scene->Instance_GameObject(name);
 }
 
 void Scene_Manager::Destroy_GameObject(shared_ptr<GameObject> gameObject)
 {
 	shared_ptr<Scene> scene = Active_Scene.lock();
 	scene->Destroy_GameObject(gameObject);
+}
+
+weak_ptr<GameObject> Scene_Manager::Find(std::string Name)
+{
+	shared_ptr<Scene> scene = Active_Scene.lock();
+	return scene->Find(Name);
+}
+
+weak_ptr<GameObject> Scene_Manager::FindWithTag(std::string Tag)
+{
+	shared_ptr<Scene> scene = Active_Scene.lock();
+	return scene->FindWithTag(Tag);
 }
 
 void Scene_Manager::Update()
@@ -77,9 +88,10 @@ void Scene_Manager::Update()
 			{
 				MonoBehaviour_Manager::Reset();
 				Animator_Manager::Reset();
-				GameObject_Manager::Reset();
 				Render_Manager::Reset();
 				Camera_Manager::Reset();
+				shared_ptr<Scene> Play_Scene = Active_Scene.lock();
+				Play_Scene->Reset();
 				Active_Scene = itr->Scene_ptr;
 				itr->Scene_ptr->Initialize();
 				Load = false;

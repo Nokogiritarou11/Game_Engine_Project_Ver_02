@@ -8,13 +8,13 @@ Transform::Transform()
 
 }
 
-Transform::Transform(XMFLOAT3 _position, XMFLOAT4 _rotation)
+Transform::Transform(Vector3 _position, Quaternion _rotation)
 {
 	position = _position;
 	rotation = _rotation;
 }
 
-Transform::Transform(XMFLOAT3 _position, XMFLOAT3 _euler)
+Transform::Transform(Vector3 _position, Vector3 _euler)
 {
 	position = _position;
 	eulerAngles = _euler;
@@ -37,7 +37,8 @@ void Transform::Update()
 	{
 		XMMATRIX S, R, T;
 		S = XMMatrixScaling(scale.x, scale.y, scale.z);
-		R = XMMatrixRotationRollPitchYaw(XMConvertToRadians(eulerAngles.x), XMConvertToRadians(eulerAngles.y), XMConvertToRadians(eulerAngles.z));	// ZXY‰ñ“]
+		//R = XMMatrixRotationRollPitchYaw(XMConvertToRadians(eulerAngles.x), XMConvertToRadians(eulerAngles.y), XMConvertToRadians(eulerAngles.z));	// ZXY‰ñ“]
+		R = XMMatrixRotationQuaternion(_rotation);
 		T = XMMatrixTranslation(position.x, position.y, position.z);
 
 		XMStoreFloat4x4(&scale_matrix, S);
@@ -56,8 +57,20 @@ void Transform::Update()
 		up_v = XMVector3Transform(up_v, R);
 		up_v = XMVector3Normalize(up_v);
 
-		XMStoreFloat4(&forward, forward_v);
-		XMStoreFloat4(&right, right_v);
-		XMStoreFloat4(&up, up_v);
+		XMStoreFloat3(&forward, forward_v);
+		XMStoreFloat3(&right, right_v);
+		XMStoreFloat3(&up, up_v);
 	}
+}
+
+void Transform::Change_rot(Quaternion q)
+{
+	_rotation = q;
+	_eulerAngles = _rotation.eulerAngles;
+}
+
+void Transform::Change_rot(Vector3 v)
+{
+	_eulerAngles = v;
+	_rotation.eulerAngles = _eulerAngles;
 }

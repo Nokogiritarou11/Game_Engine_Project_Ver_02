@@ -1,13 +1,11 @@
 #include "GameObject.h"
 #include "Component.h"
 #include "Transform.h"
-#include "GameObject_Manager.h"
+#include "Scene_Manager.h"
 #include "MonoBehaviour_Manager.h"
 using namespace std;
 
-GameObject::GameObject()
-{
-}
+unsigned long GameObject::ID_Count;
 
 GameObject::~GameObject()
 {
@@ -43,12 +41,12 @@ void GameObject::SetActive(bool value)
 
 weak_ptr<GameObject> GameObject::Find(string Name)
 {
-    return GameObject_Manager::Find(Name);
+    return Scene_Manager::Find(Name);
 }
 
 weak_ptr<GameObject> GameObject::FindWithTag(string Tag)
 {
-    return GameObject_Manager::FindWithTag(Tag);
+    return Scene_Manager::FindWithTag(Tag);
 }
 
 void GameObject::Set_OnEnable_OnDisable(std::shared_ptr<Component> comp)

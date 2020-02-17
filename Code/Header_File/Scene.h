@@ -9,13 +9,14 @@ class Scene
 {
 public:
 
-	Scene();
-	~Scene();
-
 	virtual void Initialize() {};
-	void Instance_GameObject(std::shared_ptr<GameObject> gameObject);
+	std::shared_ptr<GameObject> Instance_GameObject(std::string name);
 	void Destroy_GameObject(std::shared_ptr<GameObject> gameObject);
 	void Update();
+	void Reset();
+
+	std::weak_ptr<GameObject> Find(std::string Name);
+	std::weak_ptr<GameObject> FindWithTag(std::string Tag);
 
 private:
 

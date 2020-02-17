@@ -13,8 +13,11 @@ public:
 	static void Set_StartScene(std::string Scene_Name);
 	static void LoadScene(std::string Scene_Name);
 
-	static void Instance_GameObject(std::shared_ptr<GameObject> gameObject);
+	static std::shared_ptr<GameObject> Instance_GameObject(std::string name);
 	static void Destroy_GameObject(std::shared_ptr<GameObject> gameObject);
+
+	static std::weak_ptr<GameObject> Find(std::string Name);
+	static std::weak_ptr<GameObject> FindWithTag(std::string Tag);
 
 	static void Update();
 
