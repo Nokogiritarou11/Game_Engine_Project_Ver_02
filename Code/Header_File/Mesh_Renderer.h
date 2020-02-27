@@ -17,7 +17,6 @@ private:
 
 	struct cbuffer /////////////////////////////////////////////////////要変更
 	{
-#define MAX_BONES 32
 		Matrix world_view_projection; //ワールド・ビュー・プロジェクション合成行列
 		Matrix world; //ワールド変換行列
 		Vector4 material_color; //材質色

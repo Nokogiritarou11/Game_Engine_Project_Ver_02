@@ -1,5 +1,4 @@
 #include "DxSystem.h"
-#include <d3dcompiler.h>
 #include "Shader.h"
 #include <locale.h>
 using namespace DirectX;
@@ -75,10 +74,10 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc, bool UI_Mater
 		hr = DxSystem::Device->CreateVertexShader(VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), NULL, VS.GetAddressOf());
 		assert(SUCCEEDED(hr));
 
-		/*
 		// Reflect shader info
 		ID3D11ShaderReflection* pVertexShaderReflection = NULL;
-		assert(D3DReflect(VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&pVertexShaderReflection));
+		hr = D3DReflect(VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&pVertexShaderReflection);
+		assert(SUCCEEDED(hr));
 
 		// Get shader info
 		D3D11_SHADER_DESC shaderDesc;
@@ -133,10 +132,13 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc, bool UI_Mater
 		// Try to create Input Layout
 		HRESULT hr = DxSystem::Device->CreateInputLayout(&inputLayoutDesc[0], inputLayoutDesc.size(), VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), VertexLayout.GetAddressOf());
 
+		vertex_cache.insert(make_pair(filename, set_of_vertex_shader_and_input_layout(VS.Get(), VertexLayout.Get())));
+		// 入力レイアウト設定
+		DxSystem::DeviceContext->IASetInputLayout(VertexLayout.Get());
 		//Free allocation shader reflection memory
 		pVertexShaderReflection->Release();
-		*/
 
+		/*
 		if (UI_Material)
 		{
 			// 入力レイアウト
@@ -186,6 +188,7 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc, bool UI_Mater
 
 		// 入力レイアウト設定
 		DxSystem::DeviceContext->IASetInputLayout(VertexLayout.Get());
+		*/
 	}
 
 	// ピクセルシェーダ
@@ -193,7 +196,6 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc, bool UI_Mater
 	if (itr != pixel_cache.end())
 	{
 		PS = itr->second;
-		VertexLayout = it->second.input_layout;
 	}
 	else
 	{

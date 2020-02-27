@@ -4,6 +4,8 @@
 #include <DirectXMath.h>
 #include <unordered_map>
 #include <wrl.h>
+#pragma comment( lib, "d3d11.lib" )
+#pragma comment( lib, "d3dcompiler.lib" )
 using Microsoft::WRL::ComPtr;
 
 class Shader
@@ -25,9 +27,19 @@ protected:
 		ID3D11InputLayout* input_layout;
 	};
 
+
 	static std::unordered_map<std::wstring, set_of_vertex_shader_and_input_layout> vertex_cache;
 	static std::unordered_map<std::wstring, ID3D11PixelShader*> pixel_cache;
 public:
+
+	enum Render_Type
+	{
+		Opaque,
+		CutOut,
+		Fade,
+		Transparent,
+		Overlay
+	};
 
 	ComPtr<ID3D11InputLayout>		VertexLayout;
 
