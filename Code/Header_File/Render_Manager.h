@@ -20,7 +20,7 @@ private:
 	struct Render_Obj
 	{
 		std::weak_ptr<Renderer> renderer;
-		int Queue;
+		int   Queue;
 		float Z_Distance;
 	};
 

@@ -13,9 +13,9 @@ Component::~Component()
 
 bool Component::CompareTag(string _tag)
 {
-    if (tag == _tag)
-    {
-        return true;
-    }
-    return false;
+	if (tag == _tag)
+	{
+		return true;
+	}
+	return false;
 }

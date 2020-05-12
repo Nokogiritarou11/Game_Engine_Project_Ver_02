@@ -63,7 +63,6 @@ void Game_Manager::Update()
 			}
 		}
 	}
-
 }
 
 void Game_Manager::Targeting_Object()

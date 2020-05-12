@@ -12,5 +12,4 @@ public:
 
 private:
 	static std::list<std::weak_ptr<Animator>> Animator_list;
-
 };

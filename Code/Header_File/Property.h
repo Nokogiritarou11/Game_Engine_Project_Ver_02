@@ -7,37 +7,37 @@
 template<class T> class Property
 {
 public:
-    T& r;
-    std::function<void(T value)> set = nullptr; // ★追加
-    std::function<T()> get = nullptr; // ★追加
+	T& r;
+	std::function<void(T value)> set = nullptr; // ★追加
+	std::function<T()> get = nullptr; // ★追加
 
-    operator T()
-    {
-        // getが設定されてれば登録されたほうを呼ぶ
-        return get ? this->get() : this->r;
-    }
+	operator T()
+	{
+		// getが設定されてれば登録されたほうを呼ぶ
+		return get ? this->get() : this->r;
+	}
 
-    // 直接中身を参照できるようにアロー演算子もオーバーロード
-    T operator ->()
-    {
-        return get ? this->get() : this->r;
-    }
+	// 直接中身を参照できるようにアロー演算子もオーバーロード
+	T operator ->()
+	{
+		return get ? this->get() : this->r;
+	}
 
-    void operator =(const T v)
-    {
-        if (set) // setが設定されていれば登録されたほうを呼ぶ
-        {
-            this->set(v);
-        }
-        else
-        {
-            r = v;
-        }
-    }
+	void operator =(const T v)
+	{
+		if (set) // setが設定されていれば登録されたほうを呼ぶ
+		{
+			this->set(v);
+		}
+		else
+		{
+			r = v;
+		}
+	}
 };
 
 /*//////////////////////////////////////////////////////////////////////////////////
-    // 何も設定しない
+	// 何も設定しない
 Property<int> a{ _a };
 
 // setだけ指定

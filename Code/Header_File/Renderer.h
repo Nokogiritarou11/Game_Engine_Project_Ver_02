@@ -25,5 +25,7 @@ public:
 	virtual void Render(std::shared_ptr<Camera> Render_Camera) {};
 
 private:
-
+	static int Set_BlendState;
+	static int Set_RasterizerState;
+	static int Set_DepthStencilState;
 };

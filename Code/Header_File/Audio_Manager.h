@@ -15,6 +15,7 @@ public:
 
 	static unique_ptr <SoundEffect> BGM_play_eff;
 	static unique_ptr <SoundEffect> BGM_title_eff;
+
 	static unique_ptr <SoundEffectInstance> BGM_play;
 	static unique_ptr <SoundEffectInstance> BGM_title;
 
@@ -28,5 +29,4 @@ public:
 	static void Initialize();
 
 private:
-
 };

@@ -81,11 +81,9 @@ void Enemy::Update()
 						}
 						if (Enemy_State == 1)
 						{
-
 						}
 						if (Enemy_State == 2)
 						{
-
 						}
 						Damage_State++;
 					}
@@ -100,11 +98,9 @@ void Enemy::Update()
 						}
 						if (Enemy_State == 1)
 						{
-
 						}
 						if (Enemy_State == 2)
 						{
-
 						}
 						Damage_State++;
 					}
@@ -142,11 +138,9 @@ void Enemy::Damage()
 		}
 		if (Enemy_State == 1)
 		{
-
 		}
 		if (Enemy_State == 2)
 		{
-
 		}
 	}
 	else
@@ -159,11 +153,9 @@ void Enemy::Damage()
 		}
 		if (Enemy_State == 1)
 		{
-
 		}
 		if (Enemy_State == 2)
 		{
-
 		}
 		timer = 0;
 	}
@@ -178,7 +170,7 @@ void Enemy::Enemy_Default()
 	{
 		anim->Animation_Loop = true;
 		anim->Animation_Index = Wait_01;
-		transform->eulerAngles = Vector3(-90,-XMConvertToDegrees(atan2(target_pos.z - transform->position.z, target_pos.x - transform->position.x)) - 90,0);
+		transform->eulerAngles = Vector3(-90, -XMConvertToDegrees(atan2(target_pos.z - transform->position.z, target_pos.x - transform->position.x)) - 90, 0);
 		timer += Time::deltaTime;
 		if (timer > Attack_timer)
 		{

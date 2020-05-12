@@ -43,10 +43,9 @@ private:
 	static ComPtr<ID3D11RasterizerState> RasterizerState[RASTERIZE_TYPE];
 	static bool CreateRasterizerState();
 
-	static const int BLEND_TYPE = 9;
+	static const int BLEND_TYPE = 11;
 	static ComPtr<ID3D11BlendState>		BlendState[BLEND_TYPE];
 	static bool CreateBlendState();
-
 
 public:
 
@@ -64,17 +63,15 @@ public:
 	static int GetScreenWidth() { return ScreenWidth; }
 	static int GetScreenHeight() { return ScreenHeight; }
 	static ID3D11DepthStencilView* GetDepthStencilView() { return DepthStencilView.Get(); }
-	static ID3D11RenderTargetView*	GetRenderTargetView() { return RenderTargetView.Get(); }
+	static ID3D11RenderTargetView* GetRenderTargetView() { return RenderTargetView.Get(); }
 	static ID3D11DepthStencilState* GetDephtStencilState(int state) { return DepthStencilState[state].Get(); }
 	static ID3D11RasterizerState* GetRasterizerState(int state) { return RasterizerState[state].Get(); }
 	static ID3D11BlendState* GetBlendState(int state) { return BlendState[state].Get(); }
 	static void SetViewPort(int width, int height);
 	//DepthStencilState
-	enum{ DS_FALSE, DS_TRUE};
+	enum { DS_FALSE, DS_TRUE };
 	//RasterizerState
-	enum{ RS_STANDARD,RS_CULL_BACK, RS_WIRE, RS_CULL_FRONT,RS_CULL_NONE};
+	enum { RS_STANDARD, RS_CULL_BACK, RS_WIRE, RS_CULL_FRONT, RS_CULL_NONE };
 	//BlendState
-	enum {BS_NONE,BS_ALPHA,BS_ADD,BS_SUBTRACT,BS_REPLACE,BS_MULTIPLY,BS_LIGHTEN,BS_DARKEN,BS_SCREEN};
-
-
+	enum { BS_NONE, BS_ALPHA ,BS_ALPHA_TEST ,BS_TRANSPARENT, BS_ADD, BS_SUBTRACT, BS_REPLACE, BS_MULTIPLY, BS_LIGHTEN, BS_DARKEN, BS_SCREEN };
 };

@@ -23,7 +23,6 @@ private:
 	};
 
 	ComPtr<ID3D11Buffer> VertexBuffer;
-	ComPtr<ID3D11DepthStencilState> DepthStencilState;
 
 public:
 	Sprite_Renderer();

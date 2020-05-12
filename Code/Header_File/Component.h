@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string>
 #include <list>
-#include <typeinfo> 
+#include <typeinfo>
 #include <memory>
 #include "Object.h"
 
@@ -29,7 +29,6 @@ public:
 	std::shared_ptr<T> AddComponent();
 
 private:
-
 };
 
 template<class T>

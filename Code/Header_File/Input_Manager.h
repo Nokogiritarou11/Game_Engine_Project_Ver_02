@@ -14,13 +14,13 @@ class Input_Manager
 {
 public:
 	static Keyboard::State kb;
-	static Mouse::State ms;
-	static GamePad::State pad;
+	static Mouse::State    ms;
+	static GamePad::State  pad;
 	static Keyboard::KeyboardStateTracker key_tracker;
-	static Mouse::ButtonStateTracker mouse_tracker;
-	static GamePad::ButtonStateTracker pad_tracker;
-	static unique_ptr<Mouse> mouse;
-	static unique_ptr<GamePad> gamepad;
+	static Mouse::ButtonStateTracker      mouse_tracker;
+	static GamePad::ButtonStateTracker    pad_tracker;
+	static unique_ptr<Mouse>	mouse;
+	static unique_ptr<GamePad>  gamepad;
 	static unique_ptr<Keyboard> keyboard;
 
 	//Input_Manager();

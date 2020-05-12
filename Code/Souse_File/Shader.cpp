@@ -51,7 +51,7 @@ HRESULT Shader::Compile(WCHAR* filename, LPCSTR method, LPCSTR shaderModel, ID3D
 //------------------------------------------------
 //	シェーダーセットコンパイル
 //------------------------------------------------
-bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc, bool UI_Material)
+bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc)
 {
 	HRESULT hr = S_OK;
 
@@ -68,7 +68,6 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc, bool UI_Mater
 	{
 		hr = Compile(filename, VSFunc, "vs_5_0", VSBlob.GetAddressOf());
 		assert(SUCCEEDED(hr));
-
 
 		// 頂点シェーダ生成
 		hr = DxSystem::Device->CreateVertexShader(VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), NULL, VS.GetAddressOf());
@@ -130,7 +129,8 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc, bool UI_Mater
 		}
 
 		// Try to create Input Layout
-		HRESULT hr = DxSystem::Device->CreateInputLayout(&inputLayoutDesc[0], inputLayoutDesc.size(), VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), VertexLayout.GetAddressOf());
+		hr = DxSystem::Device->CreateInputLayout(&inputLayoutDesc[0], inputLayoutDesc.size(), VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), VertexLayout.GetAddressOf());
+		assert(SUCCEEDED(hr));
 
 		vertex_cache.insert(make_pair(filename, set_of_vertex_shader_and_input_layout(VS.Get(), VertexLayout.Get())));
 		// 入力レイアウト設定
@@ -212,10 +212,8 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc, bool UI_Mater
 		assert(SUCCEEDED(hr));
 	}
 
-
 	return true;
 }
-
 
 //------------------------------------------------
 //	シェーダーセットコンパイル2
@@ -356,8 +354,6 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc, LPCSTR GSFunc
 	hr = DxSystem::Device->CreateDomainShader(DSBlob->GetBufferPointer(), DSBlob->GetBufferSize(), NULL, DS.GetAddressOf());
 	assert(SUCCEEDED(hr));
 
-
-
 	return true;
 }
 
@@ -376,5 +372,4 @@ void Shader::Activate()
 	DxSystem::DeviceContext->GSSetShader(GS.Get(), NULL, 0);
 	DxSystem::DeviceContext->HSSetShader(HS.Get(), NULL, 0);
 	DxSystem::DeviceContext->DSSetShader(DS.Get(), NULL, 0);
-
 }

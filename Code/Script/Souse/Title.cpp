@@ -32,7 +32,6 @@ void Title::Start()
 
 void Title::Update()
 {
-
 	if (state == 0)
 	{
 		shared_ptr<GameObject> g = text.lock();
@@ -62,7 +61,6 @@ void Title::Update()
 			t->SetActive(false);
 			shared_ptr<GameObject> ti = title.lock();
 			ti->SetActive(false);
-
 		}
 		if (state == 2)
 		{

@@ -21,7 +21,6 @@ public:
 private:
 
 	std::list<std::shared_ptr<GameObject>> gameObject_List;
-
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -30,9 +29,8 @@ class Game_01_Scene : public Scene
 {
 public:
 	void Initialize();
-	
-private:
 
+private:
 };
 class Game_02_Scene : public Scene
 {
@@ -40,7 +38,6 @@ public:
 	void Initialize();
 
 private:
-
 };
 class Game_03_Scene : public Scene
 {
@@ -48,7 +45,6 @@ public:
 	void Initialize();
 
 private:
-
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -59,5 +55,4 @@ public:
 	void Initialize();
 
 private:
-
 };

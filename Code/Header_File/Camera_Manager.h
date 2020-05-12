@@ -15,5 +15,4 @@ public:
 
 private:
 	static std::list<std::weak_ptr<Camera>> Camera_list;
-
 };

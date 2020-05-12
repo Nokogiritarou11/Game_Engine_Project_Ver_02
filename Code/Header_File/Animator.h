@@ -7,11 +7,11 @@ public:
 	Animator();
 	~Animator();
 
-	int Animation_Index = 0;
-	float Animation_Time = 0;
-	float Animation_Rate = 0;
-	bool Animation_Loop = false;
-	bool Animation_End = false;
+	int   Animation_Index = 0;
+	float Animation_Time  = 0;
+	float Animation_Rate  = 0;
+	bool  Animation_Loop  = false;
+	bool  Animation_End   = false;
 	float Animation_Speed = 1.0f;
 
 	void Initialize(std::shared_ptr<GameObject> obj);

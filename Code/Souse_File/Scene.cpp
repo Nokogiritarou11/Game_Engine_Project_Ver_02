@@ -94,8 +94,6 @@ void Game_01_Scene::Initialize()
 	Floor->transform->scale = { 2,2,2 };
 	f_renderer->Set_Mesh(Mesh::Load_Mesh("Model\\haikei\\", "haikei_yuka1.txt"));
 
-
-
 	shared_ptr<GameObject> Wall_01 = GameObject::Instantiate("Wall");
 	shared_ptr<SkinMesh_Renderer> w_renderer_01 = Wall_01->AddComponent<SkinMesh_Renderer>();
 	Wall_01->transform->eulerAngles = { -80,0,0 };
@@ -180,9 +178,8 @@ void Game_01_Scene::Initialize()
 	Wall_12->transform->scale = { 4,2,2 };
 	w_renderer_12->Set_Mesh(Mesh::Load_Mesh("Model\\haikei\\", "haikei_tobira.txt"));
 
-
 	shared_ptr<GameObject> G_Manager = GameObject::Instantiate("Game_Manager");
-	shared_ptr<Game_Manager> g_m =  G_Manager->AddComponent<Game_Manager>();
+	shared_ptr<Game_Manager> g_m = G_Manager->AddComponent<Game_Manager>();
 	g_m->Stage_Number = 0;
 	G_Manager->AddComponent<UI_Controller>();
 
@@ -203,9 +200,6 @@ void Game_01_Scene::Initialize()
 	shared_ptr<Camera> camera_Comp = camera->AddComponent<Camera>();
 	camera->transform->position = { 2.5f,200,0.0f };
 	camera->transform->eulerAngles = { 90,0,0 };
-
-
-
 
 	Audio_Manager::BGM_play->SetVolume(0.25f);
 	Audio_Manager::BGM_play->Play(true);
@@ -480,7 +474,6 @@ void Game_03_Scene::Initialize()
 	shared_ptr<Animator> e_animator_02 = enemy_02->AddComponent<Animator>();
 	e_animator_02->Set_Skin_Renderer(e_renderer_02);
 	e_animator_02->Animation_Loop = true;
-
 
 	shared_ptr<GameObject> enemy_03 = GameObject::Instantiate("enemy_03");
 	enemy_03->tag = "Enemy";

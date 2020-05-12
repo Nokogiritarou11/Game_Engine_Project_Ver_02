@@ -20,7 +20,7 @@ shared_ptr<Material> Material::Create(std::string Material_Name, WCHAR* Shader_N
 {
 }
 */
-shared_ptr<Material> Material::Create(std::string Material_Name, WCHAR* Shader_Name, const wchar_t* filename, bool UI_Material)
+shared_ptr<Material> Material::Create(std::string Material_Name, WCHAR* Shader_Name, const wchar_t* filename)
 {
 	setlocale(LC_ALL, "japanese");
 	wchar_t m_name[MAX_PATH] = { 0 };
@@ -36,7 +36,7 @@ shared_ptr<Material> Material::Create(std::string Material_Name, WCHAR* Shader_N
 		shared_ptr<Material> mat = make_shared<Material>();
 		mat->name = Material_Name;
 		mat->shader = make_shared<Shader>();
-		mat->shader->Create(Shader_Name, "VSMain", "PSMain", UI_Material);
+		mat->shader->Create(Shader_Name, "VSMain", "PSMain");
 		mat->texture = make_shared<Texture>();
 		mat->texture->Load(filename);
 		mat->UV_Size = { (float)mat->texture->GetWidth(),(float)mat->texture->GetHeight() };

@@ -4,6 +4,7 @@ unique_ptr <AudioEngine> Audio_Manager::m_audEngine;
 
 unique_ptr <SoundEffect> Audio_Manager::BGM_play_eff;
 unique_ptr <SoundEffect> Audio_Manager::BGM_title_eff;
+
 unique_ptr <SoundEffectInstance> Audio_Manager::BGM_play;
 unique_ptr <SoundEffectInstance> Audio_Manager::BGM_title;
 

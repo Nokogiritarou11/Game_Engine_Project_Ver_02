@@ -1,6 +1,6 @@
 #pragma once
 #include <stdio.h>
-#include <typeinfo> 
+#include <typeinfo>
 #include <string>
 #include <list>
 #include <memory>
@@ -37,7 +37,6 @@ private:
 	bool Old_Active = true;
 
 	void Set_OnEnable_OnDisable(std::shared_ptr<Component> comp);
-	
 };
 
 template<class T>

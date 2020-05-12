@@ -14,11 +14,11 @@ public:
 	void Set_Mesh(std::shared_ptr<Mesh> Mesh_Data);
 	void Render(std::shared_ptr<Camera> Render_Camera);
 
-	int Animation_Index = 0;
-	float Animation_Time = 0;
-	float Animation_Rate = 0;
-	bool Animation_Loop = false;
-	bool Animation_End = false;
+	int   Animation_Index = 0;
+	float Animation_Time  = 0;
+	float Animation_Rate  = 0;
+	bool  Animation_Loop  = false;
+	bool  Animation_End   = false;
 
 private:
 
@@ -27,8 +27,8 @@ private:
 #define MAX_BONES 32
 		DirectX::XMFLOAT4X4 world_view_projection; //ワールド・ビュー・プロジェクション合成行列
 		DirectX::XMFLOAT4X4 world; //ワールド変換行列
-		DirectX::XMFLOAT4 material_color; //材質色
-		DirectX::XMFLOAT4 light_direction; //ライト進行方向 
+		DirectX::XMFLOAT4   material_color; //材質色
+		DirectX::XMFLOAT4   light_direction; //ライト進行方向
 		DirectX::XMFLOAT4X4 bone_transforms[MAX_BONES] = { { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 } };
 	};
 

@@ -16,19 +16,19 @@ public:
 
 	struct vertex
 	{
+#define MAX_BONE_INFLUENCES 4
 		Vector3 position;
 		Vector3 normal;
 		Vector2 texcoord;
-#define MAX_BONE_INFLUENCES 4
-		FLOAT bone_weights[MAX_BONE_INFLUENCES] = { 1, 0, 0, 0 };
-		INT bone_indices[MAX_BONE_INFLUENCES] = {};
+		FLOAT   bone_weights[MAX_BONE_INFLUENCES] = { 1, 0, 0, 0 };
+		INT     bone_indices[MAX_BONE_INFLUENCES] = {};
 	};
 
 	struct material
 	{
-		Vector4 color = { 0.8f, 0.8f, 0.8f, 1.0f };
 		std::wstring TexPass;
-		std::string TexName;
+		std::string  TexName;
+		Vector4 color;
 		unsigned long ID;
 	};
 
@@ -48,7 +48,7 @@ public:
 
 	struct skeletal_animation : public std::vector<skeletal>
 	{
-		float sampling_time = 1 / 24.0f;
+		float sampling_time  = 1 / 24.0f;
 		float animation_tick = 0.0f;
 	};
 
@@ -59,13 +59,12 @@ public:
 		std::vector<subset> subsets;
 		Matrix global_transform = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
 		std::vector<skeletal_animation> skeletal_animation;
-
 	};
 	typedef std::vector<mesh> meshes;
 
 	struct bone_influence
 	{
-		int index; // index of bone
+		int   index; // index of bone
 		float weight; // weight of bone
 	};
 
@@ -76,5 +75,4 @@ public:
 
 	static std::shared_ptr<Mesh> Load_Mesh(const char* file_pass, const char* fbx_filename);
 private:
-
 };

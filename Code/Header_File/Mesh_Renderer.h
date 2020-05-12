@@ -17,10 +17,10 @@ private:
 
 	struct cbuffer /////////////////////////////////////////////////////要変更
 	{
-		Matrix world_view_projection; //ワールド・ビュー・プロジェクション合成行列
-		Matrix world; //ワールド変換行列
-		Vector4 material_color; //材質色
-		Vector4 light_direction; //ライト進行方向 
+		Matrix  world_view_projection; //ワールド・ビュー・プロジェクション合成行列
+		Matrix  world;                 //ワールド変換行列
+		Vector4 material_color;        //材質色
+		Vector4 light_direction;       //ライト進行方向
 	};
 
 	ComPtr <ID3D11Buffer> ConstantBuffer; //コンスタントバッファ

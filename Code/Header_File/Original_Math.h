@@ -516,9 +516,9 @@ struct Quaternion : public DirectX::XMFLOAT4
 	Quaternion(const Vector3& v, float scalar) : DirectX::XMFLOAT4(v.x, v.y, v.z, scalar) { this->eulerAngles = this->ToEuler(); }
 	explicit Quaternion(const Vector4& v) : DirectX::XMFLOAT4(v.x, v.y, v.z, v.w) { this->eulerAngles = this->ToEuler(); }
 	explicit Quaternion(_In_reads_(4) const float* pArray) : DirectX::XMFLOAT4(pArray) { this->eulerAngles = this->ToEuler(); }
-	Quaternion(DirectX::FXMVECTOR V) { XMStoreFloat4(this, V);this->eulerAngles = this->ToEuler();}
-	Quaternion(const DirectX::XMFLOAT4& q) { this->x = q.x; this->y = q.y; this->z = q.z; this->w = q.w; this->eulerAngles = this->ToEuler();}
-	explicit Quaternion(const DirectX::XMVECTORF32& F) { this->x = F.f[0]; this->y = F.f[1]; this->z = F.f[2]; this->w = F.f[3];  this->eulerAngles = this->ToEuler();}
+	Quaternion(DirectX::FXMVECTOR V) { XMStoreFloat4(this, V);this->eulerAngles = this->ToEuler(); }
+	Quaternion(const DirectX::XMFLOAT4& q) { this->x = q.x; this->y = q.y; this->z = q.z; this->w = q.w; this->eulerAngles = this->ToEuler(); }
+	explicit Quaternion(const DirectX::XMVECTORF32& F) { this->x = F.f[0]; this->y = F.f[1]; this->z = F.f[2]; this->w = F.f[3];  this->eulerAngles = this->ToEuler(); }
 
 	Quaternion(const Quaternion&) = default;
 	Quaternion& operator=(const Quaternion&) { return *this; };
@@ -578,13 +578,13 @@ struct Quaternion : public DirectX::XMFLOAT4
 	// Original
 
 	Property<Vector3> eulerAngles{ _eulerAngles,
-		[this](Vector3 v) { if(_eulerAngles != v) { _eulerAngles = v; DirectX::XMStoreFloat4(this, DirectX::XMQuaternionRotationRollPitchYaw(DirectX::XMConvertToRadians(v.x), DirectX::XMConvertToRadians(v.z), DirectX::XMConvertToRadians(v.y))); } },
+		[this](Vector3 v) { if (_eulerAngles != v) { _eulerAngles = v; DirectX::XMStoreFloat4(this, DirectX::XMQuaternionRotationRollPitchYaw(DirectX::XMConvertToRadians(v.x), DirectX::XMConvertToRadians(v.z), DirectX::XMConvertToRadians(v.y))); } },
 		nullptr };
 
 	Vector3 ToEuler();
 
 private:
-	Vector3 _eulerAngles = {0, 0, 0};
+	Vector3 _eulerAngles = { 0, 0, 0 };
 };
 
 // Binary operators
@@ -594,11 +594,6 @@ Quaternion operator* (const Quaternion& Q1, const Quaternion& Q2);
 Quaternion operator* (const Quaternion& Q, float S);
 Quaternion operator/ (const Quaternion& Q1, const Quaternion& Q2);
 Quaternion operator* (float S, const Quaternion& Q);
-
-
-
-
-
 
 /****************************************************************************
  *
@@ -1163,7 +1158,6 @@ inline void Vector2::TransformNormal(const Vector2* varray, size_t count, const 
 	XMMATRIX M = XMLoadFloat4x4(&m);
 	XMVector2TransformNormalStream(resultArray, sizeof(XMFLOAT2), varray, sizeof(XMFLOAT2), count, M);
 }
-
 
 /****************************************************************************
  *
@@ -1742,7 +1736,6 @@ inline void Vector3::TransformNormal(const Vector3* varray, size_t count, const 
 	XMMATRIX M = XMLoadFloat4x4(&m);
 	XMVector3TransformNormalStream(resultArray, sizeof(XMFLOAT3), varray, sizeof(XMFLOAT3), count, M);
 }
-
 
 /****************************************************************************
  *
@@ -2325,7 +2318,6 @@ inline void Vector4::Transform(const Vector4* varray, size_t count, const Matrix
 	XMMATRIX M = XMLoadFloat4x4(&m);
 	XMVector4TransformStream(resultArray, sizeof(XMFLOAT4), varray, sizeof(XMFLOAT4), count, M);
 }
-
 
 /****************************************************************************
  *

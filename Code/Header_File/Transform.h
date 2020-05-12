@@ -36,18 +36,18 @@ public:
 	nullptr };
 
 	Vector3 DefaultForward = { 0.0f, 0.0f, 1.0f };
-	Vector3 DefaultRight = { 1.0f, 0.0f, 0.0f };
-	Vector3 DefaultUp = { 0.0f, 1.0f, 0.0f };
-	Vector3 forward = { 0.0f, 0.0f, 1.0f };
-	Vector3 right = { 1.0f, 0.0f, 0.0f };
-	Vector3 up = { 1.0f, 0.0f, 0.0f };
+	Vector3 DefaultRight   = { 1.0f, 0.0f, 0.0f };
+	Vector3 DefaultUp      = { 0.0f, 1.0f, 0.0f };
+	Vector3 forward        = { 0.0f, 0.0f, 1.0f };
+	Vector3 right          = { 1.0f, 0.0f, 0.0f };
+	Vector3 up             = { 1.0f, 0.0f, 0.0f };
 
-	Matrix world = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-	Matrix scale_matrix = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-	Matrix rotation_matrix = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+	Matrix world              = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+	Matrix scale_matrix       = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+	Matrix rotation_matrix    = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 	Matrix translation_matrix = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 
-	float Width = 100;
+	float Width  = 100;
 	float Height = 100;
 
 	std::weak_ptr<Transform> parent;
@@ -70,10 +70,10 @@ public:
 	void Update();
 
 private:
-	Quaternion _rotation = { 0, 0, 0 ,0 };
-	Quaternion _localRotation = { 0, 0, 0 ,0 };
-	Vector3 _eulerAngles = { 0, 0, 0 };
-	Vector3 _localEulerAngles = { 0, 0, 0 };
+	Quaternion _rotation         = { 0, 0, 0 ,0 };
+	Quaternion _localRotation    = { 0, 0, 0 ,0 };
+	Vector3    _eulerAngles      = { 0, 0, 0 };
+	Vector3    _localEulerAngles = { 0, 0, 0 };
 
 	bool isUpdate_rot = false;
 

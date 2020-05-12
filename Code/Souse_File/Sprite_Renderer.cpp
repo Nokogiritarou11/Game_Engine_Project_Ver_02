@@ -19,16 +19,16 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 	Render_Manager::Add(static_pointer_cast<Sprite_Renderer>(shared_from_this()));
 
 	VERTEX v[] = {
-		XMFLOAT3(-0.5f, 0.5f,0), XMFLOAT2(0,0), XMFLOAT4(1,1,1,1), //左上
-		XMFLOAT3(0.5f, 0.5f,0), XMFLOAT2(1,0), XMFLOAT4(1,1,1,1), //右上
-		XMFLOAT3(-0.5f,-0.5f,0), XMFLOAT2(0,1), XMFLOAT4(1,1,1,1), //左下
-		XMFLOAT3(0.5f,-0.5f,0), XMFLOAT2(1,1), XMFLOAT4(1,1,1,1), //右下
+		XMFLOAT3(-0.5f, 0.5f,0),  XMFLOAT2(0,0), XMFLOAT4(1,1,1,1), //左上
+		XMFLOAT3( 0.5f, 0.5f,0),  XMFLOAT2(1,0), XMFLOAT4(1,1,1,1), //右上
+		XMFLOAT3(-0.5f,-0.5f,0),  XMFLOAT2(0,1), XMFLOAT4(1,1,1,1), //左下
+		XMFLOAT3( 0.5f,-0.5f,0),  XMFLOAT2(1,1), XMFLOAT4(1,1,1,1), //右下
 	};
 
 	//	頂点バッファ作成
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
-	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.Usage     = D3D11_USAGE_DEFAULT;
 	bd.ByteWidth = sizeof(v);
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
@@ -37,18 +37,11 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 	res.pSysMem = v;
 
 	DxSystem::Device->CreateBuffer(&bd, &res, VertexBuffer.GetAddressOf());
-
-
-	//デプスステンシルステート
-	D3D11_DEPTH_STENCIL_DESC depth_stencil_desc;
-	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
-	depth_stencil_desc.DepthEnable = FALSE;
-	DxSystem::Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState.GetAddressOf());
 }
 
 void Sprite_Renderer::Set_Texture(std::string Material_Name, WCHAR* Shader_Name, const wchar_t* filename)
 {
-	material = Material::Create(Material_Name, Shader_Name, filename, true);
+	material = Material::Create(Material_Name, Shader_Name, filename);
 }
 
 void Sprite_Renderer::Render(shared_ptr<Camera> Render_Camera)
@@ -91,18 +84,22 @@ void Sprite_Renderer::Render(shared_ptr<Camera> Render_Camera)
 	float z = static_cast<Vector3>(transform->eulerAngles).z;
 	float cos = cosf(XMConvertToRadians(z));
 	float sin = sinf(XMConvertToRadians(z));
+
 	rx = data[0].Pos.x;
 	ry = data[0].Pos.y;
 	data[0].Pos.x = cos * rx + -sin * ry;
 	data[0].Pos.y = sin * rx + cos * ry;
+	
 	rx = data[1].Pos.x;
 	ry = data[1].Pos.y;
 	data[1].Pos.x = cos * rx + -sin * ry;
 	data[1].Pos.y = sin * rx + cos * ry;
+	
 	rx = data[2].Pos.x;
 	ry = data[2].Pos.y;
 	data[2].Pos.x = cos * rx + -sin * ry;
 	data[2].Pos.y = sin * rx + cos * ry;
+	
 	rx = data[3].Pos.x;
 	ry = data[3].Pos.y;
 	data[3].Pos.x = cos * rx + -sin * ry;
@@ -143,7 +140,6 @@ void Sprite_Renderer::Render(shared_ptr<Camera> Render_Camera)
 	data[1].Color = material->color;
 	data[2].Color = material->color;
 	data[3].Color = material->color;
-
 
 	DxSystem::DeviceContext->IASetInputLayout(material->shader->VertexLayout.Get());
 	//	頂点バッファの指定

@@ -20,12 +20,12 @@ void Mesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 	// 定数バッファの生成
 	if (!ConstantBuffer)
 	{
-		D3D11_BUFFER_DESC bd = {};
-		bd.Usage = D3D11_USAGE_DEFAULT;
-		bd.ByteWidth = sizeof(cbuffer);
-		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		bd.CPUAccessFlags = 0;
-		bd.MiscFlags = 0;
+		D3D11_BUFFER_DESC bd   = {};
+		bd.Usage               = D3D11_USAGE_DEFAULT;
+		bd.ByteWidth           = sizeof(cbuffer);
+		bd.BindFlags           = D3D11_BIND_CONSTANT_BUFFER;
+		bd.CPUAccessFlags      = 0;
+		bd.MiscFlags           = 0;
 		bd.StructureByteStride = 0;
 		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer.GetAddressOf());
 		assert(SUCCEEDED(hr), hr_trace(hr));
@@ -43,7 +43,7 @@ void Mesh_Renderer::Set_Mesh(std::shared_ptr<Mesh> Mesh_Data)
 		{
 			mesh_data->skin_meshes[i].subsets[j].diffuse.ID = Subset_ID;
 			string Mat_Name = mesh_data->name + "_" + mesh_data->skin_meshes[i].subsets[j].diffuse.TexName;
-			shared_ptr<Material> Mat = Material::Create(Mat_Name, L"Code/Shader/Default_Mesh.fx", mesh_data->skin_meshes[i].subsets[j].diffuse.TexPass.c_str(), false);
+			shared_ptr<Material> Mat = Material::Create(Mat_Name, L"Code/Shader/Default_Mesh.fx", mesh_data->skin_meshes[i].subsets[j].diffuse.TexPass.c_str());
 			material.emplace_back(Mat);
 			Subset_ID++;
 		}

@@ -6,7 +6,6 @@ using namespace std;
 
 list<weak_ptr<Renderer>> Render_Manager::Renderer_3D_list;
 list<weak_ptr<Renderer>> Render_Manager::Renderer_2D_list;
-
 list<vector<Render_Manager::Render_Obj>> Render_Manager::Renderer_list;
 
 void Render_Manager::Reset()
@@ -32,14 +31,15 @@ void Render_Manager::Render(std::shared_ptr<Camera> Render_Camera)
 {
 	// ビューポートの設定
 	DxSystem::SetViewPort(DxSystem::GetScreenWidth(), DxSystem::GetScreenHeight());
+
+	Animator_Manager::Update();
+
 	//ブレンドステート設定
 	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_NONE), nullptr, 0xFFFFFFFF);
 	//ラスタライザ―設定
 	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_CULL_NONE));
 	//デプスステンシルステート設定
 	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_TRUE), 1);
-
-	Animator_Manager::Update();
 
 	for (list<weak_ptr<Renderer>>::iterator itr = Renderer_3D_list.begin(); itr != Renderer_3D_list.end();)
 	{
@@ -82,5 +82,4 @@ void Render_Manager::Render(std::shared_ptr<Camera> Render_Camera)
 		}
 		itr++;
 	}
-
 }

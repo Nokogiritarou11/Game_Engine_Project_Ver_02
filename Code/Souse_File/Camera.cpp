@@ -10,7 +10,7 @@ using namespace std;
 void Camera::Initialize(std::shared_ptr<GameObject> obj)
 {
 	gameObject = obj;
-	transform = obj->transform;
+	transform  = obj->transform;
 	Camera_Manager::Add(static_pointer_cast<Camera>(shared_from_this()));
 	DxSystem::DeviceContext->RSGetViewports(&num_viewports, &viewport);
 }
@@ -39,7 +39,7 @@ void Camera::Update()
 		camForward = XMVector3Normalize(camForward);
 		XMVECTOR camRight = XMVectorSet(-XMVectorGetZ(camForward), 0.0f, XMVectorGetX(camForward), 0.0f);
 
-		XMVECTOR up_v = XMVectorSet(0,1,0,0);
+		XMVECTOR up_v = XMVectorSet(0, 1, 0, 0);
 		XMStoreFloat4(&focus, focus_v);
 		XMStoreFloat4x4(&V, XMMatrixLookAtLH(eye_v, focus_v, up_v));
 	}

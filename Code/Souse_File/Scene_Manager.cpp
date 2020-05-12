@@ -11,7 +11,6 @@ using namespace std;
 //
 //**********************************************
 
-
 std::weak_ptr<Scene> Scene_Manager::Active_Scene;
 std::list<Scene_Manager::Scene_Data> Scene_Manager::Scene_List;
 bool Scene_Manager::Load;
@@ -44,7 +43,6 @@ void Scene_Manager::Set_StartScene(string Scene_Name)
 			return;
 		}
 	}
-
 }
 
 void Scene_Manager::LoadScene(string Scene_Name)

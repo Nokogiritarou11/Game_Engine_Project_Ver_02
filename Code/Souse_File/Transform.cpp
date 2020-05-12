@@ -5,7 +5,6 @@ using namespace std;
 
 Transform::Transform()
 {
-
 }
 
 Transform::Transform(Vector3 _position, Quaternion _rotation)
@@ -16,7 +15,7 @@ Transform::Transform(Vector3 _position, Quaternion _rotation)
 
 Transform::Transform(Vector3 _position, Vector3 _euler)
 {
-	position = _position;
+	position    = _position;
 	eulerAngles = _euler;
 }
 
@@ -26,9 +25,9 @@ Transform::~Transform()
 
 void Transform::Initialize(shared_ptr<GameObject> obj)
 {
-	gameObject = obj;
+	gameObject     = obj;
 	obj->transform = static_pointer_cast<Transform>(shared_from_this());
-	transform = static_pointer_cast<Transform>(shared_from_this());
+	transform      = static_pointer_cast<Transform>(shared_from_this());
 }
 
 void Transform::Update()

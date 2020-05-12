@@ -33,5 +33,4 @@ private:
 	static std::list<Scene_Data> Scene_List;
 	static bool Load;
 	static std::string Next_Scene_Name;
-
 };

@@ -11,5 +11,4 @@ public:
 	float Height = 100;
 
 private:
-
 };

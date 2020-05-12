@@ -18,7 +18,7 @@ void Kunai::Update()
 	transform->position.x -= sin(XMConvertToRadians(y)) * speed * Time::deltaTime;
 	transform->position.z -= cos(XMConvertToRadians(y)) * speed * Time::deltaTime;
 	timer += Time::deltaTime;
-	if(timer > Disable_time)
+	if (timer > Disable_time)
 	{
 		gameObject->SetActive(false);
 		timer = 0;

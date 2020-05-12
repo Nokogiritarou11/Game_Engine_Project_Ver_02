@@ -27,5 +27,4 @@ public:
 	static std::shared_ptr<GameObject> Instantiate(std::string name, Vector3 position, Vector4 rotation, std::shared_ptr<Transform> parent);
 
 private:
-
 };

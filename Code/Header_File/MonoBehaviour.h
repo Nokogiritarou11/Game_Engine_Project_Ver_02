@@ -26,5 +26,4 @@ public:
 
 	void Initialize(std::shared_ptr<GameObject> obj);
 private:
-
 };

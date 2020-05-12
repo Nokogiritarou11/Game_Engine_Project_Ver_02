@@ -26,7 +26,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 		return mesh_ptr;
 	}
 	else
-	//ファイルから読み込み
+		//ファイルから読み込み
 	{
 		Mesh::meshes skin_meshes;
 
@@ -187,35 +187,35 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 
 			// 頂点バッファの生成
 			{
-				D3D11_BUFFER_DESC bd = {};
-				bd.Usage = D3D11_USAGE_DEFAULT;
-				bd.ByteWidth = sizeof(Mesh::vertex) * vertices.size();
-				bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-				bd.CPUAccessFlags = 0;
-				bd.MiscFlags = 0;
-				bd.StructureByteStride = 0;
+				D3D11_BUFFER_DESC bd            = {};
+				bd.Usage                        = D3D11_USAGE_DEFAULT;
+				bd.ByteWidth                    = sizeof(Mesh::vertex) * vertices.size();
+				bd.BindFlags                    = D3D11_BIND_VERTEX_BUFFER;
+				bd.CPUAccessFlags               = 0;
+				bd.MiscFlags                    = 0;
+				bd.StructureByteStride          = 0;
 				D3D11_SUBRESOURCE_DATA InitData = {};
-				InitData.pSysMem = &vertices[0];				// 頂点のアドレス
-				InitData.SysMemPitch = 0;
-				InitData.SysMemSlicePitch = 0;
+				InitData.pSysMem                = &vertices[0];				// 頂点のアドレス
+				InitData.SysMemPitch            = 0;
+				InitData.SysMemSlicePitch       = 0;
 				HRESULT hr = DxSystem::Device->CreateBuffer(&bd, &InitData, skin_meshes[i].vertex_buffer.GetAddressOf());
 				assert(SUCCEEDED(hr), hr_trace(hr));
 			}
 
 			// インデックスバッファの生成
 			{
-				D3D11_BUFFER_DESC bd = {};
-				//bd.Usage = D3D11_USAGE_DEFAULT;
-				bd.Usage = D3D11_USAGE_IMMUTABLE;
-				bd.ByteWidth = sizeof(u_int) * indices.size();
-				bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-				bd.CPUAccessFlags = 0;
-				bd.MiscFlags = 0;
-				bd.StructureByteStride = 0;
+				D3D11_BUFFER_DESC bd            = {};
+				//bd.Usage                      = D3D11_USAGE_DEFAULT;
+				bd.Usage                        = D3D11_USAGE_IMMUTABLE;
+				bd.ByteWidth                    = sizeof(u_int) * indices.size();
+				bd.BindFlags                    = D3D11_BIND_INDEX_BUFFER;
+				bd.CPUAccessFlags               = 0;
+				bd.MiscFlags                    = 0;
+				bd.StructureByteStride          = 0;
 				D3D11_SUBRESOURCE_DATA InitData = {};
-				InitData.pSysMem = &indices[0];				// 頂点のアドレス
-				InitData.SysMemPitch = 0;
-				InitData.SysMemSlicePitch = 0;
+				InitData.pSysMem                = &indices[0];				// 頂点のアドレス
+				InitData.SysMemPitch            = 0;
+				InitData.SysMemSlicePitch       = 0;
 				HRESULT hr = DxSystem::Device->CreateBuffer(&bd, &InitData, skin_meshes[i].index_buffer.GetAddressOf());
 				assert(SUCCEEDED(hr), hr_trace(hr));
 			}

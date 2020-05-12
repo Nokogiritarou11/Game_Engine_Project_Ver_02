@@ -12,14 +12,13 @@ unique_ptr<Keyboard> Input_Manager::keyboard;
 
 void Input_Manager::Initialize()
 {
-	mouse = make_unique<Mouse>();
-	gamepad = make_unique<GamePad>();
+	mouse    = make_unique<Mouse>();
+	gamepad  = make_unique<GamePad>();
 	keyboard = make_unique<Keyboard>();
 }
 
 void Input_Manager::Update()
 {
-
 	kb = keyboard->GetState();
 	key_tracker.Update(kb);
 	ms = mouse->GetState();
@@ -30,5 +29,4 @@ void Input_Manager::Update()
 	{
 		pad_tracker.Update(pad);
 	}
-
 }
