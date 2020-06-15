@@ -5,38 +5,25 @@
 using namespace DirectX;
 using namespace std;
 
-class Game_Manager;
 class Animator;
 
 class Player : public MonoBehaviour
 {
 public:
-	int HP = 100;
-	bool Hit = false;
-	bool Death = false;
 
 	void Awake();
 	void Start();
 	void Update();
 
-	void Damage();
 private:
-	float move_speed = 30.0f;
-	weak_ptr<Game_Manager> game_manager;
-	weak_ptr<Animator> animator;
-	int Damage_State = 0;
+	Vector3 set_pos = { 0,0,0 };
 
-	enum Anim_index
-	{
-		Walk,
-		Dash,
-		Wait,
-		Attack_01,
-		Attack_02,
-		Attack_03,
-		Damage_01,
-		Damage_02,
-		Damage_03,
-		Death_anim
-	};
+	float move_speed = 10.0f;
+	float rotate_speed = 10.0f;
+
+	float jump_power = 100.0f;
+	float jump_speed = 0.0;
+	float down_speed = 0.0;
+
+	bool Jumping = false;
 };

@@ -57,13 +57,15 @@
     <ClCompile Include="Code\Souse_File\Rect_Transform.cpp" />
     <ClCompile Include="Code\Script\Souse\Enemy.cpp" />
     <ClCompile Include="Code\Script\Souse\Player.cpp" />
-    <ClCompile Include="Code\Script\Souse\Game_Manager.cpp" />
-    <ClCompile Include="Code\Script\Souse\UI_Controller.cpp" />
-    <ClCompile Include="Code\Script\Souse\Title.cpp" />
-    <ClCompile Include="Code\Script\Souse\Kunai.cpp" />
-    <ClCompile Include="Code\Script\Souse\Pauser.cpp" />
-    <ClCompile Include="Code\Script\Souse\Attack_Decision.cpp" />
-    <ClCompile Include="Code\Script\Souse\Hit_Controller.cpp" />
+    <ClCompile Include="Code\Script\Souse\Enemy_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\imgui.cpp" />
+    <ClCompile Include="Code\Souse_File\imgui_draw.cpp" />
+    <ClCompile Include="Code\Souse_File\imgui_widgets.cpp" />
+    <ClCompile Include="Code\Souse_File\Debug_UI.cpp" />
+    <ClCompile Include="Code\Souse_File\imgui_impl_win32.cpp" />
+    <ClCompile Include="Code\Souse_File\imgui_impl_dx11.cpp" />
+    <ClCompile Include="Code\Script\Souse\Camera_Set.cpp" />
+    <ClCompile Include="Code\Souse_File\Original_Math.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Audio_Manager.h">
@@ -119,15 +121,20 @@
     <ClInclude Include="Code\Script\Header\Player.h" />
     <ClInclude Include="Code\Script\Header\Enemy.h" />
     <ClInclude Include="Code\Script\Header\All_Script.h" />
-    <ClInclude Include="Code\Script\Header\Game_Manager.h" />
-    <ClInclude Include="Code\Script\Header\UI_Controller.h" />
-    <ClInclude Include="Code\Script\Header\Title.h" />
-    <ClInclude Include="Code\Script\Header\Kunai.h" />
-    <ClInclude Include="Code\Script\Header\Pauser.h" />
-    <ClInclude Include="Code\Script\Header\Attack_Decision.h" />
-    <ClInclude Include="Code\Script\Header\Hit_Controller.h" />
     <ClInclude Include="Code\Header_File\Property.h" />
     <ClInclude Include="Code\Header_File\Mathf.h" />
+    <ClInclude Include="Code\Script\Header\Enemy_Manager.h" />
+    <ClInclude Include="Code\Header_File\imgui_impl_dx11.h" />
+    <ClInclude Include="Code\Header_File\imgui_impl_win32.h" />
+    <ClInclude Include="Code\Header_File\imgui.h" />
+    <ClInclude Include="Code\Header_File\imgui_internal.h" />
+    <ClInclude Include="Code\Header_File\imstb_rectpack.h" />
+    <ClInclude Include="Code\Header_File\imstb_textedit.h" />
+    <ClInclude Include="Code\Header_File\imstb_truetype.h" />
+    <ClInclude Include="Code\Header_File\imconfig.h" />
+    <ClInclude Include="Code\Header_File\Debug_UI.h" />
+    <ClInclude Include="Code\Script\Header\Camera_Set.h" />
+    <ClInclude Include="Code\Header_File\IconsFontAwesome4.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Sources">

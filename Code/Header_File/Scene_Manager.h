@@ -29,8 +29,11 @@ private:
 		std::shared_ptr<Scene> Scene_ptr;
 	};
 
-	static std::weak_ptr<Scene> Active_Scene;
 	static std::list<Scene_Data> Scene_List;
+
+	static std::weak_ptr<Scene> Active_Scene;
+	static std::string Active_Scene_Name;
+
 	static bool Load;
 	static std::string Next_Scene_Name;
 };

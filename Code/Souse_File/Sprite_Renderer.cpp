@@ -20,15 +20,15 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 
 	VERTEX v[] = {
 		XMFLOAT3(-0.5f, 0.5f,0),  XMFLOAT2(0,0), XMFLOAT4(1,1,1,1), //左上
-		XMFLOAT3( 0.5f, 0.5f,0),  XMFLOAT2(1,0), XMFLOAT4(1,1,1,1), //右上
+		XMFLOAT3(0.5f, 0.5f,0),  XMFLOAT2(1,0), XMFLOAT4(1,1,1,1), //右上
 		XMFLOAT3(-0.5f,-0.5f,0),  XMFLOAT2(0,1), XMFLOAT4(1,1,1,1), //左下
-		XMFLOAT3( 0.5f,-0.5f,0),  XMFLOAT2(1,1), XMFLOAT4(1,1,1,1), //右下
+		XMFLOAT3(0.5f,-0.5f,0),  XMFLOAT2(1,1), XMFLOAT4(1,1,1,1), //右下
 	};
 
 	//	頂点バッファ作成
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
-	bd.Usage     = D3D11_USAGE_DEFAULT;
+	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.ByteWidth = sizeof(v);
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
@@ -53,27 +53,29 @@ void Sprite_Renderer::Render(shared_ptr<Camera> Render_Camera)
 	//頂点データ設定
 	VERTEX data[4];
 
-	shared_ptr<Transform> trans = gameObject->transform;
+	Vector3 trans_pos = gameObject->transform->Get_position();
 
-	data[0].Pos.x = trans->position.x;
-	data[0].Pos.y = trans->position.y;
+	data[0].Pos.x = trans_pos.x;
+	data[0].Pos.y = trans_pos.y;
 	data[0].Pos.z = 0.0f;
 
-	data[1].Pos.x = trans->position.x + trans->Width;
-	data[1].Pos.y = trans->position.y;
+	data[1].Pos.x = trans_pos.x + 100;//trans->Width;
+	data[1].Pos.y = trans_pos.y;
 	data[1].Pos.z = 0.0f;
 
-	data[2].Pos.x = trans->position.x;
-	data[2].Pos.y = trans->position.y + trans->Height;
+	data[2].Pos.x = trans_pos.x;
+	data[2].Pos.y = trans_pos.y + 100;//trans->Height;
 	data[2].Pos.z = 0.0f;
 
-	data[3].Pos.x = trans->position.x + trans->Width;
-	data[3].Pos.y = trans->position.y + trans->Height;
+	data[3].Pos.x = trans_pos.x + 100;//trans->Width;
+	data[3].Pos.y = trans_pos.y + 100;//trans->Height;
 	data[3].Pos.z = 0.0f;
 
 	// 中心座標を原点へ
-	float mx = trans->position.x + trans->Width * 0.5f;
-	float my = trans->position.y + trans->Height * 0.5f;
+	//float mx = trans_pos.x + trans->Width * 0.5f;
+	//float my = trans_pos.y + trans->Height * 0.5f;
+	float mx = trans_pos.x + 100 * 0.5f;
+	float my = trans_pos.y + 100 * 0.5f;
 	data[0].Pos.x -= mx; data[0].Pos.y -= my;
 	data[1].Pos.x -= mx; data[1].Pos.y -= my;
 	data[2].Pos.x -= mx; data[2].Pos.y -= my;
@@ -81,7 +83,7 @@ void Sprite_Renderer::Render(shared_ptr<Camera> Render_Camera)
 
 	// 角度計算
 	float rx, ry;
-	float z = static_cast<Vector3>(transform->eulerAngles).z;
+	float z = transform->Get_eulerAngles().z;
 	float cos = cosf(XMConvertToRadians(z));
 	float sin = sinf(XMConvertToRadians(z));
 
@@ -89,17 +91,17 @@ void Sprite_Renderer::Render(shared_ptr<Camera> Render_Camera)
 	ry = data[0].Pos.y;
 	data[0].Pos.x = cos * rx + -sin * ry;
 	data[0].Pos.y = sin * rx + cos * ry;
-	
+
 	rx = data[1].Pos.x;
 	ry = data[1].Pos.y;
 	data[1].Pos.x = cos * rx + -sin * ry;
 	data[1].Pos.y = sin * rx + cos * ry;
-	
+
 	rx = data[2].Pos.x;
 	ry = data[2].Pos.y;
 	data[2].Pos.x = cos * rx + -sin * ry;
 	data[2].Pos.y = sin * rx + cos * ry;
-	
+
 	rx = data[3].Pos.x;
 	ry = data[3].Pos.y;
 	data[3].Pos.x = cos * rx + -sin * ry;
@@ -112,7 +114,8 @@ void Sprite_Renderer::Render(shared_ptr<Camera> Render_Camera)
 	data[3].Pos.x += mx; data[3].Pos.y += my;
 
 	// 正規化デバイス座標系
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < 4; i++)
+	{
 		data[i].Pos.x = 2.0f * data[i].Pos.x / DxSystem::GetScreenWidth() - 1.0f;
 		data[i].Pos.y = 1.0f - 2.0f * data[i].Pos.y / DxSystem::GetScreenHeight();
 		data[i].Pos.z = 0.0f;
@@ -131,7 +134,8 @@ void Sprite_Renderer::Render(shared_ptr<Camera> Render_Camera)
 	//UV座標
 	float w = material->texture->GetWidth();
 	float h = material->texture->GetHeight();
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < 4; i++)
+	{
 		data[i].Tex.x = data[i].Tex.x / w;
 		data[i].Tex.y = data[i].Tex.y / h;
 	}

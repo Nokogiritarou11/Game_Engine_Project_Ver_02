@@ -4,7 +4,6 @@
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
 #include <DirectXCollision.h>
-#include "Property.h"
 
 #ifndef XM_CONSTEXPR
 #define XM_CONSTEXPR
@@ -366,7 +365,9 @@ struct Matrix : public DirectX::XMFLOAT4X4
 		: DirectX::XMFLOAT4X4(1.f, 0, 0, 0,
 			0, 1.f, 0, 0,
 			0, 0, 1.f, 0,
-			0, 0, 0, 1.f) {}
+			0, 0, 0, 1.f)
+	{
+	}
 	XM_CONSTEXPR Matrix(float m00, float m01, float m02, float m03,
 		float m10, float m11, float m12, float m13,
 		float m20, float m21, float m22, float m23,
@@ -374,17 +375,23 @@ struct Matrix : public DirectX::XMFLOAT4X4
 		: DirectX::XMFLOAT4X4(m00, m01, m02, m03,
 			m10, m11, m12, m13,
 			m20, m21, m22, m23,
-			m30, m31, m32, m33) {}
+			m30, m31, m32, m33)
+	{
+	}
 	explicit Matrix(const Vector3& r0, const Vector3& r1, const Vector3& r2)
 		: DirectX::XMFLOAT4X4(r0.x, r0.y, r0.z, 0,
 			r1.x, r1.y, r1.z, 0,
 			r2.x, r2.y, r2.z, 0,
-			0, 0, 0, 1.f) {}
+			0, 0, 0, 1.f)
+	{
+	}
 	explicit Matrix(const Vector4& r0, const Vector4& r1, const Vector4& r2, const Vector4& r3)
 		: DirectX::XMFLOAT4X4(r0.x, r0.y, r0.z, r0.w,
 			r1.x, r1.y, r1.z, r1.w,
 			r2.x, r2.y, r2.z, r2.w,
-			r3.x, r3.y, r3.z, r3.w) {}
+			r3.x, r3.y, r3.z, r3.w)
+	{
+	}
 	Matrix(const DirectX::XMFLOAT4X4& M) { memcpy_s(this, sizeof(float) * 16, &M, sizeof(DirectX::XMFLOAT4X4)); }
 	Matrix(const DirectX::XMFLOAT3X3& M);
 	Matrix(const DirectX::XMFLOAT4X3& M);
@@ -511,17 +518,17 @@ Matrix operator* (float S, const Matrix& M);
 
 struct Quaternion : public DirectX::XMFLOAT4
 {
-	Quaternion() noexcept : DirectX::XMFLOAT4(0, 0, 0, 1.f) { this->eulerAngles = this->ToEuler(); }
-	Quaternion(float _x, float _y, float _z, float _w) : DirectX::XMFLOAT4(_x, _y, _z, _w) { this->eulerAngles = this->ToEuler(); }
-	Quaternion(const Vector3& v, float scalar) : DirectX::XMFLOAT4(v.x, v.y, v.z, scalar) { this->eulerAngles = this->ToEuler(); }
-	explicit Quaternion(const Vector4& v) : DirectX::XMFLOAT4(v.x, v.y, v.z, v.w) { this->eulerAngles = this->ToEuler(); }
-	explicit Quaternion(_In_reads_(4) const float* pArray) : DirectX::XMFLOAT4(pArray) { this->eulerAngles = this->ToEuler(); }
-	Quaternion(DirectX::FXMVECTOR V) { XMStoreFloat4(this, V);this->eulerAngles = this->ToEuler(); }
-	Quaternion(const DirectX::XMFLOAT4& q) { this->x = q.x; this->y = q.y; this->z = q.z; this->w = q.w; this->eulerAngles = this->ToEuler(); }
-	explicit Quaternion(const DirectX::XMVECTORF32& F) { this->x = F.f[0]; this->y = F.f[1]; this->z = F.f[2]; this->w = F.f[3];  this->eulerAngles = this->ToEuler(); }
+	Quaternion() noexcept : DirectX::XMFLOAT4(0, 0, 0, 1.f) {}
+	XM_CONSTEXPR Quaternion(float _x, float _y, float _z, float _w) : DirectX::XMFLOAT4(_x, _y, _z, _w) {}
+	Quaternion(const Vector3& v, float scalar) : DirectX::XMFLOAT4(v.x, v.y, v.z, scalar) {}
+	explicit Quaternion(const Vector4& v) : DirectX::XMFLOAT4(v.x, v.y, v.z, v.w) {}
+	explicit Quaternion(_In_reads_(4) const float* pArray) : DirectX::XMFLOAT4(pArray) {}
+	Quaternion(DirectX::FXMVECTOR V) { XMStoreFloat4(this, V); }
+	Quaternion(const DirectX::XMFLOAT4& q) { this->x = q.x; this->y = q.y; this->z = q.z; this->w = q.w; }
+	explicit Quaternion(const DirectX::XMVECTORF32& F) { this->x = F.f[0]; this->y = F.f[1]; this->z = F.f[2]; this->w = F.f[3]; }
 
 	Quaternion(const Quaternion&) = default;
-	Quaternion& operator=(const Quaternion&) { return *this; };
+	Quaternion& operator=(const Quaternion&) = default;
 
 	Quaternion(Quaternion&&) = default;
 	Quaternion& operator=(Quaternion&&) = default;
@@ -533,7 +540,7 @@ struct Quaternion : public DirectX::XMFLOAT4
 	bool operator != (const Quaternion& q) const;
 
 	// Assignment operators
-	Quaternion& operator= (const DirectX::XMVECTORF32& F) { x = F.f[0]; y = F.f[1]; z = F.f[2]; w = F.f[3]; this->eulerAngles = this->ToEuler(); return *this; }
+	Quaternion& operator= (const DirectX::XMVECTORF32& F) { x = F.f[0]; y = F.f[1]; z = F.f[2]; w = F.f[3];  return *this; }
 	Quaternion& operator+= (const Quaternion& q);
 	Quaternion& operator-= (const Quaternion& q);
 	Quaternion& operator*= (const Quaternion& q);
@@ -558,9 +565,13 @@ struct Quaternion : public DirectX::XMFLOAT4
 
 	float Dot(const Quaternion& Q) const;
 
+	Vector3 To_Euler() const;
+	void Set_Euler(Vector3 V);
+
 	// Static functions
 	static Quaternion AngleAxis(const Vector3& axis, float angle);
-	static Quaternion Euler(float yaw, float pitch, float roll);
+	static Quaternion Euler(float x, float y, float z);
+	static Quaternion Euler(Vector3 V);
 	static Quaternion CreateFromRotationMatrix(const Matrix& M);
 
 	static void Lerp(const Quaternion& q1, const Quaternion& q2, float t, Quaternion& result);
@@ -574,17 +585,6 @@ struct Quaternion : public DirectX::XMFLOAT4
 
 	// Constants
 	static const Quaternion Identity;
-
-	// Original
-
-	Property<Vector3> eulerAngles{ _eulerAngles,
-		[this](Vector3 v) { if (_eulerAngles != v) { _eulerAngles = v; DirectX::XMStoreFloat4(this, DirectX::XMQuaternionRotationRollPitchYaw(DirectX::XMConvertToRadians(v.x), DirectX::XMConvertToRadians(v.z), DirectX::XMConvertToRadians(v.y))); } },
-		nullptr };
-
-	Vector3 ToEuler();
-
-private:
-	Vector3 _eulerAngles = { 0, 0, 0 };
 };
 
 // Binary operators
@@ -3191,7 +3191,7 @@ inline Quaternion& Quaternion::operator+= (const Quaternion& q)
 	XMVECTOR q2 = XMLoadFloat4(&q);
 	XMVECTOR v = XMVectorAdd(q1, q2);
 	XMStoreFloat4(this, v);
-	this->eulerAngles = this->ToEuler();
+
 
 	return *this;
 }
@@ -3202,7 +3202,7 @@ inline Quaternion& Quaternion::operator-= (const Quaternion& q)
 	XMVECTOR q1 = XMLoadFloat4(this);
 	XMVECTOR q2 = XMLoadFloat4(&q);
 	XMStoreFloat4(this, XMVectorSubtract(q1, q2));
-	this->eulerAngles = this->ToEuler();
+
 	return *this;
 }
 
@@ -3212,7 +3212,7 @@ inline Quaternion& Quaternion::operator*= (const Quaternion& q)
 	XMVECTOR q1 = XMLoadFloat4(this);
 	XMVECTOR q2 = XMLoadFloat4(&q);
 	XMStoreFloat4(this, XMQuaternionMultiply(q1, q2));
-	this->eulerAngles = this->ToEuler();
+
 	return *this;
 }
 
@@ -3221,7 +3221,7 @@ inline Quaternion& Quaternion::operator*= (float S)
 	using namespace DirectX;
 	XMVECTOR q = XMLoadFloat4(this);
 	XMStoreFloat4(this, XMVectorScale(q, S));
-	this->eulerAngles = this->ToEuler();
+
 	return *this;
 }
 
@@ -3232,7 +3232,7 @@ inline Quaternion& Quaternion::operator/= (const Quaternion& q)
 	XMVECTOR q2 = XMLoadFloat4(&q);
 	q2 = XMQuaternionInverse(q2);
 	XMStoreFloat4(this, XMQuaternionMultiply(q1, q2));
-	this->eulerAngles = this->ToEuler();
+
 	return *this;
 }
 
@@ -3247,7 +3247,7 @@ inline Quaternion Quaternion::operator- () const
 
 	Quaternion R;
 	XMStoreFloat4(&R, XMVectorNegate(q));
-	R.eulerAngles = R.ToEuler();
+
 	return R;
 }
 
@@ -3263,7 +3263,7 @@ inline Quaternion operator+ (const Quaternion& Q1, const Quaternion& Q2)
 
 	Quaternion R;
 	XMStoreFloat4(&R, XMVectorAdd(q1, q2));
-	R.eulerAngles = R.ToEuler();
+
 	return R;
 }
 
@@ -3275,7 +3275,7 @@ inline Quaternion operator- (const Quaternion& Q1, const Quaternion& Q2)
 
 	Quaternion R;
 	XMStoreFloat4(&R, XMVectorSubtract(q1, q2));
-	R.eulerAngles = R.ToEuler();
+
 	return R;
 }
 
@@ -3287,7 +3287,7 @@ inline Quaternion operator* (const Quaternion& Q1, const Quaternion& Q2)
 
 	Quaternion R;
 	XMStoreFloat4(&R, XMQuaternionMultiply(q1, q2));
-	R.eulerAngles = R.ToEuler();
+
 	return R;
 }
 
@@ -3298,7 +3298,7 @@ inline Quaternion operator* (const Quaternion& Q, float S)
 
 	Quaternion R;
 	XMStoreFloat4(&R, XMVectorScale(q, S));
-	R.eulerAngles = R.ToEuler();
+
 	return R;
 }
 
@@ -3311,7 +3311,7 @@ inline Quaternion operator/ (const Quaternion& Q1, const Quaternion& Q2)
 
 	Quaternion R;
 	XMStoreFloat4(&R, XMQuaternionMultiply(q1, q2));
-	R.eulerAngles = R.ToEuler();
+
 	return R;
 }
 
@@ -3322,7 +3322,7 @@ inline Quaternion operator* (float S, const Quaternion& Q)
 
 	Quaternion R;
 	XMStoreFloat4(&R, XMVectorScale(q1, S));
-	R.eulerAngles = R.ToEuler();
+
 	return R;
 }
 
@@ -3349,7 +3349,7 @@ inline void Quaternion::Normalize()
 	using namespace DirectX;
 	XMVECTOR q = XMLoadFloat4(this);
 	XMStoreFloat4(this, XMQuaternionNormalize(q));
-	this->eulerAngles = this->ToEuler();
+
 }
 
 inline void Quaternion::Normalize(Quaternion& result) const
@@ -3357,7 +3357,7 @@ inline void Quaternion::Normalize(Quaternion& result) const
 	using namespace DirectX;
 	XMVECTOR q = XMLoadFloat4(this);
 	XMStoreFloat4(&result, XMQuaternionNormalize(q));;
-	result.eulerAngles = result.ToEuler();
+
 }
 
 inline void Quaternion::Conjugate()
@@ -3365,7 +3365,7 @@ inline void Quaternion::Conjugate()
 	using namespace DirectX;
 	XMVECTOR q = XMLoadFloat4(this);
 	XMStoreFloat4(this, XMQuaternionConjugate(q));
-	this->eulerAngles = this->ToEuler();
+
 }
 
 inline void Quaternion::Conjugate(Quaternion& result) const
@@ -3373,7 +3373,7 @@ inline void Quaternion::Conjugate(Quaternion& result) const
 	using namespace DirectX;
 	XMVECTOR q = XMLoadFloat4(this);
 	XMStoreFloat4(&result, XMQuaternionConjugate(q));;
-	result.eulerAngles = result.ToEuler();
+
 }
 
 inline void Quaternion::Inverse(Quaternion& result) const
@@ -3381,7 +3381,7 @@ inline void Quaternion::Inverse(Quaternion& result) const
 	using namespace DirectX;
 	XMVECTOR q = XMLoadFloat4(this);
 	XMStoreFloat4(&result, XMQuaternionInverse(q));
-	result.eulerAngles = result.ToEuler();
+
 }
 
 inline float Quaternion::Dot(const Quaternion& q) const
@@ -3390,6 +3390,42 @@ inline float Quaternion::Dot(const Quaternion& q) const
 	XMVECTOR q1 = XMLoadFloat4(this);
 	XMVECTOR q2 = XMLoadFloat4(&q);
 	return XMVectorGetX(XMQuaternionDot(q1, q2));
+}
+
+inline Vector3 Quaternion::To_Euler() const
+{
+	using namespace DirectX;
+	Vector3 R = { 0,0,0 };
+	Matrix M = Matrix::CreateFromQuaternion(*this);
+
+	if (M._32 >= 1.0f)
+	{
+		R.x = XM_PIDIV2;
+		R.y = 0;
+		R.z = atan2f(M._21, M._11);
+	}
+	else if (M._32 <= -1.0f)
+	{
+		R.x = -XM_PIDIV2;
+		R.y = 0;
+		R.z = atan2f(M._21, M._11);
+	}
+	else
+	{
+		R.x = asinf(-M._32);
+		R.y = atan2f(M._31, M._33);
+		R.z = atan2f(M._12, M._22);
+	}
+
+	R.x = XMConvertToDegrees(R.x);
+	R.y = XMConvertToDegrees(R.y);
+	R.z = XMConvertToDegrees(R.z);
+	return R;
+}
+inline void Quaternion::Set_Euler(Vector3 V)
+{
+	Quaternion Q = Quaternion::Euler(V);
+	XMStoreFloat4(this, XMLoadFloat4(&Q));
 }
 
 //------------------------------------------------------------------------------
@@ -3403,15 +3439,22 @@ inline Quaternion Quaternion::AngleAxis(const Vector3& axis, float angle)
 
 	Quaternion R;
 	XMStoreFloat4(&R, XMQuaternionRotationAxis(a, angle));
-	R.eulerAngles = R.ToEuler();
+
 	return R;
 }
 
-inline Quaternion Quaternion::Euler(float yaw, float pitch, float roll)
+inline Quaternion Quaternion::Euler(float x, float y, float z)
 {
 	using namespace DirectX;
 	Quaternion R;
-	XMStoreFloat4(&R, XMQuaternionRotationRollPitchYaw(XMConvertToRadians(pitch), XMConvertToRadians(yaw), XMConvertToRadians(roll)));
+	XMStoreFloat4(&R, XMQuaternionRotationRollPitchYaw(XMConvertToRadians(x), XMConvertToRadians(y), XMConvertToRadians(z)));
+	return R;
+}
+inline Quaternion Quaternion::Euler(Vector3 V)
+{
+	using namespace DirectX;
+	Quaternion R;
+	XMStoreFloat4(&R, XMQuaternionRotationRollPitchYaw(XMConvertToRadians(V.x), XMConvertToRadians(V.y), XMConvertToRadians(V.z)));
 	return R;
 }
 
@@ -3422,7 +3465,7 @@ inline Quaternion Quaternion::CreateFromRotationMatrix(const Matrix& M)
 
 	Quaternion R;
 	XMStoreFloat4(&R, XMQuaternionRotationMatrix(M0));
-	R.eulerAngles = R.ToEuler();
+
 	return R;
 }
 
@@ -3449,7 +3492,7 @@ inline void Quaternion::Lerp(const Quaternion& q1, const Quaternion& q2, float t
 	}
 
 	XMStoreFloat4(&result, XMQuaternionNormalize(R));
-	result.eulerAngles = result.ToEuler();
+
 }
 
 inline Quaternion Quaternion::Lerp(const Quaternion& q1, const Quaternion& q2, float t)
@@ -3476,7 +3519,7 @@ inline Quaternion Quaternion::Lerp(const Quaternion& q1, const Quaternion& q2, f
 
 	Quaternion result;
 	XMStoreFloat4(&result, XMQuaternionNormalize(R));
-	result.eulerAngles = result.ToEuler();
+
 	return result;
 }
 
@@ -3486,7 +3529,7 @@ inline void Quaternion::Slerp(const Quaternion& q1, const Quaternion& q2, float 
 	XMVECTOR Q0 = XMLoadFloat4(&q1);
 	XMVECTOR Q1 = XMLoadFloat4(&q2);
 	XMStoreFloat4(&result, XMQuaternionSlerp(Q0, Q1, t));
-	result.eulerAngles = result.ToEuler();
+
 }
 
 inline Quaternion Quaternion::Slerp(const Quaternion& q1, const Quaternion& q2, float t)
@@ -3497,7 +3540,7 @@ inline Quaternion Quaternion::Slerp(const Quaternion& q1, const Quaternion& q2, 
 
 	Quaternion result;
 	XMStoreFloat4(&result, XMQuaternionSlerp(Q0, Q1, t));
-	result.eulerAngles = result.ToEuler();
+
 	return result;
 }
 
@@ -3507,7 +3550,7 @@ inline void Quaternion::Concatenate(const Quaternion& q1, const Quaternion& q2, 
 	XMVECTOR Q0 = XMLoadFloat4(&q1);
 	XMVECTOR Q1 = XMLoadFloat4(&q2);
 	XMStoreFloat4(&result, XMQuaternionMultiply(Q1, Q0));
-	result.eulerAngles = result.ToEuler();
+
 }
 
 inline Quaternion Quaternion::Concatenate(const Quaternion& q1, const Quaternion& q2)
@@ -3518,19 +3561,6 @@ inline Quaternion Quaternion::Concatenate(const Quaternion& q1, const Quaternion
 
 	Quaternion result;
 	XMStoreFloat4(&result, XMQuaternionMultiply(Q1, Q0));
-	result.eulerAngles = result.ToEuler();
-	return result;
-}
 
-inline Vector3 Quaternion::ToEuler()
-{
-	using namespace DirectX;
-	XMVECTOR Q = XMLoadFloat4(this);
-	XMMATRIX M = XMMatrixRotationQuaternion(Q);
-	float rx, ry, rz;
-	rx = -asinf(XMVectorGetY(M.r[2]));
-	ry = atan2f(XMVectorGetX(M.r[2]), XMVectorGetZ(M.r[2]));
-	rz = atan2f(XMVectorGetY(M.r[0]), XMVectorGetY(M.r[1]));
-	Vector3 V = { rx,ry,rz };
-	return V;
+	return result;
 }

@@ -27,10 +27,13 @@ VS_OUT VSMain(float3 position : POSITION, float3 normal : NORMAL, float2 texcoor
 	float4 nor = float4(normal, 0);
 	float3 p = { 0, 0, 0 };
 	float3 n = { 0, 0, 0 };
+	
 	int i = 0;
 	for (i = 0; i < 4; i++)
 	{
+		//p += (bone_weights[i] * mul(pos, bone_transforms[0])).xyz;
 		p += (bone_weights[i] * mul(pos, bone_transforms[bone_indices[i]])).xyz;
+		//n += (bone_weights[i] * mul(nor, bone_transforms[0])).xyz;
 		n += (bone_weights[i] * mul(nor, bone_transforms[bone_indices[i]])).xyz;
 	}
 	pos = float4(p, 1.0f);

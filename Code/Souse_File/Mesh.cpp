@@ -129,7 +129,13 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 				}
 				else
 				{
-					skin_meshes[i].subsets[j].diffuse.TexPass = nullptr;
+					string Texpass = "Default_Resource\\Image\\Default_Texture.png";
+					setlocale(LC_ALL, "japanese");
+					wchar_t TexPass[MAX_PATH] = { 0 };
+					size_t ret = 0;
+					mbstowcs_s(&ret, TexPass, MAX_PATH, Texpass.c_str(), _TRUNCATE);
+					skin_meshes[i].subsets[j].diffuse.TexPass = TexPass;
+					skin_meshes[i].subsets[j].diffuse.TexName = _s;
 				}
 			}
 

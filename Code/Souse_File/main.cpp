@@ -9,10 +9,14 @@
 #include "Time.h"
 #include <sstream>
 
-//float	elapsed_time = 0; // 経過時間
+// Forward declare message handler from imgui_impl_win32.cpp
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+		return true;
+
 	switch (message)
 	{
 	case WM_ACTIVATEAPP:
@@ -100,7 +104,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 	}
 
 	Engine* engine = new Engine();
+	Debug_UI::Initialize(hWnd);
 	Time::timeScale = 1.0f;
+	Input_Manager::mouse->SetWindow(hWnd);
 
 	//メインループ
 	MSG hMsg = { 0 };

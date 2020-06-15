@@ -4,53 +4,10 @@
 #include <Original_Math.h>
 #include <memory>
 #include "Component.h"
-#include "Property.h"
 
 class Transform : public Component
 {
 public:
-	Vector3 position = { 0, 0, 0 };
-	Vector3 scale = { 1, 1, 1 };
-
-	Property<Vector3> eulerAngles
-	{ _eulerAngles,
-	[this](Vector3 v) {Change_rot(v);},
-	[this]() { if (static_cast<Vector3>(_rotation.eulerAngles) != _eulerAngles) { _eulerAngles = static_cast<Vector3>(_rotation.eulerAngles); } return _eulerAngles; } };
-
-	Property<Quaternion> rotation
-	{ _rotation,
-	[this](Quaternion q) {Change_rot(q);},
-	nullptr };
-
-	Vector3 localPosition = { 0, 0, 0 };
-	Vector3 localScale = { 0, 0, 0 };
-
-	Property<Vector3> localEulerAngles
-	{ _localEulerAngles,
-	[this](Vector3 v) {Change_rot(v);},
-	nullptr };
-
-	Property<Quaternion> localRotation
-	{ _localRotation,
-	[this](Quaternion q) {Change_rot(q);},
-	nullptr };
-
-	Vector3 DefaultForward = { 0.0f, 0.0f, 1.0f };
-	Vector3 DefaultRight   = { 1.0f, 0.0f, 0.0f };
-	Vector3 DefaultUp      = { 0.0f, 1.0f, 0.0f };
-	Vector3 forward        = { 0.0f, 0.0f, 1.0f };
-	Vector3 right          = { 1.0f, 0.0f, 0.0f };
-	Vector3 up             = { 1.0f, 0.0f, 0.0f };
-
-	Matrix world              = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-	Matrix scale_matrix       = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-	Matrix rotation_matrix    = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-	Matrix translation_matrix = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-
-	float Width  = 100;
-	float Height = 100;
-
-	std::weak_ptr<Transform> parent;
 
 	// convert coordinate system from 'UP:+Z FRONT:+Y RIGHT-HAND' to 'UP:+Y FRONT:+Z LEFT-HAND'
 	Matrix coordinate_conversion = {
@@ -66,17 +23,72 @@ public:
 	~Transform();
 
 	void Initialize(std::shared_ptr<GameObject> obj);
-
 	void Update();
 
+	//GetterSetter
+	Vector3             Get_position     () const;
+	void                Set_position     (Vector3 V);
+	void                Set_position     (float f1, float f2, float f3);
+	Quaternion          Get_rotation     () const;
+	void                Set_rotation     (Quaternion Q);
+	void                Set_rotation     (float f1, float f2, float f3, float f4);
+	Vector3             Get_scale        () const;
+	void                Set_scale        (Vector3 V);
+	void                Set_scale        (float f1, float f2, float f3);
+
+	Vector3             Get_localPosition() const;
+	void                Set_localPosition(Vector3 V);
+	void                Set_localPosition(float f1, float f2, float f3);
+	Quaternion          Get_localRotation() const;
+	void                Set_localRotation(Quaternion Q);
+	void                Set_localRotation(float f1, float f2, float f3, float f4);
+	Vector3             Get_localScale   () const;
+	void                Set_localScale   (Vector3 V);
+	void                Set_localScale   (float f1, float f2, float f3);
+
+	Vector3             Get_forward      () const;
+	void                Set_forward      (Vector3 V);
+	void                Set_forward      (float f1, float f2, float f3);
+	Vector3             Get_right        () const;
+	void                Set_right        (Vector3 V);
+	void                Set_right        (float f1, float f2, float f3);
+	Vector3             Get_up           () const;
+	void                Set_up           (Vector3 V);
+	void                Set_up           (float f1, float f2, float f3);
+
+	Vector3             Get_eulerAngles  () const;
+	void                Set_eulerAngles  (Vector3 V);
+	void                Set_eulerAngles  (float f1, float f2, float f3);
+	Vector3             Get_localEulerAngles() const;
+	void                Set_localEulerAngles(Vector3 V);
+	void                Set_localEulerAngles(float f1, float f2, float f3);
+
+	std::weak_ptr<Transform> Get_parent       () const;
+	void				Set_parent       (std::weak_ptr<Transform>   P);
+	void				Set_parent       (std::shared_ptr<Transform> P);
+
+	Matrix              Get_world_matrix() const;
+
+	//Function
+	Quaternion LookAt(Vector3 pos);
+
 private:
-	Quaternion _rotation         = { 0, 0, 0 ,0 };
-	Quaternion _localRotation    = { 0, 0, 0 ,0 };
-	Vector3    _eulerAngles      = { 0, 0, 0 };
-	Vector3    _localEulerAngles = { 0, 0, 0 };
+	Vector3    position         = { 0, 0, 0 };
+	Quaternion rotation         = { 0, 0, 0 ,0 };
+	Vector3    scale            = { 0, 0, 0 };
 
-	bool isUpdate_rot = false;
+	Vector3    localPosition = { 0, 0, 0 };
+	Quaternion localRotation = { 0, 0, 0 ,0 };
+	Vector3    localScale    = { 0, 0, 0 };
 
-	void Change_rot(Quaternion q);
-	void Change_rot(Vector3 v);
+	Vector3 forward = { 0.0f, 0.0f, 1.0f };
+	Vector3 right   = { 1.0f, 0.0f, 0.0f };
+	Vector3 up      = { 0.0f, 1.0f, 0.0f };
+
+	Matrix world_matrix       = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+	Matrix scale_matrix       = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+	Matrix rotation_matrix    = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+	Matrix translation_matrix = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+
+	std::weak_ptr<Transform> parent;
 };

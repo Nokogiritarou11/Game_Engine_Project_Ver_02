@@ -34,4 +34,10 @@ struct Mathf
 		float f = min(max(Value, Min), Max);
 		return f;
 	}
+
+	static bool Approximately(float x, float y, const float epsilon = FLT_EPSILON)
+	{
+		if (fabsf(x - y) < epsilon)return true;
+		return false;
+	}
 };

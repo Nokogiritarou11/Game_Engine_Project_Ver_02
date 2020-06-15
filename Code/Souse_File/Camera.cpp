@@ -10,7 +10,7 @@ using namespace std;
 void Camera::Initialize(std::shared_ptr<GameObject> obj)
 {
 	gameObject = obj;
-	transform  = obj->transform;
+	transform = obj->transform;
 	Camera_Manager::Add(static_pointer_cast<Camera>(shared_from_this()));
 	DxSystem::DeviceContext->RSGetViewports(&num_viewports, &viewport);
 }
@@ -29,10 +29,11 @@ void Camera::Update()
 	// ビュー行列を作成
 	// カメラの設定
 	{
-		Vector4 eye = { transform->position.x,transform->position.y,transform->position.z ,0 };
+		Vector3 pos = transform->Get_position();
+		Vector4 eye = { pos.x,pos.y,pos.z ,0 };
 		XMVECTOR eye_v = XMLoadFloat4(&eye);
 
-		XMVECTOR focus_v = eye_v + XMLoadFloat3(&transform->forward);
+		XMVECTOR focus_v = eye_v + XMLoadFloat3(&transform->Get_forward());
 
 		XMVECTOR camForward = XMVector3Normalize(focus_v - eye_v);    // Get forward vector based on target
 		camForward = XMVectorSetY(camForward, 0.0f);    // set forwards y component to 0 so it lays only on

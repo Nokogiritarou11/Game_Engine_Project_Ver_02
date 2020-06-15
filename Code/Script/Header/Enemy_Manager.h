@@ -1,18 +1,22 @@
 #pragma once
+
 #include "MonoBehaviour.h"
+#include "GameObject.h"
 #include "Transform.h"
+#include "enemy.h"
 using namespace DirectX;
 using namespace std;
 
-class Title : public MonoBehaviour
+class Enemy_Manager : public MonoBehaviour
 {
 public:
+
+	void Awake();
 	void Start();
 	void Update();
+
+	void Instance_Enemy(Vector3 pos, Vector3 rot);
+
 private:
-	weak_ptr<GameObject> title;
-	weak_ptr<GameObject> text;
-	weak_ptr<GameObject> explain;
-	float timer = 0;
-	int state = 0;
+
 };

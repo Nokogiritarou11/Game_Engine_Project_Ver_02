@@ -32,47 +32,47 @@ shared_ptr<GameObject> Object::Instantiate(string name)
 shared_ptr<GameObject> Object::Instantiate(string name, shared_ptr<Transform> parent)
 {
 	shared_ptr<GameObject> obj = Scene_Manager::Instance_GameObject(name);
-	obj->transform->parent     = parent;
+	obj->transform->Set_parent(parent);
 	return obj;
 }
 
 shared_ptr<GameObject> Object::Instantiate(string name, shared_ptr<Transform> parent, bool instantiateInWorldSpace)
 {
 	shared_ptr<GameObject> obj = Scene_Manager::Instance_GameObject(name);
-	obj->transform->parent     = parent;
+	obj->transform->Set_parent(parent);
 	return obj;
 }
 
 shared_ptr<GameObject> Object::Instantiate(string name, Vector3 position, Vector3 euler)
 {
 	shared_ptr<GameObject> obj  = Scene_Manager::Instance_GameObject(name);
-	obj->transform->position    = position;
-	obj->transform->eulerAngles = euler;
+	obj->transform->Set_position(position);
+	obj->transform->Set_eulerAngles(euler);
 	return obj;
 }
 
 shared_ptr<GameObject> Object::Instantiate(string name, Vector3 position, Vector4 rotation)
 {
 	shared_ptr<GameObject> obj = Scene_Manager::Instance_GameObject(name);
-	obj->transform->position   = position;
-	obj->transform->rotation   = rotation;
+	obj->transform->Set_position(position);
+	obj->transform->Set_rotation(rotation);
 	return obj;
 }
 
 shared_ptr<GameObject> Object::Instantiate(string name, Vector3 position, Vector3 euler, shared_ptr<Transform> parent)
 {
 	shared_ptr<GameObject> obj       = Scene_Manager::Instance_GameObject(name);
-	obj->transform->parent           = parent;
-	obj->transform->localPosition    = position;
-	obj->transform->localEulerAngles = euler;
+	obj->transform->Set_parent(parent);
+	obj->transform->Set_localPosition(position);
+	obj->transform->Set_localEulerAngles(euler);
 	return obj;
 }
 
 shared_ptr<GameObject> Object::Instantiate(string name, Vector3 position, Vector4 rotation, shared_ptr<Transform> parent)
 {
 	shared_ptr<GameObject> obj    = Scene_Manager::Instance_GameObject(name);
-	obj->transform->parent        = parent;
-	obj->transform->localPosition = position;
-	obj->transform->localRotation = rotation;
+	obj->transform->Set_parent(parent);
+	obj->transform->Set_localPosition(position);
+	obj->transform->Set_localRotation(rotation);
 	return obj;
 }

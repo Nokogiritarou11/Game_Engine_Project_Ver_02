@@ -3,6 +3,7 @@
 #include "Camera_Manager.h"
 #include "MonoBehaviour_Manager.h"
 #include "Render_Manager.h"
+#include "Debug_UI.h"
 using namespace std;
 
 //**********************************************
@@ -11,10 +12,11 @@ using namespace std;
 //
 //**********************************************
 
-std::weak_ptr<Scene> Scene_Manager::Active_Scene;
-std::list<Scene_Manager::Scene_Data> Scene_Manager::Scene_List;
+weak_ptr<Scene> Scene_Manager::Active_Scene;
+list<Scene_Manager::Scene_Data> Scene_Manager::Scene_List;
+string Scene_Manager::Active_Scene_Name;
 bool Scene_Manager::Load;
-std::string Scene_Manager::Next_Scene_Name;
+string Scene_Manager::Next_Scene_Name;
 
 void Scene_Manager::CreateScene(shared_ptr<Scene> Scene_Class, string Scene_Name)
 {
@@ -39,6 +41,7 @@ void Scene_Manager::Set_StartScene(string Scene_Name)
 		if (itr->Name == Scene_Name)
 		{
 			Active_Scene = itr->Scene_ptr;
+			Active_Scene_Name = itr->Name;
 			itr->Scene_ptr->Initialize();
 			return;
 		}
@@ -91,6 +94,7 @@ void Scene_Manager::Update()
 				shared_ptr<Scene> Play_Scene = Active_Scene.lock();
 				Play_Scene->Reset();
 				Active_Scene = itr->Scene_ptr;
+				Active_Scene_Name = itr->Name;
 				itr->Scene_ptr->Initialize();
 				Load = false;
 				break;
@@ -99,5 +103,6 @@ void Scene_Manager::Update()
 	}
 
 	shared_ptr<Scene> Play_Scene = Active_Scene.lock();
+	Debug_UI::Update(Play_Scene, Active_Scene_Name);
 	Play_Scene->Update();
 }

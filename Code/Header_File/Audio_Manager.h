@@ -12,7 +12,7 @@ class Audio_Manager
 {
 public:
 	static unique_ptr <AudioEngine> m_audEngine;
-
+	/*
 	static unique_ptr <SoundEffect> BGM_play_eff;
 	static unique_ptr <SoundEffect> BGM_title_eff;
 
@@ -25,7 +25,7 @@ public:
 	static unique_ptr <SoundEffect> death;
 
 	float volume = 0;
-
+	*/
 	static void Initialize();
 
 private:

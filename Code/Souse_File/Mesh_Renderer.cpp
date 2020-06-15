@@ -55,7 +55,7 @@ void Mesh_Renderer::Render(std::shared_ptr<Camera> Render_Camera)
 	// ワールド行列、ビュー行列、プロジェクション行列を合成し行列データを取り出す。
 	XMMATRIX WVP;
 	XMFLOAT4X4 world_view_projection;
-	WVP = XMLoadFloat4x4(&transform->world) * XMLoadFloat4x4(&Render_Camera->V) * XMLoadFloat4x4(&Render_Camera->P);
+	WVP = XMLoadFloat4x4(&transform->Get_world_matrix()) * XMLoadFloat4x4(&Render_Camera->V) * XMLoadFloat4x4(&Render_Camera->P);
 	XMStoreFloat4x4(&world_view_projection, WVP);
 
 	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -80,7 +80,7 @@ void Mesh_Renderer::Render(std::shared_ptr<Camera> Render_Camera)
 			XMStoreFloat4x4(&data.world,
 				XMLoadFloat4x4(&mesh.global_transform) *
 				XMLoadFloat4x4(&transform->coordinate_conversion) *
-				XMLoadFloat4x4(&transform->world));
+				XMLoadFloat4x4(&transform->Get_world_matrix()));
 			DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer.Get(), 0, nullptr, &data, 0, 0);
 			DxSystem::DeviceContext->VSSetConstantBuffers(0, 1, ConstantBuffer.GetAddressOf());
 			DxSystem::DeviceContext->IASetInputLayout(material[subset.diffuse.ID]->shader->VertexLayout.Get());
