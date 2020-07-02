@@ -60,11 +60,18 @@ weak_ptr<GameObject> Scene::FindWithTag(std::string Tag)
 void Scene::Update()
 {
 	MonoBehaviour_Manager::Update();
+	/*
 	for (list<shared_ptr<GameObject>>::iterator itr = gameObject_List.begin(); itr != gameObject_List.end();)
 	{
 		(*itr)->transform->Update();
 		itr++;
 	}
+	for (list<shared_ptr<GameObject>>::iterator itr = gameObject_List.begin(); itr != gameObject_List.end();)
+	{
+		(*itr)->transform->isUpdated = false;
+		itr++;
+	}
+	*/
 }
 
 void Scene::Reset()
@@ -100,4 +107,7 @@ void Game_01_Scene::Initialize()
 	f_renderer->Set_Mesh(Mesh::Load_Mesh("Model\\", "haikei_yuka1.txt"));
 	f_renderer->material[0]->color = { 0,1,0,0 };
 
+	shared_ptr<GameObject> pool = GameObject::Instantiate(u8"ObjectPool");
+	pool->tag = "ObjectPool";
+	pool->AddComponent<ObjectPool>();
 }

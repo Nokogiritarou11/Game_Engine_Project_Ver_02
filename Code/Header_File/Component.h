@@ -4,6 +4,11 @@
 #include <list>
 #include <typeinfo>
 #include <memory>
+#include "imgui.h"
+#include "imgui_impl_win32.h"
+#include "imgui_impl_dx11.h"
+#include "imgui_stdlib.h"
+#include "IconsFontAwesome4.h"
 #include "Object.h"
 
 class GameObject;
@@ -23,6 +28,7 @@ public:
 
 	virtual void Initialize() {};
 	virtual void Initialize(std::shared_ptr<GameObject> obj) {};
+	virtual void Draw_ImGui() {};
 	template<class T>
 	std::shared_ptr<T> GetComponent();
 	template<class T>

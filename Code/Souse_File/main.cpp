@@ -4,6 +4,7 @@
 #include <tchar.h>
 #include <time.h>
 #include <WinSDKVer.h>
+#define _WIN32_WINNT 0x0A00
 #include <SDKDDKVer.h>
 #include "Engine.h"
 #include "Time.h"

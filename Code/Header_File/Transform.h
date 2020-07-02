@@ -23,7 +23,9 @@ public:
 	~Transform();
 
 	void Initialize(std::shared_ptr<GameObject> obj);
-	void Update();
+	//void Update();
+	void Draw_ImGui();
+	bool hasChanged = false;
 
 	//GetterSetter
 	Vector3             Get_position     () const;
@@ -74,21 +76,26 @@ public:
 
 private:
 	Vector3    position         = { 0, 0, 0 };
-	Quaternion rotation         = { 0, 0, 0 ,0 };
-	Vector3    scale            = { 0, 0, 0 };
+	Quaternion rotation         = { 0, 0, 0 ,1 };
+	Vector3    scale            = { 1, 1, 1 };
 
 	Vector3    localPosition = { 0, 0, 0 };
-	Quaternion localRotation = { 0, 0, 0 ,0 };
-	Vector3    localScale    = { 0, 0, 0 };
+	Quaternion localRotation = { 0, 0, 0 ,1 };
+	Vector3    localScale    = { 1, 1, 1 };
 
 	Vector3 forward = { 0.0f, 0.0f, 1.0f };
 	Vector3 right   = { 1.0f, 0.0f, 0.0f };
 	Vector3 up      = { 0.0f, 1.0f, 0.0f };
 
-	Matrix world_matrix       = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+	Matrix world_matrix       = { 1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1 };
 	Matrix scale_matrix       = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 	Matrix rotation_matrix    = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 	Matrix translation_matrix = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+
+	Matrix local_matrix            = { 1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1 };
+	Matrix localScale_matrix       = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+	Matrix localRotation_matrix    = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+	Matrix localTranslation_matrix = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 
 	std::weak_ptr<Transform> parent;
 };

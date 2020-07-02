@@ -44,6 +44,9 @@ public:
 	Shader() { /*ZeroMemory(this, sizeof(Shader));*/ }
 	virtual ~Shader();
 
+	bool Create_VS(WCHAR* filename, LPCSTR VSName);
+	bool Create_PS(WCHAR* filename, LPCSTR PSName);
+
 	bool Create(WCHAR* filename, LPCSTR VSName, LPCSTR PSName);
 	bool Create(WCHAR* filename, LPCSTR VSName, LPCSTR PSName, LPCSTR GSName);
 	bool Create(WCHAR* filename, LPCSTR VSName, LPCSTR PSName, LPCSTR GSName, LPCSTR HSName, LPCSTR DSName);

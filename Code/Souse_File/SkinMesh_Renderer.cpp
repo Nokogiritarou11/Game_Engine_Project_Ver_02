@@ -43,7 +43,7 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 		{
 			mesh_data->skin_meshes[i].subsets[j].diffuse.ID = Subset_ID;
 			string Mat_Name = mesh_data->name + "_" + mesh_data->skin_meshes[i].subsets[j].diffuse.TexName;
-			shared_ptr<Material> Mat = Material::Create(Mat_Name, L"Code/Shader/Default_SKinMesh.fx", mesh_data->skin_meshes[i].subsets[j].diffuse.TexPass.c_str());
+			shared_ptr<Material> Mat = Material::Create(Mat_Name, L"Shader/Default_SKinMesh.fx", mesh_data->skin_meshes[i].subsets[j].diffuse.TexPass.c_str());
 			material.emplace_back(Mat);
 			Subset_ID++;
 		}

@@ -227,7 +227,11 @@ void Debug_UI::Hierarchy_Render(shared_ptr<Scene> scene, std::string name)
 			const bool is_selected = (selection_mask & (1 << ID)) != 0;
 			if (is_selected) node_flags |= ImGuiTreeNodeFlags_Selected;
 
+			const bool active = (*itr)->activeSelf();
+			if (!active) { ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(0.f, 0.f, 0.4f)); }
 			bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)ID, node_flags, (*itr)->name.c_str());
+			if (!active) { ImGui::PopStyleColor(); }
+
 			if (ImGui::IsItemClicked())
 			{
 				node_clicked = ID;
@@ -267,34 +271,11 @@ void Debug_UI::Inspector_Render()
 		ImGui::SetNextItemOpen(true, ImGuiCond_Always);
 		if (ImGui::TreeNode(obj->name.c_str()))
 		{
-			ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-			if (ImGui::TreeNode("Transform"))
+
+			list<shared_ptr<Component>>::iterator itr_end = obj->Component_List.end();
+			for (list<shared_ptr<Component>>::iterator itr = obj->Component_List.begin(); itr != itr_end; itr++)
 			{
-				static float pos[3] = { 0,0,0 };
-				Vector3 trans_pos = obj->transform->Get_position();
-				pos[0] = trans_pos.x;
-				pos[1] = trans_pos.y;
-				pos[2] = trans_pos.z;
-				ImGui::DragFloat3(u8"Position", pos, 0.05f, -FLT_MAX, FLT_MAX);
-				obj->transform->Set_position(pos[0], pos[1], pos[2]);
-
-				static float rot[3] = { 0,0,0 };
-				Vector3 trans_rot = obj->transform->Get_eulerAngles();
-				rot[0] = trans_rot.x;
-				rot[1] = trans_rot.y;
-				rot[2] = trans_rot.z;
-				ImGui::DragFloat3(u8"Rotation", rot, 0.05f, -FLT_MAX, FLT_MAX);
-				obj->transform->Set_eulerAngles(rot[0], rot[1], rot[2]);
-
-				static float scl[3] = { 1,1,1 };
-				Vector3 trans_scl = obj->transform->Get_scale();
-				scl[0] = trans_scl.x;
-				scl[1] = trans_scl.y;
-				scl[2] = trans_scl.z;
-				ImGui::DragFloat3(u8"Scale", scl, 0.01f, -FLT_MAX, FLT_MAX);
-				obj->transform->Set_scale(scl[0], scl[1], scl[2]);
-
-				ImGui::TreePop();
+				(*itr)->Draw_ImGui();
 			}
 			ImGui::TreePop();
 		}

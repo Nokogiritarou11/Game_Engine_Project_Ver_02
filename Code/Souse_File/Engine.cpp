@@ -4,7 +4,7 @@ using namespace std;
 Engine::Engine()
 {
 	Input_Manager::Initialize();
-	Audio_Manager::Initialize();
+	//Audio_Manager::Initialize();
 	Scene_Manager::CreateScene(make_shared<Game_01_Scene>(), u8"Game_01_Scene");
 	Scene_Manager::Set_StartScene(u8"Game_01_Scene");
 }

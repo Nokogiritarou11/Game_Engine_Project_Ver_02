@@ -15,6 +15,18 @@ void Camera::Initialize(std::shared_ptr<GameObject> obj)
 	DxSystem::DeviceContext->RSGetViewports(&num_viewports, &viewport);
 }
 
+void Camera::Draw_ImGui()
+{
+	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
+	if (ImGui::TreeNode("Camera"))
+	{
+		ImGui::DragFloat("FOV", &FOV, 0.1f, -FLT_MAX, FLT_MAX);
+		ImGui::DragFloat(u8"最短描画距離", &near_z, 0.1f, -FLT_MAX, FLT_MAX);
+		ImGui::DragFloat(u8"最長描画距離", &far_z, 0.1f, -FLT_MAX, FLT_MAX);
+		ImGui::TreePop();
+	}
+}
+
 void Camera::Update()
 {
 	// プロジェクション行列を作成

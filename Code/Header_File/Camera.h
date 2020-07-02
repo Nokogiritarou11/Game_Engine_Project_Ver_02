@@ -20,6 +20,7 @@ public:
 
 	void Initialize(std::shared_ptr<GameObject> obj);
 	void Update();
+	void Draw_ImGui();
 	Vector2 WorldToViewportPoint(Vector3 pos);
 private:
 

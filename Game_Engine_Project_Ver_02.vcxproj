@@ -90,13 +90,14 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>.\Code\Script\Header;.\Code\Header_File;.\DirectXTK-master\Inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\Script\Header;.\Code\Libraries\cereal;.\Code\Libraries\ImGui;.\DirectXTK-jun2020\Inc;.\Code\Header_File</AdditionalIncludeDirectories>
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>d3d11.lib;dxgi.lib;DirectXTK.lib;wininet.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>.\DirectXTK-master\Bin\Desktop_2019\Win32\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\2190265\Desktop\ECC\Game_Engine_Project_Ver_02\DirectXTK-jun2020\Bin\Desktop_2019_Win10\Win32\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -129,14 +130,15 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>.\Code\Script\Header;.\Code\Header_File;.\DirectXTK-master\Inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\Script\Header;.\Code\Libraries\cereal;.\Code\Libraries\ImGui;.\DirectXTK-jun2020\Inc;.\Code\Header_File</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>.\DirectXTK-master\Bin\Desktop_2019\Win32\Release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
       <AdditionalDependencies>DirectXTK.lib;d3d11.lib;dxgi.lib;wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
@@ -166,13 +168,17 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Code\Script\Souse\Camera_Set.cpp" />
-    <ClCompile Include="Code\Script\Souse\Enemy.cpp" />
-    <ClCompile Include="Code\Script\Souse\Enemy_Manager.cpp" />
-    <ClCompile Include="Code\Script\Souse\Player.cpp" />
+    <ClCompile Include="Code\Libraries\ImGui\imgui.cpp" />
+    <ClCompile Include="Code\Libraries\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="Code\Libraries\ImGui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="Code\Libraries\ImGui\imgui_impl_win32.cpp" />
+    <ClCompile Include="Code\Libraries\ImGui\imgui_stdlib.cpp" />
+    <ClCompile Include="Code\Libraries\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Code\Souse_File\Animator.cpp" />
     <ClCompile Include="Code\Souse_File\Animator_Manager.cpp" />
-    <ClCompile Include="Code\Souse_File\Audio_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\Audio_Manager.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Code\Souse_File\Behaviour.cpp" />
     <ClCompile Include="Code\Souse_File\Camera.cpp" />
     <ClCompile Include="Code\Souse_File\Camera_Manager.cpp" />
@@ -182,12 +188,6 @@
     <ClCompile Include="Code\Souse_File\DxSystem.cpp" />
     <ClCompile Include="Code\Souse_File\Engine.cpp" />
     <ClCompile Include="Code\Souse_File\GameObject.cpp" />
-    <ClCompile Include="Code\Souse_File\imgui.cpp" />
-    <ClCompile Include="Code\Souse_File\imgui_draw.cpp" />
-    <ClCompile Include="Code\Souse_File\imgui_impl_dx11.cpp" />
-    <ClCompile Include="Code\Souse_File\imgui_impl_win32.cpp" />
-    <ClCompile Include="Code\Souse_File\imgui_stdlib.cpp" />
-    <ClCompile Include="Code\Souse_File\imgui_widgets.cpp" />
     <ClCompile Include="Code\Souse_File\Input_Manager.cpp" />
     <ClCompile Include="Code\Souse_File\main.cpp" />
     <ClCompile Include="Code\Souse_File\Material.cpp" />
@@ -217,11 +217,43 @@
     </ClCompile>
     <ClCompile Include="Code\Souse_File\Time.cpp" />
     <ClCompile Include="Code\Souse_File\Transform.cpp" />
+    <ClCompile Include="Librarys\ImGui\imgui.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Librarys\ImGui\imgui_draw.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Librarys\ImGui\imgui_impl_dx11.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Librarys\ImGui\imgui_impl_win32.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Librarys\ImGui\imgui_stdlib.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Librarys\ImGui\imgui_widgets.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Script\Souse\Bullet.cpp" />
+    <ClCompile Include="Script\Souse\Camera_Set.cpp" />
+    <ClCompile Include="Script\Souse\Enemy.cpp" />
+    <ClCompile Include="Script\Souse\Enemy_Manager.cpp" />
+    <ClCompile Include="Script\Souse\ObjectPool.cpp" />
+    <ClCompile Include="Script\Souse\Player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Animator.h" />
     <ClInclude Include="Code\Header_File\Animator_Manager.h" />
-    <ClInclude Include="Code\Header_File\Audio_Manager.h" />
+    <ClInclude Include="Code\Header_File\Audio_Manager.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Code\Header_File\Behaviour.h" />
     <ClInclude Include="Code\Header_File\Camera.h" />
     <ClInclude Include="Code\Header_File\Camera_Manager.h" />
@@ -231,16 +263,6 @@
     <ClInclude Include="Code\Header_File\DxSystem.h" />
     <ClInclude Include="Code\Header_File\Engine.h" />
     <ClInclude Include="Code\Header_File\GameObject.h" />
-    <ClInclude Include="Code\Header_File\IconsFontAwesome4.h" />
-    <ClInclude Include="Code\Header_File\imconfig.h" />
-    <ClInclude Include="Code\Header_File\imgui.h" />
-    <ClInclude Include="Code\Header_File\imgui_impl_dx11.h" />
-    <ClInclude Include="Code\Header_File\imgui_impl_win32.h" />
-    <ClInclude Include="Code\Header_File\imgui_internal.h" />
-    <ClInclude Include="Code\Header_File\imgui_stdlib.h" />
-    <ClInclude Include="Code\Header_File\imstb_rectpack.h" />
-    <ClInclude Include="Code\Header_File\imstb_textedit.h" />
-    <ClInclude Include="Code\Header_File\imstb_truetype.h" />
     <ClInclude Include="Code\Header_File\Input_Manager.h" />
     <ClInclude Include="Code\Header_File\Material.h" />
     <ClInclude Include="Code\Header_File\Mathf.h" />
@@ -272,11 +294,63 @@
     </ClInclude>
     <ClInclude Include="Code\Header_File\Time.h" />
     <ClInclude Include="Code\Header_File\Transform.h" />
-    <ClInclude Include="Code\Script\Header\All_Script.h" />
-    <ClInclude Include="Code\Script\Header\Camera_Set.h" />
-    <ClInclude Include="Code\Script\Header\Enemy.h" />
-    <ClInclude Include="Code\Script\Header\Enemy_Manager.h" />
-    <ClInclude Include="Code\Script\Header\Player.h" />
+    <ClInclude Include="Code\Libraries\ImGui\IconsFontAwesome4.h" />
+    <ClInclude Include="Code\Libraries\ImGui\imconfig.h" />
+    <ClInclude Include="Code\Libraries\ImGui\imgui.h" />
+    <ClInclude Include="Code\Libraries\ImGui\imgui_impl_dx11.h" />
+    <ClInclude Include="Code\Libraries\ImGui\imgui_impl_win32.h" />
+    <ClInclude Include="Code\Libraries\ImGui\imgui_internal.h" />
+    <ClInclude Include="Code\Libraries\ImGui\imgui_stdlib.h" />
+    <ClInclude Include="Code\Libraries\ImGui\imstb_rectpack.h" />
+    <ClInclude Include="Code\Libraries\ImGui\imstb_textedit.h" />
+    <ClInclude Include="Code\Libraries\ImGui\imstb_truetype.h" />
+    <ClInclude Include="Librarys\ImGui\IconsFontAwesome4.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Librarys\ImGui\imconfig.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Librarys\ImGui\imgui.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Librarys\ImGui\imgui_impl_dx11.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Librarys\ImGui\imgui_impl_win32.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Librarys\ImGui\imgui_internal.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Librarys\ImGui\imgui_stdlib.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Librarys\ImGui\imstb_rectpack.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Librarys\ImGui\imstb_textedit.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Librarys\ImGui\imstb_truetype.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Script\Header\All_Script.h" />
+    <ClInclude Include="Script\Header\Bullet.h" />
+    <ClInclude Include="Script\Header\Camera_Set.h" />
+    <ClInclude Include="Script\Header\Enemy.h" />
+    <ClInclude Include="Script\Header\Enemy_Manager.h" />
+    <ClInclude Include="Script\Header\ObjectPool.h" />
+    <ClInclude Include="Script\Header\Player.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Code\Shader\2D.fx">
@@ -299,10 +373,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="DirectXTK-master\Audio\DirectXTKAudio_Desktop_2019_Win8.vcxproj">
-      <Project>{4f150a30-cecb-49d1-8283-6a3f57438cf5}</Project>
-    </ProjectReference>
-    <ProjectReference Include="DirectXTK-master\DirectXTK_Desktop_2019.vcxproj">
+    <ProjectReference Include="DirectXTK-jun2020\DirectXTK_Desktop_2019_Win10.vcxproj">
       <Project>{e0b52ae7-e160-4d32-bf3f-910b785e5a8e}</Project>
     </ProjectReference>
   </ItemGroup>

@@ -49,6 +49,125 @@ HRESULT Shader::Compile(WCHAR* filename, LPCSTR method, LPCSTR shaderModel, ID3D
 }
 
 //------------------------------------------------
+//	シェーダー単体コンパイル
+//------------------------------------------------
+bool Shader::Create_VS(WCHAR* filename, LPCSTR VSFunc)
+{
+	HRESULT hr = S_OK;
+
+	ComPtr<ID3DBlob> VSBlob = NULL;
+	// 頂点シェーダ
+
+	auto it = vertex_cache.find(filename);
+	if (it != vertex_cache.end())
+	{
+		VS = it->second.vertex_shader;
+		VertexLayout = it->second.input_layout;
+	}
+	else
+	{
+		hr = Compile(filename, VSFunc, "vs_5_0", VSBlob.GetAddressOf());
+		assert(SUCCEEDED(hr));
+
+		// 頂点シェーダ生成
+		hr = DxSystem::Device->CreateVertexShader(VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), NULL, VS.GetAddressOf());
+		assert(SUCCEEDED(hr));
+
+		// Reflect shader info
+		ID3D11ShaderReflection* pVertexShaderReflection = NULL;
+		hr = D3DReflect(VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&pVertexShaderReflection);
+		assert(SUCCEEDED(hr));
+
+		// Get shader info
+		D3D11_SHADER_DESC shaderDesc;
+		pVertexShaderReflection->GetDesc(&shaderDesc);
+
+		// Read input layout description from shader info
+		std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc;
+		for (UINT32 i = 0; i < shaderDesc.InputParameters; i++)
+		{
+			D3D11_SIGNATURE_PARAMETER_DESC paramDesc;
+			pVertexShaderReflection->GetInputParameterDesc(i, &paramDesc);
+
+			// fill out input element desc
+			D3D11_INPUT_ELEMENT_DESC elementDesc;
+			elementDesc.SemanticName = paramDesc.SemanticName;
+			elementDesc.SemanticIndex = paramDesc.SemanticIndex;
+			elementDesc.InputSlot = 0;
+			elementDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+			elementDesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			elementDesc.InstanceDataStepRate = 0;
+
+			// determine DXGI format
+			if (paramDesc.Mask == 1)
+			{
+				if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) elementDesc.Format = DXGI_FORMAT_R32_UINT;
+				else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) elementDesc.Format = DXGI_FORMAT_R32_SINT;
+				else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) elementDesc.Format = DXGI_FORMAT_R32_FLOAT;
+			}
+			else if (paramDesc.Mask <= 3)
+			{
+				if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) elementDesc.Format = DXGI_FORMAT_R32G32_UINT;
+				else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) elementDesc.Format = DXGI_FORMAT_R32G32_SINT;
+				else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) elementDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
+			}
+			else if (paramDesc.Mask <= 7)
+			{
+				if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) elementDesc.Format = DXGI_FORMAT_R32G32B32_UINT;
+				else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) elementDesc.Format = DXGI_FORMAT_R32G32B32_SINT;
+				else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) elementDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+			}
+			else if (paramDesc.Mask <= 15)
+			{
+				if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) elementDesc.Format = DXGI_FORMAT_R32G32B32A32_UINT;
+				else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) elementDesc.Format = DXGI_FORMAT_R32G32B32A32_SINT;
+				else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) elementDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+			}
+
+			//save element desc
+			inputLayoutDesc.push_back(elementDesc);
+		}
+
+		// Try to create Input Layout
+		hr = DxSystem::Device->CreateInputLayout(&inputLayoutDesc[0], inputLayoutDesc.size(), VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), VertexLayout.GetAddressOf());
+		assert(SUCCEEDED(hr));
+
+		vertex_cache.insert(make_pair(filename, set_of_vertex_shader_and_input_layout(VS.Get(), VertexLayout.Get())));
+		// 入力レイアウト設定
+		DxSystem::DeviceContext->IASetInputLayout(VertexLayout.Get());
+		//Free allocation shader reflection memory
+		pVertexShaderReflection->Release();
+	}
+	return true;
+}
+bool Shader::Create_PS(WCHAR* filename, LPCSTR PSFunc)
+{
+	HRESULT hr = S_OK;
+
+	// ピクセルシェーダ
+	auto itr = pixel_cache.find(filename);
+	if (itr != pixel_cache.end())
+	{
+		PS = itr->second;
+	}
+	else
+	{
+		ComPtr<ID3DBlob> PSBlob = NULL;
+		hr = Compile(filename, PSFunc, "ps_5_0", &PSBlob);
+		if (FAILED(hr))
+		{
+			return false;
+		}
+		// ピクセルシェーダ生成
+		hr = DxSystem::Device->CreatePixelShader(PSBlob->GetBufferPointer(), PSBlob->GetBufferSize(), NULL, PS.GetAddressOf());
+		pixel_cache.insert(make_pair(filename, PS.Get()));
+		//PSBlob->Release();
+		assert(SUCCEEDED(hr));
+	}
+	return true;
+}
+
+//------------------------------------------------
 //	シェーダーセットコンパイル
 //------------------------------------------------
 bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc)
