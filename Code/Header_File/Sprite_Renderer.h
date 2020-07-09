@@ -31,7 +31,7 @@ public:
 	std::shared_ptr<Material> material;
 
 	void Initialize(std::shared_ptr<GameObject> obj);
-	void Set_Texture(std::string Material_Name, WCHAR* Shader_Name, const wchar_t* filename);
+	void Set_Texture(std::string Material_Name, WCHAR* Shader_Name, std::string filename);
 	void Render(std::shared_ptr<Camera> Render_Camera);
 };
 

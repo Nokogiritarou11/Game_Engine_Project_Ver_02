@@ -4,7 +4,7 @@
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
 #include <DirectXCollision.h>
-
+#include "cereal/cereal.hpp"
 #ifndef XM_CONSTEXPR
 #define XM_CONSTEXPR
 #endif
@@ -115,6 +115,12 @@ struct Vector2 : public DirectX::XMFLOAT2
 	static const Vector2 One;
 	static const Vector2 UnitX;
 	static const Vector2 UnitY;
+
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(x, y);
+	}
 };
 
 // Binary operators
@@ -234,6 +240,12 @@ struct Vector3 : public DirectX::XMFLOAT3
 	static const Vector3 Left;
 	static const Vector3 Forward;
 	static const Vector3 Backward;
+
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(x, y, z);
+	}
 };
 
 // Binary operators
@@ -347,6 +359,12 @@ struct Vector4 : public DirectX::XMFLOAT4
 	static const Vector4 UnitY;
 	static const Vector4 UnitZ;
 	static const Vector4 UnitW;
+
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(x, y, z, w);
+	}
 };
 
 // Binary operators
@@ -504,6 +522,12 @@ struct Matrix : public DirectX::XMFLOAT4X4
 
 	// Constants
 	static const Matrix Identity;
+
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(_11, _12, _13, _14, _21, _22, _23, _24, _31, _32, _33, _34, _41, _42, _43, _44 );
+	}
 };
 
 // Binary operators
@@ -585,6 +609,12 @@ struct Quaternion : public DirectX::XMFLOAT4
 
 	// Constants
 	static const Quaternion Identity;
+
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(x, y, z, w);
+	}
 };
 
 // Binary operators

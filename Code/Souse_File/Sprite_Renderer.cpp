@@ -39,7 +39,7 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 	DxSystem::Device->CreateBuffer(&bd, &res, VertexBuffer.GetAddressOf());
 }
 
-void Sprite_Renderer::Set_Texture(std::string Material_Name, WCHAR* Shader_Name, const wchar_t* filename)
+void Sprite_Renderer::Set_Texture(std::string Material_Name, WCHAR* Shader_Name, string filename)
 {
 	material = Material::Create(Material_Name, Shader_Name, filename);
 }

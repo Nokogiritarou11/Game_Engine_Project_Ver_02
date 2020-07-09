@@ -22,6 +22,6 @@ void Enemy_Manager::Instance_Enemy(Vector3 pos, Vector3 rot)
 	enemy->tag = "Enemy";
 	enemy->AddComponent<Enemy>();
 	shared_ptr<SkinMesh_Renderer> renderer = enemy->AddComponent<SkinMesh_Renderer>();
-	renderer->Set_Mesh(Mesh::Load_Mesh("Model\\", "tank_enemy.txt"));
+	renderer->Set_Mesh(Mesh::Load_Mesh("Model\\", "tank_enemy"));
 	enemys.push_back(enemy);
 }

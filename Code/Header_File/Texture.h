@@ -3,6 +3,8 @@
 #include <unordered_map>
 #include <wrl.h>
 #include <string>
+#include <clocale>
+#include <tchar.h>
 using Microsoft::WRL::ComPtr;
 
 class Texture
@@ -18,7 +20,7 @@ protected:
 public:
 	Texture();
 	virtual ~Texture();
-	bool Load(const wchar_t* filename = nullptr);
+	bool Load(std::string filename);
 	void Set(UINT Slot = 0, BOOL flg = TRUE);
 	UINT GetWidth() { return texture2d_desc.Width; }
 	UINT GetHeight() { return texture2d_desc.Height; }

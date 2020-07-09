@@ -93,7 +93,7 @@ void Game_01_Scene::Initialize()
 	player->tag = "Player";
 	player->AddComponent<Player>();
 	shared_ptr<SkinMesh_Renderer> renderer = player->AddComponent<SkinMesh_Renderer>();
-	renderer->Set_Mesh(Mesh::Load_Mesh("Model\\", "tank.txt"));
+	renderer->Set_Mesh(Mesh::Load_Mesh("Model\\", "tank"));
 	//renderer->Set_Mesh(Mesh::Load_Mesh("Model\\", "robot_00_01.txt"));
 
 	shared_ptr<GameObject> enemy_manager = GameObject::Instantiate(u8"Enemy_Manager");
@@ -104,7 +104,7 @@ void Game_01_Scene::Initialize()
 	shared_ptr<SkinMesh_Renderer> f_renderer = Floor->AddComponent<SkinMesh_Renderer>();
 	Floor->transform->Set_eulerAngles(-90, 0, 0);
 	Floor->transform->Set_scale(5, 5, 5);
-	f_renderer->Set_Mesh(Mesh::Load_Mesh("Model\\", "haikei_yuka1.txt"));
+	f_renderer->Set_Mesh(Mesh::Load_Mesh("Model\\", "haikei_yuka1"));
 	f_renderer->material[0]->color = { 0,1,0,0 };
 
 	shared_ptr<GameObject> pool = GameObject::Instantiate(u8"ObjectPool");

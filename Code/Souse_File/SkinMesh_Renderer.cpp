@@ -91,17 +91,17 @@ void SkinMesh_Renderer::Render(shared_ptr<Camera> Render_Camera)
 				XMLoadFloat4x4(&transform->coordinate_conversion) *
 				XMLoadFloat4x4(&transform->Get_world_matrix()));
 
-			if (mesh.skeletal_animation.size() > 0 && mesh.skeletal_animation[Animation_Index].size() > 0)
+			if (mesh.skeletal_animation.size() > 0 && mesh.skeletal_animation[Animation_Index].bones.size() > 0)
 			{
 				int frame = 0;
 				if (!Animation_End)
 				{
 					frame = Animation_Time / mesh.skeletal_animation[Animation_Index].sampling_time;
-					if (frame > mesh.skeletal_animation[Animation_Index].size() - 1)
+					if (frame > mesh.skeletal_animation[Animation_Index].bones.size() - 1)
 					{
 						if (!Animation_Loop)
 						{
-							frame = mesh.skeletal_animation[Animation_Index].size() - 1;
+							frame = mesh.skeletal_animation[Animation_Index].bones.size() - 1;
 							Animation_End = true;
 						}
 						else
@@ -113,10 +113,10 @@ void SkinMesh_Renderer::Render(shared_ptr<Camera> Render_Camera)
 				}
 				else
 				{
-					frame = mesh.skeletal_animation[Animation_Index].size() - 1;
+					frame = mesh.skeletal_animation[Animation_Index].bones.size() - 1;
 				}
-				Animation_Rate = (float)frame / mesh.skeletal_animation[Animation_Index].size();
-				vector<Mesh::bone> skeletal = mesh.skeletal_animation[Animation_Index].at(frame);
+				Animation_Rate = (float)frame / mesh.skeletal_animation[Animation_Index].bones.size();
+				vector<Mesh::bone> skeletal = mesh.skeletal_animation[Animation_Index].bones.at(frame);
 				size_t number_of_bones = skeletal.size();
 				_ASSERT_EXPR(number_of_bones < MAX_BONES, L"'the number_of_bones' exceeds MAX_BONES.");
 				for (size_t i = 0; i < number_of_bones; i++)

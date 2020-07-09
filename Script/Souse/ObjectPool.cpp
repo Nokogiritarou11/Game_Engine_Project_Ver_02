@@ -17,7 +17,7 @@ void ObjectPool::CreatePool()
 
 		g->AddComponent<Bullet>();
 		shared_ptr<SkinMesh_Renderer> renderer = g->AddComponent<SkinMesh_Renderer>();
-		renderer->Set_Mesh(Mesh::Load_Mesh("Model\\", "Sphere.txt"));
+		renderer->Set_Mesh(Mesh::Load_Mesh("Model\\", "Sphere"));
 
 		g->SetActive(false);
 		g_list.push_back(g);

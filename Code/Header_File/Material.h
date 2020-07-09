@@ -26,9 +26,9 @@ public:
 
 	//static std::shared_ptr<Material> Create();
 	//static std::shared_ptr<Material> Create(std::string Material_Name, WCHAR* Shader_Name);
-	static std::shared_ptr<Material> Create(std::string Material_Name, WCHAR* Shader_Name, const wchar_t* filename);
+	static std::shared_ptr<Material> Create(std::string Material_Name, WCHAR* Shader_Name, std::string filename);
 
 private:
 
-	static std::unordered_map<std::wstring, std::shared_ptr<Material>> mat_cache;
+	static std::unordered_map<std::string, std::shared_ptr<Material>> mat_cache;
 };

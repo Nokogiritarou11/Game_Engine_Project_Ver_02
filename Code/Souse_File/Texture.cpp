@@ -13,15 +13,21 @@ Texture::~Texture()
 {
 }
 
-bool Texture::Load(const wchar_t* filename)
+bool Texture::Load(string filename)
 {
 	HRESULT hr = S_OK;
 
 	//	シェーダーリソースビュー作成
 	ComPtr<ID3D11Resource>resource;
 
+
+	setlocale(LC_ALL, "japanese");
+	wchar_t FileName[MAX_PATH] = { 0 };
+	size_t ret = 0;
+	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
+
 	static unordered_map<wstring, ComPtr<ID3D11ShaderResourceView>> cache;
-	auto it = cache.find(filename);
+	auto it = cache.find(FileName);
 	if (it != cache.end())
 	{
 		//it->second.Attach(*shader_resource_view);
@@ -32,13 +38,13 @@ bool Texture::Load(const wchar_t* filename)
 	else
 	{
 		hr = DirectX::CreateWICTextureFromFile(DxSystem::Device.Get(),
-			filename, resource.GetAddressOf(), ShaderResourceView.GetAddressOf());
+			FileName, resource.GetAddressOf(), ShaderResourceView.GetAddressOf());
 		if (FAILED(hr))
 		{
 			assert(SUCCEEDED(hr));
 			return false;
 		}
-		cache.insert(make_pair(filename, ShaderResourceView));
+		cache.insert(make_pair(FileName, ShaderResourceView));
 	}
 
 	//テクスチャ情報取得
