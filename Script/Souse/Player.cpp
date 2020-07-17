@@ -1,7 +1,8 @@
-#include "Player.h"
 #include "Animator.h"
 #include "Camera.h"
-#include "Scene_Manager.h"
+#include "Include_Mono.h"
+#include "Player.h"
+using namespace std;
 
 void Player::Awake()
 {

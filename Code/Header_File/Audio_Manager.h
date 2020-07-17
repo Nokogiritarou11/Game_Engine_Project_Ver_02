@@ -11,7 +11,8 @@ using namespace std;
 class Audio_Manager
 {
 public:
-	static unique_ptr <AudioEngine> m_audEngine;
+	Audio_Manager();
+	unique_ptr <AudioEngine> m_audEngine;
 	/*
 	static unique_ptr <SoundEffect> BGM_play_eff;
 	static unique_ptr <SoundEffect> BGM_title_eff;
@@ -26,7 +27,6 @@ public:
 
 	float volume = 0;
 	*/
-	static void Initialize();
 
 private:
 };

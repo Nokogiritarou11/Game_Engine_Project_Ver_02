@@ -1,18 +1,8 @@
 #pragma once
-#include <stdio.h>
-#include <string>
+#include "Object.h"
 #include <list>
 #include <typeinfo>
 #include <memory>
-#include "imgui.h"
-#include "imgui_impl_win32.h"
-#include "imgui_impl_dx11.h"
-#include "imgui_stdlib.h"
-#include "IconsFontAwesome4.h"
-#include "Object.h"
-
-class GameObject;
-class Transform;
 
 class Component : public Object
 {
@@ -34,8 +24,18 @@ public:
 	template<class T>
 	std::shared_ptr<T> AddComponent();
 
+
 private:
+	friend class cereal::access;
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(cereal::base_class<Object>(this), tag);
+	}
 };
+
+CEREAL_REGISTER_TYPE(Component)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Object, Component)
 
 template<class T>
 std::shared_ptr<T> Component::GetComponent()

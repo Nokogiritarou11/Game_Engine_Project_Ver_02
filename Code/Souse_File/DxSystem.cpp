@@ -19,7 +19,7 @@ ComPtr<ID3D11RasterizerState>		DxSystem::RasterizerState[RASTERIZE_TYPE];
 ComPtr<ID3D11BlendState>			DxSystem::BlendState[BLEND_TYPE];
 
 ComPtr<IDXGIDebug>                  DxSystem::DXGIDebug;
-
+HWND								DxSystem::hwnd;
 int DxSystem::ScreenWidth = 1920;
 int DxSystem::ScreenHeight = 1080;
 XMFLOAT4 DxSystem::Light_Direction = { 0.0f, 1.0f, 0.0f, 0 };
@@ -32,7 +32,8 @@ float DxSystem::elapsed_time = 0;
 //****************************************************************
 bool DxSystem::Initialize(HWND hWnd, int width, int height)
 {
-	CreateDevice(hWnd);
+	hwnd = hWnd;
+	CreateDevice();
 	InitializeRenderTarget();
 	CreateRasterizerState();
 	CreateBlendState();
@@ -44,7 +45,7 @@ bool DxSystem::Initialize(HWND hWnd, int width, int height)
 //	デバイス生成
 //
 //****************************************************************
-HRESULT DxSystem::CreateDevice(HWND hWnd)
+HRESULT DxSystem::CreateDevice()
 {
 	HRESULT hr = S_OK;
 	UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
@@ -66,7 +67,7 @@ HRESULT DxSystem::CreateDevice(HWND hWnd)
 		DeviceContext.GetAddressOf());
 	if (FAILED(hr))
 	{
-		MessageBoxW(hWnd, L"D3D11CreateDevice", L"Err", MB_ICONSTOP);
+		MessageBoxW(hwnd, L"D3D11CreateDevice", L"Err", MB_ICONSTOP);
 		return S_FALSE;
 	}
 
@@ -112,7 +113,7 @@ HRESULT DxSystem::CreateDevice(HWND hWnd)
 	IDXGIDevice1* hpDXGI = NULL;
 	if (FAILED(Device.Get()->QueryInterface(__uuidof(IDXGIDevice1), (void**)&hpDXGI)))
 	{
-		MessageBoxW(hWnd, L"QueryInterface", L"Err", MB_ICONSTOP);
+		MessageBoxW(hwnd, L"QueryInterface", L"Err", MB_ICONSTOP);
 		return S_FALSE;
 	}
 
@@ -120,7 +121,7 @@ HRESULT DxSystem::CreateDevice(HWND hWnd)
 	IDXGIAdapter* hpAdapter = NULL;
 	if (FAILED(hpDXGI->GetAdapter(&hpAdapter)))
 	{
-		MessageBoxW(hWnd, L"GetAdapter", L"Err", MB_ICONSTOP);
+		MessageBoxW(hwnd, L"GetAdapter", L"Err", MB_ICONSTOP);
 		return S_FALSE;
 	}
 
@@ -129,12 +130,12 @@ HRESULT DxSystem::CreateDevice(HWND hWnd)
 	hpAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&hpDXGIFactory);
 	if (hpDXGIFactory == NULL)
 	{
-		MessageBoxW(hWnd, L"GetParent", L"Err", MB_ICONSTOP);
+		MessageBoxW(hwnd, L"GetParent", L"Err", MB_ICONSTOP);
 		return S_FALSE;
 	}
 
 	RECT clientRect;
-	GetClientRect(hWnd, &clientRect);
+	GetClientRect(hwnd, &clientRect);
 	ScreenWidth = clientRect.right;
 	ScreenHeight = clientRect.bottom;
 
@@ -152,13 +153,13 @@ HRESULT DxSystem::CreateDevice(HWND hWnd)
 	//scd.SampleDesc.Count = 1;
 	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	scd.BufferCount = 1;
-	scd.OutputWindow = hWnd;
+	scd.OutputWindow = hwnd;
 	scd.Windowed = TRUE;
 	scd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 	if (FAILED(hpDXGIFactory->CreateSwapChain(Device.Get(), &scd, SwapChain.GetAddressOf())))
 	{
-		MessageBoxW(hWnd, L"CreateSwapChain", L"Err", MB_ICONSTOP);
+		MessageBoxW(hwnd, L"CreateSwapChain", L"Err", MB_ICONSTOP);
 		return S_FALSE;
 	}
 

@@ -1,6 +1,5 @@
 #include "Audio_Manager.h"
 
-unique_ptr <AudioEngine> Audio_Manager::m_audEngine;
 /*
 unique_ptr <SoundEffect> Audio_Manager::BGM_play_eff;
 unique_ptr <SoundEffect> Audio_Manager::BGM_title_eff;
@@ -14,7 +13,7 @@ unique_ptr <SoundEffect> Audio_Manager::hit;
 unique_ptr <SoundEffect> Audio_Manager::death;
 */
 
-void Audio_Manager::Initialize()
+Audio_Manager::Audio_Manager()
 {
 	AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
 #ifdef _DEBUG

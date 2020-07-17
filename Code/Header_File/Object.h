@@ -5,6 +5,16 @@
 #include <Original_Math.h>
 #include <memory>
 
+#include "cereal/cereal.hpp"
+#include "cereal/access.hpp"
+#include "cereal/archives/binary.hpp"
+#include "cereal/types/vector.hpp"
+#include "cereal/types/list.hpp"
+#include "cereal/types/string.hpp"
+#include "cereal/types/polymorphic.hpp"
+#include "cereal/types/base_class.hpp"
+#include "cereal/types/memory.hpp"
+
 class Transform;
 class GameObject;
 
@@ -14,7 +24,7 @@ public:
 	std::string name;
 
 	Object();
-	~Object();
+	virtual ~Object();
 
 	std::string ToString();
 	static void Destroy(std::shared_ptr<GameObject> obj);
@@ -27,4 +37,12 @@ public:
 	static std::shared_ptr<GameObject> Instantiate(std::string name, Vector3 position, Vector4 rotation, std::shared_ptr<Transform> parent);
 
 private:
+	friend class cereal::access;
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(name);
+	}
 };
+
+CEREAL_REGISTER_TYPE(Object)

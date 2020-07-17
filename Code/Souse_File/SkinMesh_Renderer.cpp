@@ -2,16 +2,27 @@
 #include "GameObject.h"
 #include "Transform.h"
 #include "Render_Manager.h"
+#include "Debug.h"
+#include "Include_ImGui.h"
 using namespace std;
 
-SkinMesh_Renderer::SkinMesh_Renderer()
+void SkinMesh_Renderer::Initialize()
 {
+	Render_Manager::Add(static_pointer_cast<SkinMesh_Renderer>(shared_from_this()));
+	// 定数バッファの生成
+	if (!ConstantBuffer)
+	{
+		D3D11_BUFFER_DESC bd = {};
+		bd.Usage = D3D11_USAGE_DEFAULT;
+		bd.ByteWidth = sizeof(cbuffer);
+		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		bd.CPUAccessFlags = 0;
+		bd.MiscFlags = 0;
+		bd.StructureByteStride = 0;
+		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer.GetAddressOf());
+		assert(SUCCEEDED(hr), hr_trace(hr));
+	}
 }
-
-SkinMesh_Renderer::~SkinMesh_Renderer()
-{
-}
-
 void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 {
 	gameObject = obj;
@@ -20,21 +31,28 @@ void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 	// 定数バッファの生成
 	if (!ConstantBuffer)
 	{
-		D3D11_BUFFER_DESC bd   = {};
-		bd.Usage               = D3D11_USAGE_DEFAULT;
-		bd.ByteWidth           = sizeof(cbuffer);
-		bd.BindFlags           = D3D11_BIND_CONSTANT_BUFFER;
-		bd.CPUAccessFlags      = 0;
-		bd.MiscFlags           = 0;
+		D3D11_BUFFER_DESC bd = {};
+		bd.Usage = D3D11_USAGE_DEFAULT;
+		bd.ByteWidth = sizeof(cbuffer);
+		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		bd.CPUAccessFlags = 0;
+		bd.MiscFlags = 0;
 		bd.StructureByteStride = 0;
 		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer.GetAddressOf());
 		assert(SUCCEEDED(hr), hr_trace(hr));
+	}
+
+	if (file_pass != "")
+	{
+		Set_Mesh(Mesh::Load_Mesh(file_pass.c_str(), file_name.c_str()));
 	}
 }
 
 void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 {
 	mesh_data = Mesh_Data;
+	file_name = mesh_data->name;
+	file_pass = mesh_data->file_pass;
 	//material.clear();
 	unsigned long Subset_ID = 0;
 	for (int i = 0; i < mesh_data->skin_meshes.size(); i++)
@@ -132,6 +150,38 @@ void SkinMesh_Renderer::Render(shared_ptr<Camera> Render_Camera)
 			material[subset.diffuse.ID]->shader->Activate(); //PS,VSSetShader
 			// ↑で設定したリソースを利用してポリゴンを描画する。
 			DxSystem::DeviceContext->DrawIndexed(subset.index_count, subset.index_start, 0);
+		}
+	}
+}
+
+void SkinMesh_Renderer::Draw_ImGui()
+{
+	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
+	if (ImGui::CollapsingHeader("SkinMesh_Renderer"))
+	{
+		ImGui::Text(u8"現在のメッシュ::");
+		ImGui::SameLine();
+		ImGui::Text(file_name.c_str());
+		if (ImGui::Button(u8"メッシュを選択"))
+		{
+			string path = Debug_UI::Get_Open_File_Name();
+			//Debug::Log(path);
+			if (path != "")
+			{
+				int path_i = path.find_last_of("\\") + 1;//7
+				int ext_i = path.find_last_of(".");//10
+				string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
+				string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
+				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+				//Debug::Log(pathname);
+				//Debug::Log(extname);
+				//Debug::Log(filename);
+				Set_Mesh(Mesh::Load_Mesh(pathname.c_str(), filename.c_str()));
+			}
+			else
+			{
+				Debug::Log("ファイルを開けませんでした");
+			}
 		}
 	}
 }

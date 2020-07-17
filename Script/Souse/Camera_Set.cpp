@@ -1,5 +1,6 @@
 #include "Camera_Set.h"
-#include "Debug.h"
+#include "Include_Mono.h"
+using namespace std;
 
 void Camera_Set::Awake()
 {

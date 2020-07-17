@@ -3,7 +3,6 @@
 #include "GameObject.h"
 #include "Transform.h"
 using namespace DirectX;
-using namespace std;
 
 class Enemy : public MonoBehaviour
 {
@@ -16,7 +15,7 @@ public:
 
 private:
 
-	weak_ptr<Transform> player;
+	std::weak_ptr<Transform> player;
 
 	int move_state = 0;
 

@@ -2,6 +2,7 @@
 #include "DxSystem.h"
 #include "GameObject.h"
 #include "Render_Manager.h"
+#include "Include_ImGui.h"
 using namespace std;
 
 Sprite_Renderer::Sprite_Renderer()

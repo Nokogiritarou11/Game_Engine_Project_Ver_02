@@ -10,27 +10,6 @@ void Camera_Manager::Reset()
 	Camera_list.clear();
 }
 
-void Camera_Manager::Update()
-{
-	for (list<weak_ptr<Camera>>::iterator itr = Camera_list.begin(); itr != Camera_list.end();)
-	{
-		if (itr->expired())
-		{
-			itr = Camera_list.erase(itr);
-			continue;
-		}
-		shared_ptr<Camera> camera = itr->lock();
-		if (camera->gameObject->activeSelf())
-		{
-			if (camera->enabled)
-			{
-				camera->Update();
-			}
-		}
-		itr++;
-	}
-}
-
 void Camera_Manager::Render()
 {
 	for (list<weak_ptr<Camera>>::iterator itr = Camera_list.begin(); itr != Camera_list.end();)
@@ -45,6 +24,7 @@ void Camera_Manager::Render()
 		{
 			if (camera->enabled)
 			{
+				camera->Update();
 				Render_Manager::Render(camera);
 			}
 		}

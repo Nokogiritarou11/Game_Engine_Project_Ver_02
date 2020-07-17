@@ -1,5 +1,5 @@
 #include "Transform.h"
-#include "GameObject.h"
+#include "Include_ImGui.h"
 using namespace DirectX;
 using namespace std;
 
@@ -98,7 +98,7 @@ void Transform::Update()
 void Transform::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	if (ImGui::TreeNode("Transform"))
+	if (ImGui::CollapsingHeader("Transform"))
 	{
 		static bool has_parent;
 		if (shared_ptr<Transform> p = Get_parent().lock())
@@ -157,8 +157,6 @@ void Transform::Draw_ImGui()
 			Set_eulerAngles(rot[0], rot[1], rot[2]);
 			Set_position(pos[0], pos[1], pos[2]);
 		}
-
-		ImGui::TreePop();
 	}
 }
 

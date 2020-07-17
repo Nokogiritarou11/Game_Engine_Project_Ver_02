@@ -4,9 +4,6 @@
 #include <Original_Math.h>
 #include "ObjectPool.h"
 using namespace DirectX;
-using namespace std;
-
-class Animator;
 
 class Player : public MonoBehaviour
 {
@@ -17,7 +14,7 @@ public:
 	void Update();
 
 private:
-	weak_ptr<ObjectPool> pool;
+	std::weak_ptr<ObjectPool> pool;
 	Vector3 set_pos = { 0,0,0 };
 
 	float move_speed = 10.0f;

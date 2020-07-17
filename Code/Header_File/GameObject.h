@@ -1,11 +1,9 @@
 #pragma once
-#include <stdio.h>
+#include "Component.h"
 #include <typeinfo>
 #include <string>
 #include <list>
 #include <memory>
-#include "Transform.h"
-#include "Mesh_Renderer.h"
 
 class GameObject : public Object
 {
@@ -16,6 +14,7 @@ public:
 	bool activeSelf();
 	void SetActive(bool value);
 
+	bool Active = true; //Dont Use!! Please Use ActiveSelf() or SetActive() !! 
 	unsigned int ID = NULL;
 	int layer = 0;
 	std::string tag = "Default";
@@ -31,12 +30,17 @@ public:
 	static std::weak_ptr<GameObject> FindWithTag(std::string Tag);
 
 	static unsigned long ID_Count;
-private:
-	bool Active = true;
-	bool Old_Active = true;
 
-	void Set_OnEnable_OnDisable(std::shared_ptr<Component> comp);
+private:
+	friend class cereal::access;
+	template<class Archive>
+	void serialize(Archive& archive);
+
+	bool Old_Active = true;
 };
+
+CEREAL_REGISTER_TYPE(GameObject)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Object, GameObject)
 
 template<class T>
 std::shared_ptr<T> GameObject::GetComponent()
@@ -62,4 +66,11 @@ std::shared_ptr<T> GameObject::AddComponent()
 	buff->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
 	Component_List.emplace_back(buff);
 	return buff;
+}
+
+#include "Transform.h"
+template<class Archive>
+void GameObject::serialize(Archive& archive)
+{
+	archive(cereal::base_class<Object>(this), layer, tag, transform, Component_List, Active, Old_Active);
 }

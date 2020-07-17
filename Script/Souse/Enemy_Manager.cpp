@@ -1,5 +1,6 @@
 #include "Enemy_Manager.h"
 #include "SkinMesh_Renderer.h"
+using namespace std;
 
 void Enemy_Manager::Awake()
 {

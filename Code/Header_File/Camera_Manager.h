@@ -9,7 +9,6 @@ class Camera_Manager
 public:
 	static void Reset();
 
-	static void Update();
 	static void Render();
 	static void Add(std::shared_ptr<Camera> mono);
 

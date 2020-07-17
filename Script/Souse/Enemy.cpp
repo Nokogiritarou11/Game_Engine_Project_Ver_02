@@ -3,6 +3,7 @@
 #include "SkinMesh_Renderer.h"
 #include "Mesh_Renderer.h"
 #include "Animator.h"
+using namespace std;
 
 void Enemy::Awake()
 {

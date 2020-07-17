@@ -7,12 +7,12 @@ class SkinMesh_Renderer : public Renderer
 {
 public:
 
-	SkinMesh_Renderer();
-	~SkinMesh_Renderer();
-
+	void Initialize();
 	void Initialize(std::shared_ptr<GameObject> obj);
 	void Set_Mesh(std::shared_ptr<Mesh> Mesh_Data);
 	void Render(std::shared_ptr<Camera> Render_Camera);
+
+	void Draw_ImGui();
 
 	int   Animation_Index = 0;
 	float Animation_Time  = 0;
@@ -20,7 +20,15 @@ public:
 	bool  Animation_Loop  = false;
 	bool  Animation_End   = false;
 
+
 private:
+
+	friend class cereal::access;
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(cereal::base_class<Renderer>(this), file_name, file_pass);
+	}
 
 	struct cbuffer /////////////////////////////////////////////////////要変更
 	{
@@ -65,4 +73,9 @@ private:
 
 	ComPtr <ID3D11Buffer> ConstantBuffer; //コンスタントバッファ
 	std::shared_ptr<Mesh> mesh_data;
+	std::string file_name;
+	std::string file_pass;
 };
+
+CEREAL_REGISTER_TYPE(SkinMesh_Renderer)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Renderer, SkinMesh_Renderer)

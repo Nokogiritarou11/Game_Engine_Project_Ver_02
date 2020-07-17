@@ -1,4 +1,5 @@
 #pragma once
+#include "Input_Manager.h"
 #include <InitGUID.h>
 #include <dxgidebug.h>
 #include <d3d11.h>
@@ -7,7 +8,6 @@
 #include <Windows.h>
 #include <string.h>
 #include <DirectXMath.h>
-#include "Input_Manager.h"
 using Microsoft::WRL::ComPtr;
 
 #include <assert.h>
@@ -35,7 +35,7 @@ private:
 
 	static ComPtr<IDXGIDebug>               DXGIDebug;
 
-	static HRESULT CreateDevice(HWND hWnd);
+	static HRESULT CreateDevice();
 	static bool CreateDepthStencil();
 	static bool InitializeRenderTarget();
 
@@ -51,6 +51,7 @@ public:
 
 	static ComPtr<ID3D11Device>			Device;
 	static ComPtr<ID3D11DeviceContext>	DeviceContext;
+	static HWND hwnd;
 
 	static DirectX::XMFLOAT4 Light_Direction;
 	static float elapsed_time;

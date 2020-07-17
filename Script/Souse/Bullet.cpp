@@ -1,5 +1,5 @@
 #include "Bullet.h"
-
+using namespace std;
 void Bullet::Start()
 {
 	shared_ptr<GameObject> m = GameObject::FindWithTag("Enemy_Manager").lock();

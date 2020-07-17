@@ -1,24 +1,29 @@
 #include "Engine.h"
+#include "Camera_Manager.h"
+#include "Debug_UI.h"
 using namespace std;
+
+std::shared_ptr<Scene_Manager> Engine::scene_manager;
+std::shared_ptr<Input_Manager> Engine::input_manager;
+std::shared_ptr<Audio_Manager> Engine::audio_manager;
 
 Engine::Engine()
 {
-	Input_Manager::Initialize();
-	//Audio_Manager::Initialize();
-	Scene_Manager::CreateScene(make_shared<Game_01_Scene>(), u8"Game_01_Scene");
-	Scene_Manager::Set_StartScene(u8"Game_01_Scene");
+	Debug_UI::Initialize();
+	input_manager = make_shared<Input_Manager>();
+	audio_manager = make_shared<Audio_Manager>();
+	scene_manager = make_shared<Scene_Manager>();
+	scene_manager->CreateScene_Default("Default_Scene");
 }
 
 Engine::~Engine()
 {
 	DxSystem::Release();
 }
-
 void Engine::Update()
 {
-	Input_Manager::Update();
-	Scene_Manager::Update();
-	Camera_Manager::Update();
+	input_manager->Update();
+	scene_manager->Update();
 
 	DxSystem::Clear();
 	

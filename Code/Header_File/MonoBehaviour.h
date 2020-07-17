@@ -1,8 +1,6 @@
 #pragma once
 #include <stdio.h>
 #include "Behaviour.h"
-#include "Input_Manager.h"
-#include "Audio_Manager.h"
 #include "Mathf.h"
 #include "Original_Math.h"
 #include "Time.h"
@@ -10,7 +8,6 @@
 class MonoBehaviour : public Behavior
 {
 public:
-	bool Start_Flag = false;
 
 	MonoBehaviour();
 	~MonoBehaviour();
@@ -24,6 +21,8 @@ public:
 	virtual void OnDisable() {};
 	virtual void OnDestroy() {};
 
+	void Initialize();
 	void Initialize(std::shared_ptr<GameObject> obj);
+
 private:
 };

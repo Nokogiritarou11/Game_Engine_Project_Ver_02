@@ -1,21 +1,17 @@
 #pragma once
 
+#include <unordered_map>
+#include <vector>
+#include <wrl.h>
+#include <Original_Math.h>
+#include <tchar.h>
+#include "Material.h"
+#include <fbxsdk.h>
 #include "cereal/cereal.hpp"
 #include "cereal/archives/binary.hpp"
 #include "cereal/types/vector.hpp"
 #include "cereal/types/string.hpp"
 
-#include <unordered_map>
-#include <vector>
-#include <stdio.h>
-#include <wrl.h>
-#include <DirectXMath.h>
-#include <Original_Math.h>
-#include <string>
-#include <tchar.h>
-#include <memory>
-#include "Material.h"
-#include <fbxsdk.h>
 
 class Mesh
 {
@@ -50,10 +46,7 @@ public:
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive
-			(
-				TexPass, TexName, color, ID
-			);
+			archive(TexPass, TexName, color, ID);
 		}
 	};
 
@@ -121,6 +114,7 @@ public:
 
 	std::vector<mesh> skin_meshes;
 	std::string name;
+	std::string file_pass;
 
 	static std::shared_ptr<Mesh> Load_Mesh(const char* file_pass, const char* fbx_filename);
 

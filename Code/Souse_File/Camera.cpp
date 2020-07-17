@@ -3,9 +3,16 @@
 #include "GameObject.h"
 #include "Transform.h"
 #include "Camera_Manager.h"
+#include "Include_ImGui.h"
 using namespace DirectX;
 
 using namespace std;
+
+void Camera::Initialize()
+{
+	Camera_Manager::Add(static_pointer_cast<Camera>(shared_from_this()));
+	DxSystem::DeviceContext->RSGetViewports(&num_viewports, &viewport);
+}
 
 void Camera::Initialize(std::shared_ptr<GameObject> obj)
 {
@@ -18,12 +25,11 @@ void Camera::Initialize(std::shared_ptr<GameObject> obj)
 void Camera::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	if (ImGui::TreeNode("Camera"))
+	if (ImGui::CollapsingHeader("Camera"))
 	{
 		ImGui::DragFloat("FOV", &FOV, 0.1f, -FLT_MAX, FLT_MAX);
 		ImGui::DragFloat(u8"ç≈íZï`âÊãóó£", &near_z, 0.1f, -FLT_MAX, FLT_MAX);
 		ImGui::DragFloat(u8"ç≈í∑ï`âÊãóó£", &far_z, 0.1f, -FLT_MAX, FLT_MAX);
-		ImGui::TreePop();
 	}
 }
 

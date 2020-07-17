@@ -15,6 +15,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 {
 	shared_ptr<Mesh> mesh_ptr = make_shared<Mesh>();
 	mesh_ptr->name = (string)fbx_filename;
+	mesh_ptr->file_pass = (string)file_pass;
 
 	static unordered_map<string, vector<mesh>> cache;
 	const string fullpass = (string)file_pass + (string)fbx_filename;
@@ -25,8 +26,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 		mesh_ptr->skin_meshes = it->second;
 		return mesh_ptr;
 	}
-	else
-		//ファイルから読み込み
+	else //ファイルから読み込み
 	{
 		vector<mesh> skin_meshes;
 		/*

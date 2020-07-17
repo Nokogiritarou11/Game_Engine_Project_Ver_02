@@ -3,7 +3,7 @@
 #include <DirectXMath.h>
 #include <Original_Math.h>
 #include <memory>
-#include "Component.h"
+#include "GameObject.h"
 
 class Transform : public Component
 {
@@ -74,7 +74,12 @@ public:
 	//Function
 	Quaternion LookAt(Vector3 pos);
 
+
 private:
+	friend class cereal::access;
+	template<class Archive>
+	void serialize(Archive& archive);
+
 	Vector3    position         = { 0, 0, 0 };
 	Quaternion rotation         = { 0, 0, 0 ,1 };
 	Vector3    scale            = { 1, 1, 1 };
@@ -99,3 +104,16 @@ private:
 
 	std::weak_ptr<Transform> parent;
 };
+CEREAL_REGISTER_TYPE(Transform)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component,Transform)
+
+template<class Archive>
+void Transform::serialize(Archive& archive)
+{
+	archive(cereal::base_class<Component>(this),
+		position, rotation, scale,
+		localPosition, localRotation, localScale,
+		forward, right, up,
+		world_matrix, scale_matrix, rotation_matrix, translation_matrix,
+		local_matrix, localScale_matrix, localRotation_matrix, localTranslation_matrix, parent);
+}

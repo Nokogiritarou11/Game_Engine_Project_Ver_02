@@ -7,6 +7,7 @@
 #define _WIN32_WINNT 0x0A00
 #include <SDKDDKVer.h>
 #include "Engine.h"
+#include "Include_ImGui.h"
 #include "Time.h"
 #include <sstream>
 
@@ -38,7 +39,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_CREATE:
 		break;
 	case WM_KEYDOWN:
-		if (wParam == VK_ESCAPE) PostMessage(hWnd, WM_CLOSE, 0, 0);
+		//if (wParam == VK_ESCAPE) PostMessage(hWnd, WM_CLOSE, 0, 0);
 		Keyboard::ProcessMessage(message, wParam, lParam);
 		break;
 	case WM_KEYUP:
@@ -72,7 +73,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
 	// ウィンドウ生成
-	TCHAR szWindowClass[] = TEXT("Shader_Sample");
+	TCHAR szWindowClass[] = TEXT("Game_Engine");
 	WNDCLASS wcex;
 	wcex.style         = CS_HREDRAW | CS_VREDRAW;
 	wcex.lpfnWndProc   = WndProc;
@@ -90,7 +91,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 	hWnd = CreateWindow(szWindowClass,
 		szWindowClass,
 		WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
-		0, 0, 1980, 1080,
+		0, 0, DxSystem::GetScreenWidth(), DxSystem::GetScreenHeight(),
 		NULL,
 		NULL,
 		hInstance,
@@ -105,7 +106,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 	}
 
 	Engine* engine = new Engine();
-	Debug_UI::Initialize(hWnd);
 	Time::timeScale = 1.0f;
 	Input_Manager::mouse->SetWindow(hWnd);
 
@@ -115,7 +115,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 	DWORD before = GetTickCount64();
 	int fps = 0;
 
-	while (hMsg.message != WM_QUIT) {
+	while (hMsg.message != WM_QUIT)
+	{
 		if (PeekMessage(&hMsg, NULL, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&hMsg);
@@ -134,7 +135,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 			if (Interval < 0) {
 				std::ostringstream outs;
 				outs.precision(6);
-				outs << "FPS : " << fps << " / " << "Frame Time : " << mspf << " (ms)";
+				outs << "Game_Engine    " << "FPS : " << fps << " / " << "Frame Time : " << mspf << " (ms)";
 				SetWindowTextA(hWnd, outs.str().c_str());
 				Interval += 1.0f;
 				fps = 0;

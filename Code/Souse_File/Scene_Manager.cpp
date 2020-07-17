@@ -1,9 +1,15 @@
 #include "Scene_Manager.h"
 #include "Animator_Manager.h"
 #include "Camera_Manager.h"
-#include "MonoBehaviour_Manager.h"
+#include "SkinMesh_Renderer.h"
 #include "Render_Manager.h"
+#include "Transform.h"
 #include "Debug_UI.h"
+#include <locale.h>
+#include <sstream>
+#include <functional>
+#include <iostream>
+#include <fstream>
 using namespace std;
 
 //**********************************************
@@ -12,39 +18,110 @@ using namespace std;
 //
 //**********************************************
 
-weak_ptr<Scene> Scene_Manager::Active_Scene;
-list<Scene_Manager::Scene_Data> Scene_Manager::Scene_List;
-string Scene_Manager::Active_Scene_Name;
-bool Scene_Manager::Load;
+shared_ptr<Scene> Scene_Manager::Active_Scene;
+bool Scene_Manager::Load = false;
 string Scene_Manager::Next_Scene_Name;
 
-void Scene_Manager::CreateScene(shared_ptr<Scene> Scene_Class, string Scene_Name)
+bool Scene_Manager::CreateScene_FromFile()
 {
-	list<Scene_Data>::iterator itr_end = Scene_List.end();
-	for (list<Scene_Data>::iterator itr = Scene_List.begin(); itr != itr_end; itr++)
+	string load_path = Debug_UI::Get_Open_File_Name();
+
+	if (load_path != "")
 	{
-		if (itr->Name == Scene_Name)
+		int path_i = load_path.find_last_of("\\") + 1;//7
+		int ext_i = load_path.find_last_of(".");//10
+		string file_name = load_path.substr(path_i, ext_i - path_i); //ファイル名
+
+		list<shared_ptr<Scene>>::iterator itr_end = Scene_List.end();
+		for (list<shared_ptr<Scene>>::iterator itr = Scene_List.begin(); itr != itr_end; itr++)
 		{
-			return;
+			if ((*itr)->name == file_name)
+			{
+				if ((*itr)->name == Active_Scene->name)
+				{
+					return false;
+				}
+				Last_Save_Path = load_path;
+				LoadScene((*itr)->name);
+				return true;
+			}
+		}
+
+		ifstream in_bin(load_path, ios::binary);
+		if (in_bin.is_open())
+		{
+			shared_ptr<Scene> New_Scene = make_shared<Scene>();
+			stringstream bin_s_stream;
+			bin_s_stream << in_bin.rdbuf();
+			cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
+			binaryInputArchive(New_Scene);
+			New_Scene->name = file_name;
+			Scene_List.emplace_back(New_Scene);
+
+			Last_Save_Path = load_path;
+			LoadScene(New_Scene->name);
+			return true;
+		}
+		else
+		{
+			return false;
 		}
 	}
-	shared_ptr<Scene> new_scene = move(Scene_Class);
-	Scene_Data new_data = { Scene_Name,new_scene };
-	Scene_List.emplace_back(new_data);
+	return false;
 }
 
-void Scene_Manager::Set_StartScene(string Scene_Name)
+void Scene_Manager::CreateScene_Default(string new_name)
 {
-	list<Scene_Data>::iterator itr_end = Scene_List.end();
-	for (list<Scene_Data>::iterator itr = Scene_List.begin(); itr != itr_end; itr++)
+	shared_ptr<Scene> New_Scene = make_shared<Scene>();
+	New_Scene = make_shared<Scene>();
+	New_Scene->name = new_name;
+
+	Active_Scene = New_Scene;
+
+	Scene_List.emplace_back(New_Scene);
+
+	shared_ptr<GameObject> camera = GameObject::Instantiate(u8"Main_Camera");
+	camera->AddComponent<Camera>();
+	camera->transform->Set_position(0, 75, -125.0f);
+	camera->transform->Set_eulerAngles(30, 0, 0);
+
+	shared_ptr<GameObject> Floor = GameObject::Instantiate(u8"Glid_Tile");
+	shared_ptr<SkinMesh_Renderer> f_renderer = Floor->AddComponent<SkinMesh_Renderer>();
+	Floor->transform->Set_eulerAngles(-90, 0, 0);
+	Floor->transform->Set_scale(5, 5, 5);
+	f_renderer->Set_Mesh(Mesh::Load_Mesh("Default_Resource\\Model\\", "Glid_Tile"));
+	f_renderer->material[0]->color = { 1,1,1,1 };
+
+	Last_Save_Path = "";
+	LoadScene(New_Scene->name);
+}
+
+void Scene_Manager::Initialize_Scene(weak_ptr<Scene> s)
+{
+	shared_ptr<Scene> scene = s.lock();
+	list<shared_ptr<GameObject>>::iterator itr_end = scene->gameObject_List.end();
+	for (list<shared_ptr<GameObject>>::iterator itr = scene->gameObject_List.begin(); itr != itr_end; itr++)
 	{
-		if (itr->Name == Scene_Name)
+		list<shared_ptr<Component>>::iterator itr_comp_end = (*itr)->Component_List.end();
+		for (list<shared_ptr<Component>>::iterator itr_comp = (*itr)->Component_List.begin(); itr_comp != itr_comp_end; itr_comp++)
 		{
-			Active_Scene = itr->Scene_ptr;
-			Active_Scene_Name = itr->Name;
-			itr->Scene_ptr->Initialize();
-			return;
+			(*itr_comp)->Initialize((*itr));
 		}
+	}
+}
+
+void Scene_Manager::SaveScene(string Save_Path)
+{
+	int path_i = Save_Path.find_last_of("\\") + 1;
+	int ext_i = Save_Path.find_last_of(".");
+	string filename = Save_Path.substr(path_i, ext_i - path_i); //ファイル名
+	Active_Scene->name = filename;
+
+	ofstream ss(Save_Path.c_str(), ios::binary);
+	{
+		cereal::BinaryOutputArchive o_archive(ss);
+		o_archive(Active_Scene);
+		Last_Save_Path = Save_Path;
 	}
 }
 
@@ -54,55 +131,34 @@ void Scene_Manager::LoadScene(string Scene_Name)
 	Next_Scene_Name = Scene_Name;
 }
 
-shared_ptr<GameObject> Scene_Manager::Instance_GameObject(std::string name)
-{
-	shared_ptr<Scene> scene = Active_Scene.lock();
-	return scene->Instance_GameObject(name);
-}
-
-void Scene_Manager::Destroy_GameObject(shared_ptr<GameObject> gameObject)
-{
-	shared_ptr<Scene> scene = Active_Scene.lock();
-	scene->Destroy_GameObject(gameObject);
-}
-
-weak_ptr<GameObject> Scene_Manager::Find(std::string Name)
-{
-	shared_ptr<Scene> scene = Active_Scene.lock();
-	return scene->Find(Name);
-}
-
-weak_ptr<GameObject> Scene_Manager::FindWithTag(std::string Tag)
-{
-	shared_ptr<Scene> scene = Active_Scene.lock();
-	return scene->FindWithTag(Tag);
-}
-
 void Scene_Manager::Update()
 {
 	if (Load)
 	{
-		list<Scene_Data>::iterator itr_end = Scene_List.end();
-		for (list<Scene_Data>::iterator itr = Scene_List.begin(); itr != itr_end; itr++)
+		list<shared_ptr<Scene>>::iterator itr_end = Scene_List.end();
+		for (list<shared_ptr<Scene>>::iterator itr = Scene_List.begin(); itr != itr_end; itr++)
 		{
-			if (itr->Name == Next_Scene_Name)
+			if ((*itr)->name == Next_Scene_Name)
 			{
-				MonoBehaviour_Manager::Reset();
 				Animator_Manager::Reset();
 				Render_Manager::Reset();
 				Camera_Manager::Reset();
-				shared_ptr<Scene> Play_Scene = Active_Scene.lock();
-				Play_Scene->Reset();
-				Active_Scene = itr->Scene_ptr;
-				Active_Scene_Name = itr->Name;
-				itr->Scene_ptr->Initialize();
+				Active_Scene = (*itr);
+				Initialize_Scene(Active_Scene);
 				Load = false;
 				break;
 			}
 		}
 	}
 
-	shared_ptr<Scene> Play_Scene = Active_Scene.lock();
-	Debug_UI::Update(Play_Scene, Active_Scene_Name);
-	Play_Scene->Update();
+	Debug_UI::Update(Active_Scene);
+	if (Run)
+	{
+		Active_Scene->Update();
+	}
+}
+
+shared_ptr<Scene>  Scene_Manager::Get_Active_Scene()
+{
+	return Active_Scene;
 }

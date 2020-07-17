@@ -1,4 +1,9 @@
 #pragma once
+#include "DxSystem.h"
+#include "Component.h"
+#include "Texture.h"
+#include "Material.h"
+#include "Camera.h"
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <string>
@@ -7,11 +12,6 @@
 #include <vector>
 #include <stdio.h>
 #include <locale.h>
-#include "DxSystem.h"
-#include "Component.h"
-#include "Texture.h"
-#include "Material.h"
-#include "Camera.h"
 
 class Renderer : public Component
 {
@@ -25,7 +25,17 @@ public:
 	virtual void Render(std::shared_ptr<Camera> Render_Camera) {};
 
 private:
+	friend class cereal::access;
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(cereal::base_class<Component>(this), enabled);
+	}
+
 	static int Set_BlendState;
 	static int Set_RasterizerState;
 	static int Set_DepthStencilState;
 };
+
+CEREAL_REGISTER_TYPE(Renderer)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Renderer)

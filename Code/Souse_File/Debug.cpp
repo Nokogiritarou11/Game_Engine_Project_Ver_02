@@ -12,6 +12,12 @@ void Debug::Log(string s)
 	Debug_UI::Print_Log(s);
 }
 
+void Debug::Log(char* c)
+{
+	string s = c;
+	Debug_UI::Print_Log(s);
+}
+
 void Debug::Log(int i)
 {
 	Debug_UI::Print_Log(to_string(i));

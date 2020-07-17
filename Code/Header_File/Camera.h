@@ -1,10 +1,9 @@
 #pragma once
+#include "Behaviour.h"
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <Original_Math.h>
-#include <stdio.h>
 #include <memory>
-#include "Behaviour.h"
 
 class Camera : public Behavior
 {
@@ -18,12 +17,24 @@ public:
 	Matrix V = { 0.0f,0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 	Matrix P = { 0.0f,0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
+	void Initialize();
 	void Initialize(std::shared_ptr<GameObject> obj);
 	void Update();
 	void Draw_ImGui();
 	Vector2 WorldToViewportPoint(Vector3 pos);
+
+
 private:
+
+	friend class cereal::access;
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(cereal::base_class<Behavior>(this), focus, FOV, near_z, far_z);
+	}
 
 	D3D11_VIEWPORT viewport;
 	UINT num_viewports = 1;
 };
+CEREAL_REGISTER_TYPE(Camera)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Behavior, Camera)

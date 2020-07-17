@@ -1,8 +1,5 @@
 #include "GameObject.h"
-#include "Component.h"
-#include "Transform.h"
 #include "Scene_Manager.h"
-#include "MonoBehaviour_Manager.h"
 using namespace std;
 
 unsigned long GameObject::ID_Count;
@@ -33,7 +30,18 @@ void GameObject::SetActive(bool value)
 	{
 		for (shared_ptr<Component> com : Component_List)
 		{
-			Set_OnEnable_OnDisable(com);
+			shared_ptr<MonoBehaviour> buff = std::dynamic_pointer_cast<MonoBehaviour>(com);
+			if (buff != nullptr)
+			{
+				if (Active)
+				{
+					Scene_Manager::Get_Active_Scene()->Add_Enable(buff);
+				}
+				else
+				{
+					Scene_Manager::Get_Active_Scene()->Add_Disable(buff);
+				}
+			}
 		}
 		Old_Active = Active;
 	}
@@ -41,27 +49,10 @@ void GameObject::SetActive(bool value)
 
 weak_ptr<GameObject> GameObject::Find(string Name)
 {
-	return Scene_Manager::Find(Name);
+	return Scene_Manager::Get_Active_Scene()->Find(Name);
 }
 
 weak_ptr<GameObject> GameObject::FindWithTag(string Tag)
 {
-	return Scene_Manager::FindWithTag(Tag);
-}
-
-void GameObject::Set_OnEnable_OnDisable(std::shared_ptr<Component> comp)
-{
-	shared_ptr<MonoBehaviour> buff = std::dynamic_pointer_cast<MonoBehaviour>(comp);
-	if (buff != nullptr)
-	{
-		if (Active)
-		{
-			MonoBehaviour_Manager::Add_Enable(buff);
-		}
-		else
-		{
-			MonoBehaviour_Manager::Add_Disable(buff);
-		}
-	}
-	return;
+	return Scene_Manager::Get_Active_Scene()->FindWithTag(Tag);
 }

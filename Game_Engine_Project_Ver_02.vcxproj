@@ -91,7 +91,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>.\Script\Header;.\Code\Libraries;.\Code\Libraries\ImGui;.\DirectXTK-jun2020\Inc;.\Code\Header_File;.\2020.0.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>Default</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -131,6 +131,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>.\Script\Header;.\Code\Libraries\cereal;.\Code\Libraries\ImGui;.\DirectXTK-jun2020\Inc;.\Code\Header_File;.\2020.0.1\include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -240,6 +241,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Script\Souse\All_Component_List.cpp" />
     <ClCompile Include="Script\Souse\Bullet.cpp" />
     <ClCompile Include="Script\Souse\Camera_Set.cpp" />
     <ClCompile Include="Script\Souse\Enemy.cpp" />
@@ -262,6 +264,7 @@
     <ClInclude Include="Code\Header_File\DxSystem.h" />
     <ClInclude Include="Code\Header_File\Engine.h" />
     <ClInclude Include="Code\Header_File\GameObject.h" />
+    <ClInclude Include="Code\Header_File\Include_ImGui.h" />
     <ClInclude Include="Code\Header_File\Input_Manager.h" />
     <ClInclude Include="Code\Header_File\Material.h" />
     <ClInclude Include="Code\Header_File\Mathf.h" />
@@ -270,9 +273,9 @@
     <ClInclude Include="Code\Header_File\misc.h" />
     <ClInclude Include="Code\Header_File\MonoBehaviour.h" />
     <ClInclude Include="Code\Header_File\MonoBehaviour_Manager.h" />
+    <ClInclude Include="Code\Header_File\Include_Mono.h" />
     <ClInclude Include="Code\Header_File\Object.h" />
     <ClInclude Include="Code\Header_File\Original_Math.h" />
-    <ClInclude Include="Code\Header_File\Property.h" />
     <ClInclude Include="Code\Header_File\RectTransform.h" />
     <ClInclude Include="Code\Header_File\Renderer.h" />
     <ClInclude Include="Code\Header_File\Render_Manager.h" />
@@ -683,7 +686,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Script\Header\All_Script.h" />
+    <ClInclude Include="Script\Header\All_Component_List.h" />
     <ClInclude Include="Script\Header\Bullet.h" />
     <ClInclude Include="Script\Header\Camera_Set.h" />
     <ClInclude Include="Script\Header\Enemy.h" />

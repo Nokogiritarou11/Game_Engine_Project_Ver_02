@@ -76,6 +76,7 @@
     <ClCompile Include="Code\Libraries\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="Code\Libraries\ImGui\imgui_stdlib.cpp" />
     <ClCompile Include="Code\Libraries\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="Script\Souse\All_Component_List.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Audio_Manager.h">
@@ -128,7 +129,6 @@
       <Filter>Sources\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Code\Header_File\RectTransform.h" />
-    <ClInclude Include="Code\Header_File\Property.h" />
     <ClInclude Include="Code\Header_File\Mathf.h" />
     <ClInclude Include="Code\Header_File\Debug_UI.h" />
     <ClInclude Include="Code\Header_File\Debug.h" />
@@ -142,7 +142,6 @@
     <ClInclude Include="Librarys\ImGui\imstb_rectpack.h" />
     <ClInclude Include="Librarys\ImGui\imstb_textedit.h" />
     <ClInclude Include="Librarys\ImGui\imstb_truetype.h" />
-    <ClInclude Include="Script\Header\All_Script.h" />
     <ClInclude Include="Script\Header\Bullet.h" />
     <ClInclude Include="Script\Header\Camera_Set.h" />
     <ClInclude Include="Script\Header\Enemy.h" />
@@ -244,6 +243,9 @@
     <ClInclude Include="Code\Libraries\cereal\version.hpp" />
     <ClInclude Include="Code\Libraries\cereal\types\concepts\pair_associative_container.hpp" />
     <ClInclude Include="Code\Libraries\cereal\details\util.hpp" />
+    <ClInclude Include="Script\Header\All_Component_List.h" />
+    <ClInclude Include="Code\Header_File\Include_ImGui.h" />
+    <ClInclude Include="Code\Header_File\Include_Mono.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Sources">

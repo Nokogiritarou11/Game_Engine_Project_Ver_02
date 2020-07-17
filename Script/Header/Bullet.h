@@ -6,7 +6,6 @@
 #include "Enemy_Manager.h"
 
 using namespace DirectX;
-using namespace std;
 
 class Bullet : public  MonoBehaviour
 {
@@ -16,5 +15,5 @@ public:
 private:
 	float speed = 5;
 	float timer = 0;
-	weak_ptr<Enemy_Manager> e_manager;
+	std::weak_ptr<Enemy_Manager> e_manager;
 };

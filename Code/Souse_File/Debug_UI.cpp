@@ -1,6 +1,10 @@
 #include "DxSystem.h"
 #include "Debug_UI.h"
+#include "Debug.h"
 #include "Original_Math.h"
+#include "Scene_Manager.h"
+#include "Engine.h"
+#include "Include_ImGui.h"
 using namespace std;
 using namespace DirectX;
 
@@ -20,7 +24,7 @@ Debug_UI::~Debug_UI()
 	ImGui::DestroyContext();
 }
 
-void Debug_UI::Initialize(HWND hWnd)
+void Debug_UI::Initialize()
 {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -31,7 +35,7 @@ void Debug_UI::Initialize(HWND hWnd)
 	//ImGui::StyleColorsClassic();
 	//ImGui::StyleColorsLight();
 
-	if (!ImGui_ImplWin32_Init(hWnd))
+	if (!ImGui_ImplWin32_Init(DxSystem::hwnd))
 	{
 		std::cout << "ImGui_ImplWin32_Init failed\n";
 		ImGui::DestroyContext();
@@ -63,7 +67,7 @@ void Debug_UI::Initialize(HWND hWnd)
 	io.Fonts->Build();
 }
 
-void Debug_UI::Update(shared_ptr<Scene> scene, std::string name)
+void Debug_UI::Update(shared_ptr<Scene> scene)
 {
 	if (Draw_Debug_UI)
 	{
@@ -74,7 +78,7 @@ void Debug_UI::Update(shared_ptr<Scene> scene, std::string name)
 		//ゲームオブジェクト関連
 		{
 			//ヒエラルキー
-			Hierarchy_Render(scene, name);
+			Hierarchy_Render(scene);
 			//インスペクタ
 			Inspector_Render();
 		}
@@ -91,6 +95,48 @@ void Debug_UI::Render()
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	}
+}
+
+string Debug_UI::Get_Open_File_Name()
+{
+	static OPENFILENAME     ofn;
+	static TCHAR            szPath[MAX_PATH];
+	static TCHAR            szFile[MAX_PATH];
+	static string           str_pass;
+	static string           current_pass;
+	static size_t           current_pass_size;
+
+	if (szPath[0] == TEXT('\0'))
+	{
+		GetCurrentDirectory(MAX_PATH, szPath);
+		char char_pass[MAX_PATH];
+		WideCharToMultiByte(CP_ACP, 0, szPath, -1, char_pass, MAX_PATH, NULL, NULL);
+		current_pass = char_pass;
+		current_pass_size = current_pass.size();
+	}
+	if (ofn.lStructSize == 0)
+	{
+		ofn.lStructSize = sizeof(OPENFILENAME);
+		ofn.hwndOwner = DxSystem::hwnd;
+		ofn.lpstrInitialDir = szPath;       // 初期フォルダ位置
+		ofn.lpstrFile = szFile;       // 選択ファイル格納
+		ofn.nMaxFile = MAX_PATH;
+		ofn.lpstrFilter = TEXT("すべてのファイル(*.*)\0*.*\0");
+		ofn.lpstrTitle = TEXT("ファイル選択");
+		ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+	}
+	if (GetOpenFileName(&ofn))
+	{
+		char char_pass[MAX_PATH];
+		WideCharToMultiByte(CP_ACP, 0, szFile, -1, char_pass, MAX_PATH, NULL, NULL);
+		str_pass = char_pass;
+		str_pass = str_pass.substr(current_pass_size + 1, str_pass.size());
+	}
+	else
+	{
+		str_pass = "";
+	}
+	return str_pass;
 }
 
 void Debug_UI::Print_Log(string log)
@@ -204,16 +250,145 @@ void Debug_UI::Debug_Log_Render()
 	logger.Draw((u8"デバッグログ"), &Open_Log);
 }
 
-void Debug_UI::Hierarchy_Render(shared_ptr<Scene> scene, std::string name)
+void Debug_UI::Hierarchy_Render(shared_ptr<Scene> scene)
 {
-	int node_clicked = -1;
 	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Once);
 	ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_Once);
-	ImGui::Begin(u8"ヒエラルキー");
 
+	ImGuiWindowFlags window_flags = 0;
+	window_flags |= ImGuiWindowFlags_MenuBar;
+
+	ImGui::Begin(u8"ヒエラルキー", NULL, window_flags);
+
+	Scene_File_Menu_Render();
+	GameObject_List_Render(scene);
+	
+	ImGui::End();
+}
+
+void Debug_UI::Inspector_Render()
+{
+	ImGui::SetNextWindowPos(ImVec2(1500, 0), ImGuiCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_Once);
+	shared_ptr<GameObject> obj = Active_Object.lock();
+	ImGui::Begin(u8"インスペクタ");
+	if (obj)
+	{
+		//選択時
+		ImGui::SetNextItemOpen(true, ImGuiCond_Always);
+		if (ImGui::TreeNode(obj->name.c_str()))
+		{
+			ImGui::Checkbox("Is_Active", &obj->Active);
+			list<shared_ptr<Component>>::iterator itr_end = obj->Component_List.end();
+			for (list<shared_ptr<Component>>::iterator itr = obj->Component_List.begin(); itr != itr_end; itr++)
+			{
+				(*itr)->Draw_ImGui();
+			}
+			ImGui::TreePop();
+		}
+	}
+	else
+	{
+		ImGui::Text(u8"オブジェクトが選択されていません");
+	}
+
+	ImGui::End();
+}
+
+void Debug_UI::Scene_File_Menu_Render()
+{
+	static bool open_new_scene_menu = false;
+	open_new_scene_menu = false;
+	if (ImGui::BeginMenuBar())
+	{
+		if (ImGui::BeginMenu(u8"ファイル"))
+		{
+			if (ImGui::MenuItem(u8"新規シーン"))
+			{
+				open_new_scene_menu = true;
+			}
+			if (ImGui::MenuItem(u8"開く"))
+			{
+				if (Engine::scene_manager->CreateScene_FromFile())
+				{
+				}
+				else
+				{
+					Debug::Log(u8"ファイルが開けませんでした");
+				}
+			}
+			if (ImGui::MenuItem(u8"上書き保存"))
+			{
+				if (Engine::scene_manager->Last_Save_Path != "")
+				{
+					Engine::scene_manager->SaveScene(Engine::scene_manager->Last_Save_Path);
+				}
+				else
+				{
+					string path = Debug_UI::Get_Open_File_Name();
+					if (path != "")
+					{
+						int path_i = path.find_last_of("\\") + 1;//7
+						int ext_i = path.find_last_of(".");//10
+						string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
+						string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+						path = pathname + filename + ".bin";
+						Engine::scene_manager->SaveScene(path);
+					}
+				}
+			}
+			if (ImGui::MenuItem(u8"別名で保存"))
+			{
+				string path = Debug_UI::Get_Open_File_Name();
+				if (path != "")
+				{
+					int path_i = path.find_last_of("\\") + 1;//7
+					int ext_i = path.find_last_of(".");//10
+					string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
+					string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+					path = pathname + filename + ".bin";
+					Engine::scene_manager->SaveScene(path);
+				}
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenuBar();
+	}
+
+	if (open_new_scene_menu)
+	{
+		ImGui::OpenPopup(u8"新規シーン");
+	}
+	if (ImGui::BeginPopupModal(u8"新規シーン", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		static char input[MAX_PATH] = "";
+		ImGui::InputText(u8"新規シーン名", input, MAX_PATH);
+		if (ImGui::Button(u8"作成", ImVec2(120, 0)))
+		{
+			string s = input;
+			Engine::scene_manager->CreateScene_Default(s);
+			strcpy_s(input, "");
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::SetItemDefaultFocus();
+		ImGui::SameLine();
+		if (ImGui::Button(u8"キャンセル", ImVec2(120, 0)))
+		{
+			strcpy_s(input, "");
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+
+}
+
+void Debug_UI::GameObject_List_Render(std::shared_ptr<Scene> scene)
+{
+	int node_clicked = -1;
 	static int ID = 0;
+
 	ImGui::SetNextItemOpen(true, ImGuiCond_Always);
-	if (ImGui::TreeNode(name.c_str()))
+	if (ImGui::TreeNode(scene->name.c_str()))
 	{
 		ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 
@@ -256,34 +431,4 @@ void Debug_UI::Hierarchy_Render(shared_ptr<Scene> scene, std::string name)
 		ImGui::TreePop();
 	}
 	ID = 0;
-	ImGui::End();
-}
-
-void Debug_UI::Inspector_Render()
-{
-	ImGui::SetNextWindowPos(ImVec2(1500, 0), ImGuiCond_Once);
-	ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_Once);
-	shared_ptr<GameObject> obj = Active_Object.lock();
-	ImGui::Begin(u8"インスペクタ");
-	if (obj)
-	{
-		//選択時
-		ImGui::SetNextItemOpen(true, ImGuiCond_Always);
-		if (ImGui::TreeNode(obj->name.c_str()))
-		{
-
-			list<shared_ptr<Component>>::iterator itr_end = obj->Component_List.end();
-			for (list<shared_ptr<Component>>::iterator itr = obj->Component_List.begin(); itr != itr_end; itr++)
-			{
-				(*itr)->Draw_ImGui();
-			}
-			ImGui::TreePop();
-		}
-	}
-	else
-	{
-		ImGui::Text(u8"オブジェクトが選択されていません");
-	}
-
-	ImGui::End();
 }

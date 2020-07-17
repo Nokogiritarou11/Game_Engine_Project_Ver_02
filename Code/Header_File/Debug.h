@@ -6,6 +6,7 @@ class Debug
 public:
 	static void Log();
 	static void Log(std::string s);
+	static void Log(char* c);
 	static void Log(int i);
 	static void Log(float f);
 	static void Log(double d);

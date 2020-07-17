@@ -22,4 +22,8 @@ private:
 	static std::list<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Start_list;
 	static std::list<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Disable_list;
 	static std::list<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Enable_list;
+
+	static std::list<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Next_Update_list;
+
+	static int Update_Stage;
 };

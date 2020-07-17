@@ -2,6 +2,7 @@
 #include "GameObject.h"
 #include "Transform.h"
 #include "Render_Manager.h"
+#include "Include_ImGui.h"
 using namespace std;
 
 Mesh_Renderer::Mesh_Renderer()
