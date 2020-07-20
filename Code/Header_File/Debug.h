@@ -1,5 +1,7 @@
 #pragma once
-#include "Debug_UI.h"
+#include <stdlib.h>
+#include <string>
+#include "Original_Math.h"
 
 class Debug
 {

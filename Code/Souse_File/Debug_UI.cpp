@@ -8,23 +8,7 @@
 using namespace std;
 using namespace DirectX;
 
-bool Debug_UI::Draw_Debug_UI = true;
-char* Debug_UI::Font_Name = "Font/mplus-1p-medium.ttf";
-float Debug_UI::Font_Size_Pixels = 30.0f;
-float Debug_UI::Font_Size = 0.6f;
-float Debug_UI::UI_Size = 0.6f;
-vector<string> Debug_UI::Debug_Log = {};
-bool Debug_UI::Debug_Log_Changed = false;
-weak_ptr<GameObject> Debug_UI::Active_Object;
-
-Debug_UI::~Debug_UI()
-{
-	ImGui_ImplDX11_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
-}
-
-void Debug_UI::Initialize()
+Debug_UI::Debug_UI()
 {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -67,6 +51,13 @@ void Debug_UI::Initialize()
 	io.Fonts->Build();
 }
 
+Debug_UI::~Debug_UI()
+{
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+}
+
 void Debug_UI::Update(shared_ptr<Scene> scene)
 {
 	if (Draw_Debug_UI)
@@ -83,6 +74,8 @@ void Debug_UI::Update(shared_ptr<Scene> scene)
 			Inspector_Render();
 		}
 
+		//シーン再生
+		ScenePlayer_Render();
 		//デバッグログ
 		Debug_Log_Render();
 	}
@@ -126,6 +119,47 @@ string Debug_UI::Get_Open_File_Name()
 		ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 	}
 	if (GetOpenFileName(&ofn))
+	{
+		char char_pass[MAX_PATH];
+		WideCharToMultiByte(CP_ACP, 0, szFile, -1, char_pass, MAX_PATH, NULL, NULL);
+		str_pass = char_pass;
+		str_pass = str_pass.substr(current_pass_size + 1, str_pass.size());
+	}
+	else
+	{
+		str_pass = "";
+	}
+	return str_pass;
+}
+
+string Debug_UI::Get_Save_File_Name()
+{
+	static OPENFILENAME     ofn;
+	static TCHAR            szPath[MAX_PATH];
+	static TCHAR            szFile[MAX_PATH];
+	static string           str_pass;
+	static size_t           current_pass_size;
+
+	if (szPath[0] == TEXT('\0'))
+	{
+		GetCurrentDirectory(MAX_PATH, szPath);
+		char char_pass[MAX_PATH];
+		WideCharToMultiByte(CP_ACP, 0, szPath, -1, char_pass, MAX_PATH, NULL, NULL);
+		string current_pass = char_pass;
+		current_pass_size = current_pass.size();
+	}
+	if (ofn.lStructSize == 0)
+	{
+		ofn.lStructSize = sizeof(OPENFILENAME);
+		ofn.hwndOwner = DxSystem::hwnd;
+		ofn.lpstrInitialDir = szPath;       // 初期フォルダ位置
+		ofn.lpstrFile = szFile;       // 選択ファイル格納
+		ofn.nMaxFile = MAX_PATH;
+		ofn.lpstrFilter = TEXT("すべてのファイル(*.*)\0*.*\0");
+		ofn.lpstrTitle = TEXT("名前をつけて保存");
+		ofn.Flags = OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
+	}
+	if (GetSaveFileName(&ofn))
 	{
 		char char_pass[MAX_PATH];
 		WideCharToMultiByte(CP_ACP, 0, szFile, -1, char_pass, MAX_PATH, NULL, NULL);
@@ -295,6 +329,36 @@ void Debug_UI::Inspector_Render()
 	ImGui::End();
 }
 
+void Debug_UI::ScenePlayer_Render()
+{
+	ImGui::SetNextWindowPos(ImVec2(935, 0), ImGuiCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(45, 30), ImGuiCond_Once);
+	ImGuiWindowFlags window_flags = 0;
+	window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
+	ImGui::Begin(u8"シーン再生",NULL,window_flags);
+
+	if (Engine::scene_manager->Run)
+	{
+		if (ImGui::Button(ICON_FA_STOP))
+		{
+			Engine::scene_manager->Run = false;
+		}
+	}
+	else
+	{
+		if (ImGui::Button(ICON_FA_PLAY))
+		{
+			Engine::scene_manager->Run = true;
+		}
+	}
+	ImGui::SameLine();
+	if (ImGui::Button(ICON_FA_PAUSE))
+	{
+	}
+
+	ImGui::End();
+}
+
 void Debug_UI::Scene_File_Menu_Render()
 {
 	static bool open_new_scene_menu = false;
@@ -325,7 +389,7 @@ void Debug_UI::Scene_File_Menu_Render()
 				}
 				else
 				{
-					string path = Debug_UI::Get_Open_File_Name();
+					string path = Debug_UI::Get_Save_File_Name();
 					if (path != "")
 					{
 						int path_i = path.find_last_of("\\") + 1;//7
@@ -337,9 +401,9 @@ void Debug_UI::Scene_File_Menu_Render()
 					}
 				}
 			}
-			if (ImGui::MenuItem(u8"別名で保存"))
+			if (ImGui::MenuItem(u8"名前をつけて保存"))
 			{
-				string path = Debug_UI::Get_Open_File_Name();
+				string path = Debug_UI::Get_Save_File_Name();
 				if (path != "")
 				{
 					int path_i = path.find_last_of("\\") + 1;//7

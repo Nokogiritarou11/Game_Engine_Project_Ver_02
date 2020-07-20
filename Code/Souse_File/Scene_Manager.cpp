@@ -10,6 +10,7 @@
 #include <functional>
 #include <iostream>
 #include <fstream>
+#include "Engine.h"
 using namespace std;
 
 //**********************************************
@@ -82,13 +83,13 @@ void Scene_Manager::CreateScene_Default(string new_name)
 
 	shared_ptr<GameObject> camera = GameObject::Instantiate(u8"Main_Camera");
 	camera->AddComponent<Camera>();
-	camera->transform->Set_position(0, 75, -125.0f);
-	camera->transform->Set_eulerAngles(30, 0, 0);
+	camera->transform->Set_position(-100, 80, -100);
+	camera->transform->Set_eulerAngles(30, 45, 0);
 
 	shared_ptr<GameObject> Floor = GameObject::Instantiate(u8"Glid_Tile");
 	shared_ptr<SkinMesh_Renderer> f_renderer = Floor->AddComponent<SkinMesh_Renderer>();
 	Floor->transform->Set_eulerAngles(-90, 0, 0);
-	Floor->transform->Set_scale(5, 5, 5);
+	Floor->transform->Set_scale(1, 1, 1);
 	f_renderer->Set_Mesh(Mesh::Load_Mesh("Default_Resource\\Model\\", "Glid_Tile"));
 	f_renderer->material[0]->color = { 1,1,1,1 };
 
@@ -151,7 +152,7 @@ void Scene_Manager::Update()
 		}
 	}
 
-	Debug_UI::Update(Active_Scene);
+	Engine::debug_ui->Update(Active_Scene);
 	if (Run)
 	{
 		Active_Scene->Update();

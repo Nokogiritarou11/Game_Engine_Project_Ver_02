@@ -6,30 +6,31 @@ class Debug_UI
 {
 public:
 
-	Debug_UI() {};
+	Debug_UI();
 	~Debug_UI();
 
-	static void Initialize();
-	static void Update(std::shared_ptr<Scene> scene);
-	static void Render();
+	void Update(std::shared_ptr<Scene> scene);
+	void Render();
 
-	static bool Draw_Debug_UI;
-	static void Print_Log(std::string log);
+	bool Draw_Debug_UI = true;
+	void Print_Log(std::string log);
 	static std::string Get_Open_File_Name();
+	static std::string Get_Save_File_Name();
 private:
 
-	static char* Font_Name;
-	static float Font_Size_Pixels;
-	static float Font_Size;
-	static float UI_Size;
-	static std::vector<std::string> Debug_Log;
-	static bool Debug_Log_Changed;
-	static std::weak_ptr<GameObject> Active_Object;
+	char* Font_Name = "Font/mplus-1p-medium.ttf";
+	float Font_Size_Pixels = 30.0f;
+	float Font_Size = 0.6f;
+	float UI_Size = 0.6f;
+	vector<string> Debug_Log = {};
+	bool Debug_Log_Changed = false;
+	weak_ptr<GameObject> Active_Object;
 
-	static void Debug_Log_Render();
-	static void Hierarchy_Render(std::shared_ptr<Scene> scene);
-	static void Inspector_Render();
+	void Debug_Log_Render();
+	void Hierarchy_Render(std::shared_ptr<Scene> scene);
+	void Inspector_Render();
+	void ScenePlayer_Render();
 
-	static void Scene_File_Menu_Render();
-	static void GameObject_List_Render(std::shared_ptr<Scene> scene);
+	void Scene_File_Menu_Render();
+	void GameObject_List_Render(std::shared_ptr<Scene> scene);
 };

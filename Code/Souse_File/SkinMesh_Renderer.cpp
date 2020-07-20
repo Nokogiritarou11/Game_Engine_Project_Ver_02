@@ -4,6 +4,7 @@
 #include "Render_Manager.h"
 #include "Debug.h"
 #include "Include_ImGui.h"
+#include "Debug_UI.h"
 using namespace std;
 
 void SkinMesh_Renderer::Initialize()

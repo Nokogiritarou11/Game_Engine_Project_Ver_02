@@ -100,49 +100,56 @@ void Transform::Draw_ImGui()
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 	if (ImGui::CollapsingHeader("Transform"))
 	{
+		static unsigned int has_ID = -1;
 		static bool has_parent;
-		if (shared_ptr<Transform> p = Get_parent().lock())
-		{
-			has_parent = true;
-		}
-		else
-		{
-			has_parent = false;
-		}
-
-		Vector3 trans_pos = { 0,0,0 };
-		Vector3 trans_rot = { 0,0,0 };
-		Vector3 trans_scl = { 0,0,0 };
-
-		if (has_parent)
-		{
-			trans_pos = Get_localPosition();
-			trans_rot = Get_localEulerAngles();
-			trans_scl = Get_localScale();
-		}
-		else
-		{
-			trans_pos = Get_position();
-			trans_rot = Get_eulerAngles();
-			trans_scl = Get_scale();
-		}
 
 		static float pos[3] = { 0,0,0 };
-		pos[0] = trans_pos.x;
-		pos[1] = trans_pos.y;
-		pos[2] = trans_pos.z;
-		ImGui::DragFloat3(u8"Position", pos, 0.05f, -FLT_MAX, FLT_MAX);
-
 		static float rot[3] = { 0,0,0 };
-		rot[0] = trans_rot.x;
-		rot[1] = trans_rot.y;
-		rot[2] = trans_rot.z;
-		ImGui::DragFloat3(u8"Rotation", rot, 0.05f, -FLT_MAX, FLT_MAX);
-
 		static float scl[3] = { 1,1,1 };
-		scl[0] = trans_scl.x;
-		scl[1] = trans_scl.y;
-		scl[2] = trans_scl.z;
+
+		if (has_ID != gameObject->ID)
+		{
+			has_ID = gameObject->ID;
+			if (shared_ptr<Transform> p = Get_parent().lock())
+			{
+				has_parent = true;
+			}
+			else
+			{
+				has_parent = false;
+			}
+
+			Vector3 trans_pos = { 0,0,0 };
+			Vector3 trans_rot = { 0,0,0 };
+			Vector3 trans_scl = { 0,0,0 };
+
+			if (has_parent)
+			{
+				trans_pos = Get_localPosition();
+				trans_rot = Get_localEulerAngles();
+				trans_scl = Get_localScale();
+			}
+			else
+			{
+				trans_pos = Get_position();
+				trans_rot = Get_eulerAngles();
+				trans_scl = Get_scale();
+			}
+			pos[0] = trans_pos.x;
+			pos[1] = trans_pos.y;
+			pos[2] = trans_pos.z;
+
+			rot[0] = trans_rot.x;
+			rot[1] = trans_rot.y;
+			rot[2] = trans_rot.z;
+			
+			scl[0] = trans_scl.x;
+			scl[1] = trans_scl.y;
+			scl[2] = trans_scl.z;
+		}
+
+		ImGui::DragFloat3(u8"Position", pos, 0.05f, -FLT_MAX, FLT_MAX);
+		ImGui::DragFloat3(u8"Rotation", rot, 0.05f, -FLT_MAX, FLT_MAX);
 		ImGui::DragFloat3(u8"Scale", scl, 0.01f, -FLT_MAX, FLT_MAX);
 
 		if (has_parent)
