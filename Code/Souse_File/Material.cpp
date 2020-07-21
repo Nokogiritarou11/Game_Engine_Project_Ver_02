@@ -4,22 +4,11 @@
 #include <clocale>
 #include <unordered_map>
 #include <tchar.h>
+#include "Include_ImGui.h"
 using namespace std;
 
 unordered_map<string, shared_ptr<Material>> Material::mat_cache;
 
-Material::Material()
-{
-}
-/*
-shared_ptr<Material> Material::Create()
-{
-}
-
-shared_ptr<Material> Material::Create(std::string Material_Name, WCHAR* Shader_Name)
-{
-}
-*/
 shared_ptr<Material> Material::Create(std::string Material_Name, WCHAR* Shader_Name, std::string filename)
 {
 	auto it = mat_cache.find(Material_Name);
@@ -41,6 +30,10 @@ shared_ptr<Material> Material::Create(std::string Material_Name, WCHAR* Shader_N
 	}
 }
 
-Material::~Material()
+void Material::Draw_ImGui()
 {
+	ImGui::Text(name.c_str());
+	float out_color[4] = { color.x,color.y,color.z,color.w };
+	ImGui::ColorEdit3("Color", out_color);
+	color = { out_color[0],out_color[1] ,out_color[2] ,out_color[3] };
 }

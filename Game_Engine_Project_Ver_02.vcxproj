@@ -686,7 +686,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Script\Header\All_Component_List.h" />
+    <ClInclude Include="Code\Header_File\All_Component_List.h" />
     <ClInclude Include="Script\Header\Bullet.h" />
     <ClInclude Include="Script\Header\Camera_Set.h" />
     <ClInclude Include="Script\Header\Enemy.h" />

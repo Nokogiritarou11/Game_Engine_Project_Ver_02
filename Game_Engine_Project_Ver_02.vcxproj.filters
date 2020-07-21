@@ -243,9 +243,9 @@
     <ClInclude Include="Code\Libraries\cereal\version.hpp" />
     <ClInclude Include="Code\Libraries\cereal\types\concepts\pair_associative_container.hpp" />
     <ClInclude Include="Code\Libraries\cereal\details\util.hpp" />
-    <ClInclude Include="Script\Header\All_Component_List.h" />
     <ClInclude Include="Code\Header_File\Include_ImGui.h" />
     <ClInclude Include="Code\Header_File\Include_Mono.h" />
+    <ClInclude Include="Code\Header_File\All_Component_List.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Sources">

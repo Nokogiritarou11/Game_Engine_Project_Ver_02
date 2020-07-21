@@ -4,6 +4,7 @@
 #include "Original_Math.h"
 #include "Scene_Manager.h"
 #include "Engine.h"
+#include "All_Component_List.h"
 #include "Include_ImGui.h"
 using namespace std;
 using namespace DirectX;
@@ -13,6 +14,8 @@ Debug_UI::Debug_UI()
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
 	//テーマの変更
 	ImGui::StyleColorsDark();
@@ -87,6 +90,8 @@ void Debug_UI::Render()
 	{
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+		//ImGui::UpdatePlatformWindows();
+		//ImGui::RenderPlatformWindowsDefault();
 	}
 }
 
@@ -309,17 +314,16 @@ void Debug_UI::Inspector_Render()
 	if (obj)
 	{
 		//選択時
-		ImGui::SetNextItemOpen(true, ImGuiCond_Always);
-		if (ImGui::TreeNode(obj->name.c_str()))
+		ImGui::Checkbox("", &obj->Active);
+		ImGui::SameLine();
+		ImGui::InputText(u8"名前", &obj->name);
+		list<shared_ptr<Component>>::iterator itr_end = obj->Component_List.end();
+		for (list<shared_ptr<Component>>::iterator itr = obj->Component_List.begin(); itr != itr_end; itr++)
 		{
-			ImGui::Checkbox("Is_Active", &obj->Active);
-			list<shared_ptr<Component>>::iterator itr_end = obj->Component_List.end();
-			for (list<shared_ptr<Component>>::iterator itr = obj->Component_List.begin(); itr != itr_end; itr++)
-			{
-				(*itr)->Draw_ImGui();
-			}
-			ImGui::TreePop();
+			(*itr)->Draw_ImGui();
 		}
+		ImGui::Separator();
+		All_Component_List::Add(obj);
 	}
 	else
 	{
@@ -471,7 +475,7 @@ void Debug_UI::GameObject_List_Render(std::shared_ptr<Scene> scene)
 			bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)ID, node_flags, (*itr)->name.c_str());
 			if (!active) { ImGui::PopStyleColor(); }
 
-			if (ImGui::IsItemClicked())
+			if (ImGui::IsItemClicked() || ImGui::IsItemClicked(1))
 			{
 				node_clicked = ID;
 				Active_Object = *itr;
@@ -483,6 +487,21 @@ void Debug_UI::GameObject_List_Render(std::shared_ptr<Scene> scene)
 			ID++;
 			ImGui::PopID();
 		}
+
+		if (ImGui::BeginPopupContextWindow(u8"ヒエラルキーサブ"))
+		{
+			if (ImGui::Selectable(u8"新規オブジェクトを追加"))
+			{
+				GameObject::Instantiate(u8"GameObject");
+			}
+			if (ImGui::Selectable(u8"オブジェクトを削除"))
+			{
+				GameObject::Destroy(Active_Object.lock());
+				Active_Object.reset();
+			}
+			ImGui::EndPopup();
+		}
+
 		if (node_clicked != -1)
 		{
 			// Update selection state

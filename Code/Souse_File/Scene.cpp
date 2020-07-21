@@ -25,6 +25,7 @@ void Scene::Destroy_GameObject(shared_ptr<GameObject> gameObject)
 	{
 		if ((*itr)->ID == gameObject->ID)
 		{
+			(*itr)->Component_List.clear();
 			gameObject_List.erase(itr);
 			return;
 		}

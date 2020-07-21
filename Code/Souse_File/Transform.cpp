@@ -148,21 +148,38 @@ void Transform::Draw_ImGui()
 			scl[2] = trans_scl.z;
 		}
 
-		ImGui::DragFloat3(u8"Position", pos, 0.05f, -FLT_MAX, FLT_MAX);
-		ImGui::DragFloat3(u8"Rotation", rot, 0.05f, -FLT_MAX, FLT_MAX);
-		ImGui::DragFloat3(u8"Scale", scl, 0.01f, -FLT_MAX, FLT_MAX);
-
-		if (has_parent)
+		if (ImGui::DragFloat3(u8"Position", pos, 0.05f, -FLT_MAX, FLT_MAX))
 		{
-			Set_localScale(scl[0], scl[1], scl[2]);
-			Set_localEulerAngles(rot[0], rot[1], rot[2]);
-			Set_localPosition(pos[0], pos[1], pos[2]);
+			if (has_parent)
+			{
+				Set_localPosition(pos[0], pos[1], pos[2]);
+			}
+			else
+			{
+				Set_position(pos[0], pos[1], pos[2]);
+			}
 		}
-		else
+		if (ImGui::DragFloat3(u8"Rotation", rot, 0.05f, -FLT_MAX, FLT_MAX))
 		{
-			Set_scale(scl[0], scl[1], scl[2]);
-			Set_eulerAngles(rot[0], rot[1], rot[2]);
-			Set_position(pos[0], pos[1], pos[2]);
+			if (has_parent)
+			{
+				Set_localEulerAngles(rot[0], rot[1], rot[2]);
+			}
+			else
+			{
+				Set_eulerAngles(rot[0], rot[1], rot[2]);
+			}
+		}
+		if (ImGui::DragFloat3(u8"Scale", scl, 0.01f, -FLT_MAX, FLT_MAX))
+		{
+			if (has_parent)
+			{
+				Set_localScale(scl[0], scl[1], scl[2]);
+			}
+			else
+			{
+				Set_scale(scl[0], scl[1], scl[2]);
+			}
 		}
 	}
 }

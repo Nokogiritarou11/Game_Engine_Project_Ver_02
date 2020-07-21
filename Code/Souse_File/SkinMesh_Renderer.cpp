@@ -78,79 +78,81 @@ void SkinMesh_Renderer::Render(shared_ptr<Camera> Render_Camera)
 	XMStoreFloat4x4(&world_view_projection, WVP);
 
 	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	for (auto& mesh : mesh_data->skin_meshes)
+	if (mesh_data)
 	{
-		// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
-		UINT stride = sizeof(Mesh::vertex);
-		UINT offset = 0;
-		DxSystem::DeviceContext->IASetVertexBuffers(0, 1, mesh.vertex_buffer.GetAddressOf(), &stride, &offset);
-		DxSystem::DeviceContext->IASetIndexBuffer(mesh.index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-		for (auto& subset : mesh.subsets)
+		for (auto& mesh : mesh_data->skin_meshes)
 		{
-			/*
-			//ブレンドステート設定
-			DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(material[subset.diffuse.ID]->BlendState), nullptr, 0xFFFFFFFF);
-			//ラスタライザ―設定
-			DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(material[subset.diffuse.ID]->RasterizerState));
-			//デプスステンシルステート設定
-			DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(material[subset.diffuse.ID]->BlendState), 1);
-			*/
-
-			// 定数バッファの内容を更新
-			cbuffer data;
-			data.material_color = material[subset.diffuse.ID]->color;
-			data.light_direction = DxSystem::Light_Direction;
-			XMStoreFloat4x4(&data.world_view_projection,
-				XMLoadFloat4x4(&mesh.global_transform) *
-				XMLoadFloat4x4(&transform->coordinate_conversion) *
-				XMLoadFloat4x4(&world_view_projection));
-			XMStoreFloat4x4(&data.world,
-				XMLoadFloat4x4(&mesh.global_transform) *
-				XMLoadFloat4x4(&transform->coordinate_conversion) *
-				XMLoadFloat4x4(&transform->Get_world_matrix()));
-
-			if (mesh.skeletal_animation.size() > 0 && mesh.skeletal_animation[Animation_Index].bones.size() > 0)
+			// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
+			UINT stride = sizeof(Mesh::vertex);
+			UINT offset = 0;
+			DxSystem::DeviceContext->IASetVertexBuffers(0, 1, mesh.vertex_buffer.GetAddressOf(), &stride, &offset);
+			DxSystem::DeviceContext->IASetIndexBuffer(mesh.index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+			for (auto& subset : mesh.subsets)
 			{
-				int frame = 0;
-				if (!Animation_End)
+				/*
+				//ブレンドステート設定
+				DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(material[subset.diffuse.ID]->BlendState), nullptr, 0xFFFFFFFF);
+				//ラスタライザ―設定
+				DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(material[subset.diffuse.ID]->RasterizerState));
+				//デプスステンシルステート設定
+				DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(material[subset.diffuse.ID]->BlendState), 1);
+				*/
+
+				// 定数バッファの内容を更新
+				cbuffer data;
+				data.material_color = material[subset.diffuse.ID]->color;
+				data.light_direction = DxSystem::Light_Direction;
+				XMStoreFloat4x4(&data.world_view_projection,
+					XMLoadFloat4x4(&mesh.global_transform) *
+					XMLoadFloat4x4(&transform->coordinate_conversion) *
+					XMLoadFloat4x4(&world_view_projection));
+				XMStoreFloat4x4(&data.world,
+					XMLoadFloat4x4(&mesh.global_transform) *
+					XMLoadFloat4x4(&transform->coordinate_conversion) *
+					XMLoadFloat4x4(&transform->Get_world_matrix()));
+
+				if (mesh.skeletal_animation.size() > 0 && mesh.skeletal_animation[Animation_Index].bones.size() > 0)
 				{
-					frame = Animation_Time / mesh.skeletal_animation[Animation_Index].sampling_time;
-					if (frame > mesh.skeletal_animation[Animation_Index].bones.size() - 1)
+					int frame = 0;
+					if (!Animation_End)
 					{
-						if (!Animation_Loop)
+						frame = Animation_Time / mesh.skeletal_animation[Animation_Index].sampling_time;
+						if (frame > mesh.skeletal_animation[Animation_Index].bones.size() - 1)
 						{
-							frame = mesh.skeletal_animation[Animation_Index].bones.size() - 1;
-							Animation_End = true;
+							if (!Animation_Loop)
+							{
+								frame = mesh.skeletal_animation[Animation_Index].bones.size() - 1;
+								Animation_End = true;
+							}
+							else
+							{
+								frame = 0;
+							}
+							Animation_Time = 0.0f;
 						}
-						else
-						{
-							frame = 0;
-						}
-						Animation_Time = 0.0f;
+					}
+					else
+					{
+						frame = mesh.skeletal_animation[Animation_Index].bones.size() - 1;
+					}
+					Animation_Rate = (float)frame / mesh.skeletal_animation[Animation_Index].bones.size();
+					vector<Mesh::bone> skeletal = mesh.skeletal_animation[Animation_Index].bones.at(frame);
+					size_t number_of_bones = skeletal.size();
+					_ASSERT_EXPR(number_of_bones < MAX_BONES, L"'the number_of_bones' exceeds MAX_BONES.");
+					for (size_t i = 0; i < number_of_bones; i++)
+					{
+						XMStoreFloat4x4(&data.bone_transforms[i], XMLoadFloat4x4(&skeletal.at(i).transform));
 					}
 				}
-				else
-				{
-					frame = mesh.skeletal_animation[Animation_Index].bones.size() - 1;
-				}
-				Animation_Rate = (float)frame / mesh.skeletal_animation[Animation_Index].bones.size();
-				vector<Mesh::bone> skeletal = mesh.skeletal_animation[Animation_Index].bones.at(frame);
-				size_t number_of_bones = skeletal.size();
-				_ASSERT_EXPR(number_of_bones < MAX_BONES, L"'the number_of_bones' exceeds MAX_BONES.");
-				for (size_t i = 0; i < number_of_bones; i++)
-				{
-					XMStoreFloat4x4(&data.bone_transforms[i], XMLoadFloat4x4(&skeletal.at(i).transform));
-				}
+				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer.Get(), 0, nullptr, &data, 0, 0);
+				DxSystem::DeviceContext->VSSetConstantBuffers(0, 1, ConstantBuffer.GetAddressOf());
+				DxSystem::DeviceContext->IASetInputLayout(material[subset.diffuse.ID]->shader->VertexLayout.Get());
+				//シェーダーリソースのバインド
+				material[subset.diffuse.ID]->texture->Set(); //PSSetSamplar PSSetShaderResources
+				material[subset.diffuse.ID]->shader->Activate(); //PS,VSSetShader
+				// ↑で設定したリソースを利用してポリゴンを描画する。
+				DxSystem::DeviceContext->DrawIndexed(subset.index_count, subset.index_start, 0);
 			}
-			DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer.Get(), 0, nullptr, &data, 0, 0);
-			DxSystem::DeviceContext->VSSetConstantBuffers(0, 1, ConstantBuffer.GetAddressOf());
-			DxSystem::DeviceContext->IASetInputLayout(material[subset.diffuse.ID]->shader->VertexLayout.Get());
-			//シェーダーリソースのバインド
-			material[subset.diffuse.ID]->texture->Set(); //PSSetSamplar PSSetShaderResources
-			material[subset.diffuse.ID]->shader->Activate(); //PS,VSSetShader
-			// ↑で設定したリソースを利用してポリゴンを描画する。
-			DxSystem::DeviceContext->DrawIndexed(subset.index_count, subset.index_start, 0);
 		}
 	}
 }
@@ -163,6 +165,7 @@ void SkinMesh_Renderer::Draw_ImGui()
 		ImGui::Text(u8"現在のメッシュ::");
 		ImGui::SameLine();
 		ImGui::Text(file_name.c_str());
+		ImGui::SameLine();
 		if (ImGui::Button(u8"メッシュを選択"))
 		{
 			string path = Debug_UI::Get_Open_File_Name();
@@ -184,5 +187,21 @@ void SkinMesh_Renderer::Draw_ImGui()
 				Debug::Log("ファイルを開けませんでした");
 			}
 		}
+
+		static int ID = 0;
+		if (mesh_data)
+		{
+			for (auto& mesh : mesh_data->skin_meshes)
+			{
+				for (auto& subset : mesh.subsets)
+				{
+					ImGui::PushID(ID);
+					material[subset.diffuse.ID]->Draw_ImGui();
+					ID++;
+					ImGui::PopID();
+				}
+			}
+		}
+		ID = 0;
 	}
 }
