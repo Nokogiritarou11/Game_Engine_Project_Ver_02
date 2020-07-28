@@ -26,11 +26,19 @@ private:
 	bool Debug_Log_Changed = false;
 	weak_ptr<GameObject> Active_Object;
 
+	Matrix Debug_Camera_V;
+	Matrix Debug_Camera_P;
+
+	void Main_Window_Render();
 	void Debug_Log_Render();
 	void Hierarchy_Render(std::shared_ptr<Scene> scene);
 	void Inspector_Render();
 	void ScenePlayer_Render();
+	void SceneView_Render();
+	void GameView_Render();
 
 	void Scene_File_Menu_Render();
 	void GameObject_List_Render(std::shared_ptr<Scene> scene);
+
+	void Debug_Camera_Update();
 };

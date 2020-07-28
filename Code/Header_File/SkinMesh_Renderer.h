@@ -1,7 +1,6 @@
 #pragma once
 #include "Renderer.h"
 #include "Mesh.h"
-#include "Camera.h"
 
 class SkinMesh_Renderer : public Renderer
 {
@@ -10,7 +9,7 @@ public:
 	void Initialize();
 	void Initialize(std::shared_ptr<GameObject> obj);
 	void Set_Mesh(std::shared_ptr<Mesh> Mesh_Data);
-	void Render(std::shared_ptr<Camera> Render_Camera);
+	void Render(Matrix V, Matrix P);
 
 	void Draw_ImGui();
 

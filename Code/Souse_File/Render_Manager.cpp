@@ -1,17 +1,19 @@
 #include "Render_Manager.h"
 #include "GameObject.h"
 #include "Transform.h"
-#include "Animator_Manager.h"
+#include "Engine.h"
 using namespace std;
 
 list<weak_ptr<Renderer>> Render_Manager::Renderer_3D_list;
 list<weak_ptr<Renderer>> Render_Manager::Renderer_2D_list;
 list<vector<Render_Manager::Render_Obj>> Render_Manager::Renderer_list;
+list<weak_ptr<Camera>> Render_Manager::Camera_list;
 
 void Render_Manager::Reset()
 {
 	Renderer_3D_list.clear();
 	Renderer_2D_list.clear();
+	Camera_list.clear();
 }
 
 void Render_Manager::Add(shared_ptr<Mesh_Renderer> m_rend)
@@ -26,58 +28,47 @@ void Render_Manager::Add(shared_ptr<Sprite_Renderer> m_rend)
 {
 	Renderer_2D_list.emplace_back(m_rend);
 }
-
-void Render_Manager::Render(std::shared_ptr<Camera> Render_Camera)
+void Render_Manager::Add(shared_ptr<Camera> mono)
 {
-	// ビューポートの設定
-	DxSystem::SetViewPort(DxSystem::GetScreenWidth(), DxSystem::GetScreenHeight());
+	Camera_list.emplace_back(mono);
+}
 
-	Animator_Manager::Update();
-
-	//ブレンドステート設定
-	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_NONE), nullptr, 0xFFFFFFFF);
-	//ラスタライザ―設定
-	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_CULL_BACK));
-	//デプスステンシルステート設定
-	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_TRUE), 1);
-
-	for (list<weak_ptr<Renderer>>::iterator itr = Renderer_3D_list.begin(); itr != Renderer_3D_list.end();)
+void Render_Manager::Update()
+{
+	for (list<weak_ptr<Camera>>::iterator itr = Camera_list.begin(); itr != Camera_list.end();)
 	{
 		if (itr->expired())
 		{
-			itr = Renderer_3D_list.erase(itr);
+			itr = Camera_list.erase(itr);
 			continue;
 		}
-		shared_ptr<Renderer> m_rend = itr->lock();
-		if (m_rend->gameObject->activeSelf())
+		shared_ptr<Camera> camera = itr->lock();
+		if (camera->gameObject->activeSelf())
 		{
-			if (m_rend->enabled)
+			if (camera->enabled)
 			{
-				m_rend->Render(Render_Camera);
 			}
 		}
 		itr++;
 	}
+}
 
-	//ブレンドステート設定
-	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_ALPHA), nullptr, 0xFFFFFFFF);
-	//ラスタライザ―設定
-	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_CULL_BACK));
-	//デプスステンシルステート設定
-	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_FALSE), 1);
-	for (list<weak_ptr<Renderer>>::iterator itr = Renderer_2D_list.begin(); itr != Renderer_2D_list.end();)
+void Render_Manager::Render()
+{
+	for (list<weak_ptr<Camera>>::iterator itr = Camera_list.begin(); itr != Camera_list.end();)
 	{
 		if (itr->expired())
 		{
-			itr = Renderer_2D_list.erase(itr);
+			itr = Camera_list.erase(itr);
 			continue;
 		}
-		shared_ptr<Renderer> m_rend = itr->lock();
-		if (m_rend->gameObject->activeSelf())
+		shared_ptr<Camera> camera = itr->lock();
+		if (camera->gameObject->activeSelf())
 		{
-			if (m_rend->enabled)
+			if (camera->enabled)
 			{
-				m_rend->Render(Render_Camera);
+				camera->Update(Engine::view_game->screen_x, Engine::view_game->screen_y);
+				Engine::view_game->Render(camera->V, camera->P);
 			}
 		}
 		itr++;

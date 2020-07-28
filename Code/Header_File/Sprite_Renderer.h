@@ -32,7 +32,7 @@ public:
 
 	void Initialize(std::shared_ptr<GameObject> obj);
 	void Set_Texture(std::string Material_Name, WCHAR* Shader_Name, std::string filename);
-	void Render(std::shared_ptr<Camera> Render_Camera);
+	void Render(Matrix V, Matrix P);
 };
 
 /*

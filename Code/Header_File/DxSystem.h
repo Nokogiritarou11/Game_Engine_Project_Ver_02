@@ -52,6 +52,7 @@ public:
 	static ComPtr<ID3D11Device>			Device;
 	static ComPtr<ID3D11DeviceContext>	DeviceContext;
 	static HWND hwnd;
+	static DXGI_SAMPLE_DESC MSAA;
 
 	static DirectX::XMFLOAT4 Light_Direction;
 	static float elapsed_time;
@@ -69,6 +70,7 @@ public:
 	static ID3D11RasterizerState* GetRasterizerState(int state) { return RasterizerState[state].Get(); }
 	static ID3D11BlendState* GetBlendState(int state) { return BlendState[state].Get(); }
 	static void SetViewPort(int width, int height);
+	static void SetDefaultView();
 	//DepthStencilState
 	enum { DS_FALSE, DS_TRUE };
 	//RasterizerState

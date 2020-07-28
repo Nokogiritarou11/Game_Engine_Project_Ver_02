@@ -69,6 +69,7 @@ void Debug_UI::Update(shared_ptr<Scene> scene)
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
+		Main_Window_Render();
 		//ゲームオブジェクト関連
 		{
 			//ヒエラルキー
@@ -79,6 +80,10 @@ void Debug_UI::Update(shared_ptr<Scene> scene)
 
 		//シーン再生
 		ScenePlayer_Render();
+
+		GameView_Render();
+		SceneView_Render();
+
 		//デバッグログ
 		Debug_Log_Render();
 	}
@@ -88,6 +93,11 @@ void Debug_UI::Render()
 {
 	if (Draw_Debug_UI)
 	{
+		Engine::view_scene->Render(Debug_Camera_V, Debug_Camera_P);
+
+		// レンダーターゲットビュー設定
+		DxSystem::SetDefaultView();
+		DxSystem::SetViewPort(DxSystem::GetScreenWidth(), DxSystem::GetScreenHeight());
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 		//ImGui::UpdatePlatformWindows();
@@ -176,6 +186,31 @@ string Debug_UI::Get_Save_File_Name()
 		str_pass = "";
 	}
 	return str_pass;
+}
+
+void Debug_UI::Main_Window_Render()
+{
+	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+
+	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(viewport->GetWorkPos());
+	ImGui::SetNextWindowSize(viewport->GetWorkSize());
+	ImGui::SetNextWindowViewport(viewport->ID);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::Begin(u8"ゲームエンジン", NULL, window_flags);
+	ImGui::PopStyleVar(3);
+
+	ImGuiIO& io = ImGui::GetIO();
+	ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+	Scene_File_Menu_Render();
+	ImGui::End();
 }
 
 void Debug_UI::Print_Log(string log)
@@ -275,8 +310,8 @@ void Debug_UI::Debug_Log_Render()
 {
 	ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
 	static bool Open_Log = true;
-	ImGui::SetNextWindowPos(ImVec2(0, 900), ImGuiCond_Once);
-	ImGui::SetNextWindowSize(ImVec2(400, 100), ImGuiCond_Once);
+	ImGui::SetNextWindowPos(ImVec2(0, 900), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(400, 100), ImGuiCond_FirstUseEver);
 	static Debug_Logger logger;
 	if (Debug_Log_Changed)
 	{
@@ -291,26 +326,28 @@ void Debug_UI::Debug_Log_Render()
 
 void Debug_UI::Hierarchy_Render(shared_ptr<Scene> scene)
 {
-	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Once);
-	ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_Once);
+	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_FirstUseEver);
 
 	ImGuiWindowFlags window_flags = 0;
-	window_flags |= ImGuiWindowFlags_MenuBar;
+	window_flags |= ImGuiWindowFlags_NoCollapse;
 
 	ImGui::Begin(u8"ヒエラルキー", NULL, window_flags);
 
-	Scene_File_Menu_Render();
 	GameObject_List_Render(scene);
-	
+
 	ImGui::End();
 }
 
 void Debug_UI::Inspector_Render()
 {
-	ImGui::SetNextWindowPos(ImVec2(1500, 0), ImGuiCond_Once);
-	ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_Once);
+	ImGui::SetNextWindowPos(ImVec2(1500, 0), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
 	shared_ptr<GameObject> obj = Active_Object.lock();
-	ImGui::Begin(u8"インスペクタ");
+
+	ImGuiWindowFlags window_flags = 0;
+	window_flags |= ImGuiWindowFlags_NoCollapse;
+	ImGui::Begin(u8"インスペクタ", NULL, window_flags);
 	if (obj)
 	{
 		//選択時
@@ -335,11 +372,11 @@ void Debug_UI::Inspector_Render()
 
 void Debug_UI::ScenePlayer_Render()
 {
-	ImGui::SetNextWindowPos(ImVec2(935, 0), ImGuiCond_Once);
-	ImGui::SetNextWindowSize(ImVec2(45, 30), ImGuiCond_Once);
+	ImGui::SetNextWindowPos(ImVec2(935, 0), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(45, 30), ImGuiCond_FirstUseEver);
 	ImGuiWindowFlags window_flags = 0;
 	window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
-	ImGui::Begin(u8"シーン再生",NULL,window_flags);
+	ImGui::Begin(u8"シーン再生", NULL, window_flags);
 
 	if (Engine::scene_manager->Run)
 	{
@@ -359,6 +396,43 @@ void Debug_UI::ScenePlayer_Render()
 	if (ImGui::Button(ICON_FA_PAUSE))
 	{
 	}
+
+	ImGui::End();
+}
+
+void Debug_UI::SceneView_Render()
+{
+	ImGui::SetNextWindowPos(ImVec2(200, 0), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
+
+	ImGuiWindowFlags window_flags = 0;
+	window_flags |= ImGuiWindowFlags_NoCollapse;
+
+	ImGui::Begin(u8"シーン", NULL, window_flags);
+	const float titleBarHeight = ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2.0f + 10;
+	Engine::view_scene->Set_Screen_Size(ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - titleBarHeight);
+	ImGui::Image((void*)Engine::view_scene->ShaderResourceView_Render.Get(), ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - titleBarHeight));
+
+	if (ImGui::IsWindowFocused())
+	{
+		Debug_Camera_Update();
+	}
+
+	ImGui::End();
+}
+
+void Debug_UI::GameView_Render()
+{
+	ImGui::SetNextWindowPos(ImVec2(200, 0), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
+
+	ImGuiWindowFlags window_flags = 0;
+	window_flags |= ImGuiWindowFlags_NoCollapse;
+
+	ImGui::Begin(u8"ゲーム", NULL, window_flags);
+	const float titleBarHeight = ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2.0f + 10;
+	Engine::view_game->Set_Screen_Size(ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - titleBarHeight);
+	ImGui::Image((void*)Engine::view_game->ShaderResourceView_Render.Get(), ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - titleBarHeight));
 
 	ImGui::End();
 }
@@ -514,4 +588,89 @@ void Debug_UI::GameObject_List_Render(std::shared_ptr<Scene> scene)
 		ImGui::TreePop();
 	}
 	ID = 0;
+}
+
+void Debug_UI::Debug_Camera_Update()
+{
+	static Vector3 p = { -100, 80, -100 };
+	static Vector3 e = { 30, 45, 0 };
+	static unique_ptr<Transform> debug_camera = make_unique<Transform>(p, e);
+	//入力
+	{
+		static ImVec2 mouse_old_pos = { 0,0 };
+		static ImVec2 mouse_pos = { 0,0 };
+		if (Input_Manager::ms.rightButton)
+		{
+			mouse_pos = ImGui::GetMousePos();
+			if (mouse_old_pos.x == -1 && mouse_old_pos.y == -1)
+			{
+				mouse_old_pos = mouse_pos;
+			}
+			if (mouse_pos.x != mouse_old_pos.x || mouse_pos.y != mouse_old_pos.y)
+			{
+				const float dis_x = (mouse_pos.x - mouse_old_pos.x) * 0.1f;
+				const float dis_y = (mouse_pos.y - mouse_old_pos.y) * 0.1f;
+
+				Quaternion q = debug_camera->Get_rotation();
+				q *= q.AngleAxis(debug_camera->Get_right(), XMConvertToRadians(dis_y));
+				q *= q.AngleAxis(debug_camera->Get_up(), XMConvertToRadians(dis_x));
+				debug_camera->Set_rotation(q);
+
+				mouse_old_pos = mouse_pos;
+			}
+		}
+		else
+		{
+			mouse_old_pos = { -1,-1 };
+		}
+
+		Vector3 move = { 0,0,0 };
+		const float speed = 50;
+		if (Input_Manager::kb.W)
+		{
+			move += debug_camera->Get_forward() * Time::deltaTime * speed;
+		}
+		if (Input_Manager::kb.S)
+		{
+			move -= debug_camera->Get_forward() * Time::deltaTime * speed;
+		}
+		if (Input_Manager::kb.A)
+		{
+			move -= debug_camera->Get_right() * Time::deltaTime * speed;
+		}
+		if (Input_Manager::kb.D)
+		{
+			move += debug_camera->Get_right() * Time::deltaTime * speed;
+		}
+		debug_camera->Set_position(debug_camera->Get_position() + move);
+	}
+	//カメラ行列計算
+	{
+		// プロジェクション行列を作成
+		// 画面サイズ取得のためビューポートを取得
+		{
+			// 角度をラジアン(θ)に変換
+			float fov_y = XMConvertToRadians(30);	// 画角
+			float aspect = Engine::view_scene->screen_x / Engine::view_scene->screen_y;	// 画面比率
+
+			XMStoreFloat4x4(&Debug_Camera_P, XMMatrixPerspectiveFovLH(fov_y, aspect, 0.1f, 100000.0f));
+		}
+		// ビュー行列を作成
+		// カメラの設定
+		{
+			Vector3 pos = debug_camera->Get_position();
+			Vector4 eye = { pos.x,pos.y,pos.z ,0 };
+			XMVECTOR eye_v = XMLoadFloat4(&eye);
+
+			XMVECTOR focus_v = eye_v + XMLoadFloat3(&debug_camera->Get_forward());
+
+			XMVECTOR camForward = XMVector3Normalize(focus_v - eye_v);    // Get forward vector based on target
+			camForward = XMVectorSetY(camForward, 0.0f);    // set forwards y component to 0 so it lays only on
+			camForward = XMVector3Normalize(camForward);
+			XMVECTOR camRight = XMVectorSet(-XMVectorGetZ(camForward), 0.0f, XMVectorGetX(camForward), 0.0f);
+
+			XMVECTOR up_v = XMVectorSet(0, 1, 0, 0);
+			XMStoreFloat4x4(&Debug_Camera_V, XMMatrixLookAtLH(eye_v, focus_v, up_v));
+		}
+	}
 }

@@ -69,15 +69,14 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 	}
 }
 
-void SkinMesh_Renderer::Render(shared_ptr<Camera> Render_Camera)
+void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 {
 	// ワールド行列、ビュー行列、プロジェクション行列を合成し行列データを取り出す。
 	XMMATRIX WVP;
 	XMFLOAT4X4 world_view_projection;
-	WVP = XMLoadFloat4x4(&transform->Get_world_matrix()) * XMLoadFloat4x4(&Render_Camera->V) * XMLoadFloat4x4(&Render_Camera->P);
+	WVP = XMLoadFloat4x4(&transform->Get_world_matrix()) * XMLoadFloat4x4(&V) * XMLoadFloat4x4(&P);
 	XMStoreFloat4x4(&world_view_projection, WVP);
 
-	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	if (mesh_data)
 	{
 		for (auto& mesh : mesh_data->skin_meshes)

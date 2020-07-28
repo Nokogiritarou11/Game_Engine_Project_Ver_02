@@ -6,6 +6,7 @@
 #include "Camera.h"
 #include <d3d11.h>
 #include <DirectXMath.h>
+#include "Original_Math.h"
 #include <string>
 #include <wrl.h>
 #include <memory>
@@ -22,7 +23,7 @@ public:
 	bool enabled = true;
 	std::vector<std::shared_ptr<Material>> material;
 
-	virtual void Render(std::shared_ptr<Camera> Render_Camera) {};
+	virtual void Render(Matrix V, Matrix P) {};
 
 private:
 	friend class cereal::access;

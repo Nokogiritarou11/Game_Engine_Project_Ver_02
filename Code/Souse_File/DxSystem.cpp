@@ -20,6 +20,7 @@ ComPtr<ID3D11BlendState>			DxSystem::BlendState[BLEND_TYPE];
 
 ComPtr<IDXGIDebug>                  DxSystem::DXGIDebug;
 HWND								DxSystem::hwnd;
+DXGI_SAMPLE_DESC					DxSystem::MSAA;
 int DxSystem::ScreenWidth = 1920;
 int DxSystem::ScreenHeight = 1080;
 XMFLOAT4 DxSystem::Light_Direction = { 0.0f, 1.0f, 0.0f, 0 };
@@ -92,24 +93,23 @@ HRESULT DxSystem::CreateDevice()
 #endif
 		///*
 		//使用可能なMSAAを取得
-		DXGI_SAMPLE_DESC MSAA;
-		int max_count = 8;//D3D11_MAX_MULTISAMPLE_SAMPLE_COUNT;
-		if (max_count > 8)max_count = 8;
-		for (int i = 0; i <= max_count; i++)
+	int max_count = 8;//D3D11_MAX_MULTISAMPLE_SAMPLE_COUNT;
+	if (max_count > 8)max_count = 8;
+	for (int i = 0; i <= max_count; i++)
+	{
+		UINT Quality;
+		if SUCCEEDED(Device->CheckMultisampleQualityLevels(DXGI_FORMAT_D24_UNORM_S8_UINT, i, &Quality))
 		{
-			UINT Quality;
-			if SUCCEEDED(Device->CheckMultisampleQualityLevels(DXGI_FORMAT_D24_UNORM_S8_UINT, i, &Quality))
+			if (0 < Quality)
 			{
-				if (0 < Quality)
-				{
-					MSAA.Count = i;
-					MSAA.Quality = Quality - 1;
-				}
+				MSAA.Count = i;
+				MSAA.Quality = Quality - 1;
 			}
 		}
-		//*/
+	}
+	//*/
 
-		//インターフェース取得
+	//インターフェース取得
 	IDXGIDevice1* hpDXGI = NULL;
 	if (FAILED(Device.Get()->QueryInterface(__uuidof(IDXGIDevice1), (void**)&hpDXGI)))
 	{
@@ -148,7 +148,7 @@ HRESULT DxSystem::CreateDevice()
 	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	scd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	scd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-	scd.SampleDesc                         = MSAA;
+	scd.SampleDesc = MSAA;
 	//scd.SampleDesc.Quality = 0;
 	//scd.SampleDesc.Count = 1;
 	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -203,9 +203,6 @@ bool DxSystem::InitializeRenderTarget()
 	//  深度ステンシルバッファ生成
 	CreateDepthStencil();
 
-	// レンダーターゲットビュー設定
-	DeviceContext->OMSetRenderTargets(1, RenderTargetView.GetAddressOf(), DepthStencilView.Get());
-
 	// ビューポートの設定
 	SetViewPort(ScreenWidth, ScreenHeight);
 
@@ -227,27 +224,17 @@ void DxSystem::SetViewPort(int width, int height)
 	DeviceContext->RSSetViewports(1, &vp);
 }
 
+// レンダーターゲットビュー設定
+void DxSystem::SetDefaultView()
+{
+	DeviceContext->OMSetRenderTargets(1, RenderTargetView.GetAddressOf(), DepthStencilView.Get());
+}
+
 //------------------------------------------------
 //	深度ステンシルバッファ生成
 //------------------------------------------------
 bool DxSystem::CreateDepthStencil()
 {
-	DXGI_SAMPLE_DESC MSAA;
-	int max_count = 8;//D3D11_MAX_MULTISAMPLE_SAMPLE_COUNT;
-	if (max_count > 8)max_count = 8;
-	for (int i = 0; i <= max_count; i++)
-	{
-		UINT Quality;
-		if SUCCEEDED(Device->CheckMultisampleQualityLevels(DXGI_FORMAT_D24_UNORM_S8_UINT, i, &Quality))
-		{
-			if (0 < Quality)
-			{
-				MSAA.Count = i;
-				MSAA.Quality = Quality - 1;
-			}
-		}
-	}
-
 	// 深度ステンシル設定
 	D3D11_TEXTURE2D_DESC td;
 	ZeroMemory(&td, sizeof(D3D11_TEXTURE2D_DESC));
@@ -627,11 +614,16 @@ bool DxSystem::CreateBlendState()
 //------------------------------------------------
 void DxSystem::Clear(DWORD color)
 {
-	float clearColor[4];
+	// レンダーターゲットビュー設定
+	DeviceContext->OMSetRenderTargets(1, RenderTargetView.GetAddressOf(), DepthStencilView.Get());
+
+	float clearColor[4] = {1,0,0,0};
+	/*
 	for (int i = 3; i >= 0; i--)
 	{
 		clearColor[i] = ((color >> 8 * (3 - i)) & 0x00000000) / 255.0f;
 	}
+	*/
 	DeviceContext->ClearRenderTargetView(RenderTargetView.Get(), clearColor);
 	DeviceContext->ClearDepthStencilView(DepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	DeviceContext->OMSetDepthStencilState(DepthStencilState[DS_TRUE].Get(), 1);

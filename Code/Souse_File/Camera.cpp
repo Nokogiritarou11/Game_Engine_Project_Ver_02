@@ -1,16 +1,15 @@
 #include "Camera.h"
 #include "DxSystem.h"
 #include "GameObject.h"
-#include "Transform.h"
-#include "Camera_Manager.h"
 #include "Include_ImGui.h"
+#include "Render_Manager.h"
 using namespace DirectX;
 
 using namespace std;
 
 void Camera::Initialize()
 {
-	Camera_Manager::Add(static_pointer_cast<Camera>(shared_from_this()));
+	Render_Manager::Add(static_pointer_cast<Camera>(shared_from_this()));
 	DxSystem::DeviceContext->RSGetViewports(&num_viewports, &viewport);
 }
 
@@ -18,7 +17,7 @@ void Camera::Initialize(std::shared_ptr<GameObject> obj)
 {
 	gameObject = obj;
 	transform = obj->transform;
-	Camera_Manager::Add(static_pointer_cast<Camera>(shared_from_this()));
+	Render_Manager::Add(static_pointer_cast<Camera>(shared_from_this()));
 	DxSystem::DeviceContext->RSGetViewports(&num_viewports, &viewport);
 }
 
@@ -33,14 +32,14 @@ void Camera::Draw_ImGui()
 	}
 }
 
-void Camera::Update()
+void Camera::Update(float width, float height)
 {
 	// プロジェクション行列を作成
 	// 画面サイズ取得のためビューポートを取得
 	{
 		// 角度をラジアン(θ)に変換
 		float fov_y = XMConvertToRadians(FOV);	// 画角
-		float aspect = viewport.Width / viewport.Height;	// 画面比率
+		float aspect = width / height;	// 画面比率
 
 		XMStoreFloat4x4(&P, XMMatrixPerspectiveFovLH(fov_y, aspect, near_z, far_z));
 	}

@@ -181,7 +181,6 @@
     </ClCompile>
     <ClCompile Include="Code\Souse_File\Behaviour.cpp" />
     <ClCompile Include="Code\Souse_File\Camera.cpp" />
-    <ClCompile Include="Code\Souse_File\Camera_Manager.cpp" />
     <ClCompile Include="Code\Souse_File\Component.cpp" />
     <ClCompile Include="Code\Souse_File\Debug.cpp" />
     <ClCompile Include="Code\Souse_File\Debug_UI.cpp" />
@@ -217,6 +216,9 @@
     </ClCompile>
     <ClCompile Include="Code\Souse_File\Time.cpp" />
     <ClCompile Include="Code\Souse_File\Transform.cpp" />
+    <ClCompile Include="Code\Souse_File\View_Game.cpp" />
+    <ClCompile Include="Code\Souse_File\View_Scene.cpp" />
+    <ClCompile Include="Code\Souse_File\View_Texture.cpp" />
     <ClCompile Include="Librarys\ImGui\imgui.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -257,7 +259,6 @@
     </ClInclude>
     <ClInclude Include="Code\Header_File\Behaviour.h" />
     <ClInclude Include="Code\Header_File\Camera.h" />
-    <ClInclude Include="Code\Header_File\Camera_Manager.h" />
     <ClInclude Include="Code\Header_File\Component.h" />
     <ClInclude Include="Code\Header_File\Debug.h" />
     <ClInclude Include="Code\Header_File\Debug_UI.h" />
@@ -296,6 +297,9 @@
     </ClInclude>
     <ClInclude Include="Code\Header_File\Time.h" />
     <ClInclude Include="Code\Header_File\Transform.h" />
+    <ClInclude Include="Code\Header_File\View_Game.h" />
+    <ClInclude Include="Code\Header_File\View_Scene.h" />
+    <ClInclude Include="Code\Header_File\View_Texture.h" />
     <ClInclude Include="Code\Libraries\cereal\access.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>

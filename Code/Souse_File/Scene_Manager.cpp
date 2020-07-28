@@ -1,6 +1,5 @@
 #include "Scene_Manager.h"
 #include "Animator_Manager.h"
-#include "Camera_Manager.h"
 #include "SkinMesh_Renderer.h"
 #include "Render_Manager.h"
 #include "Transform.h"
@@ -10,7 +9,6 @@
 #include <functional>
 #include <iostream>
 #include <fstream>
-#include "Engine.h"
 using namespace std;
 
 //**********************************************
@@ -143,7 +141,6 @@ void Scene_Manager::Update()
 			{
 				Animator_Manager::Reset();
 				Render_Manager::Reset();
-				Camera_Manager::Reset();
 				Active_Scene = (*itr);
 				Initialize_Scene(Active_Scene);
 				Load = false;
@@ -152,7 +149,6 @@ void Scene_Manager::Update()
 		}
 	}
 
-	Engine::debug_ui->Update(Active_Scene);
 	if (Run)
 	{
 		Active_Scene->Update();

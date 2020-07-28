@@ -45,11 +45,8 @@ void Sprite_Renderer::Set_Texture(std::string Material_Name, WCHAR* Shader_Name,
 	material = Material::Create(Material_Name, Shader_Name, filename);
 }
 
-void Sprite_Renderer::Render(shared_ptr<Camera> Render_Camera)
+void Sprite_Renderer::Render(Matrix V, Matrix P)
 {
-	DxSystem::DeviceContext->IASetPrimitiveTopology(
-		D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP
-	);
 	material->shader->Activate();
 	//頂点データ設定
 	VERTEX data[4];
@@ -133,8 +130,8 @@ void Sprite_Renderer::Render(shared_ptr<Camera> Render_Camera)
 	data[3].Tex.y = material->UV_Origin.y + material->UV_Size.y;
 
 	//UV座標
-	float w = material->texture->GetWidth();
-	float h = material->texture->GetHeight();
+	float w = (float)material->texture->GetWidth();
+	float h = (float)material->texture->GetHeight();
 	for (int i = 0; i < 4; i++)
 	{
 		data[i].Tex.x = data[i].Tex.x / w;
