@@ -11,215 +11,86 @@ using namespace std;
 using namespace fbxsdk;
 using namespace DirectX;
 
-shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename)
+// FbxDouble2 → XMFLOAT2
+inline DirectX::XMFLOAT2 FbxDouble2ToFloat2(const FbxDouble2& fbxValue)
+{
+	return DirectX::XMFLOAT2(
+		static_cast<float>(fbxValue[0]),
+		static_cast<float>(fbxValue[1])
+	);
+}
+
+// FbxDouble3 → XMFLOAT3
+inline DirectX::XMFLOAT3 FbxDouble3ToFloat3(const FbxDouble3& fbxValue)
+{
+	return DirectX::XMFLOAT3(
+		static_cast<float>(fbxValue[0]),
+		static_cast<float>(fbxValue[1]),
+		static_cast<float>(fbxValue[2])
+	);
+}
+
+// FbxDouble4 → XMFLOAT3
+inline DirectX::XMFLOAT3 FbxDouble4ToFloat3(const FbxDouble4& fbxValue)
+{
+	return DirectX::XMFLOAT3(
+		static_cast<float>(fbxValue[0]),
+		static_cast<float>(fbxValue[1]),
+		static_cast<float>(fbxValue[2])
+	);
+}
+
+// FbxDouble4 → XMFLOAT4
+inline DirectX::XMFLOAT4 FbxDouble4ToFloat4(const FbxDouble4& fbxValue)
+{
+	return DirectX::XMFLOAT4(
+		static_cast<float>(fbxValue[0]),
+		static_cast<float>(fbxValue[1]),
+		static_cast<float>(fbxValue[2]),
+		static_cast<float>(fbxValue[3])
+	);
+}
+
+// FbxDouble4 → XMFLOAT4
+inline DirectX::XMFLOAT4X4 FbxAMatrixToFloat4x4(const FbxAMatrix& fbxValue)
+{
+	return DirectX::XMFLOAT4X4(
+		static_cast<float>(fbxValue[0][0]),
+		static_cast<float>(fbxValue[0][1]),
+		static_cast<float>(fbxValue[0][2]),
+		static_cast<float>(fbxValue[0][3]),
+		static_cast<float>(fbxValue[1][0]),
+		static_cast<float>(fbxValue[1][1]),
+		static_cast<float>(fbxValue[1][2]),
+		static_cast<float>(fbxValue[1][3]),
+		static_cast<float>(fbxValue[2][0]),
+		static_cast<float>(fbxValue[2][1]),
+		static_cast<float>(fbxValue[2][2]),
+		static_cast<float>(fbxValue[2][3]),
+		static_cast<float>(fbxValue[3][0]),
+		static_cast<float>(fbxValue[3][1]),
+		static_cast<float>(fbxValue[3][2]),
+		static_cast<float>(fbxValue[3][3])
+	);
+}
+
+shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename, const char* ignoreRootMotionNodeName)
 {
 	shared_ptr<Mesh> mesh_ptr = make_shared<Mesh>();
 	mesh_ptr->name = (string)fbx_filename;
 	mesh_ptr->file_pass = (string)file_pass;
 
-	static unordered_map<string, vector<mesh>> cache;
+	static unordered_map<string, shared_ptr<Mesh>> cache;
 	const string fullpass = (string)file_pass + (string)fbx_filename;
 
 	auto it = cache.find(fullpass);
 	if (it != cache.end())
 	{
-		mesh_ptr->skin_meshes = it->second;
+		mesh_ptr = it->second;
 		return mesh_ptr;
 	}
 	else //ファイルから読み込み
 	{
-		vector<mesh> skin_meshes;
-		/*
-		ifstream in_f(fullpass);
-		assert(in_f.is_open(), "File not found");
-
-		string _s;
-		getline(in_f, _s);
-		int mesh_size = stoi(_s);
-		skin_meshes.resize(mesh_size);
-		for (int i = 0;i < mesh_size;i++)
-		{
-			vector<Mesh::vertex> vertices; // Vertex buffer
-			vector<u_int> indices; // Index buffer
-
-			getline(in_f, _s);
-			int vertex_size = stoi(_s);
-			vertices.resize(vertex_size);
-			for (int j = 0;j < vertex_size;j++)
-			{
-				in_f >> vertices[j].position.x >> vertices[j].position.y >> vertices[j].position.z;
-				in_f.ignore();
-
-				in_f >> vertices[j].normal.x >> vertices[j].normal.y >> vertices[j].normal.z;
-				in_f.ignore();
-
-				in_f >> vertices[j].texcoord.x >> vertices[j].texcoord.y;
-				in_f.ignore();
-
-				for (int k = 0;k < MAX_BONE_INFLUENCES;k++)
-				{
-					if (k < MAX_BONE_INFLUENCES - 1)
-					{
-						getline(in_f, _s, ' ');
-					}
-					else
-					{
-						getline(in_f, _s);
-					}
-					vertices[j].bone_weights[k] = stof(_s);
-				}
-
-				for (int k = 0;k < MAX_BONE_INFLUENCES;k++)
-				{
-					if (k < MAX_BONE_INFLUENCES - 1)
-					{
-						getline(in_f, _s, ' ');
-					}
-					else
-					{
-						getline(in_f, _s);
-					}
-					vertices[j].bone_indices[k] = stoi(_s);
-				}
-			}
-
-			getline(in_f, _s);
-			int index_size = stoi(_s);
-			indices.resize(index_size);
-			for (int j = 0;j < index_size;j++)
-			{
-				if (j < index_size - 1)
-				{
-					getline(in_f, _s, ' ');
-				}
-				else
-				{
-					getline(in_f, _s);
-				}
-				indices[j] = stoi(_s);
-			}
-
-			getline(in_f, _s);
-			int subset_size = stoi(_s);
-			skin_meshes[i].subsets.resize(subset_size);
-			for (int j = 0;j < subset_size;j++)
-			{
-				getline(in_f, _s);
-				skin_meshes[i].subsets[j].index_start = stoi(_s);
-
-				getline(in_f, _s);
-				skin_meshes[i].subsets[j].index_count = stoi(_s);
-
-				in_f >> skin_meshes[i].subsets[j].diffuse.color.x >> skin_meshes[i].subsets[j].diffuse.color.y >> skin_meshes[i].subsets[j].diffuse.color.z >> skin_meshes[i].subsets[j].diffuse.color.w;
-				in_f.ignore();
-
-				//シェーダー読んでるところ
-				getline(in_f, _s);
-
-				getline(in_f, _s);
-				if (_s != "")
-				{
-					string Texpass = (string)file_pass + _s;
-					skin_meshes[i].subsets[j].diffuse.TexPass = Texpass;
-					skin_meshes[i].subsets[j].diffuse.TexName = _s;
-				}
-				else
-				{
-					string Texpass = "Default_Resource\\Image\\Default_Texture.png";
-					skin_meshes[i].subsets[j].diffuse.TexPass = Texpass;
-					skin_meshes[i].subsets[j].diffuse.TexName = _s;
-				}
-			}
-
-			for (int row = 0; row < 4; row++)
-			{
-				for (int column = 0; column < 4; column++)
-				{
-					if (row == 3 && column == 3)
-					{
-						getline(in_f, _s);
-					}
-					else
-					{
-						getline(in_f, _s, ' ');
-					}
-					skin_meshes[i].global_transform.m[row][column] = stof(_s);
-				}
-			}
-
-			getline(in_f, _s);
-			int skeletal_animation_size = stoi(_s);
-			skin_meshes[i].skeletal_animation.resize(skeletal_animation_size);
-			for (int j = 0;j < skeletal_animation_size;j++)
-			{
-				getline(in_f, _s);
-				int skeletal_size = stoi(_s);
-				skin_meshes[i].skeletal_animation[j].bones.resize(skeletal_size);
-				getline(in_f, _s);
-				skin_meshes[i].skeletal_animation[j].sampling_time = stof(_s);
-				for (int k = 0;k < skeletal_size;k++)
-				{
-					getline(in_f, _s);
-					int bone_size = stoi(_s);
-					skin_meshes[i].skeletal_animation[j].bones.at(k).resize(bone_size);
-					for (int l = 0; l < bone_size; l++)
-					{
-						for (int row = 0; row < 4; row++)
-						{
-							for (int column = 0; column < 4; column++)
-							{
-								if (row == 3 && column == 3)
-								{
-									getline(in_f, _s);
-								}
-								else
-								{
-									getline(in_f, _s, ' ');
-								}
-								skin_meshes[i].skeletal_animation[j].bones.at(k).at(l).transform.m[row][column] = stof(_s);;
-							}
-						}
-					}
-				}
-			}
-
-			// 頂点バッファの生成
-			{
-				D3D11_BUFFER_DESC bd            = {};
-				bd.Usage                        = D3D11_USAGE_DEFAULT;
-				bd.ByteWidth                    = sizeof(Mesh::vertex) * vertices.size();
-				bd.BindFlags                    = D3D11_BIND_VERTEX_BUFFER;
-				bd.CPUAccessFlags               = 0;
-				bd.MiscFlags                    = 0;
-				bd.StructureByteStride          = 0;
-				D3D11_SUBRESOURCE_DATA InitData = {};
-				InitData.pSysMem                = &vertices[0];				// 頂点のアドレス
-				InitData.SysMemPitch            = 0;
-				InitData.SysMemSlicePitch       = 0;
-				HRESULT hr = DxSystem::Device->CreateBuffer(&bd, &InitData, skin_meshes[i].vertex_buffer.GetAddressOf());
-				assert(SUCCEEDED(hr), hr_trace(hr));
-			}
-
-			// インデックスバッファの生成
-			{
-				D3D11_BUFFER_DESC bd            = {};
-				//bd.Usage                      = D3D11_USAGE_DEFAULT;
-				bd.Usage                        = D3D11_USAGE_IMMUTABLE;
-				bd.ByteWidth                    = sizeof(u_int) * indices.size();
-				bd.BindFlags                    = D3D11_BIND_INDEX_BUFFER;
-				bd.CPUAccessFlags               = 0;
-				bd.MiscFlags                    = 0;
-				bd.StructureByteStride          = 0;
-				D3D11_SUBRESOURCE_DATA InitData = {};
-				InitData.pSysMem                = &indices[0];				// 頂点のアドレス
-				InitData.SysMemPitch            = 0;
-				InitData.SysMemSlicePitch       = 0;
-				HRESULT hr = DxSystem::Device->CreateBuffer(&bd, &InitData, skin_meshes[i].index_buffer.GetAddressOf());
-				assert(SUCCEEDED(hr), hr_trace(hr));
-			}
-		}
-		*/
-
 		const string bin = fullpass + ".bin";
 		ifstream in_bin(bin, ios::binary);
 		if (in_bin.is_open())
@@ -227,24 +98,27 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 			stringstream bin_s_stream;
 			bin_s_stream << in_bin.rdbuf();
 			cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
-			binaryInputArchive(skin_meshes);
+			binaryInputArchive(mesh_ptr);
 
-			for (int i = 0; i < skin_meshes.size(); i++)
+			mesh_ptr->name = (string)fbx_filename;
+			mesh_ptr->file_pass = (string)file_pass;
+
+			for (int i = 0; i < mesh_ptr->meshes.size(); i++)
 			{
 				// 頂点バッファの生成
 				{
 					D3D11_BUFFER_DESC bd = {};
 					bd.Usage = D3D11_USAGE_DEFAULT;
-					bd.ByteWidth = sizeof(Mesh::vertex) * skin_meshes[i].vertices.size();
+					bd.ByteWidth = sizeof(Mesh::vertex) * mesh_ptr->meshes[i].vertices.size();
 					bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 					bd.CPUAccessFlags = 0;
 					bd.MiscFlags = 0;
 					bd.StructureByteStride = 0;
 					D3D11_SUBRESOURCE_DATA InitData = {};
-					InitData.pSysMem = &skin_meshes[i].vertices[0];				// 頂点のアドレス
+					InitData.pSysMem = &mesh_ptr->meshes[i].vertices[0];				// 頂点のアドレス
 					InitData.SysMemPitch = 0;
 					InitData.SysMemSlicePitch = 0;
-					HRESULT hr = DxSystem::Device->CreateBuffer(&bd, &InitData, skin_meshes[i].vertex_buffer.GetAddressOf());
+					HRESULT hr = DxSystem::Device->CreateBuffer(&bd, &InitData, mesh_ptr->meshes[i].vertex_buffer.GetAddressOf());
 					assert(SUCCEEDED(hr), hr_trace(hr));
 				}
 
@@ -253,28 +127,94 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 					D3D11_BUFFER_DESC bd = {};
 					//bd.Usage                      = D3D11_USAGE_DEFAULT;
 					bd.Usage = D3D11_USAGE_IMMUTABLE;
-					bd.ByteWidth = sizeof(u_int) * skin_meshes[i].indices.size();
+					bd.ByteWidth = sizeof(u_int) * mesh_ptr->meshes[i].indices.size();
 					bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 					bd.CPUAccessFlags = 0;
 					bd.MiscFlags = 0;
 					bd.StructureByteStride = 0;
 					D3D11_SUBRESOURCE_DATA InitData = {};
-					InitData.pSysMem = &skin_meshes[i].indices[0];				// 頂点のアドレス
+					InitData.pSysMem = &mesh_ptr->meshes[i].indices[0];				// 頂点のアドレス
 					InitData.SysMemPitch = 0;
 					InitData.SysMemSlicePitch = 0;
-					HRESULT hr = DxSystem::Device->CreateBuffer(&bd, &InitData, skin_meshes[i].index_buffer.GetAddressOf());
+					HRESULT hr = DxSystem::Device->CreateBuffer(&bd, &InitData, mesh_ptr->meshes[i].index_buffer.GetAddressOf());
 					assert(SUCCEEDED(hr), hr_trace(hr));
 				}
 
 				//使わないので開放
-				skin_meshes[i].vertices.clear();
-				skin_meshes[i].indices.clear();
+				mesh_ptr->meshes[i].vertices.clear();
+				mesh_ptr->meshes[i].indices.clear();
 			}
 		}
 		else
 		{
 			const string fbx = fullpass + ".fbx";
 
+			FbxManager* fbxManager = FbxManager::Create();
+
+			// FBXに対する入出力を定義する
+			FbxIOSettings* fbxIOS = FbxIOSettings::Create(fbxManager, IOSROOT);	// 特別な理由がない限りIOSROOTを指定
+			fbxManager->SetIOSettings(fbxIOS);
+
+			// インポータを生成
+			FbxImporter* fbxImporter = FbxImporter::Create(fbxManager, "");
+			bool result = fbxImporter->Initialize(fbx.c_str(), -1, fbxManager->GetIOSettings());	// -1でファイルフォーマット自動判定
+			_ASSERT_EXPR_A(result, "FbxImporter::Initialize() : Failed!!\n");
+
+			// SceneオブジェクトにFBXファイル内の情報を流し込む
+			FbxScene* fbxScene = FbxScene::Create(fbxManager, "scene");
+			fbxImporter->Import(fbxScene);
+			fbxImporter->Destroy();	// シーンを流し込んだらImporterは解放してOK
+
+									// ジオメトリを三角形化しておく
+			FbxGeometryConverter fbxGeometryConverter(fbxManager);
+			fbxGeometryConverter.Triangulate(fbxScene, true);
+			fbxGeometryConverter.RemoveBadPolygonsFromMeshes(fbxScene);
+
+#if 1
+			// DirectX座標系へ変換
+			FbxAxisSystem sceneAxisSystem = fbxScene->GetGlobalSettings().GetAxisSystem();
+			if (sceneAxisSystem != FbxAxisSystem::DirectX)
+			{
+				FbxAxisSystem::DirectX.ConvertScene(fbxScene);
+			}
+#elif 0
+			// OpenGL座標系へ変換
+			FbxAxisSystem sceneAxisSystem = fbxScene->GetGlobalSettings().GetAxisSystem();
+			if (sceneAxisSystem != FbxAxisSystem::OpenGL)
+			{
+				FbxAxisSystem::OpenGL.ConvertScene(fbxScene);
+			}
+#endif
+
+			// ディレクトリパス取得
+			char dirname[256];
+			::_splitpath_s(fbx.c_str(), nullptr, 0, dirname, 256, nullptr, 0, nullptr, 0);
+
+			// モデル構築
+			FbxNode* fbxRootNode = fbxScene->GetRootNode();
+			mesh_ptr->BuildNodes(fbxRootNode, -1);
+			mesh_ptr->BuildMeshes(fbxRootNode);
+
+			// 無視するルートモーションを検索
+			if (ignoreRootMotionNodeName != nullptr)
+			{
+				mesh_ptr->rootMotionNodeIndex = -1;
+				for (size_t i = 0; i < mesh_ptr->nodes.size(); ++i)
+				{
+					if (mesh_ptr->nodes.at(i).name == ignoreRootMotionNodeName)
+					{
+						mesh_ptr->rootMotionNodeIndex = static_cast<int>(i);
+						break;
+					}
+				}
+			}
+
+			// アニメーション構築
+			mesh_ptr->BuildAnimations(fbxScene);
+
+			// マネージャ解放
+			fbxManager->Destroy();		// 関連するすべてのオブジェクトが解放される
+			/*
 			// Create the FBX SDK manager
 			FbxManager* manager = FbxManager::Create();
 			// Create an IOSettings object. IOSROOT is defined in Fbxiosettingspath.h.
@@ -292,7 +232,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 			_ASSERT_EXPR_A(import_status, importer->GetStatus().GetErrorString());
 			// Convert mesh, NURBS and patch into triangle mesh
 			fbxsdk::FbxGeometryConverter geometry_converter(manager);
-			geometry_converter.Triangulate(scene, /*replace*/true);
+			geometry_converter.Triangulate(scene, true);
 			// Fetch node attributes and materials under this node recursively. Currently only mesh.
 			vector<FbxNode*> fetched_meshes;
 			function<void(FbxNode*)> traverse = [&](FbxNode* node) {
@@ -320,8 +260,8 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 			{
 				FbxMesh* fbx_mesh = fetched_meshes.at(i)->GetMesh();
 				mesh& mesh = skin_meshes.at(i);
-				const int number_of_materials = fbx_mesh->GetNode()->GetMaterialCount();
-				mesh.subsets.resize(number_of_materials); // UNIT.18
+				const int fbxMaterialCount = fbx_mesh->GetNode()->GetMaterialCount();
+				mesh.subsets.resize(fbxMaterialCount); // UNIT.18
 				u_int vertex_count = 0;
 
 				vector<bone_influences_per_control_point> bone_influences;
@@ -339,7 +279,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 				fetch_animations(fbx_mesh, mesh.skeletal_animation, 0);
 
 				// Count the polygon count of each material
-				if (number_of_materials > 0)
+				if (fbxMaterialCount > 0)
 				{
 					// Count the faces of each material
 					const int number_of_polygons = fbx_mesh->GetPolygonCount();
@@ -359,7 +299,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 					}
 				}
 
-				for (int index_of_material = 0; index_of_material < number_of_materials; ++index_of_material)
+				for (int index_of_material = 0; index_of_material < fbxMaterialCount; ++index_of_material)
 				{
 					subset& subset = mesh.subsets.at(index_of_material); // UNIT.18
 					const FbxSurfaceMaterial* surface_material = fbx_mesh->GetNode()->GetMaterial(index_of_material);
@@ -412,7 +352,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 					// UNIT.18
 					// The material for current face.
 					int index_of_material = 0;
-					if (number_of_materials > 0)
+					if (fbxMaterialCount > 0)
 					{
 						index_of_material = fbx_mesh->GetElementMaterial()->GetIndexArray().GetAt(index_of_polygon);
 						// Where should I save the vertex attribute index, according to the material
@@ -461,7 +401,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 					else
 					{
 						u_int vertex_count_mat = 0;
-						//create_ps_from_cso(device, "skinned_mesh_material_ps.cso", g_pPixelShader.GetAddressOf());
+						//create_ps_from_cso(DxSystem::device, "skinned_mesh_material_ps.cso", g_pPixelShader.GetAddressOf());
 						for (int index_of_vertex = 0; index_of_vertex < 3; index_of_vertex++)
 						{
 							vertex vertex;
@@ -535,128 +475,483 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 
 			manager->Destroy();
 		}
+		*/
 
-		for (int i = 0; i < skin_meshes.size(); i++)
-		{
-			//使わないので開放
-			skin_meshes[i].vertices.clear();
-			skin_meshes[i].indices.clear();
+			cache.insert(make_pair(fullpass, mesh_ptr));
+
+			ofstream ss(fullpass + ".bin", ios::binary);
+			{
+				cereal::BinaryOutputArchive o_archive(ss);
+				o_archive(mesh_ptr);
+			}
+
+			for (int i = 0; i < mesh_ptr->meshes.size(); i++)
+			{
+				//使わないので開放
+				mesh_ptr->meshes[i].vertices.clear();
+				mesh_ptr->meshes[i].indices.clear();
+			}
 		}
-		cache.insert(make_pair(fullpass, skin_meshes));
-		mesh_ptr->skin_meshes = skin_meshes;
 		return mesh_ptr;
 	}
 }
 
-void Mesh::fetch_bone_influences(const FbxMesh* fbx_mesh, vector<bone_influences_per_control_point>& influences)
+// FBXノードを再帰的に辿ってデータを構築する
+void Mesh::BuildNodes(FbxNode* fbxNode, int parentNodeIndex)
 {
-	const int number_of_control_points = fbx_mesh->GetControlPointsCount();
-	influences.resize(number_of_control_points);
-	const int number_of_deformers = fbx_mesh->GetDeformerCount(FbxDeformer::eSkin);
-	for (int index_of_deformer = 0; index_of_deformer < number_of_deformers; ++index_of_deformer)
+	FbxNodeAttribute* fbxNodeAttribute = fbxNode->GetNodeAttribute();
+	FbxNodeAttribute::EType fbxNodeAttributeType = FbxNodeAttribute::EType::eUnknown;
+
+	if (fbxNodeAttribute != nullptr)
 	{
-		FbxSkin* skin = static_cast<FbxSkin*>(fbx_mesh->GetDeformer(index_of_deformer, FbxDeformer::eSkin));
-		const int number_of_clusters = skin->GetClusterCount();
-		for (int index_of_cluster = 0; index_of_cluster < number_of_clusters; ++index_of_cluster)
-		{
-			FbxCluster* cluster = skin->GetCluster(index_of_cluster);
-			const int number_of_control_point_indices = cluster->GetControlPointIndicesCount();
-			const int* array_of_control_point_indices = cluster->GetControlPointIndices();
-			const double* array_of_control_point_weights = cluster->GetControlPointWeights();
-			for (int i = 0; i < number_of_control_point_indices; ++i)
-			{
-				bone_influences_per_control_point& influences_per_control_point
-					= influences.at(array_of_control_point_indices[i]);
-				bone_influence influence;
-				influence.index = index_of_cluster;
-				influence.weight = static_cast<float>(array_of_control_point_weights[i]);
-				influences_per_control_point.push_back(influence);
-			}
-		}
+		fbxNodeAttributeType = fbxNodeAttribute->GetAttributeType();
+	}
+
+	switch (fbxNodeAttributeType)
+	{
+		case FbxNodeAttribute::eUnknown:
+		case FbxNodeAttribute::eNull:
+		case FbxNodeAttribute::eMarker:
+		case FbxNodeAttribute::eMesh:
+		case FbxNodeAttribute::eSkeleton:
+			BuildNode(fbxNode, parentNodeIndex);
+			break;
+	}
+
+	// 再帰的に子ノードを処理する
+	parentNodeIndex = static_cast<int>(nodes.size() - 1);
+	for (int i = 0; i < fbxNode->GetChildCount(); ++i)
+	{
+		BuildNodes(fbxNode->GetChild(i), parentNodeIndex);
 	}
 }
 
-void Mesh::fetch_bone_matrices(FbxMesh* fbx_mesh, vector<bone>& skeletal, FbxTime Time)
+// FBXノードからノードデータを構築する
+void Mesh::BuildNode(FbxNode* fbxNode, int parentNodeIndex)
 {
-	const int number_of_deformers = fbx_mesh->GetDeformerCount(FbxDeformer::eSkin);
-	for (int index_of_deformer = 0; index_of_deformer < number_of_deformers; ++index_of_deformer)
+	FbxAMatrix& fbxLocalTransform = fbxNode->EvaluateLocalTransform();
+
+	Node node;
+	node.name = fbxNode->GetName();
+	node.parentIndex = parentNodeIndex;
+	node.scale = FbxDouble4ToFloat3(fbxLocalTransform.GetS());
+	node.rotation = FbxDouble4ToFloat4(fbxLocalTransform.GetQ());
+	node.position = FbxDouble4ToFloat3(fbxLocalTransform.GetT());
+
+	nodes.emplace_back(node);
+}
+
+// FBXノードを再帰的に辿ってメッシュデータを構築する
+void Mesh::BuildMeshes(FbxNode* fbxNode)
+{
+	FbxNodeAttribute* fbxNodeAttribute = fbxNode->GetNodeAttribute();
+	FbxNodeAttribute::EType fbxNodeAttributeType = FbxNodeAttribute::EType::eUnknown;
+
+	if (fbxNodeAttribute != nullptr)
 	{
-		FbxSkin* skin = static_cast<FbxSkin*>(fbx_mesh->GetDeformer(index_of_deformer, FbxDeformer::eSkin));
-		const int number_of_clusters = skin->GetClusterCount();
-		skeletal.resize(number_of_clusters);
-		for (int index_of_cluster = 0; index_of_cluster < number_of_clusters; ++index_of_cluster)
+		fbxNodeAttributeType = fbxNodeAttribute->GetAttributeType();
+	}
+
+	switch (fbxNodeAttributeType)
+	{
+		case FbxNodeAttribute::eMesh:
+			BuildMesh(fbxNode, static_cast<FbxMesh*>(fbxNodeAttribute));
+			break;
+	}
+
+	// 再帰的に子ノードを処理する
+	for (int i = 0; i < fbxNode->GetChildCount(); ++i)
+	{
+		BuildMeshes(fbxNode->GetChild(i));
+	}
+}
+
+// FBXメッシュからメッシュデータを構築する
+void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
+{
+	int fbxControlPointsCount = fbxMesh->GetControlPointsCount();
+	//int fbxPolygonVertexCount = fbxMesh->GetPolygonVertexCount();
+	//const int* fbxPolygonVertices = fbxMesh->GetPolygonVertices();
+
+	int fbxMaterialCount = fbxNode->GetMaterialCount();
+	int fbxPolygonCount = fbxMesh->GetPolygonCount();
+
+	meshes.emplace_back(mesh());
+	mesh& mesh = meshes.back();
+	mesh.subsets.resize(fbxMaterialCount > 0 ? fbxMaterialCount : 1);
+	mesh.nodeIndex = FindNodeIndex(fbxNode->GetName());
+
+	// サブセットのマテリアル設定
+	for (int index_of_material = 0; index_of_material < fbxMaterialCount; ++index_of_material)
+	{
+		subset& subset = mesh.subsets.at(index_of_material); // UNIT.18
+		const FbxSurfaceMaterial* surface_material = fbxNode->GetMaterial(index_of_material);
+		const FbxProperty property = surface_material->FindProperty(FbxSurfaceMaterial::sDiffuse);
+		const FbxProperty factor = surface_material->FindProperty(FbxSurfaceMaterial::sDiffuseFactor);
+		if (property.IsValid() && factor.IsValid())
 		{
-			bone& bone = skeletal.at(index_of_cluster);
-			FbxCluster* cluster = skin->GetCluster(index_of_cluster);
-			// this matrix trnasforms coordinates of the initial pose from mesh space to global space
-			FbxAMatrix reference_global_init_position;
-			cluster->GetTransformMatrix(reference_global_init_position);
-			// this matrix trnasforms coordinates of the initial pose from bone space to global space
-			FbxAMatrix cluster_global_init_position;
-			cluster->GetTransformLinkMatrix(cluster_global_init_position);
-			// this matrix trnasforms coordinates of the current pose from bone space to global space
-			FbxAMatrix cluster_global_current_position;
-			cluster_global_current_position = cluster->GetLink()->EvaluateGlobalTransform(Time);
-			// this matrix trnasforms coordinates of the current pose from mesh space to global space
-			FbxAMatrix reference_global_current_position;
-			reference_global_current_position = fbx_mesh->GetNode()->EvaluateGlobalTransform(Time);
-			// Matrices are defined using the Column Major scheme. When a FbxAMatrix represents a transformation
-			// (translation, rotation and scale), the last row of the matrix represents the translation part of the
-			// transformation.
-			FbxAMatrix transform = reference_global_current_position.Inverse() * cluster_global_current_position
-				* cluster_global_init_position.Inverse() * reference_global_init_position;
-			// convert FbxAMatrix(transform) to XMDLOAT4X4(bone.transform)
-			for (int row = 0; row < 4; row++)
+			FbxDouble3 color = property.Get<FbxDouble3>();
+			double f = factor.Get<FbxDouble>();
+			subset.diffuse.color.x = static_cast<float>(color[0] * f);
+			subset.diffuse.color.y = static_cast<float>(color[1] * f);
+			subset.diffuse.color.z = static_cast<float>(color[2] * f);
+			subset.diffuse.color.w = 1.0f;
+		}
+		if (property.IsValid())
+		{
+			const int number_of_textures = property.GetSrcObjectCount<FbxFileTexture>();
+			if (number_of_textures)
 			{
-				for (int column = 0; column < 4; column++)
+				const FbxFileTexture* file_texture = property.GetSrcObject<FbxFileTexture>();
+				if (file_texture)
 				{
-					bone.transform.m[row][column] = static_cast<float>(transform[row][column]);
+					//画像読み込み
+					D3D11_TEXTURE2D_DESC g_TEXTURE2D_DESC = {};
+					const char* filename = file_texture->GetRelativeFileName();
+					subset.diffuse.TexName = (string)filename;
+					subset.diffuse.TexPass = (string)file_pass + (string)filename;
+				}
+			}
+			else
+			{
+				string Texpass = "Default_Resource\\Image\\Default_Texture.png";
+				subset.diffuse.TexName = "Default_Texture.png";
+				subset.diffuse.TexPass = Texpass;
+			}
+		}
+	}
+
+	// サブセットの頂点インデックス範囲設定
+	if (fbxMaterialCount > 0)
+	{
+		for (int fbxPolygonIndex = 0; fbxPolygonIndex < fbxPolygonCount; ++fbxPolygonIndex)
+		{
+			int fbxMaterialIndex = fbxMesh->GetElementMaterial()->GetIndexArray().GetAt(fbxPolygonIndex);
+			mesh.subsets.at(fbxMaterialIndex).index_count += 3;
+		}
+
+		int offset = 0;
+		for (subset& subset : mesh.subsets)
+		{
+			subset.index_start = offset;
+			offset += subset.index_count;
+
+			subset.index_count = 0;
+		}
+	}
+
+	// 頂点影響力データ
+	struct BoneInfluence
+	{
+		int useCount = 0;
+		int indices[4] = { 0, 0, 0, 0 };
+		float weights[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
+
+		void Add(int index, float weight)
+		{
+			if (useCount < 4)
+			{
+				indices[useCount] = index;
+				weights[useCount] = weight;
+				useCount++;
+			}
+		}
+	};
+	// 頂点影響力データを抽出する
+	std::vector<BoneInfluence> boneInfluences;
+	{
+		boneInfluences.resize(fbxControlPointsCount);
+
+		FbxAMatrix fbxGeometricTransform(
+			fbxNode->GetGeometricTranslation(FbxNode::eSourcePivot),
+			fbxNode->GetGeometricRotation(FbxNode::eSourcePivot),
+			fbxNode->GetGeometricScaling(FbxNode::eSourcePivot)
+		);
+
+		// スキニングに必要な情報を取得する
+		int fbxDeformerCount = fbxMesh->GetDeformerCount(FbxDeformer::eSkin);
+		for (int fbxDeformerIndex = 0; fbxDeformerIndex < fbxDeformerCount; ++fbxDeformerIndex)
+		{
+			FbxSkin* fbxSkin = static_cast<FbxSkin*>(fbxMesh->GetDeformer(fbxDeformerIndex, FbxDeformer::eSkin));
+
+			int fbxClusterCount = fbxSkin->GetClusterCount();
+			for (int fbxClusterIndex = 0; fbxClusterIndex < fbxClusterCount; ++fbxClusterIndex)
+			{
+				FbxCluster* fbxCluster = fbxSkin->GetCluster(fbxClusterIndex);
+
+				// 頂点影響力データを抽出する
+				{
+					int fbxClusterControlPointIndicesCount = fbxCluster->GetControlPointIndicesCount();
+					const int* fbxControlPointIndices = fbxCluster->GetControlPointIndices();
+					const double* fbxControlPointWeights = fbxCluster->GetControlPointWeights();
+
+					for (int i = 0; i < fbxClusterControlPointIndicesCount; ++i)
+					{
+						BoneInfluence& boneInfluence = boneInfluences.at(fbxControlPointIndices[i]);
+
+						boneInfluence.Add(fbxClusterIndex, static_cast<float>(fbxControlPointWeights[i]));
+					}
+				}
+
+				// ボーン変換行列用の逆行列の計算をする
+				{
+					// メッシュ空間からワールド空間への変換行列
+					FbxAMatrix fbxMeshSpaceTransform;
+					fbxCluster->GetTransformMatrix(fbxMeshSpaceTransform);
+
+					// ボーン空間からワールド空間への変換行列
+					FbxAMatrix fbxBoneSpaceTransform;
+					fbxCluster->GetTransformLinkMatrix(fbxBoneSpaceTransform);
+
+					// ボーン逆行列を計算する
+					FbxAMatrix fbxInverseTransform = fbxBoneSpaceTransform.Inverse() * fbxMeshSpaceTransform * fbxGeometricTransform;
+
+					DirectX::XMFLOAT4X4 inverseTransform = FbxAMatrixToFloat4x4(fbxInverseTransform);
+					mesh.inverseTransforms.emplace_back(inverseTransform);
+
+					int nodeIndex = FindNodeIndex(fbxCluster->GetLink()->GetName());
+					mesh.nodeIndices.emplace_back(nodeIndex);
 				}
 			}
 		}
 	}
+
+	// UVセット名
+	FbxStringList fbxUVSetNames;
+	fbxMesh->GetUVSetNames(fbxUVSetNames);
+
+	// 頂点データ
+	std::vector<vertex>& vertices = mesh.vertices;
+	std::vector<u_int>& indices = mesh.indices;
+	vertices.resize(fbxPolygonCount * 3);
+	indices.resize(fbxPolygonCount * 3);
+
+	int vertexCount = 0;
+	const FbxVector4* fbxControlPoints = fbxMesh->GetControlPoints();
+	for (int fbxPolygonIndex = 0; fbxPolygonIndex < fbxPolygonCount; ++fbxPolygonIndex)
+	{
+		// ポリゴンに適用されているマテリアルインデックスを取得する
+		int fbxMaterialIndex = 0;
+		if (fbxMaterialCount > 0)
+		{
+			fbxMaterialIndex = fbxMesh->GetElementMaterial()->GetIndexArray().GetAt(fbxPolygonIndex);
+		}
+
+		subset& subset = mesh.subsets.at(fbxMaterialIndex);
+		const int indexOffset = subset.index_start + subset.index_count;
+
+		for (int fbxVertexIndex = 0; fbxVertexIndex < 3; ++fbxVertexIndex)
+		{
+			vertex vertex;
+
+			int fbxControlPointIndex = fbxMesh->GetPolygonVertex(fbxPolygonIndex, fbxVertexIndex);
+			// Position
+			{
+				vertex.position = FbxDouble4ToFloat3(fbxControlPoints[fbxControlPointIndex]);
+			}
+
+			// Weight
+			{
+				BoneInfluence& boneInfluence = boneInfluences.at(fbxControlPointIndex);
+				vertex.bone_indices[0] = boneInfluence.indices[0];
+				vertex.bone_indices[1] = boneInfluence.indices[1];
+				vertex.bone_indices[2] = boneInfluence.indices[2];
+				vertex.bone_indices[3] = boneInfluence.indices[3];
+				vertex.bone_weights[0] = boneInfluence.weights[0];
+				vertex.bone_weights[1] = boneInfluence.weights[1];
+				vertex.bone_weights[2] = boneInfluence.weights[2];
+				vertex.bone_weights[3] = 1.0f - (vertex.bone_weights[0] + vertex.bone_weights[1] + vertex.bone_weights[2]);
+				//vertex.boneWeight.w = boneInfluence.weights[3];
+			}
+
+			// Normal
+			if (fbxMesh->GetElementNormalCount() > 0)
+			{
+				FbxVector4 fbxNormal;
+				fbxMesh->GetPolygonVertexNormal(fbxPolygonIndex, fbxVertexIndex, fbxNormal);
+				vertex.normal = FbxDouble4ToFloat3(fbxNormal);
+			}
+			else
+			{
+				vertex.normal = DirectX::XMFLOAT3(0, 0, 0);
+			}
+
+			// Texcoord
+			if (fbxMesh->GetElementUVCount() > 0)
+			{
+				bool fbxUnmappedUV;
+				FbxVector2 fbxUV;
+				fbxMesh->GetPolygonVertexUV(fbxPolygonIndex, fbxVertexIndex, fbxUVSetNames[0], fbxUV, fbxUnmappedUV);
+				fbxUV[1] = 1.0 - fbxUV[1];
+				vertex.texcoord = FbxDouble2ToFloat2(fbxUV);
+			}
+			else
+			{
+				vertex.texcoord = DirectX::XMFLOAT2(0, 0);
+			}
+
+			indices.at(indexOffset + fbxVertexIndex) = vertexCount;
+			vertices.at(vertexCount) = vertex;
+			vertexCount++;
+		}
+
+		subset.index_count += 3;
+	}
+
+	// 頂点バッファ
+	{
+		D3D11_BUFFER_DESC bufferDesc = {};
+		D3D11_SUBRESOURCE_DATA subresourceData = {};
+
+		bufferDesc.ByteWidth = static_cast<UINT>(sizeof(vertex) * vertices.size());
+		//bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+		bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		bufferDesc.CPUAccessFlags = 0;
+		bufferDesc.MiscFlags = 0;
+		bufferDesc.StructureByteStride = 0;
+		subresourceData.pSysMem = vertices.data();
+		subresourceData.SysMemPitch = 0;
+		subresourceData.SysMemSlicePitch = 0;
+
+		HRESULT hr = DxSystem::Device->CreateBuffer(&bufferDesc, &subresourceData, mesh.vertex_buffer.GetAddressOf());
+		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+	}
+
+	// インデックスバッファ
+	{
+		D3D11_BUFFER_DESC bufferDesc = {};
+		D3D11_SUBRESOURCE_DATA subresourceData = {};
+
+		bufferDesc.ByteWidth = static_cast<UINT>(sizeof(u_int) * indices.size());
+		//bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+		bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		bufferDesc.CPUAccessFlags = 0;
+		bufferDesc.MiscFlags = 0;
+		bufferDesc.StructureByteStride = 0;
+		subresourceData.pSysMem = indices.data();
+		subresourceData.SysMemPitch = 0; //Not use for index buffers.
+		subresourceData.SysMemSlicePitch = 0; //Not use for index buffers.
+		HRESULT hr = DxSystem::Device->CreateBuffer(&bufferDesc, &subresourceData, mesh.index_buffer.GetAddressOf());
+		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+	}
+
 }
 
-void Mesh::fetch_animations(FbxMesh* fbx_mesh, vector<skeletal_animation>& skeletal_animation, u_int sampling_rate)
+// アニメーションデータを構築
+void Mesh::BuildAnimations(FbxScene* fbxScene)
 {
-	// Get the list of all the animation stack.
-	FbxArray<FbxString*> array_of_animation_stack_names;
-	fbx_mesh->GetScene()->FillAnimStackNameArray(array_of_animation_stack_names);
-	// Get the number of animations.
-	int number_of_animations = array_of_animation_stack_names.Size();
-	skeletal_animation.resize(number_of_animations);
-	if (number_of_animations > 0)
+	// すべてのアニメーション名を取得
+	FbxArray<FbxString*> fbxAnimStackNames;
+	fbxScene->FillAnimStackNameArray(fbxAnimStackNames);
+
+	int fbxAnimationCount = fbxAnimStackNames.Size();
+	for (int fbxAnimationIndex = 0; fbxAnimationIndex < fbxAnimationCount; ++fbxAnimationIndex)
 	{
-		// Get the FbxTime per animation's frame.
-		FbxTime::EMode Time_mode = fbx_mesh->GetScene()->GetGlobalSettings().GetTimeMode();
-		FbxTime frame_Time;
-		frame_Time.SetTime(0, 0, 0, 1, 0, Time_mode);
-		sampling_rate = sampling_rate > 0 ? sampling_rate : frame_Time.GetFrameRate(Time_mode);
-		float sampling_Time = 1.0f / sampling_rate;
-		for (int i = 0; i < number_of_animations; i++)
+		animations.emplace_back(Animation());
+		Animation& animation = animations.back();
+
+		// アニメーションデータのサンプリング設定
+		FbxTime::EMode fbxTimeMode = fbxScene->GetGlobalSettings().GetTimeMode();
+		FbxTime fbxFrameTime;
+		fbxFrameTime.SetTime(0, 0, 0, 1, 0, fbxTimeMode);
+
+		float samplingRate = static_cast<float>(fbxFrameTime.GetFrameRate(fbxTimeMode));
+		float samplingTime = 1.0f / samplingRate;
+
+		FbxString* fbxAnimStackName = fbxAnimStackNames.GetAt(fbxAnimationIndex);
+		FbxAnimStack* fbxAnimStack = fbxScene->FindMember<FbxAnimStack>(fbxAnimStackName->Buffer());
+
+		// 再生するアニメーションを指定する。
+		fbxScene->SetCurrentAnimationStack(fbxAnimStack);
+
+		// アニメーションの再生開始時間と再生終了時間を取得する
+		FbxTakeInfo* fbxTakeInfo = fbxScene->GetTakeInfo(fbxAnimStackName->Buffer());
+		FbxTime fbxStartTime = fbxTakeInfo->mLocalTimeSpan.GetStart();
+		FbxTime fbxEndTime = fbxTakeInfo->mLocalTimeSpan.GetStop();
+
+		// 抽出するデータは60フレーム基準でサンプリングする
+		FbxTime fbxSamplingStep;
+		fbxSamplingStep.SetTime(0, 0, 1, 0, 0, fbxTimeMode);
+		fbxSamplingStep = static_cast<FbxLongLong>(fbxSamplingStep.Get() * samplingTime);
+
+		int startFrame = static_cast<int>(fbxStartTime.Get() / fbxSamplingStep.Get());
+		int endFrame = static_cast<int>(fbxEndTime.Get() / fbxSamplingStep.Get());
+		int frameCount = static_cast<int>((fbxEndTime.Get() - fbxStartTime.Get()) / fbxSamplingStep.Get());
+
+		// アニメーションの対象となるノードを列挙する
+		std::vector<FbxNode*> fbxNodes;
+		FbxNode* fbxRootNode = fbxScene->GetRootNode();
+		for (Node& node : nodes)
 		{
-			skeletal_animation[i].sampling_time = sampling_Time;
-			skeletal_animation[i].animation_tick = 0.0f;
-			FbxString* animation_stack_name = array_of_animation_stack_names.GetAt(i);
-			FbxAnimStack* current_animation_stack
-				= fbx_mesh->GetScene()->FindMember<FbxAnimStack>(animation_stack_name->Buffer());
-			fbx_mesh->GetScene()->SetCurrentAnimationStack(current_animation_stack);
-			FbxTakeInfo* take_info = fbx_mesh->GetScene()->GetTakeInfo(animation_stack_name->Buffer());
-			FbxTime start_Time = take_info->mLocalTimeSpan.GetStart();
-			FbxTime end_Time = take_info->mLocalTimeSpan.GetStop();
-			FbxTime sampling_step;
-			sampling_step.SetTime(0, 0, 1, 0, 0, Time_mode);
-			sampling_step = static_cast<FbxLongLong>(sampling_step.Get() * sampling_Time);
-			for (FbxTime current_Time = start_Time; current_Time < end_Time; current_Time += sampling_step)
+			FbxNode* fbxNode = fbxRootNode->FindChild(node.name.c_str());
+			fbxNodes.emplace_back(fbxNode);
+		}
+
+		// アニメーションデータを抽出する
+		animation.secondsLength = frameCount * samplingTime;
+		animation.keyframes.resize(frameCount + 1);
+
+		float seconds = 0.0f;
+		Keyframe* keyframe = animation.keyframes.data();
+		size_t fbxNodeCount = fbxNodes.size();
+		FbxTime fbxCurrentTime = fbxStartTime;
+		for (FbxTime fbxCurrentTime = fbxStartTime; fbxCurrentTime < fbxEndTime; fbxCurrentTime += fbxSamplingStep, ++keyframe)
+		{
+			// キーフレーム毎の姿勢データを取り出す。
+			keyframe->seconds = seconds;
+			keyframe->nodeKeys.resize(fbxNodeCount);
+			for (size_t fbxNodeIndex = 0; fbxNodeIndex < fbxNodeCount; ++fbxNodeIndex)
 			{
-				vector<bone> skeletal;
-				fetch_bone_matrices(fbx_mesh, skeletal, current_Time);
-				skeletal_animation[i].bones.push_back(skeletal);
+				NodeKeyData& keyData = keyframe->nodeKeys.at(fbxNodeIndex);
+				FbxNode* fbxNode = fbxNodes.at(fbxNodeIndex);
+				if (fbxNode == nullptr)
+				{
+					// アニメーション対象のノードがなかったのでダミーデータを設定
+					Node& node = nodes.at(fbxNodeIndex);
+					keyData.scale = node.scale;
+					keyData.rotation = node.rotation;
+					keyData.position = node.position;
+				}
+				else if (fbxNodeIndex == rootMotionNodeIndex)
+				{
+					// ルートモーションは無視する
+					Node& node = nodes.at(fbxNodeIndex);
+					keyData.scale = DirectX::XMFLOAT3(1, 1, 1);
+					keyData.rotation = DirectX::XMFLOAT4(0, 0, 0, 1);
+					keyData.position = DirectX::XMFLOAT3(0, 0, 0);
+				}
+				else
+				{
+					// 指定時間のローカル行列からスケール値、回転値、移動値を取り出す。
+					const FbxAMatrix& fbxLocalTransform = fbxNode->EvaluateLocalTransform(fbxCurrentTime);
+
+					keyData.scale = FbxDouble4ToFloat3(fbxLocalTransform.GetS());
+					keyData.rotation = FbxDouble4ToFloat4(fbxLocalTransform.GetQ());
+					keyData.position = FbxDouble4ToFloat3(fbxLocalTransform.GetT());
+				}
 			}
+			seconds += samplingTime;
 		}
 	}
-	for (int i = 0; i < number_of_animations; i++)
+
+	// 後始末
+	for (int i = 0; i < fbxAnimationCount; i++)
 	{
-		delete array_of_animation_stack_names[i];
+		delete fbxAnimStackNames[i];
 	}
+}
+
+// ノードインデックスを取得する
+int Mesh::FindNodeIndex(const char* name)
+{
+	for (size_t i = 0; i < nodes.size(); ++i)
+	{
+		if (nodes[i].name == name)
+		{
+			return static_cast<int>(i);
+		}
+	}
+	return -1;
 }

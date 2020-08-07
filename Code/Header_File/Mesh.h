@@ -8,23 +8,42 @@
 #include "Material.h"
 #include <fbxsdk.h>
 #include "cereal/cereal.hpp"
+#include "cereal/access.hpp"
 #include "cereal/archives/binary.hpp"
 #include "cereal/types/vector.hpp"
 #include "cereal/types/string.hpp"
+#include "cereal/types/memory.hpp"
 
 
 class Mesh
 {
 public:
 
+	struct Node
+	{
+		std::string			name;
+		int					parentIndex;
+		Vector3	scale;
+		Vector4	rotation;
+		Vector3	position;
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive
+			(
+				position, scale, rotation, parentIndex, name
+			);
+		}
+	};
+
 	struct vertex
 	{
-#define MAX_BONE_INFLUENCES 4
 		Vector3 position;
 		Vector3 normal;
 		Vector2 texcoord;
-		float   bone_weights[MAX_BONE_INFLUENCES] = { 1, 0, 0, 0 };
-		int     bone_indices[MAX_BONE_INFLUENCES] = {};
+		float   bone_weights[4] = { 1, 0, 0, 0 };
+		int     bone_indices[4] = {};
 
 		template<class Archive>
 		void serialize(Archive& archive)
@@ -63,63 +82,92 @@ public:
 		}
 	};
 
-	struct bone
+	struct NodeKeyData
 	{
-		Matrix transform;
+		Vector3	scale;
+		Vector4	rotation;
+		Vector3	position;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(transform);
+			archive(scale, rotation, position);
 		}
 	};
 
-	struct skeletal_animation
+	struct Keyframe
 	{
-		std::vector<std::vector<bone>> bones;
-		float sampling_time = 1 / 24.0f;
-		float animation_tick = 0.0f;
+		float						seconds;
+		std::vector<NodeKeyData>	nodeKeys;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(bones, sampling_time, animation_tick);
+			archive(seconds, nodeKeys);
 		}
 	};
-
-	struct bone_influence
+	struct Animation
 	{
-		int index; // index of bone
-		float weight; // weight of bone
+		float						secondsLength;
+		std::vector<Keyframe>		keyframes;
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(secondsLength, keyframes);
+		}
 	};
-	typedef std::vector<bone_influence> bone_influences_per_control_point;
 
 	struct mesh
 	{
 		Microsoft::WRL::ComPtr<ID3D11Buffer> vertex_buffer;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> index_buffer;
+		std::vector<subset>					 subsets;
+
+		int									 nodeIndex;
+		std::vector<int>					 nodeIndices;
+		std::vector<Matrix>					 inverseTransforms;
 
 		std::vector<vertex> vertices;
 		std::vector<u_int> indices;
-		std::vector<subset> subsets;
-		Matrix global_transform = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
-		std::vector<skeletal_animation> skeletal_animation;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(vertices, indices, subsets, global_transform, skeletal_animation);
+			archive(vertices, indices, subsets, nodeIndex, nodeIndices, inverseTransforms);
 		}
 	};
 
-	std::vector<mesh> skin_meshes;
 	std::string name;
 	std::string file_pass;
 
-	static std::shared_ptr<Mesh> Load_Mesh(const char* file_pass, const char* fbx_filename);
+	std::vector<Node>		nodes;
+	std::vector<mesh>		meshes;
+	std::vector<Animation>	animations;
+
+	static std::shared_ptr<Mesh> Load_Mesh(const char* file_pass, const char* fbx_filename, const char* ignoreRootMotionNodeName = nullptr);
 
 private:
-	static void fetch_bone_influences(const fbxsdk::FbxMesh* fbx_mesh, std::vector<bone_influences_per_control_point>& influences);
-	static void fetch_bone_matrices(fbxsdk::FbxMesh* fbx_mesh, std::vector<bone>& skeletal, fbxsdk::FbxTime time);
-	static void fetch_animations(fbxsdk::FbxMesh* fbx_mesh, std::vector<skeletal_animation>& skeletal_animation, u_int sampling_rate = 0);
+	// ノードデータを構築
+	void BuildNodes(FbxNode* fbxNode, int parentNodeIndex);
+	void BuildNode(FbxNode* fbxNode, int parentNodeIndex);
+
+	// メッシュデータを構築
+	void BuildMeshes(FbxNode* fbxNode);
+	void BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh);
+
+	// アニメーションデータを構築
+	void BuildAnimations(FbxScene* fbxScene);
+
+	// インデックスの検索
+	int FindNodeIndex(const char* name);
+
+	int						rootMotionNodeIndex = -1;
+
+	friend class cereal::access;
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(nodes, meshes, animations);
+	}
 };

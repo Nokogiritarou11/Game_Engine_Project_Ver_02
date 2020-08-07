@@ -35,24 +35,42 @@ void Mesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 
 void Mesh_Renderer::Set_Mesh(std::shared_ptr<Mesh> Mesh_Data)
 {
+	/*
 	mesh_data = Mesh_Data;
-	//material.clear();
+	//マテリアル
 	unsigned long Subset_ID = 0;
-	for (int i = 0; i < mesh_data->skin_meshes.size(); i++)
+	for (int i = 0; i < mesh_data->meshes.size(); i++)
 	{
-		for (int j = 0; j < mesh_data->skin_meshes[i].subsets.size(); j++)
+		for (int j = 0; j < mesh_data->meshes[i].subsets.size(); j++)
 		{
-			mesh_data->skin_meshes[i].subsets[j].diffuse.ID = Subset_ID;
-			string Mat_Name = mesh_data->name + "_" + mesh_data->skin_meshes[i].subsets[j].diffuse.TexName;
-			shared_ptr<Material> Mat = Material::Create(Mat_Name, L"Code/Shader/Default_Mesh.fx", mesh_data->skin_meshes[i].subsets[j].diffuse.TexPass.c_str());
+			mesh_data->meshes[i].subsets[j].diffuse.ID = Subset_ID;
+			string Mat_Name = mesh_data->name + "_" + mesh_data->meshes[i].subsets[j].diffuse.TexName;
+			shared_ptr<Material> Mat = Material::Create(Mat_Name, L"Shader/Standard_Shader_VS.hlsl", L"Shader/Standard_Shader_PS.hlsl", mesh_data->meshes[i].subsets[j].diffuse.TexPass.c_str());
 			material.emplace_back(Mat);
 			Subset_ID++;
 		}
 	}
+	// ノード
+	const std::vector<Mesh::Node>& res_nodes = mesh_data->nodes;
+
+	nodes.resize(res_nodes.size());
+	for (size_t nodeIndex = 0; nodeIndex < nodes.size(); ++nodeIndex)
+	{
+		auto&& src = res_nodes.at(nodeIndex);
+		auto&& dst = nodes.at(nodeIndex);
+
+		dst.name = src.name.c_str();
+		dst.parent = src.parentIndex >= 0 ? &nodes.at(src.parentIndex) : nullptr;
+		dst.scale = src.scale;
+		dst.rotation = src.rotation;
+		dst.position = src.position;
+	}
+	*/
 }
 
 void Mesh_Renderer::Render(std::shared_ptr<Camera> Render_Camera)
 {
+	/*
 	// ワールド行列、ビュー行列、プロジェクション行列を合成し行列データを取り出す。
 	XMMATRIX WVP;
 	XMFLOAT4X4 world_view_projection;
@@ -92,4 +110,5 @@ void Mesh_Renderer::Render(std::shared_ptr<Camera> Render_Camera)
 			DxSystem::DeviceContext->DrawIndexed(subset.index_count, subset.index_start, 0);
 		}
 	}
+	*/
 }

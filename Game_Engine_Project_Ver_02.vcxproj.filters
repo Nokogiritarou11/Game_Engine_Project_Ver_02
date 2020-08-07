@@ -6,6 +6,8 @@
     </FxCompile>
     <FxCompile Include="Code\Shader\Default_Mesh.fx" />
     <FxCompile Include="Code\Shader\Default_SkinMesh.fx" />
+    <FxCompile Include="Shader\Standard_Shader_VS.hlsl" />
+    <FxCompile Include="Shader\Standard_Shader_PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Souse_File\Audio_Manager.cpp">
@@ -264,5 +266,8 @@
     <Filter Include="Sources\Shaders">
       <UniqueIdentifier>{e65052c2-8536-4852-868b-3312e5769417}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shader\Standard_Shader.hlsli" />
   </ItemGroup>
 </Project>

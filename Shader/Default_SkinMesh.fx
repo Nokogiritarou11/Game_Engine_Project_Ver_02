@@ -1,15 +1,21 @@
 Texture2D tex2d : register(t0);
 SamplerState smpState : register(s0);
 
-#define MAX_BONES 32
-cbuffer CONSTANT_BUFFER : register(b0)
+cbuffer CbScene : register(b0)
 {
-	row_major float4x4 world_view_projection;
-	row_major float4x4 world;
-	float4 material_color;
-	float4 light_direction;
-	// UNIT.21
-	row_major float4x4 bone_transforms[MAX_BONES];
+	row_major float4x4	viewProjection;
+	float4				lightDirection;
+};
+
+#define MAX_BONES 128
+cbuffer CbMesh : register(b1)
+{
+	row_major float4x4	boneTransforms[MAX_BONES];
+};
+
+cbuffer CbSubset : register(b2)
+{
+	float4				materialColor;
 };
 
 struct VS_OUT
@@ -19,7 +25,13 @@ struct VS_OUT
 	float2 texcoord : TEXCOORD;
 };
 
-VS_OUT VSMain(float3 position : POSITION, float3 normal : NORMAL, float2 texcoord : TEXCOORD, float4 bone_weights : WEIGHTS, uint4 bone_indices : BONES)
+VS_OUT VSMain(
+	float3 position : POSITION,
+	float3 normal : NORMAL,
+	float2 texcoord : TEXCOORD,
+	float4 bone_weights : WEIGHTS,
+	uint4 bone_indices : BONES
+)
 {
 	VS_OUT vout;
 

@@ -19,6 +19,29 @@ public:
 	bool  Animation_Loop  = false;
 	bool  Animation_End   = false;
 
+	struct Node
+	{
+		const char* name;
+		Node* parent;
+		Vector3	scale;
+		Vector4	rotation;
+		Vector3	position;
+		Matrix	localTransform;
+		Matrix	worldTransform;
+	};
+
+	// アニメーション
+	bool IsPlayAnimation() const { return currentAnimation >= 0; }
+	void PlayAnimation(int animationIndex, bool loop = false);
+	void UpdateAnimation(float elapsedTime);
+
+	// 行列計算
+	void CalculateLocalTransform();
+	void CalculateWorldTransform(const Matrix& world_transform);
+
+	const std::vector<Node>& GetNodes() const { return nodes; }
+	std::vector<Node>& GetNodes() { return nodes; }
+	const Mesh* GetResource() const { return mesh_data.get(); }
 
 private:
 
@@ -29,51 +52,28 @@ private:
 		archive(cereal::base_class<Renderer>(this), file_name, file_pass);
 	}
 
-	struct cbuffer /////////////////////////////////////////////////////要変更
+	struct CbMesh
 	{
-#define MAX_BONES 32
-		DirectX::XMFLOAT4X4 world_view_projection; //ワールド・ビュー・プロジェクション合成行列
-		DirectX::XMFLOAT4X4 world; //ワールド変換行列
-		DirectX::XMFLOAT4   material_color; //材質色
-		DirectX::XMFLOAT4   light_direction; //ライト進行方向
-		DirectX::XMFLOAT4X4 bone_transforms[MAX_BONES] = { { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-														   { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 } };
+#define MAX_BONES 128
+		Matrix bone_transforms[MAX_BONES] = { { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 } };
+	};
+	struct CbColor
+	{
+		Vector4	materialColor;
 	};
 
-	ComPtr <ID3D11Buffer> ConstantBuffer; //コンスタントバッファ
+	static ComPtr <ID3D11Buffer> ConstantBuffer_CbMesh; //コンスタントバッファ
+	static ComPtr <ID3D11Buffer> ConstantBuffer_CbColor; //コンスタントバッファ
+
 	std::shared_ptr<Mesh> mesh_data;
+	std::vector<Node>	  nodes;
 	std::string file_name;
 	std::string file_pass;
+
+	int								currentAnimation = -1;
+	float							currentSeconds = 0.0f;
+	bool							loopAnimation = false;
+	bool							endAnimation = false;
 };
 
 CEREAL_REGISTER_TYPE(SkinMesh_Renderer)

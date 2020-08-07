@@ -651,7 +651,7 @@ void Debug_UI::Debug_Camera_Update()
 		{
 			// Šp“x‚ðƒ‰ƒWƒAƒ“(ƒÆ)‚É•ÏŠ·
 			float fov_y = XMConvertToRadians(30);	// ‰æŠp
-			float aspect = Engine::view_scene->screen_x / Engine::view_scene->screen_y;	// ‰æ–Ê”ä—¦
+			float aspect = (float)Engine::view_scene->screen_x / (float)Engine::view_scene->screen_y;	// ‰æ–Ê”ä—¦
 
 			XMStoreFloat4x4(&Debug_Camera_P, XMMatrixPerspectiveFovLH(fov_y, aspect, 0.1f, 100000.0f));
 		}

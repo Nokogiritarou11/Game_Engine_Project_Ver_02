@@ -26,7 +26,7 @@ public:
 
 	//static std::shared_ptr<Material> Create();
 	//static std::shared_ptr<Material> Create(std::string Material_Name, WCHAR* Shader_Name);
-	static std::shared_ptr<Material> Create(std::string Material_Name, WCHAR* Shader_Name, std::string filename);
+	static std::shared_ptr<Material> Create(std::string Material_Name, WCHAR* VS_Name, WCHAR* PS_Name, std::string filename);
 
 private:
 

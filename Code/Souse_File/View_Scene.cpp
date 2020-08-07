@@ -13,6 +13,20 @@ void View_Scene::Render(Matrix V, Matrix P)
 	DxSystem::DeviceContext->OMSetRenderTargets(1, RenderTargetView.GetAddressOf(), DepthStencilView.Get());
 	Clear();
 
+	const Matrix C = {
+		1, 0, 0, 0,
+		0, 0, 1, 0,
+		0, 1, 0, 0,
+		0, 0, 0, 1
+	};
+
+	// シーン用定数バッファ更新
+	CbScene cbScene;
+	cbScene.viewProjection = C * V * P;
+	cbScene.lightDirection = { 0,-1,-1,0 };
+	DxSystem::DeviceContext->VSSetConstantBuffers(0, 1, ConstantBuffer_CbScene.GetAddressOf());
+	DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbScene.Get(), 0, 0, &cbScene, 0, 0);
+
 	//ブレンドステート設定
 	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_NONE), nullptr, 0xFFFFFFFF);
 	//ラスタライザ―設定

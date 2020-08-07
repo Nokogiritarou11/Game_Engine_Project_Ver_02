@@ -42,7 +42,7 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 
 void Sprite_Renderer::Set_Texture(std::string Material_Name, WCHAR* Shader_Name, string filename)
 {
-	material = Material::Create(Material_Name, Shader_Name, filename);
+	//material = Material::Create(Material_Name, Shader_Name, filename);
 }
 
 void Sprite_Renderer::Render(Matrix V, Matrix P)

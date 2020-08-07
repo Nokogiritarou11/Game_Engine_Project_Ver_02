@@ -9,7 +9,7 @@ using namespace std;
 
 unordered_map<string, shared_ptr<Material>> Material::mat_cache;
 
-shared_ptr<Material> Material::Create(std::string Material_Name, WCHAR* Shader_Name, std::string filename)
+shared_ptr<Material> Material::Create(std::string Material_Name, WCHAR* VS_Name, WCHAR* PS_Name, std::string filename)
 {
 	auto it = mat_cache.find(Material_Name);
 	if (it != mat_cache.end())
@@ -21,7 +21,8 @@ shared_ptr<Material> Material::Create(std::string Material_Name, WCHAR* Shader_N
 		shared_ptr<Material> mat = make_shared<Material>();
 		mat->name = Material_Name;
 		mat->shader = make_shared<Shader>();
-		mat->shader->Create(Shader_Name, "VSMain", "PSMain");
+		mat->shader->Create_VS(VS_Name, "VSMain");
+		mat->shader->Create_PS(PS_Name, "PSMain");
 		mat->texture = make_shared<Texture>();
 		mat->texture->Load(filename);
 		mat->UV_Size = { (float)mat->texture->GetWidth(),(float)mat->texture->GetHeight() };

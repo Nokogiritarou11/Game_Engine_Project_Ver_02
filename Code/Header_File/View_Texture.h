@@ -33,6 +33,13 @@ public:
 	bool CreateRenderTartgetView(int x, int y);
 	void Clear();
 
-private:
+	struct CbScene
+	{
+		Matrix	viewProjection;
+		Vector4	lightDirection;
+	};
 
+	ComPtr <ID3D11Buffer> ConstantBuffer_CbScene; //コンスタントバッファ
+
+private:
 };

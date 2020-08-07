@@ -33,26 +33,6 @@ void Render_Manager::Add(shared_ptr<Camera> mono)
 	Camera_list.emplace_back(mono);
 }
 
-void Render_Manager::Update()
-{
-	for (list<weak_ptr<Camera>>::iterator itr = Camera_list.begin(); itr != Camera_list.end();)
-	{
-		if (itr->expired())
-		{
-			itr = Camera_list.erase(itr);
-			continue;
-		}
-		shared_ptr<Camera> camera = itr->lock();
-		if (camera->gameObject->activeSelf())
-		{
-			if (camera->enabled)
-			{
-			}
-		}
-		itr++;
-	}
-}
-
 void Render_Manager::Render()
 {
 	for (list<weak_ptr<Camera>>::iterator itr = Camera_list.begin(); itr != Camera_list.end();)

@@ -7,6 +7,20 @@ View_Texture::View_Texture()
 {
 	CreateRenderTartgetView(800, 600);
 	CreateDepthStencil(800, 600);
+
+	// 定数バッファの生成
+	if (!ConstantBuffer_CbScene)
+	{
+		D3D11_BUFFER_DESC bd = {};
+		bd.Usage = D3D11_USAGE_DEFAULT;
+		bd.ByteWidth = sizeof(CbScene);
+		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		bd.CPUAccessFlags = 0;
+		bd.MiscFlags = 0;
+		bd.StructureByteStride = 0;
+		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer_CbScene.GetAddressOf());
+		assert(SUCCEEDED(hr), hr_trace(hr));
+	}
 }
 
 void View_Texture::Clear()
