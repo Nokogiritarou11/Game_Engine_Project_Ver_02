@@ -16,9 +16,9 @@ public:
 
 	bool CompareTag(std::string _tag);
 
-	virtual void Initialize() {};
-	virtual void Initialize(std::shared_ptr<GameObject> obj) {};
-	virtual void Draw_ImGui() {};
+	virtual void Initialize(){};
+	virtual void Initialize(std::shared_ptr<GameObject> obj){};
+	virtual bool Draw_ImGui(){return true;};
 	template<class T>
 	std::shared_ptr<T> GetComponent();
 	template<class T>

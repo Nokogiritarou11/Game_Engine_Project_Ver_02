@@ -22,6 +22,10 @@ void Object::Destroy(shared_ptr<GameObject> obj)
 {
 	Scene_Manager::Get_Active_Scene()->Destroy_GameObject(obj);
 }
+void Object::Destroy(shared_ptr<Component> comp)
+{
+	Scene_Manager::Get_Active_Scene()->Destroy_Component(comp);
+}
 
 shared_ptr<GameObject> Object::Instantiate(string name)
 {

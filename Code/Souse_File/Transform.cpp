@@ -95,7 +95,7 @@ void Transform::Update()
 }
 */
 
-void Transform::Draw_ImGui()
+bool Transform::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 	if (ImGui::CollapsingHeader("Transform"))
@@ -182,6 +182,7 @@ void Transform::Draw_ImGui()
 			}
 		}
 	}
+	return true;
 }
 
 /*  ///////////////////////////////////////////////////////

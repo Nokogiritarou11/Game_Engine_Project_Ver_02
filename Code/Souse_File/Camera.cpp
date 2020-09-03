@@ -21,15 +21,31 @@ void Camera::Initialize(std::shared_ptr<GameObject> obj)
 	DxSystem::DeviceContext->RSGetViewports(&num_viewports, &viewport);
 }
 
-void Camera::Draw_ImGui()
+bool Camera::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 	if (ImGui::CollapsingHeader("Camera"))
 	{
+		bool removed = true;
+		if (ImGui::BeginPopupContextItem("Camera_sub"))
+		{
+			if (ImGui::Selectable(u8"コンポーネントを削除"))
+			{
+				Object::Destroy(dynamic_pointer_cast<Camera>(shared_from_this()));
+				removed = false;
+			}
+			ImGui::EndPopup();
+			if (!removed)
+			{
+				return false;
+			}
+		}
+
 		ImGui::DragFloat("FOV", &FOV, 0.1f, -FLT_MAX, FLT_MAX);
 		ImGui::DragFloat(u8"最短描画距離", &near_z, 0.1f, -FLT_MAX, FLT_MAX);
 		ImGui::DragFloat(u8"最長描画距離", &far_z, 0.1f, -FLT_MAX, FLT_MAX);
 	}
+	return true;
 }
 
 void Camera::Update(float width, float height)

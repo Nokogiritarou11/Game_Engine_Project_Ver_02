@@ -17,6 +17,7 @@
 
 class Transform;
 class GameObject;
+class Component;
 
 class Object : public std::enable_shared_from_this<Object>
 {
@@ -28,6 +29,8 @@ public:
 
 	std::string ToString();
 	static void Destroy(std::shared_ptr<GameObject> obj);
+	static void Destroy(std::shared_ptr<Component> comp);
+
 	static std::shared_ptr<GameObject> Instantiate(std::string name);
 	static std::shared_ptr<GameObject> Instantiate(std::string name, std::shared_ptr<Transform> parent);
 	static std::shared_ptr<GameObject> Instantiate(std::string name, std::shared_ptr<Transform> parent, bool instantiateInWorldSpace);

@@ -5,6 +5,7 @@
 #include "Animator.h"
 #include "Transform.h"
 #include "GameObject.h"
+#include <typeinfo>
 using namespace std;
 
 shared_ptr<GameObject> Scene::Instance_GameObject(std::string name)
@@ -27,6 +28,26 @@ void Scene::Destroy_GameObject(shared_ptr<GameObject> gameObject)
 		{
 			(*itr)->Component_List.clear();
 			gameObject_List.erase(itr);
+			return;
+		}
+	}
+}
+void Scene::Destroy_Component(shared_ptr<Component> component)
+{
+	list<shared_ptr<GameObject>>::iterator itr_end = gameObject_List.end();
+	for (list<shared_ptr<GameObject>>::iterator itr = gameObject_List.begin(); itr != itr_end; itr++)
+	{
+		if ((*itr)->ID == component->gameObject->ID)
+		{
+			list<shared_ptr<Component>>::iterator itr_comp_end = (*itr)->Component_List.end();
+			for (list<shared_ptr<Component>>::iterator itr_comp = (*itr)->Component_List.begin(); itr_comp != itr_comp_end; itr_comp++)
+			{
+				if (typeid(*(*itr_comp)) == typeid(*component))
+				{
+					(*itr)->Component_List.erase(itr_comp);
+					return;
+				}
+			}
 			return;
 		}
 	}

@@ -315,7 +315,7 @@ void Debug_UI::Debug_Log_Render()
 	static Debug_Logger logger;
 	if (Debug_Log_Changed)
 	{
-		for (int i = 0; i < Debug_Log.size(); i++)
+		for (unsigned int i = 0; i < Debug_Log.size(); i++)
 		{
 			logger.AddLog(Debug_Log[i].c_str());
 		}
@@ -354,10 +354,21 @@ void Debug_UI::Inspector_Render()
 		ImGui::Checkbox("", &obj->Active);
 		ImGui::SameLine();
 		ImGui::InputText(u8"名前", &obj->name);
-		list<shared_ptr<Component>>::iterator itr_end = obj->Component_List.end();
-		for (list<shared_ptr<Component>>::iterator itr = obj->Component_List.begin(); itr != itr_end; itr++)
+
+		bool removed = true;
+		while (removed)
 		{
-			(*itr)->Draw_ImGui();
+			bool removed_comp = false;
+			list<shared_ptr<Component>>::iterator itr_end = obj->Component_List.end();
+			for (list<shared_ptr<Component>>::iterator itr = obj->Component_List.begin(); itr != itr_end; itr++)
+			{
+				if (!(*itr)->Draw_ImGui())
+				{
+					removed_comp = true;
+					break;
+				}
+			}
+			removed = removed_comp;
 		}
 		ImGui::Separator();
 		All_Component_List::Add(obj);
@@ -410,7 +421,7 @@ void Debug_UI::SceneView_Render()
 
 	ImGui::Begin(u8"シーン", NULL, window_flags);
 	const float titleBarHeight = ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2.0f + 10;
-	Engine::view_scene->Set_Screen_Size(ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - titleBarHeight);
+	Engine::view_scene->Set_Screen_Size((int)ImGui::GetWindowWidth(), (int)ImGui::GetWindowHeight() - (int)titleBarHeight);
 	ImGui::Image((void*)Engine::view_scene->ShaderResourceView_Render.Get(), ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - titleBarHeight));
 
 	if (ImGui::IsWindowFocused())
@@ -431,7 +442,7 @@ void Debug_UI::GameView_Render()
 
 	ImGui::Begin(u8"ゲーム", NULL, window_flags);
 	const float titleBarHeight = ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2.0f + 10;
-	Engine::view_game->Set_Screen_Size(ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - titleBarHeight);
+	Engine::view_game->Set_Screen_Size((int)ImGui::GetWindowWidth(), (int)ImGui::GetWindowHeight() - (int)titleBarHeight);
 	ImGui::Image((void*)Engine::view_game->ShaderResourceView_Render.Get(), ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - titleBarHeight));
 
 	ImGui::End();
@@ -538,7 +549,7 @@ void Debug_UI::GameObject_List_Render(std::shared_ptr<Scene> scene)
 		static int selection_mask = (0);
 		list<shared_ptr<GameObject>>::iterator itr_end = scene->gameObject_List.end();
 		for (list<shared_ptr<GameObject>>::iterator itr = scene->gameObject_List.begin(); itr != itr_end; itr++)
-		{
+		{ 
 			ImGui::PushID(ID);
 			ImGuiTreeNodeFlags node_flags = base_flags;
 			const bool is_selected = (selection_mask & (1 << ID)) != 0;
@@ -568,10 +579,13 @@ void Debug_UI::GameObject_List_Render(std::shared_ptr<Scene> scene)
 			{
 				GameObject::Instantiate(u8"GameObject");
 			}
-			if (ImGui::Selectable(u8"オブジェクトを削除"))
+			if (!Active_Object.expired())
 			{
-				GameObject::Destroy(Active_Object.lock());
-				Active_Object.reset();
+				if (ImGui::Selectable(u8"オブジェクトを削除"))
+				{
+					GameObject::Destroy(Active_Object.lock());
+					Active_Object.reset();
+				}
 			}
 			ImGui::EndPopup();
 		}

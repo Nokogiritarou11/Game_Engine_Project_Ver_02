@@ -6,6 +6,7 @@
 //使いたいクラス(コンポーネント)をインクルード
 #include "Camera.h"
 #include "SkinMesh_Renderer.h"
+#include "Animator.h"
 /////////////////////////////////////////////////////////////////
 
 using namespace std;
@@ -38,6 +39,11 @@ void All_Component_List::Add(shared_ptr<GameObject> obj)
 		if (ImGui::Button("SkinMesh_Renderer", ImVec2(-FLT_MIN, 0.0f)))
 		{
 			obj->AddComponent<SkinMesh_Renderer>();
+		}
+
+		if (ImGui::Button("Animator", ImVec2(-FLT_MIN, 0.0f)))
+		{
+			obj->AddComponent<Animator>();
 		}
 
 		////////////////////////////////////////////////////////

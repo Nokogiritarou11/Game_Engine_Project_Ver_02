@@ -13,6 +13,7 @@ public:
 
 	std::shared_ptr<GameObject> Instance_GameObject(std::string name);
 	void Destroy_GameObject(std::shared_ptr<GameObject> gameObject);
+	void Destroy_Component(std::shared_ptr<Component> component);
 	void Update();
 	void Reset();
 

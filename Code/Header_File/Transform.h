@@ -24,7 +24,7 @@ public:
 
 	void Initialize(std::shared_ptr<GameObject> obj);
 	//void Update();
-	void Draw_ImGui();
+	bool Draw_ImGui();
 	bool hasChanged = false;
 
 	//GetterSetter

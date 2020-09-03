@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "Render_Manager.h"
+#include "Animator_Manager.h"
 using namespace std;
 
 unique_ptr<Scene_Manager> Engine::scene_manager;
@@ -31,7 +32,7 @@ void Engine::Update()
 	input_manager->Update();
 	scene_manager->Update();
 	debug_ui->Update(scene_manager->Get_Active_Scene());
-	//Render_Manager::Update();
+	Animator_Manager::Update();
 	Render_Manager::Render();
 	debug_ui->Render();
 	
