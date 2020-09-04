@@ -30,4 +30,14 @@ private:
 	bool		loopAnimation    = false;
 	bool		endAnimation     = false;
 	bool        Playing          = false;
+
+	friend class cereal::access;
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(cereal::base_class<Behavior>(this));
+	}
 };
+
+CEREAL_REGISTER_TYPE(Animator)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Behavior, Animator)

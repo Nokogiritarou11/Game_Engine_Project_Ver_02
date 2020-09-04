@@ -15,10 +15,17 @@ Engine::Engine()
 	input_manager = make_unique<Input_Manager>();
 	audio_manager = make_unique<Audio_Manager>();
 	scene_manager = make_unique<Scene_Manager>();
+
+	view_game = make_unique<View_Game>();
+
+#if _DEBUG
 	debug_ui      = make_unique<Debug_UI>();
-	view_game     = make_unique<View_Game>();
-	view_scene    = make_unique<View_Scene>();
+	view_scene = make_unique<View_Scene>();
 	scene_manager->CreateScene_Default("Default_Scene");
+#else
+	scene_manager->CreateScene_Default("Default_Scene");
+	scene_manager->Run = true;
+#endif
 }
 
 Engine::~Engine()
@@ -31,10 +38,19 @@ void Engine::Update()
 
 	input_manager->Update();
 	scene_manager->Update();
+
+#if _DEBUG
 	debug_ui->Update(scene_manager->Get_Active_Scene());
+#else
+	Engine::view_game->Set_Screen_Size(DxSystem::GetScreenWidth(), DxSystem::GetScreenHeight());
+#endif
+	
 	Animator_Manager::Update();
 	Render_Manager::Render();
+
+#if _DEBUG
 	debug_ui->Render();
+#endif
 	
 	DxSystem::Flip(0);
 }

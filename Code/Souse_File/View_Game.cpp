@@ -10,8 +10,10 @@ void View_Game::Render(Matrix V, Matrix P)
 	// ビューポートの設定
 	DxSystem::SetViewPort(screen_x, screen_y);
 	//レンダーターゲットの設定
+#if _DEBUG
 	DxSystem::DeviceContext->OMSetRenderTargets(1, RenderTargetView.GetAddressOf(), DepthStencilView.Get());
 	Clear();
+#endif
 
 	const Matrix C = {
 		1, 0, 0, 0,
