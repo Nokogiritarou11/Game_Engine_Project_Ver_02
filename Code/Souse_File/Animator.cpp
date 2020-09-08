@@ -183,12 +183,12 @@ bool Animator::Draw_ImGui()
 			if (!mesh_data->animations.empty())
 			{
 				static int item_current_idx = 0;                    // Here our selection data is an index.
-				if (ImGui::BeginCombo("Select_Animation", to_string(item_current_idx).data()))
+				if (ImGui::BeginCombo("Select_Animation", mesh_data->animations[item_current_idx].name.data()))
 				{
 					for (unsigned int n = 0; n < mesh_data->animations.size(); n++)
 					{
 						const bool is_selected = (item_current_idx == n);
-						if (ImGui::Selectable(to_string(n).data(), is_selected))
+						if (ImGui::Selectable(mesh_data->animations[n].name.data(), is_selected))
 							item_current_idx = n;
 
 						// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)

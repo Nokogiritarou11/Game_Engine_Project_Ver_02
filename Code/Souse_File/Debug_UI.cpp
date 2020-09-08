@@ -78,12 +78,14 @@ void Debug_UI::Update(shared_ptr<Scene> scene)
 			Inspector_Render();
 		}
 
-		//シーン再生
+		//シーン再生UI
 		ScenePlayer_Render();
 
-		GameView_Render();
-		SceneView_Render();
-
+		//描画
+		{
+			GameView_Render();
+			SceneView_Render();
+		}
 		//デバッグログ
 		Debug_Log_Render();
 	}
@@ -105,6 +107,7 @@ void Debug_UI::Render()
 	}
 }
 
+//開くファイルのパス取得
 string Debug_UI::Get_Open_File_Name()
 {
 	static OPENFILENAME     ofn;
@@ -147,6 +150,7 @@ string Debug_UI::Get_Open_File_Name()
 	return str_pass;
 }
 
+//保存先パス取得
 string Debug_UI::Get_Save_File_Name()
 {
 	static OPENFILENAME     ofn;
@@ -188,6 +192,7 @@ string Debug_UI::Get_Save_File_Name()
 	return str_pass;
 }
 
+//ドッキング用親ウィンドウ描画
 void Debug_UI::Main_Window_Render()
 {
 	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
@@ -213,12 +218,14 @@ void Debug_UI::Main_Window_Render()
 	ImGui::End();
 }
 
+//ログの追加
 void Debug_UI::Print_Log(string log)
 {
 	Debug_Log.push_back(log + u8"\n");
 	Debug_Log_Changed = true;
 }
 
+//ログ管理用構造体
 struct Debug_Logger
 {
 	ImGuiTextBuffer     Buf;
@@ -306,6 +313,7 @@ struct Debug_Logger
 	}
 };
 
+//デバッグログ描画
 void Debug_UI::Debug_Log_Render()
 {
 	ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
@@ -324,6 +332,7 @@ void Debug_UI::Debug_Log_Render()
 	logger.Draw((u8"デバッグログ"), &Open_Log);
 }
 
+//ヒエラルキー病が
 void Debug_UI::Hierarchy_Render(shared_ptr<Scene> scene)
 {
 	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
@@ -339,6 +348,7 @@ void Debug_UI::Hierarchy_Render(shared_ptr<Scene> scene)
 	ImGui::End();
 }
 
+//インスペクタ描画
 void Debug_UI::Inspector_Render()
 {
 	ImGui::SetNextWindowPos(ImVec2(1500, 0), ImGuiCond_FirstUseEver);
@@ -381,6 +391,7 @@ void Debug_UI::Inspector_Render()
 	ImGui::End();
 }
 
+//シーン再生UI描画
 void Debug_UI::ScenePlayer_Render()
 {
 	ImGui::SetNextWindowPos(ImVec2(935, 0), ImGuiCond_FirstUseEver);
@@ -411,6 +422,7 @@ void Debug_UI::ScenePlayer_Render()
 	ImGui::End();
 }
 
+//シーンビュー描画
 void Debug_UI::SceneView_Render()
 {
 	ImGui::SetNextWindowPos(ImVec2(200, 0), ImGuiCond_FirstUseEver);
@@ -432,6 +444,7 @@ void Debug_UI::SceneView_Render()
 	ImGui::End();
 }
 
+//ゲームビュー描画
 void Debug_UI::GameView_Render()
 {
 	ImGui::SetNextWindowPos(ImVec2(200, 0), ImGuiCond_FirstUseEver);
@@ -448,6 +461,7 @@ void Debug_UI::GameView_Render()
 	ImGui::End();
 }
 
+//シーン保存、展開UI描画
 void Debug_UI::Scene_File_Menu_Render()
 {
 	static bool open_new_scene_menu = false;
@@ -535,6 +549,7 @@ void Debug_UI::Scene_File_Menu_Render()
 
 }
 
+//インスペクタ内のオブジェクトツリー描画
 void Debug_UI::GameObject_List_Render(std::shared_ptr<Scene> scene)
 {
 	int node_clicked = -1;
@@ -549,7 +564,7 @@ void Debug_UI::GameObject_List_Render(std::shared_ptr<Scene> scene)
 		static int selection_mask = (0);
 		list<shared_ptr<GameObject>>::iterator itr_end = scene->gameObject_List.end();
 		for (list<shared_ptr<GameObject>>::iterator itr = scene->gameObject_List.begin(); itr != itr_end; itr++)
-		{ 
+		{
 			ImGui::PushID(ID);
 			ImGuiTreeNodeFlags node_flags = base_flags;
 			const bool is_selected = (selection_mask & (1 << ID)) != 0;
@@ -604,6 +619,7 @@ void Debug_UI::GameObject_List_Render(std::shared_ptr<Scene> scene)
 	ID = 0;
 }
 
+//シーンビューのカメラ操作
 void Debug_UI::Debug_Camera_Update()
 {
 	static Vector3 p = { -100, 80, -100 };

@@ -862,6 +862,7 @@ void Mesh::BuildAnimations(FbxScene* fbxScene)
 
 		FbxString* fbxAnimStackName = fbxAnimStackNames.GetAt(fbxAnimationIndex);
 		FbxAnimStack* fbxAnimStack = fbxScene->FindMember<FbxAnimStack>(fbxAnimStackName->Buffer());
+		animation.name = fbxAnimStackName->Buffer();
 
 		// 再生するアニメーションを指定する。
 		fbxScene->SetCurrentAnimationStack(fbxAnimStack);

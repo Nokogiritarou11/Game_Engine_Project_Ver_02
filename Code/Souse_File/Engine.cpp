@@ -41,16 +41,14 @@ void Engine::Update()
 
 #if _DEBUG
 	debug_ui->Update(scene_manager->Get_Active_Scene());
-#else
-	Engine::view_game->Set_Screen_Size(DxSystem::GetScreenWidth(), DxSystem::GetScreenHeight());
-#endif
-	
 	Animator_Manager::Update();
 	Render_Manager::Render();
-
-#if _DEBUG
 	debug_ui->Render();
+#else
+	Engine::view_game->Set_Screen_Size(DxSystem::GetScreenWidth(), DxSystem::GetScreenHeight());
+	Animator_Manager::Update();
+	Render_Manager::Render();
 #endif
-	
+
 	DxSystem::Flip(0);
 }

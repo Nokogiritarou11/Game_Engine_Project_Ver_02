@@ -108,13 +108,14 @@ public:
 	};
 	struct Animation
 	{
+		std::string					name;
 		float						secondsLength;
 		std::vector<Keyframe>		keyframes;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(secondsLength, keyframes);
+			archive(name, secondsLength, keyframes);
 		}
 	};
 
