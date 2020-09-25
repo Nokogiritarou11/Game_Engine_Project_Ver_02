@@ -141,8 +141,8 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 				}
 
 				//使わないので開放
-				mesh_ptr->meshes[i].vertices.clear();
-				mesh_ptr->meshes[i].indices.clear();
+				//mesh_ptr->meshes[i].vertices.clear();
+				//mesh_ptr->meshes[i].indices.clear();
 			}
 		}
 		else
@@ -484,13 +484,14 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 				cereal::BinaryOutputArchive o_archive(ss);
 				o_archive(mesh_ptr);
 			}
-
+			/*
 			for (int i = 0; i < mesh_ptr->meshes.size(); i++)
 			{
 				//使わないので開放
 				mesh_ptr->meshes[i].vertices.clear();
 				mesh_ptr->meshes[i].indices.clear();
 			}
+			*/
 		}
 		return mesh_ptr;
 	}

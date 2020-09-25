@@ -22,7 +22,8 @@ using Microsoft::WRL::ComPtr;
 		OutputDebugString(buffer); \
       }
 
-class DxSystem {
+class DxSystem
+{
 private:
 	static int ScreenWidth;
 	static int ScreenHeight;
@@ -31,7 +32,7 @@ private:
 	static ComPtr<ID3D11Texture2D>			DepthStencilTexture;
 	static ComPtr<ID3D11DepthStencilView>	DepthStencilView;
 	static ComPtr<ID3D11ShaderResourceView>	ShaderResourceView;
-	static ComPtr<ID3D11DepthStencilState>	DepthStencilState[2];
+	static ComPtr<ID3D11DepthStencilState>	DepthStencilState[3];
 
 	static ComPtr<IDXGIDebug>               DXGIDebug;
 
@@ -72,9 +73,9 @@ public:
 	static void SetViewPort(int width, int height);
 	static void SetDefaultView();
 	//DepthStencilState
-	enum { DS_FALSE, DS_TRUE };
+	enum { DS_FALSE, DS_TRUE, DS_SKY };
 	//RasterizerState
 	enum { RS_STANDARD, RS_CULL_BACK, RS_WIRE, RS_CULL_FRONT, RS_CULL_NONE };
 	//BlendState
-	enum { BS_NONE, BS_ALPHA ,BS_ALPHA_TEST ,BS_TRANSPARENT, BS_ADD, BS_SUBTRACT, BS_REPLACE, BS_MULTIPLY, BS_LIGHTEN, BS_DARKEN, BS_SCREEN };
+	enum { BS_NONE, BS_ALPHA, BS_ALPHA_TEST, BS_TRANSPARENT, BS_ADD, BS_SUBTRACT, BS_REPLACE, BS_MULTIPLY, BS_LIGHTEN, BS_DARKEN, BS_SCREEN };
 };

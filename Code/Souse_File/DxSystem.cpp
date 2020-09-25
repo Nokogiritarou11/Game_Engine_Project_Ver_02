@@ -14,7 +14,7 @@ ComPtr<ID3D11RenderTargetView>      DxSystem::RenderTargetView;
 ComPtr<ID3D11Texture2D>				DxSystem::DepthStencilTexture;
 ComPtr<ID3D11DepthStencilView>		DxSystem::DepthStencilView;
 ComPtr<ID3D11ShaderResourceView>	DxSystem::ShaderResourceView;
-ComPtr<ID3D11DepthStencilState>		DxSystem::DepthStencilState[2];
+ComPtr<ID3D11DepthStencilState>		DxSystem::DepthStencilState[3];
 ComPtr<ID3D11RasterizerState>		DxSystem::RasterizerState[RASTERIZE_TYPE];
 ComPtr<ID3D11BlendState>			DxSystem::BlendState[BLEND_TYPE];
 
@@ -275,29 +275,41 @@ bool DxSystem::CreateDepthStencil()
 	{
 		return false;
 	}
+
 	//デプスステンシルステート
 	D3D11_DEPTH_STENCIL_DESC depth_stencil_desc;
+	
 	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
 	depth_stencil_desc.DepthEnable = FALSE;
 	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[DS_FALSE].GetAddressOf());
 	//assert(FAILED(hr));
-
 	if (FAILED(hr))
 	{
 		return false;
 	}
+
 	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
 	depth_stencil_desc.DepthEnable = TRUE;
 	depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	depth_stencil_desc.DepthFunc = D3D11_COMPARISON_LESS;
 	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[DS_TRUE].GetAddressOf());
 	//assert(FAILED(hr));
-
 	if (FAILED(hr))
 	{
 		return false;
 	}
 
+	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
+	depth_stencil_desc.DepthEnable = TRUE;
+	depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depth_stencil_desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[DS_SKY].GetAddressOf());
+	//assert(FAILED(hr));
+	if (FAILED(hr))
+	{
+		return false;
+	}
+	
 	// シェーダリソースビュー設定
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
 	ZeroMemory(&srvd, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));

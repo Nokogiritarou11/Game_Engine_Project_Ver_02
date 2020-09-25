@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <DirectXMath.h>
 #include "Original_Math.h"
+#include "SkyBox.h"
 using Microsoft::WRL::ComPtr;
 
 class View_Texture
@@ -32,6 +33,8 @@ public:
 	bool CreateDepthStencil(int x, int y);
 	bool CreateRenderTartgetView(int x, int y);
 	void Clear();
+
+	static std::unique_ptr<SkyBox> skybox;
 
 	struct CbScene
 	{

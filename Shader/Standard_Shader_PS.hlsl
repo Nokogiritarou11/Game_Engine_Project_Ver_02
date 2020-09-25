@@ -1,4 +1,5 @@
 #include "Shader\\Standard_Shader.hlsli"
+#include "Shader\\Scene_Constants.hlsli"
 
 Texture2D diffuseMap : register(t0);
 SamplerState diffuseMapSamplerState : register(s0);

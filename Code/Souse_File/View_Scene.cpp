@@ -15,8 +15,8 @@ void View_Scene::Render(Matrix V, Matrix P)
 
 	const Matrix C = {
 		1, 0, 0, 0,
+		0, -1, 0, 0,
 		0, 0, 1, 0,
-		0, 1, 0, 0,
 		0, 0, 0, 1
 	};
 
@@ -26,6 +26,16 @@ void View_Scene::Render(Matrix V, Matrix P)
 	cbScene.lightDirection = { 0,-1,-1,0 };
 	DxSystem::DeviceContext->VSSetConstantBuffers(0, 1, ConstantBuffer_CbScene.GetAddressOf());
 	DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbScene.Get(), 0, 0, &cbScene, 0, 0);
+
+	//ブレンドステート設定
+	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_NONE), nullptr, 0xFFFFFFFF);
+	//ラスタライザ―設定
+	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_CULL_NONE));
+	//トポロジー設定
+	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//デプスステンシルステート設定
+	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_SKY), 1);
+	skybox->Render(V, P);
 
 	//ブレンドステート設定
 	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_NONE), nullptr, 0xFFFFFFFF);

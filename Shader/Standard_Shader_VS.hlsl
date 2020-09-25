@@ -1,4 +1,5 @@
 #include "Shader\\Standard_Shader.hlsli"
+#include "Shader\\Scene_Constants.hlsli"
 
 VS_OUT VSMain(
 	float3 position : POSITION,

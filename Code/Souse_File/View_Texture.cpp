@@ -3,6 +3,8 @@
 using namespace std;
 using namespace DirectX;
 
+unique_ptr<SkyBox> View_Texture::skybox;
+
 View_Texture::View_Texture()
 {
 	CreateRenderTartgetView(800, 600);
@@ -21,6 +23,8 @@ View_Texture::View_Texture()
 		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer_CbScene.GetAddressOf());
 		assert(SUCCEEDED(hr), hr_trace(hr));
 	}
+
+	skybox = make_unique<SkyBox>();
 }
 
 void View_Texture::Clear()

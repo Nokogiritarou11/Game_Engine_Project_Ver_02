@@ -1,7 +1,10 @@
 #include "DxSystem.h"
-#include "WICTextureLoader.h"
+#include <DirectXTex.h>
+#include <Shlwapi.h>
+#include <mutex>
 #include "Texture.h"
 using namespace std;
+using namespace DirectX;
 
 Texture::Texture()
 {
@@ -37,13 +40,69 @@ bool Texture::Load(string filename)
 	}
 	else
 	{
-		hr = DirectX::CreateWICTextureFromFile(DxSystem::Device.Get(),
-			FileName, resource.GetAddressOf(), ShaderResourceView.GetAddressOf());
-		if (FAILED(hr))
+		TexMetadata metadata;
+		ScratchImage image;
+
+		std::wstring extension = PathFindExtensionW(FileName);
+		std::transform(extension.begin(), extension.end(), extension.begin(), ::towlower);
+		//WIC includes several built - in codecs.The following standard codecs are provided with the platform.
+		//	Codec																	Mime Types								Decoders	Encoders
+		//	BMP(Windows Bitmap Format), BMP Specification v5.						image / bmp								Yes			Yes
+		//	GIF(Graphics Interchange Format 89a), GIF Specification 89a / 89m		image / gif								Yes			Yes
+		//	ICO(Icon Format)														image / ico								Yes			No
+		//	JPEG(Joint Photographic Experts Group), JFIF Specification 1.02			image / jpeg, image / jpe, image / jpg	Yes			Yes
+		//	PNG(Portable Network Graphics), PNG Specification 1.2					image / png								Yes			Yes
+		//	TIFF(Tagged Image File Format), TIFF Specification 6.0					image / tiff, image / tif				Yes			Yes
+		//	Windows Media Photo, HD Photo Specification 1.0							image / vnd.ms - phot					Yes			Yes
+		//	DDS(DirectDraw Surface)													image / vnd.ms - dds					Yes			Yes
+		if (L".png" == extension || L".jpeg" == extension || L".jpg" == extension || L".jpe" == extension || L".gif" == extension || L".tiff" == extension || L".tif" == extension || L".bmp" == extension)
 		{
+			hr = LoadFromWICFile(FileName, WIC_FLAGS::WIC_FLAGS_NONE, &metadata, image);
 			assert(SUCCEEDED(hr));
-			return false;
 		}
+		else if (L".dds" == extension)
+		{
+			hr = LoadFromDDSFile(FileName, DDS_FLAGS::DDS_FLAGS_NONE, &metadata, image);
+			assert(SUCCEEDED(hr));
+		}
+		else if (L".tga" == extension || L".vda" == extension || L".icb" == extension || L".vst" == extension)
+		{
+			hr = LoadFromTGAFile(FileName, &metadata, image);
+			assert(SUCCEEDED(hr));
+		}
+		else
+		{
+			_ASSERT_EXPR(false, L"File format not supported.");
+		}
+
+		if (hr == S_OK)
+		{
+			//HRESULT CreateShaderResourceViewEx(
+			//	ID3D11Device* pDevice,
+			//	const Image* srcImages,
+			//	size_t nimages,
+			//	const TexMetadata& metadata,
+			//	D3D11_USAGE usage,
+			//	unsigned int bindFlags,
+			//	unsigned int cpuAccessFlags,
+			//	unsigned int miscFlags,
+			//	bool forceSRGB,
+			//	ID3D11ShaderResourceView** ppSRV);
+			hr = CreateShaderResourceViewEx(
+				DxSystem::Device.Get(),
+				image.GetImages(),
+				image.GetImageCount(),
+				metadata,
+				D3D11_USAGE_DEFAULT,
+				D3D11_BIND_SHADER_RESOURCE,
+				0,
+				D3D11_RESOURCE_MISC_TEXTURECUBE,
+				true/*force_srgb*/,
+				ShaderResourceView.GetAddressOf());
+			assert(SUCCEEDED(hr));
+		}
+
+		ShaderResourceView->GetResource(resource.GetAddressOf());
 		cache.insert(make_pair(FileName, ShaderResourceView));
 	}
 
@@ -87,77 +146,4 @@ void Texture::Set(UINT Slot, BOOL flg)
 		DxSystem::DeviceContext->DSSetShaderResources(Slot, 1, ShaderResourceView.GetAddressOf());
 		DxSystem::DeviceContext->DSSetSamplers(Slot, 1, sampler.GetAddressOf());
 	}
-}
-
-bool Texture::Create(u_int width, u_int height, DXGI_FORMAT format)
-{
-	ComPtr<ID3D11Texture2D> Texture2D;
-	HRESULT hr = S_OK;
-	//	テクスチャ作成
-	ZeroMemory(&texture2d_desc, sizeof(texture2d_desc));
-	texture2d_desc.Width            = width;
-	texture2d_desc.Height           = height;
-	texture2d_desc.MipLevels        = 1;
-	texture2d_desc.ArraySize        = 1;
-	texture2d_desc.Format           = format;
-	texture2d_desc.SampleDesc.Count = 1;
-	texture2d_desc.Usage            = D3D11_USAGE_DEFAULT;
-	texture2d_desc.CPUAccessFlags   = D3D11_CPU_ACCESS_WRITE;
-	texture2d_desc.BindFlags        = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-
-	hr = DxSystem::Device->CreateTexture2D(&texture2d_desc, NULL, Texture2D.GetAddressOf());
-	if (FAILED(hr))
-	{
-		return false;
-	}
-
-	//	レンダーターゲットビュー作成
-	D3D11_RENDER_TARGET_VIEW_DESC rtvd;
-	ZeroMemory(&rtvd, sizeof(rtvd));
-	rtvd.Format             = format;
-	rtvd.ViewDimension      = D3D11_RTV_DIMENSION_TEXTURE2D;
-	rtvd.Texture2D.MipSlice = 0;
-	hr = DxSystem::Device->CreateRenderTargetView(Texture2D.Get(), &rtvd, RenderTargetView.GetAddressOf());
-	if (FAILED(hr))
-	{
-		return false;
-	}
-
-	//	シェーダーリソースビュー作成
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
-	ZeroMemory(&srvd, sizeof(srvd));
-	srvd.Format                    = format;
-	srvd.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvd.Texture2D.MostDetailedMip = 0;
-	srvd.Texture2D.MipLevels       = 1;
-	hr = DxSystem::Device->CreateShaderResourceView(Texture2D.Get(), &srvd, ShaderResourceView.GetAddressOf());
-	if (FAILED(hr))
-	{
-		return false;
-	}
-
-	//	サンプラステート作成
-	D3D11_SAMPLER_DESC sd;
-	ZeroMemory(&sd, sizeof(sd));
-	sd.Filter         = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sd.AddressU       = D3D11_TEXTURE_ADDRESS_BORDER;
-	sd.AddressV       = D3D11_TEXTURE_ADDRESS_BORDER;
-	sd.AddressW       = D3D11_TEXTURE_ADDRESS_BORDER;
-	sd.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	//ボーダーカラー
-	sd.BorderColor[0] = 1.0f;
-	sd.BorderColor[1] = 1.0f;
-	sd.BorderColor[2] = 1.0f;
-	sd.BorderColor[3] = 1.0f;
-
-	sd.MinLOD = 0;
-	sd.MaxLOD = D3D11_FLOAT32_MAX;
-
-	hr = DxSystem::Device->CreateSamplerState(&sd, sampler.GetAddressOf());
-	if (FAILED(hr))
-	{
-		return false;
-	}
-
-	return true;
 }

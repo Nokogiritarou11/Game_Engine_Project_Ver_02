@@ -163,7 +163,7 @@ private:
 	// インデックスの検索
 	int FindNodeIndex(const char* name);
 
-	int						rootMotionNodeIndex = -1;
+	int rootMotionNodeIndex = -1;
 
 	friend class cereal::access;
 	template<class Archive>
