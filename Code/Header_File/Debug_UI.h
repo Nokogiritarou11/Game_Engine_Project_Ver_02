@@ -28,6 +28,7 @@ private:
 
 	Matrix Debug_Camera_V;
 	Matrix Debug_Camera_P;
+	Vector3 Debug_Camera_Pos;
 
 	void Main_Window_Render();
 	void Debug_Log_Render();

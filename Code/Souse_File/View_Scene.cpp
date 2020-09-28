@@ -5,7 +5,7 @@
 using namespace std;
 using namespace DirectX;
 
-void View_Scene::Render(Matrix V, Matrix P)
+void View_Scene::Render(Matrix V, Matrix P, Vector3 pos)
 {
 	// ビューポートの設定
 	DxSystem::SetViewPort(screen_x, screen_y);
@@ -30,12 +30,12 @@ void View_Scene::Render(Matrix V, Matrix P)
 	//ブレンドステート設定
 	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_NONE), nullptr, 0xFFFFFFFF);
 	//ラスタライザ―設定
-	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_CULL_NONE));
+	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_CULL_SKY));
 	//トポロジー設定
 	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//デプスステンシルステート設定
 	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_SKY), 1);
-	skybox->Render(V, P);
+	skybox->Render(pos);
 
 	//ブレンドステート設定
 	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_NONE), nullptr, 0xFFFFFFFF);

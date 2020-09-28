@@ -40,7 +40,7 @@ private:
 	static bool CreateDepthStencil();
 	static bool InitializeRenderTarget();
 
-	static const int RASTERIZE_TYPE = 5;
+	static const int RASTERIZE_TYPE = 6;
 	static ComPtr<ID3D11RasterizerState> RasterizerState[RASTERIZE_TYPE];
 	static bool CreateRasterizerState();
 
@@ -75,7 +75,7 @@ public:
 	//DepthStencilState
 	enum { DS_FALSE, DS_TRUE, DS_SKY };
 	//RasterizerState
-	enum { RS_STANDARD, RS_CULL_BACK, RS_WIRE, RS_CULL_FRONT, RS_CULL_NONE };
+	enum { RS_STANDARD, RS_CULL_BACK, RS_WIRE, RS_CULL_FRONT, RS_CULL_NONE,RS_CULL_SKY };
 	//BlendState
 	enum { BS_NONE, BS_ALPHA, BS_ALPHA_TEST, BS_TRANSPARENT, BS_ADD, BS_SUBTRACT, BS_REPLACE, BS_MULTIPLY, BS_LIGHTEN, BS_DARKEN, BS_SCREEN };
 };

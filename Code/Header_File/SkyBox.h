@@ -14,7 +14,7 @@ class SkyBox
 public:
 	SkyBox();
 
-	void Render(Matrix V, Matrix P);
+	void Render(Vector3 pos);
 
 private:
 	std::shared_ptr<Material> material;

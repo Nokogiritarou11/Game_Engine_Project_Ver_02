@@ -95,7 +95,7 @@ void Debug_UI::Render()
 {
 	if (Draw_Debug_UI)
 	{
-		Engine::view_scene->Render(Debug_Camera_V, Debug_Camera_P);
+		Engine::view_scene->Render(Debug_Camera_V, Debug_Camera_P, Debug_Camera_Pos);
 
 		// レンダーターゲットビュー設定
 		DxSystem::SetDefaultView();
@@ -689,6 +689,7 @@ void Debug_UI::Debug_Camera_Update()
 		// カメラの設定
 		{
 			Vector3 pos = debug_camera->Get_position();
+			Debug_Camera_Pos = pos;
 			Vector4 eye = { pos.x,pos.y,pos.z ,0 };
 			XMVECTOR eye_v = XMLoadFloat4(&eye);
 

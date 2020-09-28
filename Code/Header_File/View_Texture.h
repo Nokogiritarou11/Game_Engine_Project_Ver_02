@@ -22,10 +22,10 @@ public:
 	ComPtr<ID3D11ShaderResourceView>	ShaderResourceView_Render;
 
 	View_Texture();
-	~View_Texture(){};
+	~View_Texture() {};
 
 	void Set_Screen_Size(int x, int y);
-	virtual void Render(Matrix V, Matrix P) = 0;
+	virtual void Render(Matrix V, Matrix P, Vector3 pos) = 0;
 
 	int screen_x = 0;
 	int screen_y = 0;

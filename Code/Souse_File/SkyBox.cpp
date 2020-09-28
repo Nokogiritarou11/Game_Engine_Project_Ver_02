@@ -21,7 +21,7 @@ SkyBox::SkyBox()
 	}
 }
 
-void SkyBox::Render(Matrix V, Matrix P)
+void SkyBox::Render(Vector3 pos)
 {
 	DxSystem::DeviceContext->IASetInputLayout(material->shader->VertexLayout.Get());
 	//シェーダーリソースのバインド
@@ -37,16 +37,22 @@ void SkyBox::Render(Matrix V, Matrix P)
 	//float amplitude = 10.0f;
 	//float alpha = std::min<float>(1, std::max<float>(bias, amplitude * -cosf(angle * 0.01745f)));
 	float alpha = 1;
-	float blue_intensity = 0.5f;
+	float blue_intensity = 1.0f;
 	XMFLOAT4 color(1, 1, 1 * blue_intensity, alpha);
 
 	cbSkyBox.color = color;
 
-	float sky_dimension = 10000;
-	cbSkyBox.world = { sky_dimension, 0, 0, 0,
-					   0, -sky_dimension, 0, 0,
-					   0, 0, sky_dimension, 0,
-					   0, 0, 0, 1 };
+	cbSkyBox.world = Matrix::Identity;
+	float sky_dimension = 50000;
+	const Matrix scale = Matrix::CreateScale(sky_dimension, sky_dimension * 0.8f, sky_dimension);
+	//const Matrix trans = Matrix::CreateTranslation(pos.x, pos.y, pos.z);
+	const Matrix rot = {
+		1, 0, 0, 0,
+		0, -1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1
+	};
+	cbSkyBox.world = scale * rot;
 
 	DxSystem::DeviceContext->VSSetConstantBuffers(1, 1, ConstantBuffer_CbSkyBox.GetAddressOf());
 	DxSystem::DeviceContext->PSSetConstantBuffers(1, 1, ConstantBuffer_CbSkyBox.GetAddressOf());

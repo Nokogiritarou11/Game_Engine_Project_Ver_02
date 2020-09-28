@@ -413,6 +413,21 @@ bool DxSystem::CreateRasterizerState()
 				rd.AntialiasedLineEnable = TRUE;
 
 				break;
+
+			case RS_CULL_SKY:
+				ZeroMemory(&rd, sizeof(rd));
+				rd.FillMode = D3D11_FILL_SOLID;
+				rd.CullMode = D3D11_CULL_NONE;
+				rd.FrontCounterClockwise = FALSE;
+				rd.DepthBias = 0;
+				rd.DepthBiasClamp = 0;
+				rd.SlopeScaledDepthBias = 0;
+				rd.DepthClipEnable = FALSE;
+				rd.ScissorEnable = FALSE;
+				rd.MultisampleEnable = FALSE;
+				rd.AntialiasedLineEnable = FALSE;
+
+				break;
 		}
 		HRESULT hr = Device->CreateRasterizerState(&rd, RasterizerState[state].GetAddressOf());
 		//assert(FAILED(hr));
