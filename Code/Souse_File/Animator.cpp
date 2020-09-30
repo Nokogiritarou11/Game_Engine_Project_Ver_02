@@ -52,7 +52,7 @@ void Animator::Update()
 	const std::vector<Mesh::Keyframe>& keyframes = animation.keyframes;
 
 	shared_ptr<SkinMesh_Renderer> skin = skin_renderer.lock();
-	vector<SkinMesh_Renderer::Node>& nodes = skin->GetNodes();
+	vector<SkinMesh_Renderer::Node>& nodes = skin->nodes;
 
 	int keyCount = static_cast<int>(keyframes.size());
 	for (int keyIndex = 0; keyIndex < keyCount - 1; ++keyIndex)

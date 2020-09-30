@@ -10,6 +10,8 @@
     <FxCompile Include="Shader\Standard_Shader_PS.hlsl" />
     <FxCompile Include="Shader\SkyBox_Shader_VS.hlsl" />
     <FxCompile Include="Shader\SkyBox_Shader_PS.hlsl" />
+    <FxCompile Include="Shader\ShadowMap_Shader_VS.hlsl" />
+    <FxCompile Include="Shader\ShadowMap_Shader_PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Souse_File\Audio_Manager.cpp">
@@ -84,6 +86,7 @@
     <ClCompile Include="Code\Souse_File\View_Game.cpp" />
     <ClCompile Include="Code\Souse_File\View_Scene.cpp" />
     <ClCompile Include="Code\Souse_File\SkyBox.cpp" />
+    <ClCompile Include="Code\Souse_File\Light.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Audio_Manager.h">
@@ -256,6 +259,7 @@
     <ClInclude Include="Code\Header_File\View_Game.h" />
     <ClInclude Include="Code\Header_File\View_Texture.h" />
     <ClInclude Include="Code\Header_File\SkyBox.h" />
+    <ClInclude Include="Code\Header_File\Light.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Sources">

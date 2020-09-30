@@ -73,7 +73,7 @@ void Camera::Update(float width, float height)
 		camForward = XMVector3Normalize(camForward);
 		XMVECTOR camRight = XMVectorSet(-XMVectorGetZ(camForward), 0.0f, XMVectorGetX(camForward), 0.0f);
 
-		XMVECTOR up_v = XMVectorSet(0, 1, 0, 0);
+		XMVECTOR up_v = transform->Get_up();
 		XMStoreFloat4(&focus, focus_v);
 		XMStoreFloat4x4(&V, XMMatrixLookAtLH(eye_v, focus_v, up_v));
 	}

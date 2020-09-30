@@ -23,7 +23,7 @@ public:
 	bool enabled = true;
 	std::vector<std::shared_ptr<Material>> material;
 
-	virtual void Render(Matrix V, Matrix P) {};
+	virtual void Render(Matrix V, Matrix P, bool Use_Material = true) {};
 
 private:
 	friend class cereal::access;

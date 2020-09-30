@@ -641,10 +641,11 @@ void Debug_UI::Debug_Camera_Update()
 				const float dis_x = (mouse_pos.x - mouse_old_pos.x) * 0.1f;
 				const float dis_y = (mouse_pos.y - mouse_old_pos.y) * 0.1f;
 
-				Quaternion q = debug_camera->Get_rotation();
-				q *= q.AngleAxis(debug_camera->Get_right(), XMConvertToRadians(dis_y));
-				q *= q.AngleAxis(debug_camera->Get_up(), XMConvertToRadians(dis_x));
-				debug_camera->Set_rotation(q);
+				Vector3 rot = debug_camera->Get_eulerAngles();
+				rot.y += dis_x;
+				rot.x += dis_y;
+				rot.z = 0;
+				debug_camera->Set_eulerAngles(rot);
 
 				mouse_old_pos = mouse_pos;
 			}
@@ -653,6 +654,7 @@ void Debug_UI::Debug_Camera_Update()
 		{
 			mouse_old_pos = { -1,-1 };
 		}
+		Vector3 a = debug_camera->Get_eulerAngles();
 
 		Vector3 move = { 0,0,0 };
 		const float speed = 50;
@@ -700,7 +702,7 @@ void Debug_UI::Debug_Camera_Update()
 			camForward = XMVector3Normalize(camForward);
 			XMVECTOR camRight = XMVectorSet(-XMVectorGetZ(camForward), 0.0f, XMVectorGetX(camForward), 0.0f);
 
-			XMVECTOR up_v = XMVectorSet(0, 1, 0, 0);
+			XMVECTOR up_v = debug_camera->Get_up();
 			XMStoreFloat4x4(&Debug_Camera_V, XMMatrixLookAtLH(eye_v, focus_v, up_v));
 		}
 	}

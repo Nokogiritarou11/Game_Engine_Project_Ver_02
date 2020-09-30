@@ -25,7 +25,7 @@ void View_Game::Render(Matrix V, Matrix P, Vector3 pos)
 	// シーン用定数バッファ更新
 	CbScene cbScene;
 	cbScene.viewProjection = C * V * P;
-	cbScene.lightDirection = { 0,-1,-1,0 };
+	cbScene.lightDirection = { 0,1,0,0 };
 	DxSystem::DeviceContext->VSSetConstantBuffers(0, 1, ConstantBuffer_CbScene.GetAddressOf());
 	DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbScene.Get(), 0, 0, &cbScene, 0, 0);
 

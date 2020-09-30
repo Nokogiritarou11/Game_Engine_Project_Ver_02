@@ -9,7 +9,7 @@ public:
 	void Initialize();
 	void Initialize(std::shared_ptr<GameObject> obj);
 	void Set_Mesh(std::shared_ptr<Mesh> Mesh_Data);
-	void Render(Matrix V, Matrix P);
+	void Render(Matrix V, Matrix P, bool Use_Material = true);
 
 	bool Draw_ImGui();
 
@@ -29,18 +29,9 @@ public:
 	void CalculateWorldTransform(const Matrix& world_transform);
 
 	//const std::vector<Node>& GetNodes() const { return nodes; }
-	std::vector<Node>& GetNodes() { return nodes; }
+	//std::vector<Node>& GetNodes() { return nodes; }
 
 	std::shared_ptr<Mesh> mesh_data;
-
-private:
-
-	friend class cereal::access;
-	template<class Archive>
-	void serialize(Archive& archive)
-	{
-		archive(cereal::base_class<Renderer>(this), file_name, file_pass);
-	}
 
 	struct CbMesh
 	{
@@ -56,6 +47,16 @@ private:
 	static ComPtr <ID3D11Buffer> ConstantBuffer_CbColor; //コンスタントバッファ
 
 	std::vector<Node>	  nodes;
+
+private:
+
+	friend class cereal::access;
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(cereal::base_class<Renderer>(this), file_name, file_pass);
+	}
+
 	std::string file_name;
 	std::string file_pass;
 

@@ -20,7 +20,7 @@ protected:
 public:
 	Texture();
 	virtual ~Texture();
-	bool Load(std::string filename);
+	bool Load(std::string filename,int sampler_state = 0);
 	void Set(UINT Slot = 0, BOOL flg = TRUE);
 	UINT GetWidth() { return texture2d_desc.Width; }
 	UINT GetHeight() { return texture2d_desc.Height; }

@@ -144,6 +144,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 				//mesh_ptr->meshes[i].vertices.clear();
 				//mesh_ptr->meshes[i].indices.clear();
 			}
+			cache.insert(make_pair(fullpass, mesh_ptr));
 		}
 		else
 		{

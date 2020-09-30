@@ -16,7 +16,7 @@ Texture::~Texture()
 {
 }
 
-bool Texture::Load(string filename)
+bool Texture::Load(string filename, int sampler_state)
 {
 	HRESULT hr = S_OK;
 
@@ -42,6 +42,7 @@ bool Texture::Load(string filename)
 	{
 		TexMetadata metadata;
 		ScratchImage image;
+		u_int texture_flg = 0;
 
 		std::wstring extension = PathFindExtensionW(FileName);
 		std::transform(extension.begin(), extension.end(), extension.begin(), ::towlower);
@@ -63,6 +64,7 @@ bool Texture::Load(string filename)
 		else if (L".dds" == extension)
 		{
 			hr = LoadFromDDSFile(FileName, DDS_FLAGS::DDS_FLAGS_NONE, &metadata, image);
+			texture_flg = D3D11_RESOURCE_MISC_TEXTURECUBE;
 			assert(SUCCEEDED(hr));
 		}
 		else if (L".tga" == extension || L".vda" == extension || L".icb" == extension || L".vst" == extension)
@@ -96,7 +98,7 @@ bool Texture::Load(string filename)
 				D3D11_USAGE_DEFAULT,
 				D3D11_BIND_SHADER_RESOURCE,
 				0,
-				D3D11_RESOURCE_MISC_TEXTURECUBE,
+				texture_flg,
 				true/*force_srgb*/,
 				ShaderResourceView.GetAddressOf());
 			assert(SUCCEEDED(hr));
@@ -113,16 +115,34 @@ bool Texture::Load(string filename)
 
 	//	サンプラステート作成
 	D3D11_SAMPLER_DESC sd = {};
-	sd.Filter             = D3D11_FILTER_ANISOTROPIC;		// 異方性フィルタ
-	sd.AddressU           = D3D11_TEXTURE_ADDRESS_WRAP;	    // U
-	sd.AddressV           = D3D11_TEXTURE_ADDRESS_WRAP;	    // V
-	sd.AddressW           = D3D11_TEXTURE_ADDRESS_WRAP;	    // W
-	sd.MipLODBias         = 0;
-	sd.MaxAnisotropy      = 16;						        // 最大異方性(1Pixelあたりのテクスチャ点数)
-	sd.ComparisonFunc     = D3D11_COMPARISON_ALWAYS;
-	sd.MinLOD             = 0;
-	sd.MaxLOD             = D3D11_FLOAT32_MAX;
-
+	if (sampler_state == 0)
+	{
+		sd.Filter = D3D11_FILTER_ANISOTROPIC;		// 異方性フィルタ
+		sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;	    // U
+		sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;	    // V
+		sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;	    // W
+		sd.MipLODBias = 0;
+		sd.MaxAnisotropy = 16;						        // 最大異方性(1Pixelあたりのテクスチャ点数)
+		sd.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		sd.MinLOD = 0;
+		sd.MaxLOD = D3D11_FLOAT32_MAX;
+	}
+	if (sampler_state == 1)
+	{
+		sd.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+		sd.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+		sd.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+		sd.BorderColor[0] = 1.0f;
+		sd.BorderColor[1] = 1.0f;
+		sd.BorderColor[2] = 1.0f;
+		sd.BorderColor[3] = 1.0f;
+		sd.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+		sd.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+		sd.MaxAnisotropy = 1;
+		sd.MipLODBias = 0;
+		sd.MinLOD = -FLT_MAX;
+		sd.MaxLOD = +FLT_MAX;
+	}
 	hr = DxSystem::Device->CreateSamplerState(
 		&sd, sampler.GetAddressOf());
 	assert(SUCCEEDED(hr));
@@ -131,7 +151,8 @@ bool Texture::Load(string filename)
 }
 void Texture::Set(UINT Slot, BOOL flg)
 {
-	if (flg == FALSE) {
+	if (flg == FALSE)
+	{
 		ID3D11ShaderResourceView* rtv[1] = { NULL };
 		ID3D11SamplerState* ss[1] = { NULL };
 		DxSystem::DeviceContext->PSSetShaderResources(Slot, 1, rtv);
@@ -140,7 +161,8 @@ void Texture::Set(UINT Slot, BOOL flg)
 		DxSystem::DeviceContext->DSSetSamplers(Slot, 1, ss);
 		return;
 	}
-	if (ShaderResourceView) {
+	if (ShaderResourceView)
+	{
 		DxSystem::DeviceContext->PSSetShaderResources(Slot, 1, ShaderResourceView.GetAddressOf());
 		DxSystem::DeviceContext->PSSetSamplers(Slot, 1, sampler.GetAddressOf());
 		DxSystem::DeviceContext->DSSetShaderResources(Slot, 1, ShaderResourceView.GetAddressOf());

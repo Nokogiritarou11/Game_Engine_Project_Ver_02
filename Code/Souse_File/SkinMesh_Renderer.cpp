@@ -78,40 +78,42 @@ void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 
 void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 {
-	mesh_data = Mesh_Data;
-	file_name = mesh_data->name;
-	file_pass = mesh_data->file_pass;
-	//マテリアル
-	unsigned long Subset_ID = 0;
-	for (int i = 0; i < mesh_data->meshes.size(); i++)
+	if (mesh_data != Mesh_Data)
 	{
-		for (int j = 0; j < mesh_data->meshes[i].subsets.size(); j++)
+		mesh_data = Mesh_Data;
+		file_name = mesh_data->name;
+		file_pass = mesh_data->file_pass;
+		//マテリアル
+		unsigned long Subset_ID = 0;
+		for (int i = 0; i < mesh_data->meshes.size(); i++)
 		{
-			mesh_data->meshes[i].subsets[j].diffuse.ID = Subset_ID;
-			string Mat_Name = mesh_data->name + "_" + mesh_data->meshes[i].subsets[j].diffuse.TexName;
-			shared_ptr<Material> Mat = Material::Create(Mat_Name, L"Shader/Standard_Shader_VS.hlsl", L"Shader/Standard_Shader_PS.hlsl", mesh_data->meshes[i].subsets[j].diffuse.TexPass.c_str());
-			material.emplace_back(Mat);
-			Subset_ID++;
+			for (int j = 0; j < mesh_data->meshes[i].subsets.size(); j++)
+			{
+				mesh_data->meshes[i].subsets[j].diffuse.ID = Subset_ID;
+				string Mat_Name = mesh_data->name + "_" + mesh_data->meshes[i].subsets[j].diffuse.TexName;
+				shared_ptr<Material> Mat = Material::Create(Mat_Name, L"Shader/Standard_Shader_VS.hlsl", L"Shader/Standard_Shader_PS.hlsl", mesh_data->meshes[i].subsets[j].diffuse.TexPass.c_str());
+				material.emplace_back(Mat);
+				Subset_ID++;
+			}
+		}
+		// ノード
+		const std::vector<Mesh::Node>& res_nodes = mesh_data->nodes;
+
+		nodes.resize(res_nodes.size());
+		for (size_t nodeIndex = 0; nodeIndex < nodes.size(); ++nodeIndex)
+		{
+			auto&& src = res_nodes.at(nodeIndex);
+			auto&& dst = nodes.at(nodeIndex);
+
+			dst.name = src.name.c_str();
+			dst.parent = src.parentIndex >= 0 ? &nodes.at(src.parentIndex) : nullptr;
+			dst.scale = src.scale;
+			dst.rotation = src.rotation;
+			dst.position = src.position;
 		}
 	}
-	// ノード
-	const std::vector<Mesh::Node>& res_nodes = mesh_data->nodes;
-
-	nodes.resize(res_nodes.size());
-	for (size_t nodeIndex = 0; nodeIndex < nodes.size(); ++nodeIndex)
-	{
-		auto&& src = res_nodes.at(nodeIndex);
-		auto&& dst = nodes.at(nodeIndex);
-
-		dst.name = src.name.c_str();
-		dst.parent = src.parentIndex >= 0 ? &nodes.at(src.parentIndex) : nullptr;
-		dst.scale = src.scale;
-		dst.rotation = src.rotation;
-		dst.position = src.position;
-	}
 }
-
-void SkinMesh_Renderer::Render(Matrix V, Matrix P)
+void SkinMesh_Renderer::Render(Matrix V, Matrix P, bool Use_Material)
 {
 	CalculateLocalTransform();
 	CalculateWorldTransform(transform->Get_world_matrix());
@@ -149,15 +151,18 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 				DxSystem::DeviceContext->VSSetConstantBuffers(1, 1, ConstantBuffer_CbMesh.GetAddressOf());
 				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbMesh.Get(), 0, 0, &cbMesh, 0, 0);
 
-				//マテリアルコンスタントバッファ
-				CbColor cbColor;
-				cbColor.materialColor = material[subset.diffuse.ID]->color;
-				DxSystem::DeviceContext->VSSetConstantBuffers(2, 1, ConstantBuffer_CbColor.GetAddressOf());
-				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbColor.Get(), 0, 0, &cbColor, 0, 0);
+				if (Use_Material)
+				{
+					//マテリアルコンスタントバッファ
+					CbColor cbColor;
+					cbColor.materialColor = material[subset.diffuse.ID]->color;
+					DxSystem::DeviceContext->VSSetConstantBuffers(2, 1, ConstantBuffer_CbColor.GetAddressOf());
+					DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbColor.Get(), 0, 0, &cbColor, 0, 0);
 
-				//シェーダーリソースのバインド
-				material[subset.diffuse.ID]->texture->Set(); //PSSetSamplar PSSetShaderResources
-				material[subset.diffuse.ID]->shader->Activate(); //PS,VSSetShader
+					//シェーダーリソースのバインド
+					material[subset.diffuse.ID]->texture->Set(); //PSSetSamplar PSSetShaderResources
+					material[subset.diffuse.ID]->shader->Activate(); //PS,VSSetShader
+				}
 				// ↑で設定したリソースを利用してポリゴンを描画する。
 				DxSystem::DeviceContext->DrawIndexed(subset.index_count, subset.index_start, 0);
 			}

@@ -7,6 +7,7 @@
 #include "Camera.h"
 #include "SkinMesh_Renderer.h"
 #include "Animator.h"
+#include "Player.h"
 /////////////////////////////////////////////////////////////////
 
 using namespace std;
@@ -44,6 +45,11 @@ void All_Component_List::Add(shared_ptr<GameObject> obj)
 		if (ImGui::Button("Animator", ImVec2(-FLT_MIN, 0.0f)))
 		{
 			obj->AddComponent<Animator>();
+		}
+
+		if (ImGui::Button("Player", ImVec2(-FLT_MIN, 0.0f)))
+		{
+			obj->AddComponent<Player>();
 		}
 
 		////////////////////////////////////////////////////////

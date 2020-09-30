@@ -27,7 +27,7 @@ VS_OUT VSMain(
 	float3 N = normalize(n);
 	float3 L = normalize(-lightDirection.xyz);
 	float d = dot(L, N);
-	vout.color.xyz = materialColor.xyz * max(0.5f, d);
+	vout.color.xyz = materialColor.xyz * max(0.75f, d);
 	vout.color.w = materialColor.w;
 	vout.texcoord = texcoord;
 

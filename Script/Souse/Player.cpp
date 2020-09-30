@@ -19,12 +19,15 @@ void Player::Start()
 	//jump_power = 30.0f;
 	down_speed = 25.0;
 
-	shared_ptr<GameObject> g = GameObject::FindWithTag("ObjectPool").lock();
-	pool = g->GetComponent<ObjectPool>();
+	//shared_ptr<GameObject> g = GameObject::FindWithTag("ObjectPool").lock();
+	//pool = g->GetComponent<ObjectPool>();
 }
 
 void Player::Update()
 {
+
+	transform->Set_position(transform->Get_position()+transform->Get_right() * Time::deltaTime);
+	/*
 	float L = Input_Manager::kb.Left;
 	float R = Input_Manager::kb.Right;
 	float U = Input_Manager::kb.Up;
@@ -60,7 +63,7 @@ void Player::Update()
 		pos.y = 5.5f;
 		p->Instance_inPool(0, pos, transform->Get_rotation());
 	}
-
+	*/
 	/////////////////////////////////////////////////////////@@’Ç‰Á•”•ª
 	/*
 	if (Input_Manager::key_tracker.pressed.Space && !Jumping)
