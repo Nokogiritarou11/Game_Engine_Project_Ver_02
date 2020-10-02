@@ -30,25 +30,23 @@ public:
 
 	void Initialize();
 	void Initialize(std::shared_ptr<GameObject> obj);
-	void Clear();
+	void Set();
 
 	bool Draw_ImGui();
 
-private:
-	ComPtr<ID3D11DepthStencilView> DepthStencilView;
-	std::unique_ptr<Shader> shader;
+	ComPtr<ID3D11DepthStencilView>		DepthStencilView = nullptr;
+	ComPtr<ID3D11Texture2D>				DepthStencilTexture = nullptr;
+	ComPtr<ID3D11ShaderResourceView>	ShaderResourceView = nullptr;
+	ComPtr<ID3D11SamplerState>		    sampler = nullptr;
 
-	struct CbShadowMap
-	{
-		Vector3 color;
-		float bias;
-	};
-	Microsoft::WRL::ComPtr<ID3D11Buffer> ConstantBuffer_CbShadowMap;		//コンスタントバッファ
+private:
+	std::unique_ptr<Shader> shader;
 
 	Vector4 Direction = { 0,1,0,0 };
 	Vector4 Color = { 0.5f ,0.5f ,0.5f ,1.0f };
 	float Intensity = 1;
 	float Bias = 0.01f;
+	u_int Shadow_Map_Texture_Size = 2048;
 };
 
 CEREAL_REGISTER_TYPE(Light)

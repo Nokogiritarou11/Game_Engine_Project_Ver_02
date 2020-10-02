@@ -28,7 +28,7 @@ private:
 
 	Matrix Debug_Camera_V;
 	Matrix Debug_Camera_P;
-	Vector3 Debug_Camera_Pos;
+	shared_ptr<Transform> Debug_Camera_Transform;
 
 	void Main_Window_Render();
 	void Debug_Log_Render();

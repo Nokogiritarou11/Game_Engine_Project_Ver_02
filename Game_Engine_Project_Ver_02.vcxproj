@@ -189,6 +189,7 @@
     <ClCompile Include="Code\Souse_File\GameObject.cpp" />
     <ClCompile Include="Code\Souse_File\Input_Manager.cpp" />
     <ClCompile Include="Code\Souse_File\Light.cpp" />
+    <ClCompile Include="Code\Souse_File\Light_Manager.cpp" />
     <ClCompile Include="Code\Souse_File\main.cpp" />
     <ClCompile Include="Code\Souse_File\Material.cpp" />
     <ClCompile Include="Code\Souse_File\Mesh.cpp" />
@@ -270,6 +271,7 @@
     <ClInclude Include="Code\Header_File\Include_ImGui.h" />
     <ClInclude Include="Code\Header_File\Input_Manager.h" />
     <ClInclude Include="Code\Header_File\Light.h" />
+    <ClInclude Include="Code\Header_File\Light_Manager.h" />
     <ClInclude Include="Code\Header_File\Material.h" />
     <ClInclude Include="Code\Header_File\Mathf.h" />
     <ClInclude Include="Code\Header_File\Mesh.h" />

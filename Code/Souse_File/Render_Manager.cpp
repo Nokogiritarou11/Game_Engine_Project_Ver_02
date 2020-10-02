@@ -48,7 +48,7 @@ void Render_Manager::Render()
 			if (camera->enabled)
 			{
 				camera->Update(Engine::view_game->screen_x, Engine::view_game->screen_y);
-				Engine::view_game->Render(camera->V, camera->P, camera->transform->Get_position());
+				Engine::view_game->Render(camera->V, camera->P, camera->transform);
 			}
 		}
 		itr++;

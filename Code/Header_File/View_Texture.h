@@ -9,6 +9,7 @@
 #include <DirectXMath.h>
 #include "Original_Math.h"
 #include "SkyBox.h"
+#include "Transform.h"
 using Microsoft::WRL::ComPtr;
 
 class View_Texture
@@ -25,7 +26,7 @@ public:
 	~View_Texture() {};
 
 	void Set_Screen_Size(int x, int y);
-	virtual void Render(Matrix V, Matrix P, Vector3 pos) = 0;
+	virtual void Render(Matrix V, Matrix P, std::shared_ptr<Transform> trans) = 0;
 
 	int screen_x = 0;
 	int screen_y = 0;

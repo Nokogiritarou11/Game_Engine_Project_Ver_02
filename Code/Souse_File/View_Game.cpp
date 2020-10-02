@@ -5,7 +5,7 @@
 using namespace std;
 using namespace DirectX;
 
-void View_Game::Render(Matrix V, Matrix P, Vector3 pos)
+void View_Game::Render(Matrix V, Matrix P, std::shared_ptr<Transform> trans)
 {
 	// ビューポートの設定
 	DxSystem::SetViewPort(screen_x, screen_y);
@@ -15,16 +15,9 @@ void View_Game::Render(Matrix V, Matrix P, Vector3 pos)
 	Clear();
 #endif
 
-	const Matrix C = {
-		1, 0, 0, 0,
-		0, -1, 0, 0,
-		0, 0, 1, 0,
-		0, 0, 0, 1
-	};
-
 	// シーン用定数バッファ更新
 	CbScene cbScene;
-	cbScene.viewProjection = C * V * P;
+	cbScene.viewProjection = V * P;
 	cbScene.lightDirection = { 0,1,0,0 };
 	DxSystem::DeviceContext->VSSetConstantBuffers(0, 1, ConstantBuffer_CbScene.GetAddressOf());
 	DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbScene.Get(), 0, 0, &cbScene, 0, 0);
@@ -37,7 +30,7 @@ void View_Game::Render(Matrix V, Matrix P, Vector3 pos)
 	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//デプスステンシルステート設定
 	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_SKY), 1);
-	skybox->Render(pos);
+	skybox->Render(trans->Get_position());
 
 	//ブレンドステート設定
 	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_NONE), nullptr, 0xFFFFFFFF);

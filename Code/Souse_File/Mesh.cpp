@@ -103,7 +103,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 			mesh_ptr->name = (string)fbx_filename;
 			mesh_ptr->file_pass = (string)file_pass;
 
-			for (int i = 0; i < mesh_ptr->meshes.size(); i++)
+			for (u_int i = 0; i < mesh_ptr->meshes.size(); i++)
 			{
 				// 頂点バッファの生成
 				{
@@ -119,7 +119,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 					InitData.SysMemPitch = 0;
 					InitData.SysMemSlicePitch = 0;
 					HRESULT hr = DxSystem::Device->CreateBuffer(&bd, &InitData, mesh_ptr->meshes[i].vertex_buffer.GetAddressOf());
-					assert(SUCCEEDED(hr), hr_trace(hr));
+					assert(SUCCEEDED(hr));
 				}
 
 				// インデックスバッファの生成
@@ -137,7 +137,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 					InitData.SysMemPitch = 0;
 					InitData.SysMemSlicePitch = 0;
 					HRESULT hr = DxSystem::Device->CreateBuffer(&bd, &InitData, mesh_ptr->meshes[i].index_buffer.GetAddressOf());
-					assert(SUCCEEDED(hr), hr_trace(hr));
+					assert(SUCCEEDED(hr));
 				}
 
 				//使わないので開放
@@ -176,7 +176,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 			FbxAxisSystem sceneAxisSystem = fbxScene->GetGlobalSettings().GetAxisSystem();
 			if (sceneAxisSystem != FbxAxisSystem::DirectX)
 			{
-				FbxAxisSystem::DirectX.ConvertScene(fbxScene);
+				//FbxAxisSystem::DirectX.ConvertScene(fbxScene);
 			}
 #elif 0
 			// OpenGL座標系へ変換
@@ -817,7 +817,7 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 		subresourceData.SysMemSlicePitch = 0;
 
 		HRESULT hr = DxSystem::Device->CreateBuffer(&bufferDesc, &subresourceData, mesh.vertex_buffer.GetAddressOf());
-		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+		assert(SUCCEEDED(hr));
 	}
 
 	// インデックスバッファ
@@ -836,7 +836,7 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 		subresourceData.SysMemPitch = 0; //Not use for index buffers.
 		subresourceData.SysMemSlicePitch = 0; //Not use for index buffers.
 		HRESULT hr = DxSystem::Device->CreateBuffer(&bufferDesc, &subresourceData, mesh.index_buffer.GetAddressOf());
-		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+		assert(SUCCEEDED(hr));
 	}
 
 }

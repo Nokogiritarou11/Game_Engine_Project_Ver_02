@@ -4,7 +4,7 @@
 class View_Game : public View_Texture
 {
 public:
-	void Render(Matrix V, Matrix P, Vector3 pos) override;
+	void Render(Matrix V, Matrix P, std::shared_ptr<Transform> trans) override;
 private:
 
 };

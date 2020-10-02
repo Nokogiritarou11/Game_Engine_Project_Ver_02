@@ -29,7 +29,7 @@ void Mesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 		bd.MiscFlags           = 0;
 		bd.StructureByteStride = 0;
 		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer.GetAddressOf());
-		assert(SUCCEEDED(hr), hr_trace(hr));
+		assert(SUCCEEDED(hr));
 	}
 }
 

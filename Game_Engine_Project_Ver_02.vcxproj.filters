@@ -87,6 +87,7 @@
     <ClCompile Include="Code\Souse_File\View_Scene.cpp" />
     <ClCompile Include="Code\Souse_File\SkyBox.cpp" />
     <ClCompile Include="Code\Souse_File\Light.cpp" />
+    <ClCompile Include="Code\Souse_File\Light_Manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Audio_Manager.h">
@@ -260,6 +261,7 @@
     <ClInclude Include="Code\Header_File\View_Texture.h" />
     <ClInclude Include="Code\Header_File\SkyBox.h" />
     <ClInclude Include="Code\Header_File\Light.h" />
+    <ClInclude Include="Code\Header_File\Light_Manager.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Sources">

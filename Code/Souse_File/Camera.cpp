@@ -48,14 +48,14 @@ bool Camera::Draw_ImGui()
 	return true;
 }
 
-void Camera::Update(float width, float height)
+void Camera::Update(u_int width, u_int height)
 {
 	// プロジェクション行列を作成
 	// 画面サイズ取得のためビューポートを取得
 	{
 		// 角度をラジアン(θ)に変換
 		float fov_y = XMConvertToRadians(FOV);	// 画角
-		float aspect = width / height;	// 画面比率
+		float aspect = (float)width / (float)height;	// 画面比率
 
 		XMStoreFloat4x4(&P, XMMatrixPerspectiveFovLH(fov_y, aspect, near_z, far_z));
 	}

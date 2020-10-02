@@ -24,7 +24,7 @@ void SkinMesh_Renderer::Initialize()
 		bd.MiscFlags = 0;
 		bd.StructureByteStride = 0;
 		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer_CbMesh.GetAddressOf());
-		assert(SUCCEEDED(hr), hr_trace(hr));
+		assert(SUCCEEDED(hr));
 	}
 	if (!ConstantBuffer_CbColor)
 	{
@@ -36,7 +36,7 @@ void SkinMesh_Renderer::Initialize()
 		bd.MiscFlags = 0;
 		bd.StructureByteStride = 0;
 		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer_CbColor.GetAddressOf());
-		assert(SUCCEEDED(hr), hr_trace(hr));
+		assert(SUCCEEDED(hr));
 	}
 }
 void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
@@ -55,7 +55,7 @@ void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 		bd.MiscFlags = 0;
 		bd.StructureByteStride = 0;
 		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer_CbMesh.GetAddressOf());
-		assert(SUCCEEDED(hr), hr_trace(hr));
+		assert(SUCCEEDED(hr));
 	}
 	if (!ConstantBuffer_CbColor)
 	{
@@ -67,7 +67,7 @@ void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 		bd.MiscFlags = 0;
 		bd.StructureByteStride = 0;
 		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer_CbColor.GetAddressOf());
-		assert(SUCCEEDED(hr), hr_trace(hr));
+		assert(SUCCEEDED(hr));
 	}
 
 	if (file_pass != "")
@@ -85,9 +85,9 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 		file_pass = mesh_data->file_pass;
 		//ƒ}ƒeƒŠƒAƒ‹
 		unsigned long Subset_ID = 0;
-		for (int i = 0; i < mesh_data->meshes.size(); i++)
+		for (u_int i = 0; i < mesh_data->meshes.size(); i++)
 		{
-			for (int j = 0; j < mesh_data->meshes[i].subsets.size(); j++)
+			for (u_int j = 0; j < mesh_data->meshes[i].subsets.size(); j++)
 			{
 				mesh_data->meshes[i].subsets[j].diffuse.ID = Subset_ID;
 				string Mat_Name = mesh_data->name + "_" + mesh_data->meshes[i].subsets[j].diffuse.TexName;
@@ -116,7 +116,13 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 void SkinMesh_Renderer::Render(Matrix V, Matrix P, bool Use_Material)
 {
 	CalculateLocalTransform();
-	CalculateWorldTransform(transform->Get_world_matrix());
+	const Matrix C = {
+		-1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1
+	};
+	CalculateWorldTransform(C * transform->Get_world_matrix());
 
 	if (mesh_data)
 	{

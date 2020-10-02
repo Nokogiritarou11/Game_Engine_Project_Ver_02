@@ -17,7 +17,7 @@ SkyBox::SkyBox()
 		bd.MiscFlags = 0;
 		bd.StructureByteStride = 0;
 		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer_CbSkyBox.GetAddressOf());
-		assert(SUCCEEDED(hr), hr_trace(hr));
+		assert(SUCCEEDED(hr));
 	}
 }
 
@@ -46,13 +46,7 @@ void SkyBox::Render(Vector3 pos)
 	float sky_dimension = 50000;
 	const Matrix scale = Matrix::CreateScale(sky_dimension, sky_dimension * 0.8f, sky_dimension);
 	//const Matrix trans = Matrix::CreateTranslation(pos.x, pos.y, pos.z);
-	const Matrix rot = {
-		1, 0, 0, 0,
-		0, -1, 0, 0,
-		0, 0, 1, 0,
-		0, 0, 0, 1
-	};
-	cbSkyBox.world = scale * rot;
+	cbSkyBox.world = scale;
 
 	DxSystem::DeviceContext->VSSetConstantBuffers(1, 1, ConstantBuffer_CbSkyBox.GetAddressOf());
 	DxSystem::DeviceContext->PSSetConstantBuffers(1, 1, ConstantBuffer_CbSkyBox.GetAddressOf());

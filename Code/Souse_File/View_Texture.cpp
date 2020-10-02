@@ -21,7 +21,7 @@ View_Texture::View_Texture()
 		bd.MiscFlags = 0;
 		bd.StructureByteStride = 0;
 		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer_CbScene.GetAddressOf());
-		assert(SUCCEEDED(hr), hr_trace(hr));
+		assert(SUCCEEDED(hr));
 	}
 
 	skybox = make_unique<SkyBox>();
@@ -160,4 +160,6 @@ bool View_Texture::CreateRenderTartgetView(int x, int y)
 	{
 		return false;
 	}
+
+	return true;
 }

@@ -52,6 +52,10 @@ Debug_UI::Debug_UI()
 	static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 	io.Fonts->AddFontFromFileTTF("Font/fontawesome-webfont.ttf", size_icon, &config, icon_ranges);
 	io.Fonts->Build();
+
+	Vector3 p = { -100, 80, -100 };
+	Vector3 e = { 30, 45, 0 };
+	Debug_Camera_Transform = make_unique<Transform>(p, e);
 }
 
 Debug_UI::~Debug_UI()
@@ -95,7 +99,7 @@ void Debug_UI::Render()
 {
 	if (Draw_Debug_UI)
 	{
-		Engine::view_scene->Render(Debug_Camera_V, Debug_Camera_P, Debug_Camera_Pos);
+		Engine::view_scene->Render(Debug_Camera_V, Debug_Camera_P, Debug_Camera_Transform);
 
 		// レンダーターゲットビュー設定
 		DxSystem::SetDefaultView();
@@ -332,7 +336,7 @@ void Debug_UI::Debug_Log_Render()
 	logger.Draw((u8"デバッグログ"), &Open_Log);
 }
 
-//ヒエラルキー病が
+//ヒエラルキー描画
 void Debug_UI::Hierarchy_Render(shared_ptr<Scene> scene)
 {
 	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
@@ -622,9 +626,6 @@ void Debug_UI::GameObject_List_Render(std::shared_ptr<Scene> scene)
 //シーンビューのカメラ操作
 void Debug_UI::Debug_Camera_Update()
 {
-	static Vector3 p = { -100, 80, -100 };
-	static Vector3 e = { 30, 45, 0 };
-	static unique_ptr<Transform> debug_camera = make_unique<Transform>(p, e);
 	//入力
 	{
 		static ImVec2 mouse_old_pos = { 0,0 };
@@ -641,11 +642,11 @@ void Debug_UI::Debug_Camera_Update()
 				const float dis_x = (mouse_pos.x - mouse_old_pos.x) * 0.1f;
 				const float dis_y = (mouse_pos.y - mouse_old_pos.y) * 0.1f;
 
-				Vector3 rot = debug_camera->Get_eulerAngles();
+				Vector3 rot = Debug_Camera_Transform->Get_eulerAngles();
 				rot.y += dis_x;
 				rot.x += dis_y;
 				rot.z = 0;
-				debug_camera->Set_eulerAngles(rot);
+				Debug_Camera_Transform->Set_eulerAngles(rot);
 
 				mouse_old_pos = mouse_pos;
 			}
@@ -654,27 +655,27 @@ void Debug_UI::Debug_Camera_Update()
 		{
 			mouse_old_pos = { -1,-1 };
 		}
-		Vector3 a = debug_camera->Get_eulerAngles();
+		Vector3 a = Debug_Camera_Transform->Get_eulerAngles();
 
 		Vector3 move = { 0,0,0 };
 		const float speed = 50;
 		if (Input_Manager::kb.W)
 		{
-			move += debug_camera->Get_forward() * Time::deltaTime * speed;
+			move += Debug_Camera_Transform->Get_forward() * Time::deltaTime * speed;
 		}
 		if (Input_Manager::kb.S)
 		{
-			move -= debug_camera->Get_forward() * Time::deltaTime * speed;
+			move -= Debug_Camera_Transform->Get_forward() * Time::deltaTime * speed;
 		}
 		if (Input_Manager::kb.A)
 		{
-			move -= debug_camera->Get_right() * Time::deltaTime * speed;
+			move -= Debug_Camera_Transform->Get_right() * Time::deltaTime * speed;
 		}
 		if (Input_Manager::kb.D)
 		{
-			move += debug_camera->Get_right() * Time::deltaTime * speed;
+			move += Debug_Camera_Transform->Get_right() * Time::deltaTime * speed;
 		}
-		debug_camera->Set_position(debug_camera->Get_position() + move);
+		Debug_Camera_Transform->Set_position(Debug_Camera_Transform->Get_position() + move);
 	}
 	//カメラ行列計算
 	{
@@ -690,19 +691,18 @@ void Debug_UI::Debug_Camera_Update()
 		// ビュー行列を作成
 		// カメラの設定
 		{
-			Vector3 pos = debug_camera->Get_position();
-			Debug_Camera_Pos = pos;
+			Vector3 pos = Debug_Camera_Transform->Get_position();
 			Vector4 eye = { pos.x,pos.y,pos.z ,0 };
 			XMVECTOR eye_v = XMLoadFloat4(&eye);
 
-			XMVECTOR focus_v = eye_v + XMLoadFloat3(&debug_camera->Get_forward());
+			XMVECTOR focus_v = eye_v + XMLoadFloat3(&Debug_Camera_Transform->Get_forward());
 
 			XMVECTOR camForward = XMVector3Normalize(focus_v - eye_v);    // Get forward vector based on target
 			camForward = XMVectorSetY(camForward, 0.0f);    // set forwards y component to 0 so it lays only on
 			camForward = XMVector3Normalize(camForward);
 			XMVECTOR camRight = XMVectorSet(-XMVectorGetZ(camForward), 0.0f, XMVectorGetX(camForward), 0.0f);
 
-			XMVECTOR up_v = debug_camera->Get_up();
+			XMVECTOR up_v = Debug_Camera_Transform->Get_up();
 			XMStoreFloat4x4(&Debug_Camera_V, XMMatrixLookAtLH(eye_v, focus_v, up_v));
 		}
 	}
