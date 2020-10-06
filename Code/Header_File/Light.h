@@ -1,6 +1,6 @@
 #pragma once
 #include "DxSystem.h"
-#include "Component.h"
+#include "Behaviour.h"
 #include "Texture.h"
 #include "SkinMesh_Renderer.h"
 #include "Material.h"
@@ -22,7 +22,7 @@
 #include "cereal/types/memory.hpp"
 using Microsoft::WRL::ComPtr;
 
-class Light : public Component
+class Light : public Behavior
 {
 public:
 	Light();
@@ -30,7 +30,7 @@ public:
 
 	void Initialize();
 	void Initialize(std::shared_ptr<GameObject> obj);
-	void Set();
+	void Set(std::shared_ptr<Transform> trans);
 
 	bool Draw_ImGui();
 
@@ -39,14 +39,26 @@ public:
 	ComPtr<ID3D11ShaderResourceView>	ShaderResourceView = nullptr;
 	ComPtr<ID3D11SamplerState>		    sampler = nullptr;
 
-private:
-	std::unique_ptr<Shader> shader;
-
 	Vector4 Direction = { 0,1,0,0 };
+	Matrix V = { 1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1 };
+	Matrix P = { 1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1 };
 	Vector4 Color = { 0.5f ,0.5f ,0.5f ,1.0f };
+	float Distance = 300;
 	float Intensity = 1;
-	float Bias = 0.01f;
+	float Bias = 0.001f;
+
+	std::shared_ptr<Shader> shader;
+private:
+
 	u_int Shadow_Map_Texture_Size = 2048;
+	float Light_View_Size = 150;
+
+	friend class cereal::access;
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(cereal::base_class<Component>(this), Color, Distance, Intensity, Bias, Shadow_Map_Texture_Size);
+	}
 };
 
 CEREAL_REGISTER_TYPE(Light)

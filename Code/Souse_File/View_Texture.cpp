@@ -1,5 +1,7 @@
 #include "View_Texture.h"
 #include "DxSystem.h"
+#include "Render_Manager.h"
+#include "Light_Manager.h"
 using namespace std;
 using namespace DirectX;
 
@@ -57,9 +59,9 @@ bool View_Texture::CreateDepthStencil(int x, int y)
 	td.MipLevels = 1;
 	td.ArraySize = 1;
 	td.Format = DXGI_FORMAT_R24G8_TYPELESS;
-	//td.SampleDesc = DxSystem::MSAA;
-	td.SampleDesc.Count = 1;
-	td.SampleDesc.Quality = 0;
+	td.SampleDesc = DxSystem::MSAA;
+	//td.SampleDesc.Count = 1;
+	//td.SampleDesc.Quality = 0;
 	td.Usage = D3D11_USAGE_DEFAULT;
 	td.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 	td.CPUAccessFlags = 0;
@@ -94,7 +96,7 @@ bool View_Texture::CreateDepthStencil(int x, int y)
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
 	ZeroMemory(&srvd, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
 	srvd.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-	srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
 	srvd.Texture2D.MostDetailedMip = 0;
 	srvd.Texture2D.MipLevels = 1;
 
@@ -123,8 +125,8 @@ bool View_Texture::CreateRenderTartgetView(int x, int y)
 	texDesc.CPUAccessFlags = 0;
 	texDesc.MipLevels = 1;
 	texDesc.ArraySize = 1;
-	//texDesc.SampleDesc = DxSystem::MSAA;
-	texDesc.SampleDesc.Count = 1;
+	texDesc.SampleDesc = DxSystem::MSAA;
+	//texDesc.SampleDesc.Count = 1;
 	// 2次元テクスチャの生成
 	HRESULT hr = DxSystem::Device->CreateTexture2D(&texDesc, NULL, Texture_RenderTarget.GetAddressOf());
 	if (FAILED(hr))
@@ -136,7 +138,7 @@ bool View_Texture::CreateRenderTartgetView(int x, int y)
 	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
 	memset(&rtvDesc, 0, sizeof(rtvDesc));
 	rtvDesc.Format = texDesc.Format;
-	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
 	rtvDesc.Texture2D.MipSlice = 0;
 
 	// レンダーターゲットビューの生成
@@ -150,7 +152,7 @@ bool View_Texture::CreateRenderTartgetView(int x, int y)
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	memset(&srvDesc, 0, sizeof(srvDesc));
 	srvDesc.Format = texDesc.Format;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
 	srvDesc.Texture2D.MipLevels = 1;
 	srvDesc.Texture2D.MostDetailedMip = 0;;
 
@@ -162,4 +164,83 @@ bool View_Texture::CreateRenderTartgetView(int x, int y)
 	}
 
 	return true;
+}
+
+void View_Texture::Render_Sky(std::shared_ptr<Transform> trans)
+{
+	//ブレンドステート設定
+	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_NONE), nullptr, 0xFFFFFFFF);
+	//ラスタライザ―設定
+	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_CULL_SKY));
+	//トポロジー設定
+	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//デプスステンシルステート設定
+	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_SKY), 1);
+	skybox->Render(trans->Get_position());
+}
+
+void View_Texture::Render_3D(Matrix V, Matrix P, bool Use_Material, std::shared_ptr<Shader> shader)
+{
+	//ブレンドステート設定
+	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_NONE), nullptr, 0xFFFFFFFF);
+	//ラスタライザ―設定
+	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_CULL_BACK));
+	//トポロジー設定
+	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//デプスステンシルステート設定
+	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_TRUE), 1);
+
+	for (list<weak_ptr<Renderer>>::iterator itr = Render_Manager::Renderer_3D_list.begin(); itr != Render_Manager::Renderer_3D_list.end();)
+	{
+		if (itr->expired())
+		{
+			itr = Render_Manager::Renderer_3D_list.erase(itr);
+			continue;
+		}
+		shared_ptr<Renderer> m_rend = itr->lock();
+		if (m_rend->gameObject->activeSelf())
+		{
+			if (m_rend->enabled)
+			{
+				if (Use_Material)
+				{
+					m_rend->Render(V, P);
+				}
+				else
+				{
+					m_rend->Render(V, P, Use_Material, shader);
+				}
+			}
+		}
+		itr++;
+	}
+}
+
+void View_Texture::Render_2D(Matrix V, Matrix P)
+{
+	//ブレンドステート設定
+	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_ALPHA), nullptr, 0xFFFFFFFF);
+	//ラスタライザ―設定
+	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_CULL_BACK));
+	//トポロジー設定
+	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	//デプスステンシルステート設定
+	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_FALSE), 1);
+	for (list<weak_ptr<Renderer>>::iterator itr = Render_Manager::Renderer_2D_list.begin(); itr != Render_Manager::Renderer_2D_list.end();)
+	{
+		if (itr->expired())
+		{
+			itr = Render_Manager::Renderer_2D_list.erase(itr);
+			continue;
+		}
+		shared_ptr<Renderer> m_rend = itr->lock();
+		if (m_rend->gameObject->activeSelf())
+		{
+			if (m_rend->enabled)
+			{
+				m_rend->Render(V, P);
+			}
+		}
+		itr++;
+	}
 }

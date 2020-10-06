@@ -1,8 +1,9 @@
 struct VS_OUT
 {
 	float4 position : SV_POSITION;
-	float4 color : COLOR;
+	float4 color	: COLOR;
 	float2 texcoord : TEXCOORD;
+	float4 sdwcoord : SHADOW_COORD;
 };
 
 #define MAX_BONES 128

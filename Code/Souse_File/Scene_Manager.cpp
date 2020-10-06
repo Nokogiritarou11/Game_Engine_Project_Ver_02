@@ -2,6 +2,7 @@
 #include "Animator_Manager.h"
 #include "SkinMesh_Renderer.h"
 #include "Render_Manager.h"
+#include "Light_Manager.h"
 #include "Transform.h"
 #include "Debug_UI.h"
 #include <locale.h>
@@ -71,6 +72,10 @@ bool Scene_Manager::CreateScene_FromFile()
 
 void Scene_Manager::CreateScene_Default(string new_name)
 {
+	Animator_Manager::Reset();
+	Render_Manager::Reset();
+	Light_Manager::Reset();
+
 	shared_ptr<Scene> New_Scene = make_shared<Scene>();
 	New_Scene = make_shared<Scene>();
 	New_Scene->name = new_name;
@@ -78,6 +83,11 @@ void Scene_Manager::CreateScene_Default(string new_name)
 	Active_Scene = New_Scene;
 
 	Scene_List.emplace_back(New_Scene);
+	/**/
+	shared_ptr<GameObject> directional_light = GameObject::Instantiate(u8"Directional_Light");
+	directional_light->AddComponent<Light>();
+	directional_light->transform->Set_position(0, 50, 0);
+	directional_light->transform->Set_eulerAngles(90, 0, 0);
 
 	shared_ptr<GameObject> camera = GameObject::Instantiate(u8"Main_Camera");
 	camera->AddComponent<Camera>();
@@ -92,12 +102,12 @@ void Scene_Manager::CreateScene_Default(string new_name)
 	//f_renderer->material[0]->color = { 1,1,1,1 };
 
 	Last_Save_Path = "";
-	LoadScene(New_Scene->name);
 }
 
 void Scene_Manager::Initialize_Scene(weak_ptr<Scene> s)
 {
 	shared_ptr<Scene> scene = s.lock();
+	scene->Reset();
 	list<shared_ptr<GameObject>>::iterator itr_end = scene->gameObject_List.end();
 	for (list<shared_ptr<GameObject>>::iterator itr = scene->gameObject_List.begin(); itr != itr_end; itr++)
 	{
@@ -141,6 +151,7 @@ void Scene_Manager::Update()
 			{
 				Animator_Manager::Reset();
 				Render_Manager::Reset();
+				Light_Manager::Reset();
 				Active_Scene = (*itr);
 				Initialize_Scene(Active_Scene);
 				Load = false;

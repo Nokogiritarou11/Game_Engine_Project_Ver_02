@@ -63,6 +63,8 @@ weak_ptr<GameObject> Scene::Find(std::string Name)
 			return *itr;
 		}
 	}
+	weak_ptr<GameObject> n;
+	return n;
 }
 
 weak_ptr<GameObject> Scene::FindWithTag(std::string Tag)
@@ -75,6 +77,8 @@ weak_ptr<GameObject> Scene::FindWithTag(std::string Tag)
 			return *itr;
 		}
 	}
+	weak_ptr<GameObject> n;
+	return n;
 }
 
 void Scene::Update()

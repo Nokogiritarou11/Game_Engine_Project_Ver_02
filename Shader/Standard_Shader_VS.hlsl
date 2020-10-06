@@ -6,7 +6,7 @@ VS_OUT VSMain(
 	float3 normal : NORMAL,
 	float2 texcoord : TEXCOORD,
 	float4 bone_weights : WEIGHTS,
-	uint4 bone_indices : BONES
+	uint4  bone_indices : BONES
 )
 {
 	VS_OUT vout;
@@ -22,14 +22,28 @@ VS_OUT VSMain(
 		n += (bone_weights[i] * mul(float4(nor.xyz, 0), boneTransforms[bone_indices[i]])).xyz;
 	}
 
-	vout.position = mul(float4(p, 1.0f), viewProjection);
+	float4 w_pos = float4(p, 1.0f);
+	vout.position = mul(w_pos, viewProjection);
 
 	float3 N = normalize(n);
 	float3 L = normalize(-lightDirection.xyz);
-	float d = dot(L, N);
-	vout.color.xyz = materialColor.xyz * max(0.75f, d);
+	float  d = dot(L, N);
+
+	//vout.color.xyz = materialColor.xyz * max(0.75f, d);
+	vout.color.xyz = materialColor.xyz * d;
 	vout.color.w = materialColor.w;
 	vout.texcoord = texcoord;
 
+	///*
+	vout.sdwcoord = mul(w_pos, shadowMatrix);
+	//*/
+	/*
+	w_pos = mul(viewProjection, w_pos);
+	w_pos /= w_pos.w;
+	// テクスチャ座標系
+	w_pos.y = -w_pos.y;
+	w_pos.xy = 0.5f * w_pos.xy + 0.5f;
+	vout.sdwcoord = float4(w_pos.x, w_pos.y, w_pos.z, 0);
+	*/
 	return vout;
 }

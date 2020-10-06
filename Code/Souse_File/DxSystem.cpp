@@ -212,7 +212,7 @@ bool DxSystem::InitializeRenderTarget()
 //------------------------------------------------
 //	ビューポートの設定
 //------------------------------------------------
-void DxSystem::SetViewPort(int width, int height)
+void DxSystem::SetViewPort(int width, int height, int Num)
 {
 	D3D11_VIEWPORT vp;
 	vp.Width = (FLOAT)width;
@@ -221,7 +221,7 @@ void DxSystem::SetViewPort(int width, int height)
 	vp.MaxDepth = 1.0f;
 	vp.TopLeftX = 0;
 	vp.TopLeftY = 0;
-	DeviceContext->RSSetViewports(1, &vp);
+	DeviceContext->RSSetViewports(Num, &vp);
 }
 
 // レンダーターゲットビュー設定
@@ -314,7 +314,7 @@ bool DxSystem::CreateDepthStencil()
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
 	ZeroMemory(&srvd, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
 	srvd.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-	srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
 	srvd.Texture2D.MostDetailedMip = 0;
 	srvd.Texture2D.MipLevels = 1;
 
@@ -424,7 +424,7 @@ bool DxSystem::CreateRasterizerState()
 				rd.SlopeScaledDepthBias = 0;
 				rd.DepthClipEnable = FALSE;
 				rd.ScissorEnable = FALSE;
-				rd.MultisampleEnable = FALSE;
+				rd.MultisampleEnable = TRUE;
 				rd.AntialiasedLineEnable = FALSE;
 
 				break;

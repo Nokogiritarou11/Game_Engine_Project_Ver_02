@@ -10,6 +10,7 @@
 #include "Original_Math.h"
 #include "SkyBox.h"
 #include "Transform.h"
+#include "Light_Manager.h"
 using Microsoft::WRL::ComPtr;
 
 class View_Texture
@@ -27,6 +28,9 @@ public:
 
 	void Set_Screen_Size(int x, int y);
 	virtual void Render(Matrix V, Matrix P, std::shared_ptr<Transform> trans) = 0;
+	void Render_Sky(std::shared_ptr<Transform> trans);
+	void Render_3D(Matrix V, Matrix P, bool Use_Material = true, std::shared_ptr<Shader> shader = nullptr);
+	void Render_2D(Matrix V, Matrix P);
 
 	int screen_x = 0;
 	int screen_y = 0;
@@ -40,7 +44,10 @@ public:
 	struct CbScene
 	{
 		Matrix	viewProjection;
+		Matrix	shadowMatrix;
 		Vector4	lightDirection;
+		Vector3 lightColor;
+		float	Bias;
 	};
 
 	ComPtr <ID3D11Buffer> ConstantBuffer_CbScene; //コンスタントバッファ

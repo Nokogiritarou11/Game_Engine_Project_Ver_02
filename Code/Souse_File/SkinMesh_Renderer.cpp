@@ -113,7 +113,7 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 		}
 	}
 }
-void SkinMesh_Renderer::Render(Matrix V, Matrix P, bool Use_Material)
+void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 {
 	CalculateLocalTransform();
 	const Matrix C = {
@@ -157,18 +157,74 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P, bool Use_Material)
 				DxSystem::DeviceContext->VSSetConstantBuffers(1, 1, ConstantBuffer_CbMesh.GetAddressOf());
 				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbMesh.Get(), 0, 0, &cbMesh, 0, 0);
 
-				if (Use_Material)
-				{
-					//マテリアルコンスタントバッファ
-					CbColor cbColor;
-					cbColor.materialColor = material[subset.diffuse.ID]->color;
-					DxSystem::DeviceContext->VSSetConstantBuffers(2, 1, ConstantBuffer_CbColor.GetAddressOf());
-					DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbColor.Get(), 0, 0, &cbColor, 0, 0);
+				//マテリアルコンスタントバッファ
+				CbColor cbColor;
+				cbColor.materialColor = material[subset.diffuse.ID]->color;
+				DxSystem::DeviceContext->VSSetConstantBuffers(2, 1, ConstantBuffer_CbColor.GetAddressOf());
+				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbColor.Get(), 0, 0, &cbColor, 0, 0);
 
-					//シェーダーリソースのバインド
-					material[subset.diffuse.ID]->texture->Set(); //PSSetSamplar PSSetShaderResources
-					material[subset.diffuse.ID]->shader->Activate(); //PS,VSSetShader
+				material[subset.diffuse.ID]->texture->Set(); //PSSetSamplar PSSetShaderResources
+				//シェーダーリソースのバインド
+				material[subset.diffuse.ID]->shader->Activate(); //PS,VSSetShader
+				// ↑で設定したリソースを利用してポリゴンを描画する。
+				DxSystem::DeviceContext->DrawIndexed(subset.index_count, subset.index_start, 0);
+			}
+		}
+	}
+}
+void SkinMesh_Renderer::Render(Matrix V, Matrix P, bool Use_Material, std::shared_ptr<Shader> shader)
+{
+	CalculateLocalTransform();
+	const Matrix C = {
+		-1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1
+	};
+	CalculateWorldTransform(C * transform->Get_world_matrix());
+
+	if (mesh_data)
+	{
+		for (auto& mesh : mesh_data->meshes)
+		{
+			// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
+			UINT stride = sizeof(Mesh::vertex);
+			UINT offset = 0;
+			DxSystem::DeviceContext->IASetVertexBuffers(0, 1, mesh.vertex_buffer.GetAddressOf(), &stride, &offset);
+			DxSystem::DeviceContext->IASetIndexBuffer(mesh.index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+			for (auto& subset : mesh.subsets)
+			{
+				DxSystem::DeviceContext->IASetInputLayout(material[subset.diffuse.ID]->shader->VertexLayout.Get());
+
+				// メッシュ用定数バッファ更新
+				CbMesh cbMesh;
+				::memset(&cbMesh, 0, sizeof(cbMesh));
+				if (mesh.nodeIndices.size() > 0)
+				{
+					for (size_t i = 0; i < mesh.nodeIndices.size(); ++i)
+					{
+						DirectX::XMMATRIX world_transform = DirectX::XMLoadFloat4x4(&nodes.at(mesh.nodeIndices.at(i)).worldTransform);
+						DirectX::XMMATRIX inverse_transform = DirectX::XMLoadFloat4x4(&mesh.inverseTransforms.at(i));
+						DirectX::XMMATRIX bone_transform = inverse_transform * world_transform;
+						DirectX::XMStoreFloat4x4(&cbMesh.bone_transforms[i], bone_transform);
+					}
 				}
+				else
+				{
+					cbMesh.bone_transforms[0] = nodes.at(mesh.nodeIndex).worldTransform;
+				}
+				DxSystem::DeviceContext->VSSetConstantBuffers(1, 1, ConstantBuffer_CbMesh.GetAddressOf());
+				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbMesh.Get(), 0, 0, &cbMesh, 0, 0);
+
+				//マテリアルコンスタントバッファ
+				CbColor cbColor;
+				cbColor.materialColor = material[subset.diffuse.ID]->color;
+				DxSystem::DeviceContext->VSSetConstantBuffers(2, 1, ConstantBuffer_CbColor.GetAddressOf());
+				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbColor.Get(), 0, 0, &cbColor, 0, 0);
+
+				material[subset.diffuse.ID]->texture->Set(Use_Material); //PSSetSamplar PSSetShaderResources
+				//シェーダーリソースのバインド
+				shader->Activate(); //PS,VSSetShader
 				// ↑で設定したリソースを利用してポリゴンを描画する。
 				DxSystem::DeviceContext->DrawIndexed(subset.index_count, subset.index_start, 0);
 			}

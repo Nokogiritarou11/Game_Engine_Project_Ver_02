@@ -32,7 +32,8 @@ public:
 
 	void Initialize(std::shared_ptr<GameObject> obj);
 	void Set_Texture(std::string Material_Name, WCHAR* Shader_Name, std::string filename);
-	void Render(Matrix V, Matrix P);
+	void Render(Matrix V, Matrix P) override;
+	void Render(Matrix V, Matrix P, bool Use_Material = true, std::shared_ptr<Shader> shader = nullptr) override{};
 };
 
 /*

@@ -1,83 +1,70 @@
 #include "View_Scene.h"
 #include "DxSystem.h"
-#include "Render_Manager.h"
+#include "Light_Manager.h"
 #include "GameObject.h"
 using namespace std;
 using namespace DirectX;
 
 void View_Scene::Render(Matrix V, Matrix P, std::shared_ptr<Transform> trans)
 {
-	// ビューポートの設定
-	DxSystem::SetViewPort(screen_x, screen_y);
-	//レンダーターゲットの設定
-	DxSystem::DeviceContext->OMSetRenderTargets(1, RenderTargetView.GetAddressOf(), DepthStencilView.Get());
-	Clear();
-
-	// シーン用定数バッファ更新
+	bool Cleared = false;
 	CbScene cbScene;
-	cbScene.viewProjection = V * P;
-	cbScene.lightDirection = { 0,1,0,0 };
-	DxSystem::DeviceContext->VSSetConstantBuffers(0, 1, ConstantBuffer_CbScene.GetAddressOf());
-	DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbScene.Get(), 0, 0, &cbScene, 0, 0);
-
-	//ブレンドステート設定
-	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_NONE), nullptr, 0xFFFFFFFF);
-	//ラスタライザ―設定
-	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_CULL_SKY));
-	//トポロジー設定
-	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//デプスステンシルステート設定
-	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_SKY), 1);
-	skybox->Render(trans->Get_position());
-
-	//ブレンドステート設定
-	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_NONE), nullptr, 0xFFFFFFFF);
-	//ラスタライザ―設定
-	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_CULL_BACK));
-	//トポロジー設定
-	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//デプスステンシルステート設定
-	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_TRUE), 1);
-
-	for (list<weak_ptr<Renderer>>::iterator itr = Render_Manager::Renderer_3D_list.begin(); itr != Render_Manager::Renderer_3D_list.end();)
+	for (list<weak_ptr<Light>>::iterator itr = Light_Manager::Light_list.begin(); itr != Light_Manager::Light_list.end();)
 	{
 		if (itr->expired())
 		{
-			itr = Render_Manager::Renderer_3D_list.erase(itr);
+			itr = Light_Manager::Light_list.erase(itr);
 			continue;
 		}
-		shared_ptr<Renderer> m_rend = itr->lock();
-		if (m_rend->gameObject->activeSelf())
+		shared_ptr<Light> m_light = itr->lock();
+		if (m_light->gameObject->activeSelf())
 		{
-			if (m_rend->enabled)
+			if (m_light->enabled)
 			{
-				m_rend->Render(V, P);
-			}
-		}
-		itr++;
-	}
 
-	//ブレンドステート設定
-	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_ALPHA), nullptr, 0xFFFFFFFF);
-	//ラスタライザ―設定
-	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_CULL_BACK));
-	//トポロジー設定
-	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	//デプスステンシルステート設定
-	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_FALSE), 1);
-	for (list<weak_ptr<Renderer>>::iterator itr = Render_Manager::Renderer_2D_list.begin(); itr != Render_Manager::Renderer_2D_list.end();)
-	{
-		if (itr->expired())
-		{
-			itr = Render_Manager::Renderer_2D_list.erase(itr);
-			continue;
-		}
-		shared_ptr<Renderer> m_rend = itr->lock();
-		if (m_rend->gameObject->activeSelf())
-		{
-			if (m_rend->enabled)
-			{
-				m_rend->Render(V, P);
+				//シャドウマップ描画
+				{
+					m_light->Set(trans);
+					cbScene.viewProjection = m_light->V * m_light->P;
+					static const Matrix SHADOW_BIAS = {
+						0.5f, 0.0f, 0.0f, 0.0f,
+						0.0f, -0.5f, 0.0f, 0.0f,
+						0.0f, 0.0f, 1.0f, 0.0f,
+						0.5f, 0.5f, 0.0f, 1.0f };
+					cbScene.shadowMatrix = (m_light->V * m_light->P) * SHADOW_BIAS;
+					cbScene.lightDirection = m_light->Direction;
+					cbScene.lightColor = { m_light->Color.x,m_light->Color.y,m_light->Color.z };
+					cbScene.Bias = m_light->Bias;
+
+					DxSystem::DeviceContext->VSSetConstantBuffers(0, 1, ConstantBuffer_CbScene.GetAddressOf());
+					DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbScene.Get(), 0, 0, &cbScene, 0, 0);
+
+					Render_3D(m_light->V, m_light->P, false, m_light->shader);
+
+				}
+				//通常描画
+				{
+					// ビューポートの設定
+					DxSystem::SetViewPort(screen_x, screen_y);
+					DxSystem::DeviceContext->OMSetRenderTargets(1, RenderTargetView.GetAddressOf(), DepthStencilView.Get());
+					if (!Cleared)
+					{
+						Clear();
+						Cleared = true;
+					}
+
+					// シーン用定数バッファ更新
+					cbScene.viewProjection = V * P;
+					DxSystem::DeviceContext->VSSetConstantBuffers(0, 1, ConstantBuffer_CbScene.GetAddressOf());
+					DxSystem::DeviceContext->PSSetConstantBuffers(0, 1, ConstantBuffer_CbScene.GetAddressOf());
+					DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbScene.Get(), 0, 0, &cbScene, 0, 0);
+
+					Render_Sky(trans);
+					DxSystem::DeviceContext->PSSetSamplers(1, 1, m_light->sampler.GetAddressOf());
+					DxSystem::DeviceContext->PSSetShaderResources(1, 1, m_light->ShaderResourceView.GetAddressOf());
+					Render_3D(V, P);
+					Render_2D(V, P);
+				}
 			}
 		}
 		itr++;

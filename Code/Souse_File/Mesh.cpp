@@ -186,6 +186,13 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 				FbxAxisSystem::OpenGL.ConvertScene(fbxScene);
 			}
 #endif
+			// 単位系の統一。
+			FbxSystemUnit SceneSystemUnit = fbxScene->GetGlobalSettings().GetSystemUnit();
+			// センチメーター単位にコンバートする。
+			if (SceneSystemUnit.GetScaleFactor() != 1.0f)
+			{
+				FbxSystemUnit::cm.ConvertScene(fbxScene);
+			}
 
 			// ディレクトリパス取得
 			char dirname[256];

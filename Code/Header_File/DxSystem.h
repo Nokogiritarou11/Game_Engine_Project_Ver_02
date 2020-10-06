@@ -70,7 +70,7 @@ public:
 	static ID3D11DepthStencilState* GetDephtStencilState(int state) { return DepthStencilState[state].Get(); }
 	static ID3D11RasterizerState* GetRasterizerState(int state) { return RasterizerState[state].Get(); }
 	static ID3D11BlendState* GetBlendState(int state) { return BlendState[state].Get(); }
-	static void SetViewPort(int width, int height);
+	static void SetViewPort(int width, int height, int Num = 1);
 	static void SetDefaultView();
 	//DepthStencilState
 	enum { DS_FALSE, DS_TRUE, DS_SKY };

@@ -62,10 +62,26 @@ std::shared_ptr<T> GameObject::GetComponent()
 template<class T>
 std::shared_ptr<T> GameObject::AddComponent()
 {
-	std::shared_ptr<T> buff = std::make_shared<T>();
-	buff->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
-	Component_List.emplace_back(buff);
-	return buff;
+	bool already_attach = false;
+	for (std::shared_ptr<Component> com : Component_List)
+	{
+		std::shared_ptr<T> buff = std::dynamic_pointer_cast<T>(com);
+		if (buff != nullptr)
+		{
+			if (typeid(shared_ptr<T>) == typeid(buff))
+			{
+				already_attach = true;
+			}
+		}
+	}
+	if (!already_attach)
+	{
+		std::shared_ptr<T> buff = std::make_shared<T>();
+		buff->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
+		Component_List.emplace_back(buff);
+		return buff;
+	}
+	return nullptr;
 }
 
 #include "Transform.h"

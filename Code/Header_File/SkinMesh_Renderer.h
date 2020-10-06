@@ -9,7 +9,8 @@ public:
 	void Initialize();
 	void Initialize(std::shared_ptr<GameObject> obj);
 	void Set_Mesh(std::shared_ptr<Mesh> Mesh_Data);
-	void Render(Matrix V, Matrix P, bool Use_Material = true);
+	void Render(Matrix V, Matrix P) override;
+	void Render(Matrix V, Matrix P, bool Use_Material = true, std::shared_ptr<Shader> shader = nullptr) override;
 
 	bool Draw_ImGui();
 

@@ -30,26 +30,31 @@ void All_Component_List::Add(shared_ptr<GameObject> obj)
 		if (ImGui::Button("", ImVec2(-FLT_MIN, 0.0f)))
 		{
 			obj->AddComponent<>();
+			ImGui::CloseCurrentPopup();
 		}
 		*/
 		if (ImGui::Button("Camera", ImVec2(-FLT_MIN, 0.0f)))
 		{
 			obj->AddComponent<Camera>();
+			ImGui::CloseCurrentPopup();
 		}
 
 		if (ImGui::Button("SkinMesh_Renderer", ImVec2(-FLT_MIN, 0.0f)))
 		{
 			obj->AddComponent<SkinMesh_Renderer>();
+			ImGui::CloseCurrentPopup();
 		}
 
 		if (ImGui::Button("Animator", ImVec2(-FLT_MIN, 0.0f)))
 		{
 			obj->AddComponent<Animator>();
+			ImGui::CloseCurrentPopup();
 		}
 
 		if (ImGui::Button("Player", ImVec2(-FLT_MIN, 0.0f)))
 		{
 			obj->AddComponent<Player>();
+			ImGui::CloseCurrentPopup();
 		}
 
 		////////////////////////////////////////////////////////
