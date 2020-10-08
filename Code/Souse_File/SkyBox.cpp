@@ -3,8 +3,9 @@ using namespace std;
 
 SkyBox::SkyBox()
 {
-	material = Material::Create("SkyBox", L"Shader\\SkyBox_Shader_VS.hlsl", L"Shader\\SkyBox_Shader_PS.hlsl", "Default_Resource\\Image\\SkyBoxes\\envmap_miramar\\envmap_miramar.dds");
-	mesh_data = Mesh::Load_Mesh("Default_Resource\\Model\\", "sphere");
+	material = Material::Create("Default_Resource\\Model\\sphere\\SkyBoxes\\envmap_miramar\\", "envmap_miramar", L"Shader\\SkyBox_Shader_VS.hlsl", L"Shader\\SkyBox_Shader_PS.hlsl");
+	material->texture[Texture::Main]->Load("Default_Resource\\Model\\sphere\\SkyBoxes\\envmap_miramar\\envmap_miramar.dds");
+	mesh_data = Mesh::Load_Mesh("Default_Resource\\Model\\sphere\\", "sphere");
 
 	// 定数バッファの生成
 	if (!ConstantBuffer_CbSkyBox)
@@ -25,7 +26,7 @@ void SkyBox::Render(Vector3 pos)
 {
 	DxSystem::DeviceContext->IASetInputLayout(material->shader->VertexLayout.Get());
 	//シェーダーリソースのバインド
-	material->texture->Set(); //PSSetSamplar PSSetShaderResources
+	material->texture[Texture::Main]->Set(1); //PSSetSamplar PSSetShaderResources
 	material->shader->Activate(); //PS,VSSetShader
 
 	// 定数バッファ更新

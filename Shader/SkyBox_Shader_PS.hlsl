@@ -1,8 +1,8 @@
 #include "Shader\\SkyBox_Shader.hlsli"
 #include "Shader\\Scene_Constants.hlsli"
 
-TextureCube cubemap : register(t0);
-SamplerState diffuseMapSamplerState : register(s0);
+TextureCube cubemap : register(t1);
+SamplerState diffuseMapSamplerState : register(s1);
 
 float4 PSMain(VS_OUT pin) : SV_TARGET
 {

@@ -98,7 +98,7 @@ void Scene_Manager::CreateScene_Default(string new_name)
 	shared_ptr<SkinMesh_Renderer> f_renderer = Floor->AddComponent<SkinMesh_Renderer>();
 	Floor->transform->Set_eulerAngles(0, 0, 0);
 	Floor->transform->Set_scale(1, 1, 1);
-	f_renderer->Set_Mesh(Mesh::Load_Mesh("Default_Resource\\Model\\", "Glid_Tile"));
+	f_renderer->Set_Mesh(Mesh::Load_Mesh("Default_Resource\\Model\\Glid_Tile\\", "Glid_Tile"));
 	//f_renderer->material[0]->color = { 1,1,1,1 };
 
 	Last_Save_Path = "";

@@ -1,13 +1,12 @@
 #include "Shader\\Standard_Shader.hlsli"
 #include "Shader\\Scene_Constants.hlsli"
 
-Texture2D diffuseMap : register(t0);
-Texture2D shadowMap : register(t1);
+Texture2D shadowMap : register(t0);
+Texture2D diffuseMap : register(t1);
 
-SamplerState diffuseMapSamplerState : register(s0);
+SamplerComparisonState  ShadowMapSamplerState   : register(s0);
+SamplerState diffuseMapSamplerState : register(s1);
 
-//SamplerState  ShadowMapSamplerState   : register(s1);
-SamplerComparisonState  ShadowMapSamplerState   : register(s1);
 
 float4 PSMain(VS_OUT pin) : SV_TARGET
 {
@@ -28,20 +27,6 @@ float4 PSMain(VS_OUT pin) : SV_TARGET
 	shadowBias = min(shadowBias, depthBiasClamp);
 	shadowThreshold = shadowMap.SampleCmpLevelZero(ShadowMapSamplerState, shadowCoord.xy, shadowCoord.z - shadowBias);
 	shadowColor = lerp(shadowColor, float3(1.0f, 1.0f, 1.0f), shadowThreshold);
-
-	/*
-	float  shadowThreshold = 1.0f;      // シャドウにするかどうかの閾値です.
-	float3 shadowColor = float3(0.25f, 0.25f, 0.25f);
-	shadowThreshold = shadowMap.SampleCmpLevelZero(ShadowMapSamplerState, pin.sdwcoord.xy, pin.sdwcoord.z - bias);
-	shadowColor = lerp(shadowColor, float3(1.0f, 1.0f, 1.0f), shadowThreshold);
-	*/
-	/*
-	// シャドウマップから深度を取り出す
-	float d = shadowMap.Sample(ShadowMapSamplerState, pin.sdwcoord.xy).r;
-	float3 shadowColor = float3(0.25f, 0.25f, 0.25f);
-	// シャドウマップの深度値と現実の深度の比較
-	shadowColor = (pin.sdwcoord.z - bias < d) ? 1.0f : shadowColor;
-	*/
 
 	outcolor.rgb = mapdiff.rgb * shadowColor;
 	outcolor.a = mapdiff.a;

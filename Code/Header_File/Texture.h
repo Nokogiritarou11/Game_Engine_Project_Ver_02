@@ -17,6 +17,7 @@ protected:
 	// テクスチャ情報
 	D3D11_TEXTURE2D_DESC texture2d_desc;
 
+
 public:
 	Texture();
 	virtual ~Texture();
@@ -25,4 +26,16 @@ public:
 	UINT GetWidth() { return texture2d_desc.Width; }
 	UINT GetHeight() { return texture2d_desc.Height; }
 	ID3D11RenderTargetView* GetRenderTarget() { return RenderTargetView.Get(); }
+
+	bool Texture_Have = false;
+
+	enum Texture_Type
+	{
+		Main,
+		Specular,
+		Normal,
+		Height,
+		Emission,
+		//追加したらMaterialのテクスチャ配列と情報配列のサイズ,Active_Texture()を書き換えること
+	};
 };

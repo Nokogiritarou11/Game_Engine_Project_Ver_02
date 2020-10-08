@@ -37,6 +37,7 @@ bool Texture::Load(string filename, int sampler_state)
 		ShaderResourceView = it->second.Get();
 		ShaderResourceView->AddRef();
 		ShaderResourceView->GetResource(resource.GetAddressOf());
+		Texture_Have = true;
 	}
 	else
 	{
@@ -147,6 +148,7 @@ bool Texture::Load(string filename, int sampler_state)
 		&sd, sampler.GetAddressOf());
 	assert(SUCCEEDED(hr));
 
+	Texture_Have = true;
 	return true;
 }
 void Texture::Set(UINT Slot, BOOL flg)

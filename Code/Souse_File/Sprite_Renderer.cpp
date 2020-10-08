@@ -130,8 +130,8 @@ void Sprite_Renderer::Render(Matrix V, Matrix P)
 	data[3].Tex.y = material->UV_Origin.y + material->UV_Size.y;
 
 	//UV座標
-	float w = (float)material->texture->GetWidth();
-	float h = (float)material->texture->GetHeight();
+	float w = (float)material->texture[Texture::Main]->GetWidth();
+	float h = (float)material->texture[Texture::Main]->GetHeight();
 	for (int i = 0; i < 4; i++)
 	{
 		data[i].Tex.x = data[i].Tex.x / w;
@@ -155,7 +155,7 @@ void Sprite_Renderer::Render(Matrix V, Matrix P)
 	DxSystem::DeviceContext->UpdateSubresource(VertexBuffer.Get(), 0, NULL, data, 0, 0);
 
 	//テクスチャの設定
-	material->texture->Set();
+	material->texture[Texture::Main]->Set();
 
 	DxSystem::DeviceContext->Draw(4, 0);
 }

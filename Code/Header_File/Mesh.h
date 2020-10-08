@@ -54,7 +54,7 @@ public:
 			);
 		}
 	};
-
+	/*
 	struct material
 	{
 		std::string TexPass;
@@ -68,17 +68,18 @@ public:
 			archive(TexPass, TexName, color, ID);
 		}
 	};
-
+	*/
 	struct subset
 	{
 		u_int index_start = 0; // start number of index buffer
 		u_int index_count = 0; // number of vertices (indices)
-		material diffuse;
+		Vector4 color;
+		u_int material_ID;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(index_start, index_count, diffuse);
+			archive(index_start, index_count, color, material_ID);
 		}
 	};
 
@@ -145,6 +146,7 @@ public:
 	std::vector<Node>		nodes;
 	std::vector<mesh>		meshes;
 	std::vector<Animation>	animations;
+	std::vector<std::string> Default_Material_Passes;
 
 	static std::shared_ptr<Mesh> Load_Mesh(const char* file_pass, const char* fbx_filename, const char* ignoreRootMotionNodeName = nullptr);
 
@@ -165,10 +167,12 @@ private:
 
 	int rootMotionNodeIndex = -1;
 
+	void GetTexture(const FbxSurfaceMaterial* fbx_mat, const char* fbx_tex_type, std::shared_ptr<Material> mat, int tex_type);
+
 	friend class cereal::access;
 	template<class Archive>
 	void serialize(Archive& archive)
 	{
-		archive(nodes, meshes, animations);
+		archive(nodes, meshes, animations, Default_Material_Passes);
 	}
 };

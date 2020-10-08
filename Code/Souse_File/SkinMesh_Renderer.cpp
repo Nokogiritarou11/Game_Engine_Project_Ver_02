@@ -5,6 +5,10 @@
 #include "Debug.h"
 #include "Include_ImGui.h"
 #include "Debug_UI.h"
+#include <sstream>
+#include <functional>
+#include <iostream>
+#include <fstream>
 using namespace std;
 
 ComPtr <ID3D11Buffer> SkinMesh_Renderer::ConstantBuffer_CbMesh;
@@ -84,16 +88,22 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 		file_name = mesh_data->name;
 		file_pass = mesh_data->file_pass;
 		//マテリアル
-		unsigned long Subset_ID = 0;
-		for (u_int i = 0; i < mesh_data->meshes.size(); i++)
+		for (size_t i = 0; i < mesh_data->Default_Material_Passes.size(); i++)
 		{
-			for (u_int j = 0; j < mesh_data->meshes[i].subsets.size(); j++)
+			shared_ptr<Material> Mat = make_shared<Material>();
+			ifstream in_bin(mesh_data->Default_Material_Passes[i], ios::binary);
+			if (in_bin.is_open())
 			{
-				mesh_data->meshes[i].subsets[j].diffuse.ID = Subset_ID;
-				string Mat_Name = mesh_data->name + "_" + mesh_data->meshes[i].subsets[j].diffuse.TexName;
-				shared_ptr<Material> Mat = Material::Create(Mat_Name, L"Shader/Standard_Shader_VS.hlsl", L"Shader/Standard_Shader_PS.hlsl", mesh_data->meshes[i].subsets[j].diffuse.TexPass.c_str());
-				material.emplace_back(Mat);
-				Subset_ID++;
+				stringstream bin_s_stream;
+				bin_s_stream << in_bin.rdbuf();
+				cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
+				binaryInputArchive(Mat);
+				Material::Initialize(Mat, mesh_data->Default_Material_Passes[i]);
+				material.push_back(Mat);
+			}
+			else
+			{
+
 			}
 		}
 		// ノード
@@ -135,7 +145,7 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 			DxSystem::DeviceContext->IASetIndexBuffer(mesh.index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 			for (auto& subset : mesh.subsets)
 			{
-				DxSystem::DeviceContext->IASetInputLayout(material[subset.diffuse.ID]->shader->VertexLayout.Get());
+				DxSystem::DeviceContext->IASetInputLayout(material[subset.material_ID]->shader->VertexLayout.Get());
 
 				// メッシュ用定数バッファ更新
 				CbMesh cbMesh;
@@ -159,13 +169,13 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 
 				//マテリアルコンスタントバッファ
 				CbColor cbColor;
-				cbColor.materialColor = material[subset.diffuse.ID]->color;
+				cbColor.materialColor = material[subset.material_ID]->color;
 				DxSystem::DeviceContext->VSSetConstantBuffers(2, 1, ConstantBuffer_CbColor.GetAddressOf());
 				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbColor.Get(), 0, 0, &cbColor, 0, 0);
 
-				material[subset.diffuse.ID]->texture->Set(); //PSSetSamplar PSSetShaderResources
+				material[subset.material_ID]->Active_Texture(); //PSSetSamplar PSSetShaderResources
 				//シェーダーリソースのバインド
-				material[subset.diffuse.ID]->shader->Activate(); //PS,VSSetShader
+				material[subset.material_ID]->Active_Shader(); //PS,VSSetShader
 				// ↑で設定したリソースを利用してポリゴンを描画する。
 				DxSystem::DeviceContext->DrawIndexed(subset.index_count, subset.index_start, 0);
 			}
@@ -194,7 +204,7 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P, bool Use_Material, std::share
 			DxSystem::DeviceContext->IASetIndexBuffer(mesh.index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 			for (auto& subset : mesh.subsets)
 			{
-				DxSystem::DeviceContext->IASetInputLayout(material[subset.diffuse.ID]->shader->VertexLayout.Get());
+				DxSystem::DeviceContext->IASetInputLayout(material[subset.material_ID]->shader->VertexLayout.Get());
 
 				// メッシュ用定数バッファ更新
 				CbMesh cbMesh;
@@ -218,11 +228,11 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P, bool Use_Material, std::share
 
 				//マテリアルコンスタントバッファ
 				CbColor cbColor;
-				cbColor.materialColor = material[subset.diffuse.ID]->color;
+				cbColor.materialColor = material[subset.material_ID]->color;
 				DxSystem::DeviceContext->VSSetConstantBuffers(2, 1, ConstantBuffer_CbColor.GetAddressOf());
 				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbColor.Get(), 0, 0, &cbColor, 0, 0);
 
-				material[subset.diffuse.ID]->texture->Set(Use_Material); //PSSetSamplar PSSetShaderResources
+				//material[subset.material_ID]->texture->Set(Use_Material); //PSSetSamplar PSSetShaderResources
 				//シェーダーリソースのバインド
 				shader->Activate(); //PS,VSSetShader
 				// ↑で設定したリソースを利用してポリゴンを描画する。
@@ -313,15 +323,12 @@ bool SkinMesh_Renderer::Draw_ImGui()
 		static int ID = 0;
 		if (mesh_data)
 		{
-			for (auto& mesh : mesh_data->meshes)
+			for (size_t i = 0; i < material.size(); i++)
 			{
-				for (auto& subset : mesh.subsets)
-				{
-					ImGui::PushID(ID);
-					material[subset.diffuse.ID]->Draw_ImGui();
-					ID++;
-					ImGui::PopID();
-				}
+				ImGui::PushID(ID);
+				material[i]->Draw_ImGui();
+				ID++;
+				ImGui::PopID();
 			}
 		}
 		ID = 0;

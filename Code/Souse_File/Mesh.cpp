@@ -91,7 +91,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 	}
 	else //ファイルから読み込み
 	{
-		const string bin = fullpass + ".bin";
+		const string bin = fullpass + ".mesh";
 		ifstream in_bin(bin, ios::binary);
 		if (in_bin.is_open())
 		{
@@ -487,7 +487,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 
 			cache.insert(make_pair(fullpass, mesh_ptr));
 
-			ofstream ss(fullpass + ".bin", ios::binary);
+			ofstream ss(fullpass + ".mesh", ios::binary);
 			{
 				cereal::BinaryOutputArchive o_archive(ss);
 				o_archive(mesh_ptr);
@@ -595,39 +595,40 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 	{
 		subset& subset = mesh.subsets.at(index_of_material); // UNIT.18
 		const FbxSurfaceMaterial* surface_material = fbxNode->GetMaterial(index_of_material);
-		const FbxProperty property = surface_material->FindProperty(FbxSurfaceMaterial::sDiffuse);
-		const FbxProperty factor = surface_material->FindProperty(FbxSurfaceMaterial::sDiffuseFactor);
-		if (property.IsValid() && factor.IsValid())
+		string material_name = surface_material->GetName();
+
+		string new_mat_pass = file_pass + material_name + ".mat";
+		bool cashed = false;
+		for (u_int i = 0; i < Default_Material_Passes.size(); i++)
 		{
-			FbxDouble3 color = property.Get<FbxDouble3>();
-			double f = factor.Get<FbxDouble>();
-			subset.diffuse.color.x = static_cast<float>(color[0] * f);
-			subset.diffuse.color.y = static_cast<float>(color[1] * f);
-			subset.diffuse.color.z = static_cast<float>(color[2] * f);
-			subset.diffuse.color.w = 1.0f;
-		}
-		if (property.IsValid())
-		{
-			const int number_of_textures = property.GetSrcObjectCount<FbxFileTexture>();
-			if (number_of_textures)
+			if (Default_Material_Passes[i] == new_mat_pass)
 			{
-				const FbxFileTexture* file_texture = property.GetSrcObject<FbxFileTexture>();
-				if (file_texture)
-				{
-					//画像読み込み
-					D3D11_TEXTURE2D_DESC g_TEXTURE2D_DESC = {};
-					const char* filename = file_texture->GetRelativeFileName();
-					subset.diffuse.TexName = (string)filename;
-					subset.diffuse.TexPass = (string)file_pass + (string)filename;
-				}
-			}
-			else
-			{
-				string Texpass = "Default_Resource\\Image\\Default_Texture.png";
-				subset.diffuse.TexName = "Default_Texture.png";
-				subset.diffuse.TexPass = Texpass;
+				subset.material_ID = i;
+				cashed = true;
 			}
 		}
+		if (cashed) continue;
+
+		shared_ptr<Material> mat = Material::Create(file_pass, material_name, L"Shader/Standard_Shader_VS.hlsl", L"Shader/Standard_Shader_PS.hlsl");
+
+		//Main(Diffuse)Texture
+		GetTexture(surface_material, FbxSurfaceMaterial::sDiffuse, mat, Texture::Main);
+		//SpecularTexture
+		GetTexture(surface_material, FbxSurfaceMaterial::sSpecular, mat, Texture::Specular);
+		//NormalTexture
+		GetTexture(surface_material, FbxSurfaceMaterial::sNormalMap, mat, Texture::Normal);
+		//HeightTexture
+		GetTexture(surface_material, FbxSurfaceMaterial::sBump, mat, Texture::Height);
+		//EmissionTexture
+		GetTexture(surface_material, FbxSurfaceMaterial::sEmissive, mat, Texture::Emission);
+
+		
+		ofstream ss(new_mat_pass, ios::binary);
+		{
+			cereal::BinaryOutputArchive o_archive(ss);
+			o_archive(mat);
+		}
+		Default_Material_Passes.push_back(new_mat_pass);
 	}
 
 	// サブセットの頂点インデックス範囲設定
@@ -964,4 +965,36 @@ int Mesh::FindNodeIndex(const char* name)
 		}
 	}
 	return -1;
+}
+
+void Mesh::GetTexture(const FbxSurfaceMaterial* fbx_mat, const char* fbx_tex_type, shared_ptr<Material> mat, int tex_type)
+{
+	const FbxProperty property = fbx_mat->FindProperty(fbx_tex_type);
+	if (property.IsValid())
+	{
+		const int number_of_textures = property.GetSrcObjectCount<FbxFileTexture>();
+		if (number_of_textures)
+		{
+			const FbxFileTexture* file_texture = property.GetSrcObject<FbxFileTexture>();
+			if (file_texture)
+			{
+				//画像読み込み
+				const char* filename = file_texture->GetRelativeFileName();
+				mat->texture_info[tex_type].Texture_Name = (string)filename;
+				mat->texture_info[tex_type].Texture_Pass = file_pass;
+				mat->texture_info[tex_type].Texture_FullPass = file_pass + (string)filename;
+				mat->texture[tex_type]->Load(mat->texture_info[tex_type].Texture_FullPass);
+			}
+		}
+		else
+		{
+			if (tex_type == Texture::Main)
+			{
+				mat->texture_info[tex_type].Texture_Name = "Default_Texture.png";
+				mat->texture_info[tex_type].Texture_Pass = "Default_Resource\\Image\\";
+				mat->texture_info[tex_type].Texture_FullPass = "Default_Resource\\Image\\Default_Texture.png";
+				mat->texture[tex_type]->Load(mat->texture_info[tex_type].Texture_FullPass);
+			}
+		}
+	}
 }
