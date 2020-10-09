@@ -14,6 +14,7 @@ cbuffer CbMesh : register(b1)
 VS_OUT VSMain(
 	float3 position : POSITION,
 	float3 normal : NORMAL,
+	float3 tangent : TANGENT,
 	float2 texcoord : TEXCOORD,
 	float4 bone_weights : WEIGHTS,
 	uint4 bone_indices : BONES

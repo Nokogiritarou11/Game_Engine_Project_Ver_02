@@ -100,7 +100,7 @@ bool Texture::Load(string filename, int sampler_state)
 				D3D11_BIND_SHADER_RESOURCE,
 				0,
 				texture_flg,
-				true/*force_srgb*/,
+				false/*force_srgb*/,
 				ShaderResourceView.GetAddressOf());
 			assert(SUCCEEDED(hr));
 		}

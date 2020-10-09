@@ -41,7 +41,7 @@ bool Camera::Draw_ImGui()
 			}
 		}
 
-		ImGui::DragFloat("FOV", &FOV, 0.1f, -FLT_MAX, FLT_MAX);
+		ImGui::DragFloat("FOV", &FOV, 0.1f, 0.01f, FLT_MAX);
 		ImGui::DragFloat(u8"最短描画距離", &near_z, 0.1f, -FLT_MAX, FLT_MAX);
 		ImGui::DragFloat(u8"最長描画距離", &far_z, 0.1f, -FLT_MAX, FLT_MAX);
 	}
@@ -52,7 +52,7 @@ void Camera::Update(u_int width, u_int height)
 {
 	// プロジェクション行列を作成
 	{
-		
+
 		// 角度をラジアン(θ)に変換
 		float fov_y = XMConvertToRadians(FOV);	// 画角
 		float aspect = (float)width / (float)height;	// 画面比率

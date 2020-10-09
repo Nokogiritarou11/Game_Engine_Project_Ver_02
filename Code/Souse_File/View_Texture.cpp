@@ -118,7 +118,7 @@ bool View_Texture::CreateRenderTartgetView(int x, int y)
 	D3D11_TEXTURE2D_DESC texDesc;
 	memset(&texDesc, 0, sizeof(texDesc));
 	texDesc.Usage = D3D11_USAGE_DEFAULT;
-	texDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	texDesc.Width = x;
 	texDesc.Height = y;

@@ -738,6 +738,7 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 
 	int vertexCount = 0;
 	const FbxVector4* fbxControlPoints = fbxMesh->GetControlPoints();
+	bool No_Tanjent = false;
 	for (int fbxPolygonIndex = 0; fbxPolygonIndex < fbxPolygonCount; ++fbxPolygonIndex)
 	{
 		// ポリゴンに適用されているマテリアルインデックスを取得する
@@ -786,6 +787,87 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 				vertex.normal = DirectX::XMFLOAT3(0, 0, 0);
 			}
 
+			// Tangent
+			if (fbxMesh->GetElementTangentCount() > 0)
+			{
+				const FbxGeometryElementTangent* geometry_element_tangent = fbxMesh->GetElementTangent(0);
+				/**	\enum EMappingMode		Determines how the element is mapped to a surface.
+				* - \e eNone                The mapping is undetermined.
+				* - \e eByControlPoint      There will be one mapping coordinate for each surface control point/vertex.
+				* - \e eByPolygonVertex     There will be one mapping coordinate for each vertex, for every polygon of which it is a part.
+				*							This means that a vertex will have as many mapping coordinates as polygons of which it is a part.
+				* - \e eByPolygon           There can be only one mapping coordinate for the whole polygon.
+				* - \e eByEdge              There will be one mapping coordinate for each unique edge in the mesh.
+				*							This is meant to be used with smoothing layer elements.
+				* - \e eAllSame             There can be only one mapping coordinate for the whole surface.
+				*/
+				FbxGeometryElement::EMappingMode mapping_mode = geometry_element_tangent->GetMappingMode();
+				/** \enum EReferenceMode    Determines how the mapping information is stored in the array of coordinates.
+				* - \e eDirect              This indicates that the mapping information for the n'th element is found in the n'th place of
+				*							FbxLayerElementTemplate::mDirectArray.
+				* - \e eIndex,              This symbol is kept for backward compatibility with FBX v5.0 files. In FBX v6.0 and higher,
+				*							this symbol is replaced with eIndexToDirect.
+				* - \e eIndexToDirect		This indicates that the FbxLayerElementTemplate::mIndexArray
+				*							contains, for the n'th element, an index in the FbxLayerElementTemplate::mDirectArray
+				*							array of mapping elements. eIndexToDirect is usually useful for storing eByPolygonVertex mapping
+				*							mode elements coordinates. Since the same coordinates are usually
+				*							repeated many times, this saves spaces by storing the coordinate only one time
+				*							and then referring to them with an index. Materials and Textures are also referenced with this
+				*							mode and the actual Material/Texture can be accessed via the FbxLayerElementTemplate::mDirectArray
+				*/
+				FbxGeometryElement::EReferenceMode reference_mode = geometry_element_tangent->GetReferenceMode();
+
+				if (mapping_mode == FbxGeometryElement::EMappingMode::eByControlPoint)
+				{
+					int index_of_vertex = 0;
+					switch (reference_mode)
+					{
+						case FbxGeometryElement::EReferenceMode::eDirect:
+							index_of_vertex = fbxControlPointIndex;
+							break;
+						case FbxGeometryElement::EReferenceMode::eIndexToDirect:
+							index_of_vertex = geometry_element_tangent->GetIndexArray().GetAt(fbxControlPointIndex);
+							break;
+						case FbxGeometryElement::EReferenceMode::eIndex:
+						default:
+							_ASSERT_EXPR(false, L"Invalid Reference Mode");
+							throw std::exception("Invalid Reference Mode");
+					}
+					vertex.tangent.x = static_cast<float>(geometry_element_tangent->GetDirectArray().GetAt(index_of_vertex)[0]);
+					vertex.tangent.y = static_cast<float>(geometry_element_tangent->GetDirectArray().GetAt(index_of_vertex)[1]);
+					vertex.tangent.z = static_cast<float>(geometry_element_tangent->GetDirectArray().GetAt(index_of_vertex)[2]);
+				}
+				else if (mapping_mode == FbxGeometryElement::EMappingMode::eByPolygonVertex)
+				{
+					int index_of_vertex = 0;
+					switch (reference_mode)
+					{
+						case FbxGeometryElement::EReferenceMode::eDirect:
+							index_of_vertex = fbxPolygonIndex * 3 + fbxVertexIndex;
+							break;
+						case FbxGeometryElement::EReferenceMode::eIndexToDirect:
+							index_of_vertex = geometry_element_tangent->GetIndexArray().GetAt(fbxControlPointIndex);
+							break;
+						case FbxGeometryElement::EReferenceMode::eIndex:
+						default:
+							_ASSERT_EXPR(false, L"Invalid Reference Mode");
+							throw std::exception("Invalid Reference Mode");
+					}
+					vertex.tangent.x = static_cast<float>(geometry_element_tangent->GetDirectArray().GetAt(index_of_vertex)[0]);
+					vertex.tangent.y = static_cast<float>(geometry_element_tangent->GetDirectArray().GetAt(index_of_vertex)[1]);
+					vertex.tangent.z = static_cast<float>(geometry_element_tangent->GetDirectArray().GetAt(index_of_vertex)[2]);
+				}
+				else
+				{
+					_ASSERT_EXPR(false, L"Invalid Mapping Mode");
+					throw std::exception("Invalid Mapping Mode");
+				}
+			}
+			else
+			{
+				No_Tanjent = true;
+			}
+
 			// Texcoord
 			if (fbxMesh->GetElementUVCount() > 0)
 			{
@@ -806,6 +888,44 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 		}
 
 		subset.index_count += 3;
+	}
+
+	if (No_Tanjent)
+	{
+		// TODO:This code should be optimized.
+		for (size_t i = 0; i < indices.size(); i += 3)
+		{
+			vertex* v[3] = { &vertices.at(indices.at(i + 0)), &vertices.at(indices.at(i + 1)), &vertices.at(indices.at(i + 2)) };
+
+			float x1 = v[1]->position.x - v[0]->position.x;
+			float y1 = v[1]->position.y - v[0]->position.y;
+			float z1 = v[1]->position.z - v[0]->position.z;
+			float x2 = v[2]->position.x - v[0]->position.x;
+			float y2 = v[2]->position.y - v[0]->position.y;
+			float z2 = v[2]->position.z - v[0]->position.z;
+
+			float s1 = v[1]->texcoord.x - v[0]->texcoord.x;
+			float t1 = v[1]->texcoord.y - v[0]->texcoord.y;
+			float s2 = v[2]->texcoord.x - v[0]->texcoord.x;
+			float t2 = v[2]->texcoord.y - v[0]->texcoord.y;
+			float r = 1.0f / (s1 * t2 - s2 * t1);
+
+			DirectX::XMVECTOR T = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r));
+			DirectX::XMVECTOR B = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r, (s1 * z2 - s2 * z1) * r));
+
+			for (vertex* p : v)
+			{
+				DirectX::XMVECTOR N = DirectX::XMLoadFloat3(&p->normal);
+				DirectX::XMStoreFloat3(&p->tangent, DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(T, DirectX::XMVectorMultiply(N, DirectX::XMVector3Dot(T, N)))));
+
+				if (DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVector3Cross(N, T), B)) < 0)
+				{
+					p->tangent.x *= -1;
+					p->tangent.y *= -1;
+					p->tangent.z *= -1;
+				}
+			}
+		}
 	}
 
 	// 頂点バッファ
@@ -993,6 +1113,13 @@ void Mesh::GetTexture(const FbxSurfaceMaterial* fbx_mat, const char* fbx_tex_typ
 				mat->texture_info[tex_type].Texture_Name = "Default_Texture.png";
 				mat->texture_info[tex_type].Texture_Pass = "Default_Resource\\Image\\";
 				mat->texture_info[tex_type].Texture_FullPass = "Default_Resource\\Image\\Default_Texture.png";
+				mat->texture[tex_type]->Load(mat->texture_info[tex_type].Texture_FullPass);
+			}
+			else if (tex_type == Texture::Normal)
+			{
+				mat->texture_info[tex_type].Texture_Name = "Default_NormalMap.png";
+				mat->texture_info[tex_type].Texture_Pass = "Default_Resource\\Image\\";
+				mat->texture_info[tex_type].Texture_FullPass = "Default_Resource\\Image\\Default_NormalMap.png";
 				mat->texture[tex_type]->Load(mat->texture_info[tex_type].Texture_FullPass);
 			}
 		}

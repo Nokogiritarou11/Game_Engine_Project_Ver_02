@@ -41,6 +41,7 @@ public:
 	{
 		Vector3 position;
 		Vector3 normal;
+		Vector3 tangent;
 		Vector2 texcoord;
 		float   bone_weights[4] = { 1, 0, 0, 0 };
 		int     bone_indices[4] = {};
@@ -50,7 +51,7 @@ public:
 		{
 			archive
 			(
-				position, normal, texcoord, bone_weights, bone_indices
+				position, normal, tangent, texcoord, bone_weights, bone_indices
 			);
 		}
 	};
