@@ -5,7 +5,7 @@
 #include <Original_Math.h>
 #include <memory>
 
-class Camera : public Behavior
+class Camera : public Behaviour
 {
 public:
 
@@ -30,11 +30,11 @@ private:
 	template<class Archive>
 	void serialize(Archive& archive)
 	{
-		archive(cereal::base_class<Behavior>(this), focus, FOV, near_z, far_z);
+		archive(cereal::base_class<Behaviour>(this), focus, FOV, near_z, far_z);
 	}
 
 	D3D11_VIEWPORT viewport;
 	UINT num_viewports = 1;
 };
 CEREAL_REGISTER_TYPE(Camera)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(Behavior, Camera)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Behaviour, Camera)

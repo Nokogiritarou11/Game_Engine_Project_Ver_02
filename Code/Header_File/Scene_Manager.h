@@ -10,6 +10,7 @@ class Scene_Manager
 {
 public:
 	bool CreateScene_FromFile();
+	bool CreateScene_FromFile(std::string file_path);
 	void CreateScene_Default(std::string new_name);
 
 	/*

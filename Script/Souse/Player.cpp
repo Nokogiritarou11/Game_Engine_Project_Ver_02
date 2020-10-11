@@ -1,137 +1,122 @@
 #include "Animator.h"
 #include "Camera.h"
 #include "Include_Mono.h"
+#include "Include_ImGui.h"
 #include "Player.h"
 using namespace std;
 
 void Player::Awake()
 {
-	transform->Set_position(0, 0, 0.0f);
-	//transform->Set_eulerAngles(-90, 0, 0);
-	transform->Set_eulerAngles(180, 0, 0);
-	transform->Set_scale(0.1f, 0.1f, 0.1f);
 }
 
 void Player::Start()
 {
-	move_speed = 30;
-	rotate_speed = 70.0f;
-	//jump_power = 30.0f;
-	down_speed = 25.0;
-
-	//shared_ptr<GameObject> g = GameObject::FindWithTag("ObjectPool").lock();
-	//pool = g->GetComponent<ObjectPool>();
 }
 
 void Player::Update()
 {
+	Check_Player_Move();
+	Move();
+}
 
-	transform->Set_position(transform->Get_position()+transform->Get_right() * Time::deltaTime);
-	/*
-	float L = Input_Manager::kb.Left;
-	float R = Input_Manager::kb.Right;
-	float U = Input_Manager::kb.Up;
-	float D = Input_Manager::kb.Down;
+Quaternion LookRotation(const Vector3& direction, const Vector3& up = { 0, 1, 0 })
+{
+	using namespace DirectX;
+	Vector3 xaxis, yaxis;
+	up.Cross(direction, xaxis);
+	xaxis.Normalize();
 
-	Vector3 rot = transform->Get_eulerAngles();
-	if (L)
-	{
-		rot.y -= rotate_speed * Time::deltaTime;
-	}
-	if (R)
-	{
-		rot.y += rotate_speed * Time::deltaTime;
-	}
-	transform->Set_eulerAngles(rot);
+	direction.Cross(xaxis, yaxis);
+	yaxis.Normalize();
 
-	set_pos = transform->Get_position();
-	if (U)
-	{
-		set_pos += transform->Get_forward() * move_speed * Time::deltaTime;
-	}
-	if (D)
-	{
-		set_pos -= transform->Get_forward() * move_speed * Time::deltaTime;
-	}
+	Matrix res = { xaxis.x ,yaxis.x ,direction.x ,0 ,
+				   xaxis.y ,yaxis.y ,direction.y ,0 ,
+				   xaxis.z ,yaxis.z ,direction.z ,0 ,
+						 0 ,	  0 ,		   0 ,1 };
+	Quaternion out = Quaternion::CreateFromRotationMatrix(res);
+	return out;
+}
 
-	transform->Set_position(set_pos);
+void Player::Check_Player_Move()
+{
 
-	if (Input_Manager::key_tracker.pressed.Space)
+	if (Input_Manager::pad.connected)
 	{
-		shared_ptr<ObjectPool> p = pool.lock();
-		Vector3 pos = transform->Get_position() + transform->Get_forward() * 7.5f;
-		pos.y = 5.5f;
-		p->Instance_inPool(0, pos, transform->Get_rotation());
-	}
-	*/
-	/////////////////////////////////////////////////////////　　追加部分
-	/*
-	if (Input_Manager::key_tracker.pressed.Space && !Jumping)
-	{
-		jump_speed = jump_power;
-		Jumping = true;
-	}
-	if (Jumping)
-	{
-		jump_speed -= down_speed * Time::deltaTime;
-	}
-
-
-	if (set_pos.y >= 0 && Jumping)
-	{
-		set_pos.y += jump_speed * Time::deltaTime;
+		Horizontal = Input_Manager::pad.thumbSticks.leftX;
+		Vertical = Input_Manager::pad.thumbSticks.leftY;
 	}
 	else
 	{
-		set_pos.y = 0;
-		Jumping = false;
-	}
-	*/
+		if (Input_Manager::kb.Right) Horizontal = 1;
+		if (Input_Manager::kb.Left)   Horizontal = -1;
 
-	/*
-	//Input_Manager::mouse->SetMode(Mouse::MODE_RELATIVE);
-	Vector3 move_pos = { 0,0,0 };
-	if (Input_Manager::kb.W)
-	{
-		move_pos = transform->Get_position() + transform->Get_up() * 300 * Time::deltaTime;
-		transform->Set_position(Vector3::Lerp(transform->Get_position(), move_pos, Time::deltaTime * 10));
+		if (Input_Manager::kb.Up) Vertical = 1;
+		if (Input_Manager::kb.Down) Vertical = -1;
 	}
-	if (Input_Manager::kb.S)
-	{
-		move_pos = transform->Get_position() - transform->Get_up() * 300 * Time::deltaTime;
-		transform->Set_position(Vector3::Lerp(transform->Get_position(), move_pos, Time::deltaTime * 10));
-	}
-	if (Input_Manager::kb.D)
-	{
-		move_pos = transform->Get_position() - transform->Get_right() * 300 * Time::deltaTime;
-		transform->Set_position(Vector3::Lerp(transform->Get_position(), move_pos, Time::deltaTime * 10));
-	}
-	if (Input_Manager::kb.A)
-	{
-		move_pos = transform->Get_position() + transform->Get_right() * 300 * Time::deltaTime;
-		transform->Set_position(Vector3::Lerp(transform->Get_position(), move_pos, Time::deltaTime * 10));
-	}
-	float L = Input_Manager::kb.Left;
-	float R = Input_Manager::kb.Right;
-	float U = Input_Manager::kb.Up;
-	float D = Input_Manager::kb.Down;
 
-	Vector3 rot = { -90,transform->Get_eulerAngles().y ,0 };
-	if (L)
-	{
-		rot.y -= rotate_speed * Time::deltaTime;
-	}
-	if (R)
-	{
-		rot.y += rotate_speed * Time::deltaTime;
-	}
-	transform->Set_eulerAngles(rot);
+	// 方向キーの入力値とカメラの向きから、移動方向を決定
+	moveForward = Vector3::Forward * Vertical + Vector3::Right * -Horizontal;
 
-	*/
-	/*
-	static Vector3 rot = { 0,0,0 };
-	//rot.x = Input_Manager::ms.y;
-	rot.y = Input_Manager::ms.x;
-	transform->Set_eulerAngles(transform->Get_eulerAngles() + rot);
-	*/
+	if (Input_Manager::kb.Space || Input_Manager::pad.buttons.a)
+	{
+		transform->Set_rotation(Quaternion::Slerp(transform->Get_rotation(), LookRotation(moveForward), applySpeed * Time::deltaTime));//滑らかに方向転換
+		if (Dash_Power < Max_Speed)
+		{
+			Dash_Power += Add_Power * Time::deltaTime;
+		}
+		else
+		{
+			Dash_Power = Max_Speed;
+		}
+	}
+	if (Input_Manager::key_tracker.IsKeyReleased(Keyboard::Space) || Input_Manager::pad_tracker.a == GamePad::ButtonStateTracker::RELEASED)
+	{
+		Move_Speed = Dash_Power;
+		Dash_Power = 0;
+	}
+}
+
+void Player::Move()
+{
+	transform->Set_position(transform->Get_position() + Vector3(0, 0, -Scroll_Speed * Time::deltaTime));
+	if (Move_Speed > 0)
+	{
+		transform->Set_position(transform->Get_position() + transform->Get_forward() * Move_Speed * Time::deltaTime);
+		Move_Speed -= Down_Power * Time::deltaTime;
+	}
+	else
+	{
+		Move_Speed = 0;
+	}
+}
+
+bool Player::Draw_ImGui()
+{
+	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
+	if (ImGui::CollapsingHeader("Camera"))
+	{
+		bool removed = true;
+		if (ImGui::BeginPopupContextItem("Camera_sub"))
+		{
+			if (ImGui::Selectable(u8"コンポーネントを削除"))
+			{
+				Object::Destroy(dynamic_pointer_cast<Player>(shared_from_this()));
+				removed = false;
+			}
+			ImGui::EndPopup();
+			if (!removed)
+			{
+				return false;
+			}
+		}
+
+		ImGui::DragFloat(u8"applySpeed", &applySpeed, 0.1f, 0.01f, FLT_MAX);
+		ImGui::DragFloat(u8"Move_Speed", &Move_Speed, 0.1f, -FLT_MAX, FLT_MAX);
+		ImGui::DragFloat(u8"Max_Speed", &Max_Speed, 0.1f, -FLT_MAX, FLT_MAX);
+		ImGui::DragFloat(u8"Scroll_Speed", &Scroll_Speed, 0.1f, -FLT_MAX, FLT_MAX);
+		ImGui::DragFloat(u8"Add_Power", &Add_Power, 0.1f, -FLT_MAX, FLT_MAX);
+		ImGui::DragFloat(u8"Down_Power", &Down_Power, 0.1f, -FLT_MAX, FLT_MAX);
+		ImGui::DragFloat(u8"Dash_Power", &Dash_Power, 0.1f, -FLT_MAX, FLT_MAX);
+	}
+	return true;
 }

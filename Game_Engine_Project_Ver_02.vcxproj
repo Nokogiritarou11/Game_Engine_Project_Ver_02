@@ -90,14 +90,14 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>.\Script\Header;.\Code\Libraries;.\Code\Libraries\ImGui;.\DirectXTK-jun2020\Inc;.\Code\Header_File;.\2020.0.1\include;.\Code\Libraries\DirectXTex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\Script\Header;.\Code\Libraries;.\Code\Libraries\ImGui;.\DirectXTK-master\Inc;.\Code\Header_File;.\2020.0.1\include;.\Code\Libraries\DirectXTex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>d3d11.lib;dxgi.lib;DirectXTK.lib;wininet.lib;d3dcompiler.lib;libfbxsdk-md.lib;libxml2-md.lib;zlib-md.lib;DirectXTex.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>.\2020.0.1\lib\vs2017\x86\debug;.\DirectXTK-jun2020\Bin\Desktop_2019_Win10\Win32\Debug;.\Code\Libraries\DirectXTex\Bin\Desktop_2019_Win10\Win32\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\2020.0.1\lib\vs2017\x86\debug;.\DirectXTK-master\Bin\Desktop_2019_Win10\Win32\Debug;.\Code\Libraries\DirectXTex\Bin\Desktop_2019_Win10\Win32\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -130,7 +130,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>.\Script\Header;.\Code\Libraries;.\Code\Libraries\ImGui;.\DirectXTK-jun2020\Inc;.\Code\Header_File;.\2020.0.1\include;.\Code\Libraries\DirectXTex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\Script\Header;.\Code\Libraries;.\Code\Libraries\ImGui;.\DirectXTK-master\Inc;.\Code\Header_File;.\2020.0.1\include;.\Code\Libraries\DirectXTex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -138,7 +138,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>.\2020.0.1\lib\vs2017\x86\release;.\DirectXTK-jun2020\Bin\Desktop_2019_Win10\Win32\Release;.\Code\Libraries\DirectXTex\Bin\Desktop_2019_Win10\Win32\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\2020.0.1\lib\vs2017\x86\release;.\DirectXTK-master\Bin\Desktop_2019_Win10\Win32\Release;.\Code\Libraries\DirectXTex\Bin\Desktop_2019_Win10\Win32\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>DirectXTK.lib;d3d11.lib;dxgi.lib;wininet.lib;libfbxsdk-md.lib;libxml2-md.lib;zlib-md.lib;DirectXTex.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
@@ -783,11 +783,6 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VSMain</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">VSMain</EntryPointName>
     </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="DirectXTK-jun2020\DirectXTK_Desktop_2019_Win10.vcxproj">
-      <Project>{e0b52ae7-e160-4d32-bf3f-910b785e5a8e}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli">

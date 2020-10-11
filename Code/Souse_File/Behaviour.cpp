@@ -1,9 +1,9 @@
 #include "Behaviour.h"
 
-Behavior::Behavior()
+Behaviour::Behaviour()
 {
 }
 
-Behavior::~Behavior()
+Behaviour::~Behaviour()
 {
 }

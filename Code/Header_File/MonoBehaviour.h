@@ -5,7 +5,7 @@
 #include "Original_Math.h"
 #include "Time.h"
 
-class MonoBehaviour : public Behavior
+class MonoBehaviour : public Behaviour
 {
 public:
 
@@ -25,4 +25,12 @@ public:
 	void Initialize(std::shared_ptr<GameObject> obj);
 
 private:
+	friend class cereal::access;
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(cereal::base_class<Behaviour>(this));
+	}
 };
+CEREAL_REGISTER_TYPE(MonoBehaviour)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Behaviour, MonoBehaviour)

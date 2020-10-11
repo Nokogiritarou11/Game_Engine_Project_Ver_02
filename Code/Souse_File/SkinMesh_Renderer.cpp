@@ -170,7 +170,7 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 				//マテリアルコンスタントバッファ
 				CbColor cbColor;
 				cbColor.materialColor = material[subset.material_ID]->color;
-				DxSystem::DeviceContext->VSSetConstantBuffers(2, 1, ConstantBuffer_CbColor.GetAddressOf());
+				DxSystem::DeviceContext->PSSetConstantBuffers(2, 1, ConstantBuffer_CbColor.GetAddressOf());
 				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbColor.Get(), 0, 0, &cbColor, 0, 0);
 
 				material[subset.material_ID]->Active_Texture(); //PSSetSamplar PSSetShaderResources
@@ -229,7 +229,7 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P, bool Use_Material, std::share
 				//マテリアルコンスタントバッファ
 				CbColor cbColor;
 				cbColor.materialColor = material[subset.material_ID]->color;
-				DxSystem::DeviceContext->VSSetConstantBuffers(2, 1, ConstantBuffer_CbColor.GetAddressOf());
+				DxSystem::DeviceContext->PSSetConstantBuffers(2, 1, ConstantBuffer_CbColor.GetAddressOf());
 				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbColor.Get(), 0, 0, &cbColor, 0, 0);
 
 				//material[subset.material_ID]->texture->Set(Use_Material); //PSSetSamplar PSSetShaderResources
@@ -274,6 +274,13 @@ void SkinMesh_Renderer::CalculateWorldTransform(const Matrix& world_transform)
 	}
 }
 
+void SkinMesh_Renderer::Reset()
+{
+	mesh_data = nullptr;
+	nodes.clear();
+	material.clear();
+}
+
 bool SkinMesh_Renderer::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
@@ -312,6 +319,7 @@ bool SkinMesh_Renderer::Draw_ImGui()
 				//Debug::Log(pathname);
 				//Debug::Log(extname);
 				//Debug::Log(filename);
+				Reset();
 				Set_Mesh(Mesh::Load_Mesh(pathname.c_str(), filename.c_str()));
 			}
 			else

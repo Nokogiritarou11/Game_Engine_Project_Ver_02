@@ -13,7 +13,7 @@
 #include "cereal/types/string.hpp"
 #include "cereal/types/memory.hpp"
 
-class Material
+class Material : public std::enable_shared_from_this<Material>
 {
 public:
 	std::string name;
@@ -54,6 +54,8 @@ public:
 		}
 	};
 	Texture_Info texture_info[5];
+
+	std::string Self_Save_Pass;
 
 	static std::shared_ptr<Material> Create(std::string Material_Pass, std::string Material_Name, WCHAR* VS_Name, WCHAR* PS_Name);
 	static void Initialize(shared_ptr<Material>& mat, std::string Material_FullPass);

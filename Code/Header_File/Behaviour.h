@@ -1,13 +1,13 @@
 #pragma once
 #include "Component.h"
 
-class Behavior : public Component
+class Behaviour : public Component
 {
 public:
 	bool enabled = true;
 
-	Behavior();
-	~Behavior();
+	Behaviour();
+	~Behaviour();
 
 private:
 	friend class cereal::access;
@@ -17,5 +17,5 @@ private:
 		archive(cereal::base_class<Component>(this), enabled);
 	}
 };
-CEREAL_REGISTER_TYPE(Behavior)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Behavior)
+CEREAL_REGISTER_TYPE(Behaviour)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Behaviour)

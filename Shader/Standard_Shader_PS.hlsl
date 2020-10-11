@@ -16,7 +16,7 @@ float4 PSMain(VS_OUT pin) : SV_TARGET
 {
 	float4 outcolor;
 
-	float4 mapdiff = diffuseMap.Sample(diffuseMapSamplerState, pin.texcoord);
+	float4 mapdiff = diffuseMap.Sample(diffuseMapSamplerState, pin.texcoord) * materialColor;
 
 	float4 normal_map_colour = normalMap.Sample(normalMapSamplerState, pin.texcoord);
 	normal_map_colour = (normal_map_colour * 2.0) - 1.0;
@@ -55,7 +55,7 @@ float4 PSMain(VS_OUT pin) : SV_TARGET
 	//float3 Ka = mapdiff.rgb * (1 - diffuse_factor);
 	//float3 Kd = mapdiff.rgb * diffuse_factor;
 	//outcolor.rgb = (Ka + Kd) * shadowColor;
-	outcolor.rgb = ((mapdiff.rgb * 0.75f) + (diffuse_factor * 0.25f)) * shadowColor;
+	outcolor.rgb = ((mapdiff.rgb * 0.6f) + (diffuse_factor * 0.4f)) * shadowColor;
 	outcolor.a = mapdiff.a;
 
 	return outcolor;

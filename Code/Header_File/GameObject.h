@@ -15,7 +15,6 @@ public:
 	void SetActive(bool value);
 
 	bool Active = true; //Dont Use!! Please Use ActiveSelf() or SetActive() !! 
-	unsigned int ID = NULL;
 	int layer = 0;
 	std::string tag = "Default";
 	std::shared_ptr<Transform> transform;
@@ -28,8 +27,6 @@ public:
 
 	static std::weak_ptr<GameObject> Find(std::string Name);
 	static std::weak_ptr<GameObject> FindWithTag(std::string Tag);
-
-	static unsigned long ID_Count;
 
 private:
 	friend class cereal::access;

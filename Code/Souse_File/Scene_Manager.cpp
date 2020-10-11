@@ -70,6 +70,50 @@ bool Scene_Manager::CreateScene_FromFile()
 	return false;
 }
 
+bool Scene_Manager::CreateScene_FromFile(std::string file_path)
+{
+	int path_i = file_path.find_last_of("\\") + 1;//7
+	int ext_i = file_path.find_last_of(".");//10
+	string file_name = file_path.substr(path_i, ext_i - path_i); //ƒtƒ@ƒCƒ‹–¼
+
+	list<shared_ptr<Scene>>::iterator itr_end = Scene_List.end();
+	for (list<shared_ptr<Scene>>::iterator itr = Scene_List.begin(); itr != itr_end; itr++)
+	{
+		if ((*itr)->name == file_name)
+		{
+			if ((*itr)->name == Active_Scene->name)
+			{
+				return false;
+			}
+			Last_Save_Path = file_path;
+			LoadScene((*itr)->name);
+			return true;
+		}
+	}
+
+	ifstream in_bin(file_path, ios::binary);
+	if (in_bin.is_open())
+	{
+		shared_ptr<Scene> New_Scene = make_shared<Scene>();
+		stringstream bin_s_stream;
+		bin_s_stream << in_bin.rdbuf();
+		cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
+		binaryInputArchive(New_Scene);
+		New_Scene->name = file_name;
+		Scene_List.emplace_back(New_Scene);
+
+		Last_Save_Path = file_path;
+		LoadScene(New_Scene->name);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+
+	return false;
+}
+
 void Scene_Manager::CreateScene_Default(string new_name)
 {
 	Animator_Manager::Reset();
@@ -107,7 +151,7 @@ void Scene_Manager::CreateScene_Default(string new_name)
 void Scene_Manager::Initialize_Scene(weak_ptr<Scene> s)
 {
 	shared_ptr<Scene> scene = s.lock();
-	scene->Reset();
+	//scene->Reset();
 	list<shared_ptr<GameObject>>::iterator itr_end = scene->gameObject_List.end();
 	for (list<shared_ptr<GameObject>>::iterator itr = scene->gameObject_List.begin(); itr != itr_end; itr++)
 	{

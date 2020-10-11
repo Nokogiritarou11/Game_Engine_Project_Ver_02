@@ -2,8 +2,6 @@
 #include "Scene_Manager.h"
 using namespace std;
 
-unsigned long GameObject::ID_Count;
-
 GameObject::~GameObject()
 {
 	Component_List.clear();

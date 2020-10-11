@@ -6,6 +6,10 @@
 #include "Engine.h"
 #include "All_Component_List.h"
 #include "Include_ImGui.h"
+#include <sstream>
+#include <functional>
+#include <iostream>
+#include <fstream>
 using namespace std;
 using namespace DirectX;
 
@@ -482,6 +486,13 @@ void Debug_UI::Scene_File_Menu_Render()
 			{
 				if (Engine::scene_manager->CreateScene_FromFile())
 				{
+					Active_Object.reset();
+					ofstream oOfstream("Default_Resource\\System\\last_save.bin");
+					if (oOfstream.is_open())
+					{
+						// ƒtƒ@ƒCƒ‹‚Ö‘‚«‚Ş
+						oOfstream << Engine::scene_manager->Last_Save_Path;
+					}
 				}
 				else
 				{

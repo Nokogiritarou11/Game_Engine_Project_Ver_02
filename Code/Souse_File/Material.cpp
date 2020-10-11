@@ -3,6 +3,10 @@
 #include "Texture.h"
 #include <clocale>
 #include <unordered_map>
+#include <sstream>
+#include <functional>
+#include <iostream>
+#include <fstream>
 #include <tchar.h>
 #include "Include_ImGui.h"
 using namespace std;
@@ -52,6 +56,7 @@ shared_ptr<Material> Material::Create(std::string Material_Pass, std::string Mat
 			string filename = str_pass.substr(path_i, ext_i - path_i); //ƒtƒ@ƒCƒ‹–¼
 			mat->shader_info[PS].Shader_Name = filename;
 		}
+		mat->Self_Save_Pass = Material_Pass + Material_Name + ".mat";
 		mat_cache.insert(make_pair(Material_Pass + Material_Name + ".mat", mat));
 		return mat;
 	}
@@ -81,7 +86,7 @@ void Material::Initialize(shared_ptr<Material>& mat, string Material_FullPass)
 		mbstowcs_s(&ret, ps, MAX_PATH, mat->shader_info[PS].Shader_FullPass.c_str(), _TRUNCATE);
 		mat->shader->Create_VS(vs, "VSMain");
 		mat->shader->Create_PS(ps, "PSMain");
-
+		mat->Self_Save_Pass = Material_FullPass;
 		mat_cache.insert(make_pair(Material_FullPass, mat));
 	}
 }
@@ -123,4 +128,12 @@ void Material::Draw_ImGui()
 	float out_color[4] = { color.x,color.y,color.z,color.w };
 	ImGui::ColorEdit3("Color", out_color);
 	color = { out_color[0],out_color[1] ,out_color[2] ,out_color[3] };
+	if (ImGui::Button(u8"•Û‘¶"))
+	{
+		ofstream ss(Self_Save_Pass, ios::binary);
+		{
+			cereal::BinaryOutputArchive o_archive(ss);
+			o_archive(shared_from_this());
+		}
+	}
 }

@@ -14,8 +14,6 @@ shared_ptr<GameObject> Scene::Instance_GameObject(std::string name)
 	obj->AddComponent<Transform>();
 	gameObject_List.emplace_back(obj);
 	obj->name = name;
-	obj->ID_Count++;
-	obj->ID = obj->ID_Count;
 	return obj;
 }
 
@@ -24,7 +22,7 @@ void Scene::Destroy_GameObject(shared_ptr<GameObject> gameObject)
 	list<shared_ptr<GameObject>>::iterator itr_end = gameObject_List.end();
 	for (list<shared_ptr<GameObject>>::iterator itr = gameObject_List.begin(); itr != itr_end; itr++)
 	{
-		if ((*itr)->ID == gameObject->ID)
+		if ((*itr) == gameObject)
 		{
 			(*itr)->Component_List.clear();
 			gameObject_List.erase(itr);
@@ -37,7 +35,7 @@ void Scene::Destroy_Component(shared_ptr<Component> component)
 	list<shared_ptr<GameObject>>::iterator itr_end = gameObject_List.end();
 	for (list<shared_ptr<GameObject>>::iterator itr = gameObject_List.begin(); itr != itr_end; itr++)
 	{
-		if ((*itr)->ID == component->gameObject->ID)
+		if ((*itr) == component->gameObject)
 		{
 			list<shared_ptr<Component>>::iterator itr_comp_end = (*itr)->Component_List.end();
 			for (list<shared_ptr<Component>>::iterator itr_comp = (*itr)->Component_List.begin(); itr_comp != itr_comp_end; itr_comp++)

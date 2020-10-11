@@ -13,16 +13,33 @@ public:
 	void Start();
 	void Update();
 
+	bool Draw_ImGui();
+
 private:
-	std::weak_ptr<ObjectPool> pool;
-	Vector3 set_pos = { 0,0,0 };
+	float applySpeed;
 
-	float move_speed = 10.0f;
-	float rotate_speed = 10.0f;
+	float Move_Speed;
+	float Max_Speed;
+	float Scroll_Speed;
+	float Add_Power;
+	float Down_Power;
+	float Dash_Power;
 
-	//float jump_power = 100.0f;
-	//float jump_speed = 0.0;
-	float down_speed = 0.0;
+	float Horizontal;
+	float Vertical;
 
-	//bool Jumping = false;
+	Vector3 moveForward;
+
+	void Check_Player_Move();
+	void Move();
+
+	friend class cereal::access;
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(cereal::base_class<MonoBehaviour>(this), applySpeed, Move_Speed, Max_Speed, Scroll_Speed, Add_Power, Down_Power, Dash_Power);
+	}
 };
+
+CEREAL_REGISTER_TYPE(Player)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(MonoBehaviour, Player)

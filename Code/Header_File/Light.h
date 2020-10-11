@@ -22,7 +22,7 @@
 #include "cereal/types/memory.hpp"
 using Microsoft::WRL::ComPtr;
 
-class Light : public Behavior
+class Light : public Behaviour
 {
 public:
 	Light();

@@ -1,7 +1,7 @@
 #pragma once
 #include "SkinMesh_Renderer.h"
 
-class Animator : public Behavior
+class Animator : public Behaviour
 {
 public:
 	Animator();
@@ -35,9 +35,9 @@ private:
 	template<class Archive>
 	void serialize(Archive& archive)
 	{
-		archive(cereal::base_class<Behavior>(this));
+		archive(cereal::base_class<Behaviour>(this));
 	}
 };
 
 CEREAL_REGISTER_TYPE(Animator)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(Behavior, Animator)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Behaviour, Animator)

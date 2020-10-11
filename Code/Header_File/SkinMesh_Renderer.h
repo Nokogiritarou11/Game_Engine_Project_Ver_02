@@ -50,6 +50,7 @@ public:
 	std::vector<Node>	  nodes;
 
 private:
+	void Reset();
 
 	friend class cereal::access;
 	template<class Archive>

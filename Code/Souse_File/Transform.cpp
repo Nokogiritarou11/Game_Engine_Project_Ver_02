@@ -100,16 +100,16 @@ bool Transform::Draw_ImGui()
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 	if (ImGui::CollapsingHeader("Transform"))
 	{
-		static unsigned int has_ID = -1;
+		static weak_ptr<Transform> active_trans;
 		static bool has_parent;
 
 		static float pos[3] = { 0,0,0 };
 		static float rot[3] = { 0,0,0 };
 		static float scl[3] = { 1,1,1 };
 
-		if (has_ID != gameObject->ID)
+		if (active_trans.lock() != gameObject->transform)
 		{
-			has_ID = gameObject->ID;
+			active_trans = gameObject->transform;
 			if (shared_ptr<Transform> p = Get_parent().lock())
 			{
 				has_parent = true;
