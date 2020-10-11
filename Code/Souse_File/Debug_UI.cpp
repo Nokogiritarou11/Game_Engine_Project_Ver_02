@@ -412,19 +412,31 @@ void Debug_UI::ScenePlayer_Render()
 	{
 		if (ImGui::Button(ICON_FA_STOP))
 		{
+			Engine::scene_manager->End_DebugScene();
 			Engine::scene_manager->Run = false;
+			Engine::scene_manager->Pause = false;
 		}
 	}
 	else
 	{
 		if (ImGui::Button(ICON_FA_PLAY))
 		{
+			if (!Engine::scene_manager->Pause)
+			{
+				Engine::scene_manager->Start_DebugScene();
+			}
 			Engine::scene_manager->Run = true;
+			Engine::scene_manager->Pause = false;
 		}
 	}
 	ImGui::SameLine();
 	if (ImGui::Button(ICON_FA_PAUSE))
 	{
+		if (Engine::scene_manager->Run)
+		{
+			Engine::scene_manager->Run = false;
+			Engine::scene_manager->Pause = true;
+		}
 	}
 
 	ImGui::End();

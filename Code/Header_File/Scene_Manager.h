@@ -24,15 +24,20 @@ public:
 	void Update();
 
 	void SaveScene(std::string Save_Path);
+	void Start_DebugScene();
+	void End_DebugScene();
 	static void LoadScene(std::string Scene_Name);
 	static std::shared_ptr<Scene> Get_Active_Scene();
 
 	std::string Last_Save_Path = "";
 	bool Run = false;
+	bool Pause = false;
 
 private:
 
 	void Initialize_Scene(std::weak_ptr<Scene> s);
+
+	std::string DebugScene_Name;
 
 	std::list<std::shared_ptr<Scene>> Scene_List;
 

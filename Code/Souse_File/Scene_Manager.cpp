@@ -178,6 +178,48 @@ void Scene_Manager::SaveScene(string Save_Path)
 	}
 }
 
+void Scene_Manager::Start_DebugScene()
+{
+	{
+		ofstream save("Default_Resource\\System\\Debug_Scene.bin", ios::binary);
+		{
+			cereal::BinaryOutputArchive out_archive(save);
+			out_archive(Active_Scene);
+		}
+	}
+	{
+		ifstream in_bin("Default_Resource\\System\\Debug_Scene.bin", ios::binary);
+		if (in_bin.is_open())
+		{
+			shared_ptr<Scene> New_Scene = make_shared<Scene>();
+			stringstream bin_s_stream;
+			bin_s_stream << in_bin.rdbuf();
+			cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
+			binaryInputArchive(New_Scene);
+			New_Scene->name = Active_Scene->name + "(debug)";
+			Scene_List.emplace_back(New_Scene);
+
+			DebugScene_Name = Active_Scene->name;
+			LoadScene(New_Scene->name);
+		}
+	}
+}
+
+void Scene_Manager::End_DebugScene()
+{
+	list<shared_ptr<Scene>>::iterator itr_end = Scene_List.end();
+	for (list<shared_ptr<Scene>>::iterator itr = Scene_List.begin(); itr != itr_end; itr++)
+	{
+		if ((*itr)->name == Active_Scene->name)
+		{
+			(*itr).reset();
+			Scene_List.erase(itr);
+			break;
+		}
+	}
+	LoadScene(DebugScene_Name);
+}
+
 void Scene_Manager::LoadScene(string Scene_Name)
 {
 	Load = true;
