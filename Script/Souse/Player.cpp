@@ -3,6 +3,7 @@
 #include "Include_Mono.h"
 #include "Include_ImGui.h"
 #include "Player.h"
+#include "Collider.h"
 using namespace std;
 
 void Player::Awake()
@@ -11,11 +12,15 @@ void Player::Awake()
 
 void Player::Start()
 {
+	Speed_Bonus_Magnification_Set = Speed_Bonus_Magnification;
+	Speed_Bonus_Magnification = 1;
+	Gas = Gas_Max;
 }
 
 void Player::Update()
 {
 	Check_Player_Move();
+	Check_Parameter();
 	Move();
 }
 
@@ -39,7 +44,7 @@ Quaternion LookRotation(const Vector3& direction, const Vector3& up = { 0, 1, 0 
 
 void Player::Check_Player_Move()
 {
-
+	/*
 	if (Input_Manager::pad.connected)
 	{
 		Horizontal = Input_Manager::pad.thumbSticks.leftX;
@@ -49,13 +54,20 @@ void Player::Check_Player_Move()
 	{
 		if (Input_Manager::kb.Right) Horizontal = 1;
 		if (Input_Manager::kb.Left)   Horizontal = -1;
+		if (!Input_Manager::kb.Right && !Input_Manager::kb.Left) Horizontal = 0;
 
 		if (Input_Manager::kb.Up) Vertical = 1;
 		if (Input_Manager::kb.Down) Vertical = -1;
+		if (!Input_Manager::kb.Up && !Input_Manager::kb.Down) Vertical = 0;
 	}
 
-	// 方向キーの入力値とカメラの向きから、移動方向を決定
+	// 方向キーの入力値から、移動方向を決定
 	moveForward = Vector3::Forward * Vertical + Vector3::Right * -Horizontal;
+
+	if (moveForward == Vector3::Zero)
+	{
+		moveForward = transform->Get_forward();
+	}
 
 	if (Input_Manager::kb.Space || Input_Manager::pad.buttons.a)
 	{
@@ -74,29 +86,174 @@ void Player::Check_Player_Move()
 		Move_Speed = Dash_Power;
 		Dash_Power = 0;
 	}
+	*/
+	if (Input_Manager::pad.connected)
+	{
+		Horizontal = Input_Manager::pad.thumbSticks.leftX;
+	}
+	else
+	{
+		float Horizontal_Power = 10.0f * Time::deltaTime;;
+		if (Input_Manager::kb.Right)  Horizontal += Horizontal_Power;
+		if (Input_Manager::kb.Left)   Horizontal -= Horizontal_Power;
+		Horizontal = Mathf::Clamp(Horizontal, -1, 1);
+
+		if (!Input_Manager::kb.Right && !Input_Manager::kb.Left)
+		{
+			if (Horizontal > 0.1f)
+			{
+				Horizontal -= Horizontal_Power;
+			}
+			else if (Horizontal < -0.1f)
+			{
+				Horizontal += Horizontal_Power;
+			}
+			else
+			{
+				Horizontal = 0;
+			}
+		}
+	}
+	transform->Set_eulerAngles(0, 0, -20 * Horizontal);
+
+	if (!Boosting && (Input_Manager::key_tracker.IsKeyPressed(Keyboard::Space) || Input_Manager::pad_tracker.a == GamePad::ButtonStateTracker::PRESSED))
+	{
+		Boosting = true;
+		Boost_Timer = Boost_Time_Max;
+	}
+
+	moveForward = Vector3::Right * Horizontal;
+}
+
+void Player::Check_Parameter()
+{
+	if (Gas >= 0)
+	{
+		Gas -= Gas_Decrease * Time::deltaTime;
+	}
+	else
+	{
+
+	}
+
+	if (Boosting)
+	{
+		Boost_Timer -= Time::deltaTime;
+		if (Boost_Timer <= 0)
+		{
+			Boosting = false;
+		}
+	}
+
+	if (!Damage)
+	{
+		Speed_Bonus_Timer += Time::deltaTime;
+		if (Speed_Bonus_Timer > Speed_Bonus_Time_Max)
+		{
+			Speed_Bonus_Count++;
+			Speed_Bonus_Timer = 0;
+		}
+	}
+	else
+	{
+		Speed_Bonus_Timer = 0;
+		Speed_Bonus_Count = 0;
+
+		Damage = false;
+	}
+	Speed_Bonus_Magnification = 1 + (Speed_Bonus_Magnification_Set * Speed_Bonus_Count);
 }
 
 void Player::Move()
 {
-	transform->Set_position(transform->Get_position() + Vector3(0, 0, -Scroll_Speed * Time::deltaTime));
+	/*
 	if (Move_Speed > 0)
 	{
-		transform->Set_position(transform->Get_position() + transform->Get_forward() * Move_Speed * Time::deltaTime);
+		Vector3 to_pos = transform->Get_position() + transform->Get_forward() * Move_Speed * Time::deltaTime;
+		bool cant_move = false;
+		for (size_t i = 0; i < colliders.size(); i++)
+		{
+			shared_ptr<Collider> col = colliders[i].lock();
+			if (col->gameObject->activeSelf())
+			{
+				float x_min = col->transform->Get_position().x - col->Size_X;
+				float x_max = col->transform->Get_position().x + col->Size_X;
+				float z_min = col->transform->Get_position().z - col->Size_Z;
+				float z_max = col->transform->Get_position().z + col->Size_Z;
+
+				float pos_x = to_pos.x;
+				float pos_z = to_pos.z;
+				if (pos_x > x_min && pos_x < x_max && pos_z < z_max && pos_z > z_min)
+				{
+					cant_move = true;
+				}
+			}
+		}
+		if (!cant_move && to_pos.x > -3.0f && to_pos.x < 3.0f)
+		{
+			transform->Set_position(to_pos);
+		}
 		Move_Speed -= Down_Power * Time::deltaTime;
 	}
 	else
 	{
 		Move_Speed = 0;
 	}
+	*/
+
+	Vector3 to_pos = transform->Get_position();
+	if (Boosting)
+	{
+		to_pos += moveForward * Move_Speed * Boost_Magnification * Time::deltaTime;
+	}
+	else
+	{
+		to_pos += moveForward * Move_Speed * Time::deltaTime;
+	}
+
+	for (size_t i = 0; i < colliders.size(); i++)
+	{
+		shared_ptr<Collider> col = colliders[i].lock();
+		if (col->gameObject->activeSelf())
+		{
+			float x_min = col->transform->Get_position().x - col->Size_X;
+			float x_max = col->transform->Get_position().x + col->Size_X;
+			float z_min = col->transform->Get_position().z - col->Size_Z;
+			float z_max = col->transform->Get_position().z + col->Size_Z;
+
+			float pos_x = to_pos.x;
+			float pos_z = to_pos.z;
+			if (pos_x > x_min && pos_x < x_max && pos_z < z_max && pos_z > z_min)
+			{
+				if (col->obj_type == Collider::Block)
+				{
+					Damage = true;
+				}
+				else if (col->obj_type == Collider::Gas)
+				{
+
+				}
+				else if (col->obj_type == Collider::Bonus)
+				{
+
+				}
+			}
+		}
+	}
+
+	if (to_pos.x > -2.8f && to_pos.x < 2.8f)
+	{
+		transform->Set_position(to_pos);
+	}
 }
 
 bool Player::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	if (ImGui::CollapsingHeader("Camera"))
+	if (ImGui::CollapsingHeader("Player"))
 	{
 		bool removed = true;
-		if (ImGui::BeginPopupContextItem("Camera_sub"))
+		if (ImGui::BeginPopupContextItem("Player_sub"))
 		{
 			if (ImGui::Selectable(u8"コンポーネントを削除"))
 			{
@@ -109,14 +266,24 @@ bool Player::Draw_ImGui()
 				return false;
 			}
 		}
+		ImGui::Text(u8"パラメータ変数");
+		//ImGui::DragFloat(u8"applySpeed", &applySpeed, 0.1f, 0.01f, FLT_MAX);
+		ImGui::DragFloat(u8"Move_Speed", &Move_Speed, 0.1f, 0, FLT_MAX);
+		ImGui::DragFloat(u8"Boost_Magnification", &Boost_Magnification, 0.1f, 1.0f, FLT_MAX);
+		ImGui::DragFloat(u8"Boost_Time_Max", &Boost_Time_Max, 0.1f, 0, FLT_MAX);
+		ImGui::DragFloat(u8"Gas_Max", &Gas_Max, 0.1f, 0, FLT_MAX);
+		ImGui::DragFloat(u8"Gas_Decrease", &Gas_Decrease, 0.1f, 0, FLT_MAX);
+		ImGui::DragFloat(u8"Gas_Increase", &Gas_Increase, 0.1f, 0, FLT_MAX);
+		ImGui::DragFloat(u8"Speed_Bonus_Magnification", &Speed_Bonus_Magnification, 0.1f, 1.0f, FLT_MAX);
+		ImGui::DragFloat(u8"Speed_Bonus_Time_Max", &Speed_Bonus_Time_Max, 0.1f, 0, FLT_MAX);
+		//ImGui::DragFloat(u8"Max_Speed", &Max_Speed, 0.1f, -FLT_MAX, FLT_MAX);
+		//ImGui::DragFloat(u8"Add_Power", &Add_Power, 0.1f, -FLT_MAX, FLT_MAX);
+		//ImGui::DragFloat(u8"Down_Power", &Down_Power, 0.1f, -FLT_MAX, FLT_MAX);
 
-		ImGui::DragFloat(u8"applySpeed", &applySpeed, 0.1f, 0.01f, FLT_MAX);
-		ImGui::DragFloat(u8"Move_Speed", &Move_Speed, 0.1f, -FLT_MAX, FLT_MAX);
-		ImGui::DragFloat(u8"Max_Speed", &Max_Speed, 0.1f, -FLT_MAX, FLT_MAX);
-		ImGui::DragFloat(u8"Scroll_Speed", &Scroll_Speed, 0.1f, -FLT_MAX, FLT_MAX);
-		ImGui::DragFloat(u8"Add_Power", &Add_Power, 0.1f, -FLT_MAX, FLT_MAX);
-		ImGui::DragFloat(u8"Down_Power", &Down_Power, 0.1f, -FLT_MAX, FLT_MAX);
-		ImGui::DragFloat(u8"Dash_Power", &Dash_Power, 0.1f, -FLT_MAX, FLT_MAX);
+		ImGui::Text(u8"デバッグ用");
+		ImGui::Text(u8"Gas : %.1f", Gas);
+		//ImGui::Text(u8"Move_Speed : %.2f", Move_Speed);
+		//ImGui::Text(u8"Dash_Power : %.2f", Dash_Power);
 	}
 	return true;
 }

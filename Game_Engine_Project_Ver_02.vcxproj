@@ -247,12 +247,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Script\Souse\All_Component_List.cpp" />
-    <ClCompile Include="Script\Souse\Bullet.cpp" />
-    <ClCompile Include="Script\Souse\Camera_Set.cpp" />
-    <ClCompile Include="Script\Souse\Enemy.cpp" />
-    <ClCompile Include="Script\Souse\Enemy_Manager.cpp" />
+    <ClCompile Include="Script\Souse\Block.cpp" />
+    <ClCompile Include="Script\Souse\Collider.cpp" />
     <ClCompile Include="Script\Souse\ObjectPool.cpp" />
     <ClCompile Include="Script\Souse\Player.cpp" />
+    <ClCompile Include="Script\Souse\Scroll.cpp" />
+    <ClCompile Include="Script\Souse\Stage_Manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Animator.h" />
@@ -697,12 +697,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Code\Header_File\All_Component_List.h" />
-    <ClInclude Include="Script\Header\Bullet.h" />
-    <ClInclude Include="Script\Header\Camera_Set.h" />
-    <ClInclude Include="Script\Header\Enemy.h" />
-    <ClInclude Include="Script\Header\Enemy_Manager.h" />
+    <ClInclude Include="Script\Header\Block.h" />
+    <ClInclude Include="Script\Header\Collider.h" />
     <ClInclude Include="Script\Header\ObjectPool.h" />
     <ClInclude Include="Script\Header\Player.h" />
+    <ClInclude Include="Script\Header\Scroll.h" />
+    <ClInclude Include="Script\Header\Stage_Manager.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Code\Shader\2D.fx">

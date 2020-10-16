@@ -25,6 +25,8 @@ void Light::Initialize(std::shared_ptr<GameObject> obj)
 
 	if (!shader)
 	{
+		//Shadow_Map_Texture_Size = 4096;
+
 		shader = make_shared<Shader>();
 		shader->Create_VS(L"Shader\\ShadowMap_Shader_VS.hlsl", "VSMain");
 		// 深度ステンシル設定
@@ -121,6 +123,10 @@ void Light::Set(shared_ptr<Transform> trans)
 
 	// プロジェクション行列を作成
 	{
+		if (Light_View_Size <= 0)
+		{
+			Light_View_Size = 0.1f;
+		}
 		XMStoreFloat4x4(&P, XMMatrixOrthographicLH(Light_View_Size, Light_View_Size, 0.f, 1000.0f));
 		//角度をラジアン(θ)に変換
 		//float fov_y = XMConvertToRadians(30);	// 画角

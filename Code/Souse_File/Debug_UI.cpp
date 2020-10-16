@@ -57,8 +57,8 @@ Debug_UI::Debug_UI()
 	io.Fonts->AddFontFromFileTTF("Font/fontawesome-webfont.ttf", size_icon, &config, icon_ranges);
 	io.Fonts->Build();
 
-	Vector3 p = { -100, 80, -100 };
-	Vector3 e = { 30, 45, 0 };
+	Vector3 p = { -50, 40, -50 };
+	Vector3 e = { 15, 45, 0 };
 	Debug_Camera_Transform = make_unique<Transform>(p, e);
 }
 
@@ -369,7 +369,7 @@ void Debug_UI::Inspector_Render()
 	if (obj)
 	{
 		//選択時
-		ImGui::Checkbox("", &obj->Active);
+		ImGui::Checkbox("##active", &obj->Active);
 		ImGui::SameLine();
 		ImGui::InputText(u8"名前", &obj->name);
 
@@ -412,6 +412,7 @@ void Debug_UI::ScenePlayer_Render()
 	{
 		if (ImGui::Button(ICON_FA_STOP))
 		{
+			Active_Object.reset();
 			Engine::scene_manager->End_DebugScene();
 			Engine::scene_manager->Run = false;
 			Engine::scene_manager->Pause = false;
@@ -423,6 +424,7 @@ void Debug_UI::ScenePlayer_Render()
 		{
 			if (!Engine::scene_manager->Pause)
 			{
+				Active_Object.reset();
 				Engine::scene_manager->Start_DebugScene();
 			}
 			Engine::scene_manager->Run = true;
@@ -576,7 +578,7 @@ void Debug_UI::Scene_File_Menu_Render()
 
 }
 
-//インスペクタ内のオブジェクトツリー描画
+//ヒエラルキー内のオブジェクトツリー描画
 void Debug_UI::GameObject_List_Render(std::shared_ptr<Scene> scene)
 {
 	int node_clicked = -1;

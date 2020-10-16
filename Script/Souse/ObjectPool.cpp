@@ -1,5 +1,4 @@
 #include "GameObject.h"
-#include "Bullet.h"
 #include "SkinMesh_Renderer.h"
 #include "ObjectPool.h"
 using namespace std;
@@ -16,7 +15,6 @@ void ObjectPool::CreatePool()
 	{
 		shared_ptr<GameObject> g = GameObject::Instantiate("bullet");
 
-		g->AddComponent<Bullet>();
 		shared_ptr<SkinMesh_Renderer> renderer = g->AddComponent<SkinMesh_Renderer>();
 		renderer->Set_Mesh(Mesh::Load_Mesh("Model\\", "Sphere"));
 

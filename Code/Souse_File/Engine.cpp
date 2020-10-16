@@ -45,7 +45,24 @@ Engine::Engine()
 	}
 
 #else
-	scene_manager->CreateScene_Default("Default_Scene");
+	string load_pass;
+	ifstream iIfstream("Default_Resource\\System\\last_save.bin");
+	if (iIfstream.is_open())
+	{
+		getline(iIfstream, load_pass);
+		if (load_pass != "")
+		{
+			scene_manager->CreateScene_FromFile(load_pass);
+		}
+		else
+		{
+			scene_manager->CreateScene_Default("Default_Scene");
+		}
+	}
+	else
+	{
+		scene_manager->CreateScene_Default("Default_Scene");
+	}
 	scene_manager->Run = true;
 #endif
 }

@@ -99,7 +99,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 
 	ShowWindow(hWnd, nCmdShow);
 
-	// デバイス初期化
+	Microsoft::WRL::Wrappers::RoInitializeWrapper initialize(RO_INIT_MULTITHREADED);
+	
+		// デバイス初期化
 	if (FAILED((HRESULT)DxSystem::Initialize(hWnd, DxSystem::GetScreenWidth(), DxSystem::GetScreenHeight())))
 	{
 		return 0;

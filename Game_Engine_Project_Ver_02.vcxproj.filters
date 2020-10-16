@@ -68,10 +68,6 @@
     <ClCompile Include="Librarys\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="Librarys\ImGui\imgui_stdlib.cpp" />
     <ClCompile Include="Librarys\ImGui\imgui_widgets.cpp" />
-    <ClCompile Include="Script\Souse\Bullet.cpp" />
-    <ClCompile Include="Script\Souse\Camera_Set.cpp" />
-    <ClCompile Include="Script\Souse\Enemy.cpp" />
-    <ClCompile Include="Script\Souse\Enemy_Manager.cpp" />
     <ClCompile Include="Script\Souse\ObjectPool.cpp" />
     <ClCompile Include="Script\Souse\Player.cpp" />
     <ClCompile Include="Code\Libraries\ImGui\imgui.cpp" />
@@ -87,6 +83,10 @@
     <ClCompile Include="Code\Souse_File\SkyBox.cpp" />
     <ClCompile Include="Code\Souse_File\Light.cpp" />
     <ClCompile Include="Code\Souse_File\Light_Manager.cpp" />
+    <ClCompile Include="Script\Souse\Scroll.cpp" />
+    <ClCompile Include="Script\Souse\Stage_Manager.cpp" />
+    <ClCompile Include="Script\Souse\Block.cpp" />
+    <ClCompile Include="Script\Souse\Collider.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Audio_Manager.h">
@@ -151,10 +151,6 @@
     <ClInclude Include="Librarys\ImGui\imstb_rectpack.h" />
     <ClInclude Include="Librarys\ImGui\imstb_textedit.h" />
     <ClInclude Include="Librarys\ImGui\imstb_truetype.h" />
-    <ClInclude Include="Script\Header\Bullet.h" />
-    <ClInclude Include="Script\Header\Camera_Set.h" />
-    <ClInclude Include="Script\Header\Enemy.h" />
-    <ClInclude Include="Script\Header\Enemy_Manager.h" />
     <ClInclude Include="Script\Header\ObjectPool.h" />
     <ClInclude Include="Script\Header\Player.h" />
     <ClInclude Include="Code\Libraries\ImGui\imstb_truetype.h" />
@@ -261,6 +257,10 @@
     <ClInclude Include="Code\Header_File\SkyBox.h" />
     <ClInclude Include="Code\Header_File\Light.h" />
     <ClInclude Include="Code\Header_File\Light_Manager.h" />
+    <ClInclude Include="Script\Header\Scroll.h" />
+    <ClInclude Include="Script\Header\Stage_Manager.h" />
+    <ClInclude Include="Script\Header\Block.h" />
+    <ClInclude Include="Script\Header\Collider.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Sources">
