@@ -19,6 +19,7 @@ public:
 
 	enum Obj_Type
 	{
+		None,
 		Block,
 		Gas,
 		Bonus

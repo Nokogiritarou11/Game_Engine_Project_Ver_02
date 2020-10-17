@@ -345,36 +345,3 @@ void Scene::Add_Enable(shared_ptr<MonoBehaviour> mono)
 			break;
 	}
 }
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-void Game_01_Scene::Initialize()
-{
-	shared_ptr<GameObject> camera = GameObject::Instantiate(u8"Main_Camera");
-	camera->AddComponent<Camera>();
-	camera->AddComponent<Camera_Set>();
-	camera->transform->Set_position(0, 75, -125.0f);
-	camera->transform->Set_eulerAngles(30, 0, 0);
-
-	shared_ptr<GameObject> player = GameObject::Instantiate(u8"player");
-	player->tag = "Player";
-	player->AddComponent<Player>();
-	shared_ptr<SkinMesh_Renderer> renderer = player->AddComponent<SkinMesh_Renderer>();
-	renderer->Set_Mesh(Mesh::Load_Mesh("Model\\", "tank"));
-	//renderer->Set_Mesh(Mesh::Load_Mesh("Model\\", "robot_00_01.txt"));
-
-	shared_ptr<GameObject> enemy_manager = GameObject::Instantiate(u8"Enemy_Manager");
-	enemy_manager->tag = "Enemy_Manager";
-	enemy_manager->AddComponent<Enemy_Manager>();
-
-	shared_ptr<GameObject> Floor = GameObject::Instantiate(u8"Floor");
-	shared_ptr<SkinMesh_Renderer> f_renderer = Floor->AddComponent<SkinMesh_Renderer>();
-	Floor->transform->Set_eulerAngles(-90, 0, 0);
-	Floor->transform->Set_scale(5, 5, 5);
-	f_renderer->Set_Mesh(Mesh::Load_Mesh("Model\\", "haikei_yuka1"));
-	f_renderer->material[0]->color = { 0,1,0,0 };
-
-	shared_ptr<GameObject> pool = GameObject::Instantiate(u8"ObjectPool");
-	pool->tag = "ObjectPool";
-	pool->AddComponent<ObjectPool>();
-}
-*/

@@ -195,7 +195,6 @@
     <ClCompile Include="Code\Souse_File\Mesh.cpp" />
     <ClCompile Include="Code\Souse_File\Mesh_Renderer.cpp" />
     <ClCompile Include="Code\Souse_File\MonoBehaviour.cpp" />
-    <ClCompile Include="Code\Souse_File\MonoBehaviour_Manager.cpp" />
     <ClCompile Include="Code\Souse_File\Object.cpp" />
     <ClCompile Include="Code\Souse_File\Original_Math.cpp" />
     <ClCompile Include="Code\Souse_File\Rect_Transform.cpp" />
@@ -278,7 +277,6 @@
     <ClInclude Include="Code\Header_File\Mesh_Renderer.h" />
     <ClInclude Include="Code\Header_File\misc.h" />
     <ClInclude Include="Code\Header_File\MonoBehaviour.h" />
-    <ClInclude Include="Code\Header_File\MonoBehaviour_Manager.h" />
     <ClInclude Include="Code\Header_File\Include_Mono.h" />
     <ClInclude Include="Code\Header_File\Object.h" />
     <ClInclude Include="Code\Header_File\Original_Math.h" />
