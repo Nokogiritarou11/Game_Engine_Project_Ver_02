@@ -126,7 +126,7 @@ void Material::Draw_ImGui()
 {
 	ImGui::Text(name.c_str());
 	float out_color[4] = { color.x,color.y,color.z,color.w };
-	ImGui::ColorEdit3("Color", out_color);
+	ImGui::ColorEdit4("Color", out_color);
 	color = { out_color[0],out_color[1] ,out_color[2] ,out_color[3] };
 	if (ImGui::Button(u8"•Û‘¶"))
 	{

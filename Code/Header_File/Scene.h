@@ -35,24 +35,13 @@ private:
 		archive(gameObject_List);
 	}
 
-	std::list<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Update_list;
-	std::list<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Awake_list;
-	std::list<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Start_list;
-	std::list<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Disable_list;
-	std::list<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Enable_list;
+	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Update_list;
+	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Awake_list;
+	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Start_list;
+	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Disable_list;
+	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Enable_list;
 
-	std::list<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Next_Update_list;
+	//std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Next_Update_list;
 
 	int Update_Stage = 0;
 };
-
-/////////////////////////////////////////////////////////////////////////
-/*
-class Game_01_Scene : public Scene
-{
-public:
-	void Initialize();
-
-private:
-};
-*/

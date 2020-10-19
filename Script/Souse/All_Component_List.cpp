@@ -6,6 +6,7 @@
 //使いたいクラス(コンポーネント)をインクルード
 #include "Camera.h"
 #include "SkinMesh_Renderer.h"
+#include "Sprite_Renderer.h"
 #include "Animator.h"
 #include "Player.h"
 #include "Scroll.h"
@@ -44,6 +45,12 @@ void All_Component_List::Add(shared_ptr<GameObject> obj)
 		if (ImGui::Button("SkinMesh_Renderer", ImVec2(-FLT_MIN, 0.0f)))
 		{
 			obj->AddComponent<SkinMesh_Renderer>();
+			ImGui::CloseCurrentPopup();
+		}
+
+		if (ImGui::Button("Sprite_Renderer", ImVec2(-FLT_MIN, 0.0f)))
+		{
+			obj->AddComponent<Sprite_Renderer>();
 			ImGui::CloseCurrentPopup();
 		}
 

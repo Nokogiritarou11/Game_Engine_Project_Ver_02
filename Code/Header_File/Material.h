@@ -21,8 +21,6 @@ public:
 	std::shared_ptr<Texture> texture[5];
 
 	Vector4 color = { 1,1,1,1 };
-	Vector2 UV_Origin = { 0,0 };
-	Vector2 UV_Size = { 0,0 };
 
 	int BlendState = DxSystem::BS_NONE;
 	int RasterizerState = DxSystem::RS_CULL_NONE;

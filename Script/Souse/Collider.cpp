@@ -7,11 +7,15 @@
 void Collider::Start()
 {
 	GameObject::Find("Player").lock()->GetComponent<Player>()->colliders.push_back(static_pointer_cast<Collider>(shared_from_this()));
+	Disable_Line = -75;
 }
 
 void Collider::Update()
 {
-
+	if (transform->Get_position().z < Disable_Line)
+	{
+		gameObject->SetActive(false);
+	}
 }
 
 bool Collider::Draw_ImGui()

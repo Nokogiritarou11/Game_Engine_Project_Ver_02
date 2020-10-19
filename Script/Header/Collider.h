@@ -15,6 +15,8 @@ public:
 	float Size_X;
 	float Size_Z;
 
+	float Disable_Line;
+
 	int obj_type = 0;
 
 	enum Obj_Type

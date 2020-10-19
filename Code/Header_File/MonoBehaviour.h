@@ -24,6 +24,9 @@ public:
 	void Initialize();
 	void Initialize(std::shared_ptr<GameObject> obj);
 
+	bool IsCalled_Awake = false;
+	bool IsCalled_Start = false;
+
 private:
 	friend class cereal::access;
 	template<class Archive>

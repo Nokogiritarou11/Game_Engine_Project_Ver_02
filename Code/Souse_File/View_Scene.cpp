@@ -63,7 +63,7 @@ void View_Scene::Render(Matrix V, Matrix P, std::shared_ptr<Transform> trans)
 					DxSystem::DeviceContext->PSSetSamplers(0, 1, m_light->sampler.GetAddressOf());
 					DxSystem::DeviceContext->PSSetShaderResources(0, 1, m_light->ShaderResourceView.GetAddressOf());
 					Render_3D(V, P);
-					Render_2D(V, P);
+					//Render_2D(V, P);
 				}
 			}
 		}

@@ -2,7 +2,6 @@
 #include "Include_Mono.h"
 #include "Include_ImGui.h"
 #include "Scroll.h"
-#include "Block.h"
 #include "SkinMesh_Renderer.h"
 #include "Collider.h"
 #include "Player.h"
@@ -14,11 +13,26 @@ void Stage_Manager::Start()
 	player = p->GetComponent<Player>();
 	Scroll_Speed_Set = Scroll_Speed;
 
+	{
+		for (int i = 0; i < 2; ++i)
+		{
+			shared_ptr<GameObject> building = GameObject::Instantiate(u8"Building_" + to_string(i));
+			building->transform->Set_position(-70, -10, 325 + 825 * i);
+			building->transform->Set_scale(0.1f, 0.1f, 0.1f);
+			building->transform->Set_eulerAngles(0.0f, 178.0f, 0.0f);
+			building->AddComponent<Scroll>();
+			shared_ptr<SkinMesh_Renderer>skin = building->AddComponent<SkinMesh_Renderer>();
+			skin->Set_Mesh(Mesh::Load_Mesh("Model\\building\\", "building"));
+			//building->SetActive(false);
+			Building[i] = building;
+		}
+	}
+
 	//橋_通常
 	{
 		bridge_normal_count = 5;
 
-		for (int i = 0; i < bridge_normal_count; i++)
+		for (int i = 0; i < bridge_normal_count; ++i)
 		{
 			shared_ptr<GameObject> bridge = GameObject::Instantiate(u8"Bridge_Normal_" + to_string(i));
 			bridge->transform->Set_position(0, 10, -bridge_offset.z * 3 + bridge_offset.z * i);
@@ -33,18 +47,18 @@ void Stage_Manager::Start()
 
 	//瓦礫
 	{
-		block_obj_count = 75;
-		for (int i = 0; i < block_obj_count; i++)
+		block_obj_count = 60;
+		for (int i = 0; i < block_obj_count; ++i)
 		{
 			shared_ptr<GameObject> block = GameObject::Instantiate(u8"Block_" + to_string(i));
 			block->transform->Set_position(0, 0, 0);
-			block->transform->Set_scale(0.1f, 0.1f, 0.1f);
+			block->transform->Set_scale(0.12f, 0.12f, 0.12f);
+			block->transform->Set_eulerAngles(0, Mathf::Random_Range(0, 360), 0);
 
 			block->AddComponent<Scroll>();
-			block->AddComponent<Block>();
 			shared_ptr<Collider> col = block->AddComponent<Collider>();
-			col->Size_X = 1.0f;
-			col->Size_Z = 1.0f;
+			col->Size_X = 1.2f;
+			col->Size_Z = 1.2f;
 			col->obj_type = Collider::Block;
 
 			shared_ptr<SkinMesh_Renderer>skin = block->AddComponent<SkinMesh_Renderer>();
@@ -56,12 +70,12 @@ void Stage_Manager::Start()
 
 	//ガソリン
 	{
-		gas_obj_count = 6;
-		for (int i = 0; i < gas_obj_count; i++)
+		gas_obj_count = 7;
+		for (int i = 0; i < gas_obj_count; ++i)
 		{
 			shared_ptr<GameObject> gas = GameObject::Instantiate(u8"Gas_" + to_string(i));
 			gas->transform->Set_position(0, 0, 0);
-			gas->transform->Set_scale(0.1f, 0.1f, 0.1f);
+			gas->transform->Set_scale(0.01f, 0.01f, 0.01f);
 
 			gas->AddComponent<Scroll>();
 			shared_ptr<Collider> col = gas->AddComponent<Collider>();
@@ -78,12 +92,12 @@ void Stage_Manager::Start()
 
 	//ボーナス
 	{
-		bonus_obj_count = 6;
-		for (int i = 0; i < bonus_obj_count; i++)
+		bonus_obj_count = 7;
+		for (int i = 0; i < bonus_obj_count; ++i)
 		{
 			shared_ptr<GameObject> bonus = GameObject::Instantiate(u8"Bonus_" + to_string(i));
 			bonus->transform->Set_position(0, 0, 0);
-			bonus->transform->Set_scale(0.1f, 0.1f, 0.1f);
+			bonus->transform->Set_scale(0.05f, 0.05f, 0.05f);
 
 			bonus->AddComponent<Scroll>();
 			shared_ptr<Collider> col = bonus->AddComponent<Collider>();
@@ -100,51 +114,44 @@ void Stage_Manager::Start()
 
 	//マップ生成用パターン生成
 	{
-		Block_Pattern.push_back({ 0, 0, 0, 0 });
-		Block_Pattern.push_back({ 1, 0, 0, 0 });
-		Block_Pattern.push_back({ 0, 1, 0, 0 });
-		Block_Pattern.push_back({ 0, 0, 1, 0 });
-		Block_Pattern.push_back({ 0, 0, 0, 1 });
-		Block_Pattern.push_back({ 1, 1, 0, 0 });
-		Block_Pattern.push_back({ 0, 1, 1, 0 });
-		Block_Pattern.push_back({ 0, 0, 1, 1 });
-		Block_Pattern.push_back({ 1, 0, 1, 0 });
-		Block_Pattern.push_back({ 0, 1, 0, 1 });
-		Block_Pattern.push_back({ 1, 0, 0, 1 });
-		Block_Pattern.push_back({ 0, 1, 1, 0 });
-		Block_Pattern.push_back({ 1, 1, 1, 0 });
-		Block_Pattern.push_back({ 1, 0, 1, 1 });
-		Block_Pattern.push_back({ 1, 1, 0, 1 });
-		Block_Pattern.push_back({ 0, 1, 1, 1 });
+		Block_Pattern.push_back({ 1, 0, 0 });
+		Block_Pattern.push_back({ 0, 1, 0 });
+		Block_Pattern.push_back({ 0, 0, 1 });
+		Block_Pattern.push_back({ 1, 1, 0 });
+		Block_Pattern.push_back({ 0, 1, 1 });
+		Block_Pattern.push_back({ 1, 0, 1 });
 
-		Gas_Pattern.push_back({ 1, 2, 1, 0 });
-		Gas_Pattern.push_back({ 1, 1, 2, 0 });
-		Gas_Pattern.push_back({ 2, 1, 1, 0 });
-		Gas_Pattern.push_back({ 0, 2, 1, 1 });
-		Gas_Pattern.push_back({ 0, 1, 1, 2 });
-		Gas_Pattern.push_back({ 1, 0, 1, 2 });
-		Gas_Pattern.push_back({ 1, 2, 0, 1 });
-		Gas_Pattern.push_back({ 1, 1, 0, 2 });
-		Gas_Pattern.push_back({ 2, 1, 1, 1 });
-		Gas_Pattern.push_back({ 1, 2, 1, 1 });
-		Gas_Pattern.push_back({ 1, 1, 2, 1 });
-		Gas_Pattern.push_back({ 1, 1, 1, 2 });
+		Gas_Pattern.push_back({ 2, 1, 1 });
+		Gas_Pattern.push_back({ 1, 2, 1 });
+		Gas_Pattern.push_back({ 1, 1, 2 });
+		Gas_Pattern.push_back({ 0, 2, 1 });
+		Gas_Pattern.push_back({ 1, 2, 0 });
+		Gas_Pattern.push_back({ 2, 0, 1 });
+		Gas_Pattern.push_back({ 1, 0, 2 });
 
-		Bonus_Pattern.push_back({ 3, 1, 1, 1 });
-		Bonus_Pattern.push_back({ 1, 3, 1, 1 });
-		Bonus_Pattern.push_back({ 1, 1, 3, 1 });
-		Bonus_Pattern.push_back({ 1, 1, 1, 3 });
-		Bonus_Pattern.push_back({ 3, 1, 1, 0 });
-		Bonus_Pattern.push_back({ 0, 1, 1, 3 });
-		Bonus_Pattern.push_back({ 1, 3, 1, 0 });
-		Bonus_Pattern.push_back({ 0, 1, 3, 1 });
+		Bonus_Pattern.push_back({ 3, 1, 1 });
+		Bonus_Pattern.push_back({ 1, 3, 1 });
+		Bonus_Pattern.push_back({ 1, 1, 3 });
+		Bonus_Pattern.push_back({ 0, 1, 3 });
+		Bonus_Pattern.push_back({ 0, 3, 1 });
+		Bonus_Pattern.push_back({ 1, 3, 0 });
+		Bonus_Pattern.push_back({ 0, 3, 1 });
 	}
 }
 
 void Stage_Manager::Update()
 {
+	for (int i = 0; i < 2; ++i)
+	{
+		shared_ptr<GameObject> building = Building[i].lock();
+		if (building->transform->Get_position().z <= -500)
+		{
+			building->transform->Set_position(-70, -10, 1150);
+		}
+	}
+
 	//橋_通常
-	for (int i = 0; i < bridge_normal_count; i++)
+	for (int i = 0; i < bridge_normal_count; ++i)
 	{
 		shared_ptr<GameObject> bridge = Bridge_Normal[i].lock();
 		if (bridge->transform->Get_position().z <= -bridge_offset.z * 3)
@@ -178,23 +185,28 @@ void Stage_Manager::Update()
 
 void Stage_Manager::Create_Objects(Vector3 Instance_Pos)
 {
-	Instance_Objects.clear();
-
-	for (int i = 0; i < 6; i++)
+	Instance_Pattern.clear();
+	for (int i = 0; i < 4; ++i)
 	{
-		Instance_Pattern.push_back(Block_Pattern[(int)Mathf::Random_Range(0, Block_Pattern.size())]);
+		Instance_Pattern.push_back(Block_Pattern[(int)Mathf::Random_Range(0, (float)Block_Pattern.size())]);
 	}
-	Instance_Pattern.push_back(Gas_Pattern[(int)Mathf::Random_Range(0, Gas_Pattern.size())]);
-	Instance_Pattern.push_back(Bonus_Pattern[(int)Mathf::Random_Range(0, Bonus_Pattern.size())]);
+	if ((int)Mathf::Random_Range(0, 2))
+	{
+		Instance_Pattern.push_back(Gas_Pattern[(int)Mathf::Random_Range(0, (float)Gas_Pattern.size())]);
+	}
+	else
+	{
+		Instance_Pattern.push_back(Bonus_Pattern[(int)Mathf::Random_Range(0, (float)Bonus_Pattern.size())]);
+	}
 
 	random_device seed_gen;
 	mt19937 engine(seed_gen());
 	shuffle(Instance_Pattern.begin(), Instance_Pattern.end(), engine);
 
-	for (int i = 0; i < Instance_Pattern.size(); i++)
+	for (u_int i = 0; i < Instance_Pattern.size(); ++i)
 	{
-		float inst[4] = { Instance_Pattern[i][0] ,Instance_Pattern[i][1] ,Instance_Pattern[i][2] ,Instance_Pattern[i][3] };
-		for (int t = 0; t < 4; t++)
+		float inst[3] = { Instance_Pattern[i][0] ,Instance_Pattern[i][1] ,Instance_Pattern[i][2] };
+		for (int t = 0; t < 3; ++t)
 		{
 			shared_ptr<GameObject> obj;
 			if (inst[t] == Collider::None)
@@ -214,7 +226,7 @@ void Stage_Manager::Create_Objects(Vector3 Instance_Pos)
 				obj = Instance_Object(Bonus_obj);
 			}
 			obj->SetActive(true);
-			Vector3 p = { -2.0f + t ,11.0f ,(Instance_Pos.z - (bridge_offset.z / 2.0f)) + (bridge_offset.z / 8.0f) * i };
+			Vector3 p = { -2.0f + t * 2 ,11.0f ,(Instance_Pos.z - (bridge_offset.z / 2.0f)) + (bridge_offset.z / 5.0f) * i };
 			obj->transform->Set_position(p);
 		}
 	}
@@ -222,7 +234,7 @@ void Stage_Manager::Create_Objects(Vector3 Instance_Pos)
 
 shared_ptr<GameObject> Stage_Manager::Instance_Object(std::vector<std::weak_ptr<GameObject>>& objects)
 {
-	for (size_t i = 0; i < objects.size(); i++)
+	for (size_t i = 0; i < objects.size(); ++i)
 	{
 		shared_ptr<GameObject> obj = objects[i].lock();
 		if (!obj->activeSelf())

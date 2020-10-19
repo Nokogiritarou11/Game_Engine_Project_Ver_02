@@ -17,6 +17,7 @@ public:
 
 	float Scroll_Speed;
 private:
+	std::weak_ptr<GameObject> Building[2];
 
 	std::vector<std::weak_ptr<GameObject>> Bridge_Normal;
 	int bridge_normal_count;
@@ -35,11 +36,10 @@ private:
 
 	float Scroll_Speed_Set;
 
-	std::vector<std::weak_ptr<GameObject>> Instance_Objects;
-	std::vector<std::array<float, 4>> Instance_Pattern;
-	std::vector<std::array<float, 4>> Block_Pattern;
-	std::vector<std::array<float, 4>> Gas_Pattern;
-	std::vector<std::array<float, 4>> Bonus_Pattern;
+	std::vector<std::array<float, 3>> Instance_Pattern;
+	std::vector<std::array<float, 3>> Block_Pattern;
+	std::vector<std::array<float, 3>> Gas_Pattern;
+	std::vector<std::array<float, 3>> Bonus_Pattern;
 	void Create_Objects(Vector3 Instance_Pos);
 	std::shared_ptr<GameObject> Instance_Object(std::vector<std::weak_ptr<GameObject>>& objects);
 

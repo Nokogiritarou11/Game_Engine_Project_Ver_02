@@ -171,7 +171,7 @@ void Player::Move()
 	{
 		Vector3 to_pos = transform->Get_position() + transform->Get_forward() * Move_Speed * Time::deltaTime;
 		bool cant_move = false;
-		for (size_t i = 0; i < colliders.size(); i++)
+		for (size_t i = 0; i < colliders.size(); ++i)
 		{
 			shared_ptr<Collider> col = colliders[i].lock();
 			if (col->gameObject->activeSelf())
@@ -202,20 +202,14 @@ void Player::Move()
 	*/
 
 	Vector3 to_pos = transform->Get_position();
-	if (Boosting)
-	{
-		to_pos += moveForward * Move_Speed * Boost_Magnification * Time::deltaTime;
-	}
-	else
-	{
-		to_pos += moveForward * Move_Speed * Time::deltaTime;
-	}
+	to_pos += moveForward * Move_Speed * Time::deltaTime;
 
-	for (size_t i = 0; i < colliders.size(); i++)
+	for (size_t i = 0; i < colliders.size(); ++i)
 	{
 		shared_ptr<Collider> col = colliders[i].lock();
 		if (col->gameObject->activeSelf())
 		{
+			/*
 			float x_min = col->transform->Get_position().x - col->Size_X;
 			float x_max = col->transform->Get_position().x + col->Size_X;
 			float z_min = col->transform->Get_position().z - col->Size_Z;
@@ -224,18 +218,27 @@ void Player::Move()
 			float pos_x = to_pos.x;
 			float pos_z = to_pos.z;
 			if (pos_x > x_min && pos_x < x_max && pos_z < z_max && pos_z > z_min)
+			*/
+			if (Vector3::Distance(col->transform->Get_position(), transform->Get_position()) < col->Size_X)
 			{
 				if (col->obj_type == Collider::Block)
 				{
-					Damage = true;
+					if (Boosting)
+					{
+						col->gameObject->SetActive(false);
+					}
+					else
+					{
+						Damage = true;
+					}
 				}
 				else if (col->obj_type == Collider::Gas)
 				{
-
+					col->gameObject->SetActive(false);
 				}
 				else if (col->obj_type == Collider::Bonus)
 				{
-
+					col->gameObject->SetActive(false);
 				}
 			}
 		}

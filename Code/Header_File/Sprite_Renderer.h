@@ -1,11 +1,9 @@
 #pragma once
-
 #include <d3d11.h>
 #include <DirectXMath.h>
 using namespace DirectX;
 #include <string>
 #include <wrl.h>
-#include <d3dcompiler.h>
 #include "Material.h"
 #include "Shader.h"
 #include "Texture.h"
@@ -13,28 +11,46 @@ using namespace DirectX;
 
 class Sprite_Renderer : public Renderer
 {
-private:
-
-	struct VERTEX
-	{
-		DirectX::XMFLOAT3 Pos;	//位置
-		DirectX::XMFLOAT2 Tex;	//UV座標
-		DirectX::XMFLOAT4 Color;	//頂点色
-	};
-
-	ComPtr<ID3D11Buffer> VertexBuffer;
 
 public:
 	Sprite_Renderer();
 	~Sprite_Renderer();
 
-	std::shared_ptr<Material> material;
+	Vector2 Size = { 100,100 };
+	Vector2 UV_Origin = { 0,0 };
+	Vector2 UV_Size = { 100,100 };
+	Vector4 Color = { 1,1,1,1 };
+	std::shared_ptr<Texture> texture;
 
 	void Initialize(std::shared_ptr<GameObject> obj);
-	void Set_Texture(std::string Material_Name, WCHAR* Shader_Name, std::string filename);
 	void Render(Matrix V, Matrix P) override;
-	void Render(Matrix V, Matrix P, bool Use_Material = true, std::shared_ptr<Shader> shader = nullptr) override{};
+	void Render(Matrix V, Matrix P, bool Use_Material = true, std::shared_ptr<Shader> shader = nullptr) override {};
+
+	bool Draw_ImGui();
+
+private:
+
+	struct VERTEX
+	{
+		Vector3 Pos;	//位置
+		Vector2 Tex;	//UV座標
+		Vector4 Color;	//頂点色
+	};
+
+	ComPtr<ID3D11Buffer> VertexBuffer;
+
+	std::string file_name;
+	std::string file_pass;
+
+	friend class cereal::access;
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(cereal::base_class<Renderer>(this), Size, UV_Origin, UV_Size, Color, file_name, file_pass);
+	}
 };
+CEREAL_REGISTER_TYPE(Sprite_Renderer)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Renderer, Sprite_Renderer)
 
 /*
 

@@ -8,7 +8,6 @@ void Scroll::Start()
 {
 	stage_manager = GameObject::Find("Stage_Manager").lock()->GetComponent<Stage_Manager>();
 	scroll_speed = stage_manager.lock()->Scroll_Speed;
-	Debug::Log(gameObject->name);
 }
 
 void Scroll::Update()

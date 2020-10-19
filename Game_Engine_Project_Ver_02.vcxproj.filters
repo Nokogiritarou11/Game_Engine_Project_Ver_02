@@ -11,6 +11,8 @@
     <FxCompile Include="Shader\SkyBox_Shader_VS.hlsl" />
     <FxCompile Include="Shader\SkyBox_Shader_PS.hlsl" />
     <FxCompile Include="Shader\ShadowMap_Shader_VS.hlsl" />
+    <FxCompile Include="Shader\2D_Shader_VS.hlsl" />
+    <FxCompile Include="Shader\2D_Shader_PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Souse_File\Audio_Manager.cpp">
@@ -84,7 +86,6 @@
     <ClCompile Include="Code\Souse_File\Light_Manager.cpp" />
     <ClCompile Include="Script\Souse\Scroll.cpp" />
     <ClCompile Include="Script\Souse\Stage_Manager.cpp" />
-    <ClCompile Include="Script\Souse\Block.cpp" />
     <ClCompile Include="Script\Souse\Collider.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -257,7 +258,6 @@
     <ClInclude Include="Code\Header_File\Light_Manager.h" />
     <ClInclude Include="Script\Header\Scroll.h" />
     <ClInclude Include="Script\Header\Stage_Manager.h" />
-    <ClInclude Include="Script\Header\Block.h" />
     <ClInclude Include="Script\Header\Collider.h" />
   </ItemGroup>
   <ItemGroup>
@@ -278,5 +278,6 @@
     <None Include="Shader\Standard_Shader.hlsli" />
     <None Include="Shader\SkyBox_Shader.hlsli" />
     <None Include="Shader\Scene_Constants.hlsli" />
+    <None Include="Shader\2D_Shader.hlsli" />
   </ItemGroup>
 </Project>
