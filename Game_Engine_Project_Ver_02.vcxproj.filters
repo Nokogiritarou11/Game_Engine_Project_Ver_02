@@ -87,6 +87,7 @@
     <ClCompile Include="Script\Souse\Scroll.cpp" />
     <ClCompile Include="Script\Souse\Stage_Manager.cpp" />
     <ClCompile Include="Script\Souse\Collider.cpp" />
+    <ClCompile Include="Code\Souse_File\System_Function.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Audio_Manager.h">
@@ -259,6 +260,7 @@
     <ClInclude Include="Script\Header\Scroll.h" />
     <ClInclude Include="Script\Header\Stage_Manager.h" />
     <ClInclude Include="Script\Header\Collider.h" />
+    <ClInclude Include="Code\Header_File\System_Function.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Sources">

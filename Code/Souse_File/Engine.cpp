@@ -1,6 +1,7 @@
 #include "Engine.h"
 #include "Render_Manager.h"
 #include "Animator_Manager.h"
+#include "System_Function.h"
 #include <sstream>
 #include <functional>
 #include <iostream>
@@ -33,15 +34,34 @@ Engine::Engine()
 		getline(iIfstream, load_pass);
 		if(load_pass != "")
 		{
-			scene_manager->CreateScene_FromFile(load_pass);
-		}else
+			Scene_Manager::LoadScene(load_pass);
+		}
+		else
 		{
-			scene_manager->CreateScene_Default("Default_Scene");
+			string path = System_Function::Get_Save_File_Name();
+			if (path != "")
+			{
+				int path_i = path.find_last_of("\\") + 1;//7
+				int ext_i = path.find_last_of(".");//10
+				string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
+				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+				path = pathname + filename + ".bin";
+				Engine::scene_manager->CreateScene_Default(path, filename);
+			}
 		}
 	}
 	else
 	{
-		scene_manager->CreateScene_Default("Default_Scene");
+		string path = System_Function::Get_Save_File_Name();
+		if (path != "")
+		{
+			int path_i = path.find_last_of("\\") + 1;//7
+			int ext_i = path.find_last_of(".");//10
+			string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
+			string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+			path = pathname + filename + ".bin";
+			Engine::scene_manager->CreateScene_Default(path, filename);
+		}
 	}
 
 #else
@@ -56,12 +76,10 @@ Engine::Engine()
 		}
 		else
 		{
-			scene_manager->CreateScene_Default("Default_Scene");
 		}
 	}
 	else
 	{
-		scene_manager->CreateScene_Default("Default_Scene");
 	}
 	scene_manager->Run = true;
 #endif

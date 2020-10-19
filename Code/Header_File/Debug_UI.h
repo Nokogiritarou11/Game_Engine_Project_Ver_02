@@ -14,8 +14,6 @@ public:
 
 	bool Draw_Debug_UI = true;
 	void Print_Log(std::string log);
-	static std::string Get_Open_File_Name();
-	static std::string Get_Save_File_Name();
 private:
 
 	char* Font_Name = "Font/mplus-1p-medium.ttf";

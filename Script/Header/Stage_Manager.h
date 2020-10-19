@@ -3,6 +3,7 @@
 #include "Transform.h"
 #include <Original_Math.h>
 #include <array>
+#include "Sprite_Renderer.h"
 using namespace DirectX;
 
 class Player;
@@ -35,11 +36,18 @@ private:
 	std::weak_ptr<Player> player;
 
 	float Scroll_Speed_Set;
+	bool Boost_Old = false;
 
 	std::vector<std::array<float, 3>> Instance_Pattern;
 	std::vector<std::array<float, 3>> Block_Pattern;
 	std::vector<std::array<float, 3>> Gas_Pattern;
 	std::vector<std::array<float, 3>> Bonus_Pattern;
+
+	std::weak_ptr<Sprite_Renderer> UI_MainWindow;
+	std::weak_ptr<Sprite_Renderer> UI_Boost;
+	std::weak_ptr<Sprite_Renderer> UI_Boost_OK;
+	std::weak_ptr<Sprite_Renderer> UI_Gas;
+
 	void Create_Objects(Vector3 Instance_Pos);
 	std::shared_ptr<GameObject> Instance_Object(std::vector<std::weak_ptr<GameObject>>& objects);
 

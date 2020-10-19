@@ -13,6 +13,17 @@ void Stage_Manager::Start()
 	player = p->GetComponent<Player>();
 	Scroll_Speed_Set = Scroll_Speed;
 
+	//UI
+	{
+		UI_MainWindow = GameObject::Find("UI_MainWindow").lock()->GetComponent<Sprite_Renderer>();
+		UI_Boost = GameObject::Find("UI_Boost").lock()->GetComponent<Sprite_Renderer>();
+		UI_Boost_OK = GameObject::Find("UI_Boost_OK").lock()->GetComponent<Sprite_Renderer>();
+		UI_Gas = GameObject::Find("UI_Gas").lock()->GetComponent<Sprite_Renderer>();
+
+		UI_Boost_OK.lock()->gameObject->SetActive(false);
+	}
+
+	//ÉrÉã
 	{
 		for (int i = 0; i < 2; ++i)
 		{
@@ -141,9 +152,10 @@ void Stage_Manager::Start()
 
 void Stage_Manager::Update()
 {
+	shared_ptr<GameObject> building;
 	for (int i = 0; i < 2; ++i)
 	{
-		shared_ptr<GameObject> building = Building[i].lock();
+		building = Building[i].lock();
 		if (building->transform->Get_position().z <= -500)
 		{
 			building->transform->Set_position(-70, -10, 1150);
@@ -151,9 +163,10 @@ void Stage_Manager::Update()
 	}
 
 	//ã¥_í èÌ
+	shared_ptr<GameObject> bridge;
 	for (int i = 0; i < bridge_normal_count; ++i)
 	{
-		shared_ptr<GameObject> bridge = Bridge_Normal[i].lock();
+		bridge = Bridge_Normal[i].lock();
 		if (bridge->transform->Get_position().z <= -bridge_offset.z * 3)
 		{
 			shared_ptr<GameObject> bridge_back;
@@ -181,22 +194,67 @@ void Stage_Manager::Update()
 	{
 		Scroll_Speed = Scroll_Speed_Set * p->Speed_Bonus_Magnification;
 	}
+
+	shared_ptr<Sprite_Renderer> gas = UI_Gas.lock();
+	int per = 8 - (p->Gas / (p->Gas_Max / 8));
+	if (p->Gas > 0)
+	{
+		gas->UV_Origin = { (float)per * 500 + 20,gas->UV_Origin.y };
+	}
+	else
+	{
+		if (gas->gameObject->activeSelf())
+		{
+			gas->gameObject->SetActive(false);
+		}
+	}
+
+	if (p->Can_Boost)
+	{
+		if (!Boost_Old)
+		{
+			Boost_Old = true;
+			UI_Boost.lock()->gameObject->SetActive(false);
+			UI_Boost_OK.lock()->gameObject->SetActive(true);
+		}
+	}
+	else
+	{
+		if (Boost_Old && !p->Boosting)
+		{
+			Boost_Old = false;
+			UI_Boost.lock()->gameObject->SetActive(true);
+			UI_Boost_OK.lock()->gameObject->SetActive(false);
+		}
+	}
+
+	p.reset();
+	gas.reset();
+	building.reset();
+	bridge.reset();
 }
 
 void Stage_Manager::Create_Objects(Vector3 Instance_Pos)
 {
 	Instance_Pattern.clear();
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < 3; ++i)
 	{
 		Instance_Pattern.push_back(Block_Pattern[(int)Mathf::Random_Range(0, (float)Block_Pattern.size())]);
 	}
-	if ((int)Mathf::Random_Range(0, 2))
+	if (Mathf::Probability(70))
 	{
-		Instance_Pattern.push_back(Gas_Pattern[(int)Mathf::Random_Range(0, (float)Gas_Pattern.size())]);
+		if (Mathf::Probability(50))
+		{
+			Instance_Pattern.push_back(Gas_Pattern[(int)Mathf::Random_Range(0, (float)Gas_Pattern.size())]);
+		}
+		else
+		{
+			Instance_Pattern.push_back(Bonus_Pattern[(int)Mathf::Random_Range(0, (float)Bonus_Pattern.size())]);
+		}
 	}
 	else
 	{
-		Instance_Pattern.push_back(Bonus_Pattern[(int)Mathf::Random_Range(0, (float)Bonus_Pattern.size())]);
+		Instance_Pattern.push_back(Block_Pattern[(int)Mathf::Random_Range(0, (float)Block_Pattern.size())]);
 	}
 
 	random_device seed_gen;
@@ -226,7 +284,7 @@ void Stage_Manager::Create_Objects(Vector3 Instance_Pos)
 				obj = Instance_Object(Bonus_obj);
 			}
 			obj->SetActive(true);
-			Vector3 p = { -2.0f + t * 2 ,11.0f ,(Instance_Pos.z - (bridge_offset.z / 2.0f)) + (bridge_offset.z / 5.0f) * i };
+			Vector3 p = { -2.0f + t * 2 ,11.0f ,(Instance_Pos.z - (bridge_offset.z / 2.0f)) + (bridge_offset.z / 4.0f) * i };
 			obj->transform->Set_position(p);
 		}
 	}

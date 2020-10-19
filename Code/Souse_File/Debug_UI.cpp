@@ -6,6 +6,7 @@
 #include "Engine.h"
 #include "All_Component_List.h"
 #include "Include_ImGui.h"
+#include "System_Function.h"
 #include <sstream>
 #include <functional>
 #include <iostream>
@@ -113,91 +114,6 @@ void Debug_UI::Render()
 		//ImGui::UpdatePlatformWindows();
 		//ImGui::RenderPlatformWindowsDefault();
 	}
-}
-
-//開くファイルのパス取得
-string Debug_UI::Get_Open_File_Name()
-{
-	static OPENFILENAME     ofn;
-	static TCHAR            szPath[MAX_PATH];
-	static TCHAR            szFile[MAX_PATH];
-	static string           str_pass;
-	static string           current_pass;
-	static size_t           current_pass_size;
-
-	if (szPath[0] == TEXT('\0'))
-	{
-		GetCurrentDirectory(MAX_PATH, szPath);
-		char char_pass[MAX_PATH];
-		WideCharToMultiByte(CP_ACP, 0, szPath, -1, char_pass, MAX_PATH, NULL, NULL);
-		current_pass = char_pass;
-		current_pass_size = current_pass.size();
-	}
-	if (ofn.lStructSize == 0)
-	{
-		ofn.lStructSize = sizeof(OPENFILENAME);
-		ofn.hwndOwner = DxSystem::hwnd;
-		ofn.lpstrInitialDir = szPath;       // 初期フォルダ位置
-		ofn.lpstrFile = szFile;       // 選択ファイル格納
-		ofn.nMaxFile = MAX_PATH;
-		ofn.lpstrFilter = TEXT("すべてのファイル(*.*)\0*.*\0");
-		ofn.lpstrTitle = TEXT("ファイル選択");
-		ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-	}
-	if (GetOpenFileName(&ofn))
-	{
-		char char_pass[MAX_PATH];
-		WideCharToMultiByte(CP_ACP, 0, szFile, -1, char_pass, MAX_PATH, NULL, NULL);
-		str_pass = char_pass;
-		str_pass = str_pass.substr(current_pass_size + 1, str_pass.size());
-	}
-	else
-	{
-		str_pass = "";
-	}
-	return str_pass;
-}
-
-//保存先パス取得
-string Debug_UI::Get_Save_File_Name()
-{
-	static OPENFILENAME     ofn;
-	static TCHAR            szPath[MAX_PATH];
-	static TCHAR            szFile[MAX_PATH];
-	static string           str_pass;
-	static size_t           current_pass_size;
-
-	if (szPath[0] == TEXT('\0'))
-	{
-		GetCurrentDirectory(MAX_PATH, szPath);
-		char char_pass[MAX_PATH];
-		WideCharToMultiByte(CP_ACP, 0, szPath, -1, char_pass, MAX_PATH, NULL, NULL);
-		string current_pass = char_pass;
-		current_pass_size = current_pass.size();
-	}
-	if (ofn.lStructSize == 0)
-	{
-		ofn.lStructSize = sizeof(OPENFILENAME);
-		ofn.hwndOwner = DxSystem::hwnd;
-		ofn.lpstrInitialDir = szPath;       // 初期フォルダ位置
-		ofn.lpstrFile = szFile;       // 選択ファイル格納
-		ofn.nMaxFile = MAX_PATH;
-		ofn.lpstrFilter = TEXT("すべてのファイル(*.*)\0*.*\0");
-		ofn.lpstrTitle = TEXT("名前をつけて保存");
-		ofn.Flags = OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
-	}
-	if (GetSaveFileName(&ofn))
-	{
-		char char_pass[MAX_PATH];
-		WideCharToMultiByte(CP_ACP, 0, szFile, -1, char_pass, MAX_PATH, NULL, NULL);
-		str_pass = char_pass;
-		str_pass = str_pass.substr(current_pass_size + 1, str_pass.size());
-	}
-	else
-	{
-		str_pass = "";
-	}
-	return str_pass;
 }
 
 //ドッキング用親ウィンドウ描画
@@ -486,20 +402,31 @@ void Debug_UI::GameView_Render()
 //シーン保存、展開UI描画
 void Debug_UI::Scene_File_Menu_Render()
 {
-	static bool open_new_scene_menu = false;
-	open_new_scene_menu = false;
+	//static bool open_new_scene_menu = false;
+	//open_new_scene_menu = false;
 	if (ImGui::BeginMenuBar())
 	{
 		if (ImGui::BeginMenu(u8"ファイル"))
 		{
 			if (ImGui::MenuItem(u8"新規シーン"))
 			{
-				open_new_scene_menu = true;
+				string path = System_Function::Get_Save_File_Name();
+				if (path != "")
+				{
+					int path_i = path.find_last_of("\\") + 1;//7
+					int ext_i = path.find_last_of(".");//10
+					string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
+					string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+					path = pathname + filename + ".bin";
+					Engine::scene_manager->CreateScene_Default(path, filename);
+				}
 			}
 			if (ImGui::MenuItem(u8"開く"))
 			{
-				if (Engine::scene_manager->CreateScene_FromFile())
+				string path = System_Function::Get_Open_File_Name();
+				if (path != "")
 				{
+					Scene_Manager::LoadScene(path);
 					Active_Object.reset();
 					ofstream oOfstream("Default_Resource\\System\\last_save.bin");
 					if (oOfstream.is_open())
@@ -518,10 +445,11 @@ void Debug_UI::Scene_File_Menu_Render()
 				if (Engine::scene_manager->Last_Save_Path != "")
 				{
 					Engine::scene_manager->SaveScene(Engine::scene_manager->Last_Save_Path);
+					Debug::Log(u8"シーンの保存に成功");
 				}
 				else
 				{
-					string path = Debug_UI::Get_Save_File_Name();
+					string path = System_Function::Get_Save_File_Name();
 					if (path != "")
 					{
 						int path_i = path.find_last_of("\\") + 1;//7
@@ -530,12 +458,13 @@ void Debug_UI::Scene_File_Menu_Render()
 						string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 						path = pathname + filename + ".bin";
 						Engine::scene_manager->SaveScene(path);
+						Debug::Log(u8"シーンの保存に成功");
 					}
 				}
 			}
 			if (ImGui::MenuItem(u8"名前をつけて保存"))
 			{
-				string path = Debug_UI::Get_Save_File_Name();
+				string path = System_Function::Get_Save_File_Name();
 				if (path != "")
 				{
 					int path_i = path.find_last_of("\\") + 1;//7
@@ -544,6 +473,7 @@ void Debug_UI::Scene_File_Menu_Render()
 					string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 					path = pathname + filename + ".bin";
 					Engine::scene_manager->SaveScene(path);
+					Debug::Log(u8"シーンの保存に成功");
 				}
 			}
 			ImGui::EndMenu();
@@ -551,6 +481,7 @@ void Debug_UI::Scene_File_Menu_Render()
 		ImGui::EndMenuBar();
 	}
 
+	/*
 	if (open_new_scene_menu)
 	{
 		ImGui::OpenPopup(u8"新規シーン");
@@ -574,7 +505,7 @@ void Debug_UI::Scene_File_Menu_Render()
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::EndPopup();
-	}
+	}*/
 
 }
 

@@ -4,11 +4,11 @@
 #include "Render_Manager.h"
 #include "Include_ImGui.h"
 #include "Debug.h"
-#include "Debug_UI.h"
 #include <sstream>
 #include <functional>
 #include <iostream>
 #include <fstream>
+#include "System_Function.h"
 using namespace std;
 
 Sprite_Renderer::Sprite_Renderer()
@@ -198,7 +198,7 @@ bool Sprite_Renderer::Draw_ImGui()
 		ImGui::SameLine();
 		if (ImGui::Button(u8"テクスチャを選択"))
 		{
-			string path = Debug_UI::Get_Open_File_Name();
+			string path = System_Function::Get_Open_File_Name();
 			if (path != "")
 			{
 				int path_i = path.find_last_of("\\") + 1;//7
@@ -224,7 +224,7 @@ bool Sprite_Renderer::Draw_ImGui()
 		uv_origin[0] = (int)UV_Origin.x; uv_origin[1] = (int)UV_Origin.y;
 		uv_size[0] = (int)UV_Size.x; uv_size[1] = (int)UV_Size.y;
 
-		ImGui::DragFloat2(u8"表示サイズ", size, 0.01f, -FLT_MAX, FLT_MAX);
+		ImGui::DragFloat2(u8"表示サイズ", size, 0.1f, -FLT_MAX, FLT_MAX);
 		ImGui::DragInt2(u8"UV始点", uv_origin, 0, INT_MAX);
 		ImGui::DragInt2(u8"UVサイズ", uv_size, 0, INT_MAX);
 

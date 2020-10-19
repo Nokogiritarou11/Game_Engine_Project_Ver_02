@@ -10,6 +10,7 @@
 #include <functional>
 #include <iostream>
 #include <fstream>
+#include "System_Function.h"
 using namespace std;
 
 //**********************************************
@@ -20,32 +21,17 @@ using namespace std;
 
 shared_ptr<Scene> Scene_Manager::Active_Scene;
 bool Scene_Manager::Load = false;
-string Scene_Manager::Next_Scene_Name;
+string Scene_Manager::Next_Scene_Path;
 
-bool Scene_Manager::CreateScene_FromFile()
+shared_ptr<Scene> Scene_Manager::CreateScene_FromFile()
 {
-	string load_path = Debug_UI::Get_Open_File_Name();
+	string load_path = System_Function::Get_Open_File_Name();
 
 	if (load_path != "")
 	{
 		int path_i = load_path.find_last_of("\\") + 1;//7
 		int ext_i = load_path.find_last_of(".");//10
 		string file_name = load_path.substr(path_i, ext_i - path_i); //ファイル名
-
-		list<shared_ptr<Scene>>::iterator itr_end = Scene_List.end();
-		for (list<shared_ptr<Scene>>::iterator itr = Scene_List.begin(); itr != itr_end; itr++)
-		{
-			if ((*itr)->name == file_name)
-			{
-				if ((*itr)->name == Active_Scene->name)
-				{
-					return false;
-				}
-				Last_Save_Path = load_path;
-				LoadScene((*itr)->name);
-				return true;
-			}
-		}
 
 		ifstream in_bin(load_path, ios::binary);
 		if (in_bin.is_open())
@@ -56,40 +42,23 @@ bool Scene_Manager::CreateScene_FromFile()
 			cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
 			binaryInputArchive(New_Scene);
 			New_Scene->name = file_name;
-			Scene_List.emplace_back(New_Scene);
 
 			Last_Save_Path = load_path;
-			LoadScene(New_Scene->name);
-			return true;
+			return New_Scene;
 		}
 		else
 		{
-			return false;
+			return nullptr;
 		}
 	}
-	return false;
+	return nullptr;
 }
 
-bool Scene_Manager::CreateScene_FromFile(std::string file_path)
+shared_ptr<Scene> Scene_Manager::CreateScene_FromFile(std::string file_path)
 {
 	int path_i = file_path.find_last_of("\\") + 1;//7
 	int ext_i = file_path.find_last_of(".");//10
 	string file_name = file_path.substr(path_i, ext_i - path_i); //ファイル名
-
-	list<shared_ptr<Scene>>::iterator itr_end = Scene_List.end();
-	for (list<shared_ptr<Scene>>::iterator itr = Scene_List.begin(); itr != itr_end; itr++)
-	{
-		if ((*itr)->name == file_name)
-		{
-			if ((*itr)->name == Active_Scene->name)
-			{
-				return false;
-			}
-			Last_Save_Path = file_path;
-			LoadScene((*itr)->name);
-			return true;
-		}
-	}
 
 	ifstream in_bin(file_path, ios::binary);
 	if (in_bin.is_open())
@@ -100,34 +69,26 @@ bool Scene_Manager::CreateScene_FromFile(std::string file_path)
 		cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
 		binaryInputArchive(New_Scene);
 		New_Scene->name = file_name;
-		Scene_List.emplace_back(New_Scene);
 
 		Last_Save_Path = file_path;
-		LoadScene(New_Scene->name);
-		return true;
+		return New_Scene;
 	}
 	else
 	{
-		return false;
+		return nullptr;
 	}
 
-	return false;
+	return nullptr;
 }
 
-void Scene_Manager::CreateScene_Default(string new_name)
+void Scene_Manager::CreateScene_Default(string file_path, string file_name)
 {
-	Animator_Manager::Reset();
-	Render_Manager::Reset();
-	Light_Manager::Reset();
-
 	shared_ptr<Scene> New_Scene = make_shared<Scene>();
 	New_Scene = make_shared<Scene>();
-	New_Scene->name = new_name;
+	New_Scene->name = file_name;
 
 	Active_Scene = New_Scene;
 
-	Scene_List.emplace_back(New_Scene);
-	/**/
 	shared_ptr<GameObject> directional_light = GameObject::Instantiate(u8"Directional_Light");
 	directional_light->AddComponent<Light>();
 	directional_light->transform->Set_position(0, 50, 0);
@@ -143,9 +104,15 @@ void Scene_Manager::CreateScene_Default(string new_name)
 	Floor->transform->Set_eulerAngles(0, 0, 0);
 	Floor->transform->Set_scale(1, 1, 1);
 	f_renderer->Set_Mesh(Mesh::Load_Mesh("Default_Resource\\Model\\Glid_Tile\\", "Glid_Tile"));
-	//f_renderer->material[0]->color = { 1,1,1,1 };
 
-	Last_Save_Path = "";
+	ofstream ss(file_path.c_str(), ios::binary);
+	{
+		cereal::BinaryOutputArchive o_archive(ss);
+		o_archive(New_Scene);
+		Last_Save_Path = file_path;
+	}
+
+	LoadScene(file_path);
 }
 
 void Scene_Manager::Initialize_Scene(weak_ptr<Scene> s)
@@ -180,6 +147,7 @@ void Scene_Manager::SaveScene(string Save_Path)
 
 void Scene_Manager::Start_DebugScene()
 {
+	Behind_Scene = Active_Scene;
 	{
 		ofstream save("Default_Resource\\System\\Debug_Scene.bin", ios::binary);
 		{
@@ -187,63 +155,34 @@ void Scene_Manager::Start_DebugScene()
 			out_archive(Active_Scene);
 		}
 	}
-	{
-		ifstream in_bin("Default_Resource\\System\\Debug_Scene.bin", ios::binary);
-		if (in_bin.is_open())
-		{
-			shared_ptr<Scene> New_Scene = make_shared<Scene>();
-			stringstream bin_s_stream;
-			bin_s_stream << in_bin.rdbuf();
-			cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
-			binaryInputArchive(New_Scene);
-			New_Scene->name = Active_Scene->name + "(debug)";
-			Scene_List.emplace_back(New_Scene);
-
-			DebugScene_Name = Active_Scene->name;
-			LoadScene(New_Scene->name);
-		}
-	}
+	LoadScene("Default_Resource\\System\\Debug_Scene.bin");
 }
 
 void Scene_Manager::End_DebugScene()
 {
-	list<shared_ptr<Scene>>::iterator itr_end = Scene_List.end();
-	for (list<shared_ptr<Scene>>::iterator itr = Scene_List.begin(); itr != itr_end; itr++)
-	{
-		if ((*itr)->name == Active_Scene->name)
-		{
-			(*itr).reset();
-			Scene_List.erase(itr);
-			break;
-		}
-	}
-	LoadScene(DebugScene_Name);
+	Animator_Manager::Reset();
+	Render_Manager::Reset();
+	Light_Manager::Reset();
+	Active_Scene = Behind_Scene;
+	Initialize_Scene(Active_Scene);
 }
 
-void Scene_Manager::LoadScene(string Scene_Name)
+void Scene_Manager::LoadScene(string Scene_Path)
 {
 	Load = true;
-	Next_Scene_Name = Scene_Name;
+	Next_Scene_Path = Scene_Path;
 }
 
 void Scene_Manager::Update()
 {
 	if (Load)
 	{
-		list<shared_ptr<Scene>>::iterator itr_end = Scene_List.end();
-		for (list<shared_ptr<Scene>>::iterator itr = Scene_List.begin(); itr != itr_end; itr++)
-		{
-			if ((*itr)->name == Next_Scene_Name)
-			{
-				Animator_Manager::Reset();
-				Render_Manager::Reset();
-				Light_Manager::Reset();
-				Active_Scene = (*itr);
-				Initialize_Scene(Active_Scene);
-				Load = false;
-				break;
-			}
-		}
+		Animator_Manager::Reset();
+		Render_Manager::Reset();
+		Light_Manager::Reset();
+		Active_Scene = CreateScene_FromFile(Next_Scene_Path);
+		Initialize_Scene(Active_Scene);
+		Load = false;
 	}
 
 	if (Run)

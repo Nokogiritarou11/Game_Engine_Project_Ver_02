@@ -4,11 +4,11 @@
 #include "Render_Manager.h"
 #include "Debug.h"
 #include "Include_ImGui.h"
-#include "Debug_UI.h"
 #include <sstream>
 #include <functional>
 #include <iostream>
 #include <fstream>
+#include "System_Function.h"
 using namespace std;
 
 ComPtr <ID3D11Buffer> SkinMesh_Renderer::ConstantBuffer_CbMesh;
@@ -307,7 +307,7 @@ bool SkinMesh_Renderer::Draw_ImGui()
 		ImGui::SameLine();
 		if (ImGui::Button(u8"ƒƒbƒVƒ…‚ğ‘I‘ğ"))
 		{
-			string path = Debug_UI::Get_Open_File_Name();
+			string path = System_Function::Get_Open_File_Name();
 			//Debug::Log(path);
 			if (path != "")
 			{

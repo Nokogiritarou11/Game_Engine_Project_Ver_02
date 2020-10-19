@@ -18,7 +18,10 @@ public:
 	bool Draw_ImGui();
 
 	bool Boosting = false;
+	bool Can_Boost = false;
 	bool Damage = false;
+	float Gas_Max;
+	float Gas;
 	float Boost_Magnification;
 	float Speed_Bonus_Magnification;
 
@@ -28,14 +31,17 @@ private:
 	float Move_Speed;
 	float Boost_Time_Max;
 	float Boost_Timer;
-	float Gas_Max;
-	float Gas;
+	float Boost_Charge_Time_Max;
+	float Boost_Charge_Timer;
 	float Gas_Decrease;
 	float Gas_Increase;
+	float Gas_Damage;
 	float Speed_Bonus_Magnification_Set;
 	int	  Speed_Bonus_Count;
 	float Speed_Bonus_Time_Max;
 	float Speed_Bonus_Timer;
+
+	int Get_Bonus_Count = 0;
 
 	float Horizontal;
 	//float Vertical;
@@ -50,7 +56,7 @@ private:
 	template<class Archive>
 	void serialize(Archive& archive, std::uint32_t const version)
 	{
-		archive(cereal::base_class<MonoBehaviour>(this), Move_Speed, Boost_Magnification, Boost_Time_Max, Gas_Max, Gas_Decrease, Gas_Increase, Speed_Bonus_Magnification, Speed_Bonus_Time_Max);
+		archive(cereal::base_class<MonoBehaviour>(this), Move_Speed, Boost_Magnification, Boost_Time_Max, Boost_Charge_Time_Max, Gas_Max, Gas_Decrease, Gas_Increase, Gas_Damage, Speed_Bonus_Magnification, Speed_Bonus_Time_Max);
 	}
 };
 

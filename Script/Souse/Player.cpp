@@ -24,6 +24,7 @@ void Player::Update()
 	Move();
 }
 
+/*
 Quaternion LookRotation(const Vector3& direction, const Vector3& up = { 0, 1, 0 })
 {
 	using namespace DirectX;
@@ -41,6 +42,7 @@ Quaternion LookRotation(const Vector3& direction, const Vector3& up = { 0, 1, 0 
 	Quaternion out = Quaternion::CreateFromRotationMatrix(res);
 	return out;
 }
+*/
 
 void Player::Check_Player_Move()
 {
@@ -87,6 +89,7 @@ void Player::Check_Player_Move()
 		Dash_Power = 0;
 	}
 	*/
+
 	if (Input_Manager::pad.connected)
 	{
 		Horizontal = Input_Manager::pad.thumbSticks.leftX;
@@ -116,9 +119,10 @@ void Player::Check_Player_Move()
 	}
 	transform->Set_eulerAngles(0, 0, -20 * Horizontal);
 
-	if (!Boosting && (Input_Manager::key_tracker.IsKeyPressed(Keyboard::Space) || Input_Manager::pad_tracker.a == GamePad::ButtonStateTracker::PRESSED))
+	if (!Boosting && Can_Boost && (Input_Manager::key_tracker.IsKeyPressed(Keyboard::Space) || Input_Manager::pad_tracker.a == GamePad::ButtonStateTracker::PRESSED))
 	{
 		Boosting = true;
+		Can_Boost = false;
 		Boost_Timer = Boost_Time_Max;
 	}
 
@@ -127,13 +131,30 @@ void Player::Check_Player_Move()
 
 void Player::Check_Parameter()
 {
-	if (Gas >= 0)
+	if(Gas > 100)
+	{
+		Gas = 100;
+	}
+	else if(Gas > 0)
 	{
 		Gas -= Gas_Decrease * Time::deltaTime;
 	}
 	else
 	{
+		Gas = 0;
+	}
 
+	if (!Can_Boost)
+	{
+		if (Boost_Charge_Timer < Boost_Charge_Time_Max)
+		{
+			Boost_Charge_Timer += Time::deltaTime;
+		}
+		else
+		{
+			Boost_Charge_Timer = 0;
+			Can_Boost = true;
+		}
 	}
 
 	if (Boosting)
@@ -230,15 +251,18 @@ void Player::Move()
 					else
 					{
 						Damage = true;
+						Gas -= Gas_Damage;
 					}
 				}
 				else if (col->obj_type == Collider::Gas)
 				{
 					col->gameObject->SetActive(false);
+					Gas += Gas_Increase;
 				}
 				else if (col->obj_type == Collider::Bonus)
 				{
 					col->gameObject->SetActive(false);
+					++Get_Bonus_Count;
 				}
 			}
 		}
@@ -274,9 +298,11 @@ bool Player::Draw_ImGui()
 		ImGui::DragFloat(u8"Move_Speed", &Move_Speed, 0.1f, 0, FLT_MAX);
 		ImGui::DragFloat(u8"Boost_Magnification", &Boost_Magnification, 0.1f, 1.0f, FLT_MAX);
 		ImGui::DragFloat(u8"Boost_Time_Max", &Boost_Time_Max, 0.1f, 0, FLT_MAX);
+		ImGui::DragFloat(u8"Boost_Charge_Time_Max", &Boost_Charge_Time_Max, 0.1f, 0, FLT_MAX);
 		ImGui::DragFloat(u8"Gas_Max", &Gas_Max, 0.1f, 0, FLT_MAX);
 		ImGui::DragFloat(u8"Gas_Decrease", &Gas_Decrease, 0.1f, 0, FLT_MAX);
 		ImGui::DragFloat(u8"Gas_Increase", &Gas_Increase, 0.1f, 0, FLT_MAX);
+		ImGui::DragFloat(u8"Gas_Damage", &Gas_Damage, 0.1f, 0, FLT_MAX);
 		ImGui::DragFloat(u8"Speed_Bonus_Magnification", &Speed_Bonus_Magnification, 0.1f, 1.0f, FLT_MAX);
 		ImGui::DragFloat(u8"Speed_Bonus_Time_Max", &Speed_Bonus_Time_Max, 0.1f, 0, FLT_MAX);
 		//ImGui::DragFloat(u8"Max_Speed", &Max_Speed, 0.1f, -FLT_MAX, FLT_MAX);

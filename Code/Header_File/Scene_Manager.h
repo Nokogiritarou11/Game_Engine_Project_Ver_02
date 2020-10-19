@@ -9,24 +9,18 @@
 class Scene_Manager
 {
 public:
-	bool CreateScene_FromFile();
-	bool CreateScene_FromFile(std::string file_path);
-	void CreateScene_Default(std::string new_name);
 
-	/*
-	//std::shared_ptr<GameObject> Instance_GameObject(std::string name);
-	//void Destroy_GameObject(std::shared_ptr<GameObject> gameObject);
+	std::shared_ptr<Scene> CreateScene_FromFile();
+	std::shared_ptr<Scene> CreateScene_FromFile(std::string file_path);
 
-	//std::weak_ptr<GameObject> Find(std::string Name);
-	//std::weak_ptr<GameObject> FindWithTag(std::string Tag);
-	*/
-	
+	void CreateScene_Default(std::string file_path, std::string file_name);
+
 	void Update();
 
 	void SaveScene(std::string Save_Path);
 	void Start_DebugScene();
 	void End_DebugScene();
-	static void LoadScene(std::string Scene_Name);
+	static void LoadScene(std::string Scene_Path);
 	static std::shared_ptr<Scene> Get_Active_Scene();
 
 	std::string Last_Save_Path = "";
@@ -37,12 +31,11 @@ private:
 
 	void Initialize_Scene(std::weak_ptr<Scene> s);
 
-	std::string DebugScene_Name;
-
-	std::list<std::shared_ptr<Scene>> Scene_List;
+	//std::list<std::shared_ptr<Scene>> Scene_List;
 
 	static std::shared_ptr<Scene> Active_Scene;
+	std::shared_ptr<Scene> Behind_Scene;
 
 	static bool Load;
-	static std::string Next_Scene_Name;
+	static std::string Next_Scene_Path;
 };
