@@ -2,8 +2,6 @@
 #include "GameObject.h"
 using namespace std;
 
-list<weak_ptr<Animator>> Animator_Manager::Animator_list;
-
 void Animator_Manager::Reset()
 {
 	Animator_list.clear();

@@ -1,16 +1,14 @@
-#include "Scene_Manager.h"
 #include "Animator_Manager.h"
 #include "SkinMesh_Renderer.h"
-#include "Render_Manager.h"
 #include "Light_Manager.h"
 #include "Transform.h"
-#include "Debug_UI.h"
 #include <locale.h>
 #include <sstream>
 #include <functional>
 #include <iostream>
 #include <fstream>
 #include "System_Function.h"
+#include "Engine.h"
 using namespace std;
 
 //**********************************************
@@ -161,9 +159,9 @@ void Scene_Manager::Start_DebugScene()
 
 void Scene_Manager::End_DebugScene()
 {
-	Animator_Manager::Reset();
-	Render_Manager::Reset();
-	Light_Manager::Reset();
+	Engine::animator_manager->Reset();
+	Engine::render_manager->Reset();
+	Engine::light_manager->Reset();
 	Active_Scene = Behind_Scene;
 	Last_Save_Path = Behind_Path;
 	Initialize_Scene(Active_Scene);
@@ -179,9 +177,9 @@ void Scene_Manager::Update()
 {
 	if (Load)
 	{
-		Animator_Manager::Reset();
-		Render_Manager::Reset();
-		Light_Manager::Reset();
+		Engine::animator_manager->Reset();
+		Engine::render_manager->Reset();
+		Engine::light_manager->Reset();
 		Active_Scene = CreateScene_FromFile(Next_Scene_Path);
 		Initialize_Scene(Active_Scene);
 		Load = false;

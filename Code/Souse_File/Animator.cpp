@@ -1,5 +1,5 @@
 #include "Animator.h"
-#include "Animator_Manager.h"
+#include "Engine.h"
 #include "GameObject.h"
 #include "Transform.h"
 #include "Time.h"
@@ -18,7 +18,7 @@ void Animator::Initialize(shared_ptr<GameObject> obj)
 {
 	gameObject = obj;
 	transform = obj->transform;
-	Animator_Manager::Add(static_pointer_cast<Animator>(shared_from_this()));
+	Engine::animator_manager->Add(static_pointer_cast<Animator>(shared_from_this()));
 
 	shared_ptr<SkinMesh_Renderer> skin = GetComponent<SkinMesh_Renderer>();
 	if (skin)

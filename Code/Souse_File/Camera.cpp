@@ -2,14 +2,14 @@
 #include "DxSystem.h"
 #include "GameObject.h"
 #include "Include_ImGui.h"
-#include "Render_Manager.h"
+#include "Engine.h"
 using namespace DirectX;
 
 using namespace std;
 
 void Camera::Initialize()
 {
-	Render_Manager::Add(static_pointer_cast<Camera>(shared_from_this()));
+	Engine::render_manager->Add(static_pointer_cast<Camera>(shared_from_this()));
 	DxSystem::DeviceContext->RSGetViewports(&num_viewports, &viewport);
 }
 
@@ -17,7 +17,7 @@ void Camera::Initialize(std::shared_ptr<GameObject> obj)
 {
 	gameObject = obj;
 	transform = obj->transform;
-	Render_Manager::Add(static_pointer_cast<Camera>(shared_from_this()));
+	Engine::render_manager->Add(static_pointer_cast<Camera>(shared_from_this()));
 	DxSystem::DeviceContext->RSGetViewports(&num_viewports, &viewport);
 }
 

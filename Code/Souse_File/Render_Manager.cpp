@@ -4,11 +4,6 @@
 #include "Engine.h"
 using namespace std;
 
-list<weak_ptr<Renderer>> Render_Manager::Renderer_3D_list;
-list<weak_ptr<Renderer>> Render_Manager::Renderer_2D_list;
-list<vector<Render_Manager::Render_Obj>> Render_Manager::Renderer_list;
-list<weak_ptr<Camera>> Render_Manager::Camera_list;
-
 void Render_Manager::Reset()
 {
 	Renderer_3D_list.clear();

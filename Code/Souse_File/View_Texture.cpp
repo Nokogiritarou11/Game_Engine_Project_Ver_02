@@ -1,7 +1,7 @@
 #include "View_Texture.h"
 #include "DxSystem.h"
-#include "Render_Manager.h"
 #include "Light_Manager.h"
+#include "Engine.h"
 using namespace std;
 using namespace DirectX;
 
@@ -190,11 +190,11 @@ void View_Texture::Render_3D(Matrix V, Matrix P, bool Use_Material, std::shared_
 	//デプスステンシルステート設定
 	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_TRUE), 1);
 
-	for (list<weak_ptr<Renderer>>::iterator itr = Render_Manager::Renderer_3D_list.begin(); itr != Render_Manager::Renderer_3D_list.end();)
+	for (list<weak_ptr<Renderer>>::iterator itr = Engine::render_manager->Renderer_3D_list.begin(); itr != Engine::render_manager->Renderer_3D_list.end();)
 	{
 		if (itr->expired())
 		{
-			itr = Render_Manager::Renderer_3D_list.erase(itr);
+			itr = Engine::render_manager->Renderer_3D_list.erase(itr);
 			continue;
 		}
 		shared_ptr<Renderer> m_rend = itr->lock();
@@ -226,11 +226,11 @@ void View_Texture::Render_2D(Matrix V, Matrix P)
 	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	//デプスステンシルステート設定
 	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_FALSE), 1);
-	for (list<weak_ptr<Renderer>>::iterator itr = Render_Manager::Renderer_2D_list.begin(); itr != Render_Manager::Renderer_2D_list.end();)
+	for (list<weak_ptr<Renderer>>::iterator itr = Engine::render_manager->Renderer_2D_list.begin(); itr != Engine::render_manager->Renderer_2D_list.end();)
 	{
 		if (itr->expired())
 		{
-			itr = Render_Manager::Renderer_2D_list.erase(itr);
+			itr = Engine::render_manager->Renderer_2D_list.erase(itr);
 			continue;
 		}
 		shared_ptr<Renderer> m_rend = itr->lock();

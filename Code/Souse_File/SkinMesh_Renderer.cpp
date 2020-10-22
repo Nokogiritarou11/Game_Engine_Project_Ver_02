@@ -1,7 +1,7 @@
 #include "SkinMesh_Renderer.h"
 #include "GameObject.h"
 #include "Transform.h"
-#include "Render_Manager.h"
+#include "Engine.h"
 #include "Debug.h"
 #include "Include_ImGui.h"
 #include <sstream>
@@ -16,7 +16,7 @@ ComPtr <ID3D11Buffer> SkinMesh_Renderer::ConstantBuffer_CbColor;
 
 void SkinMesh_Renderer::Initialize()
 {
-	Render_Manager::Add(static_pointer_cast<SkinMesh_Renderer>(shared_from_this()));
+	Engine::render_manager->Add(static_pointer_cast<SkinMesh_Renderer>(shared_from_this()));
 	// 定数バッファの生成
 	if (!ConstantBuffer_CbMesh)
 	{
@@ -47,7 +47,7 @@ void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 {
 	gameObject = obj;
 	transform = obj->transform;
-	Render_Manager::Add(static_pointer_cast<SkinMesh_Renderer>(shared_from_this()));
+	Engine::render_manager->Add(static_pointer_cast<SkinMesh_Renderer>(shared_from_this()));
 	// 定数バッファの生成
 	if (!ConstantBuffer_CbMesh)
 	{

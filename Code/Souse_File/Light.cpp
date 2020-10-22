@@ -1,5 +1,5 @@
 #include "Light.h"
-#include "Light_Manager.h"
+#include "Engine.h"
 #include "GameObject.h"
 #include "Transform.h"
 #include "Include_ImGui.h"
@@ -18,7 +18,7 @@ void Light::Initialize()
 }
 void Light::Initialize(std::shared_ptr<GameObject> obj)
 {
-	Light_Manager::Add(static_pointer_cast<Light>(shared_from_this()));
+	Engine::light_manager->Add(static_pointer_cast<Light>(shared_from_this()));
 
 	gameObject = obj;
 	transform = obj->transform;

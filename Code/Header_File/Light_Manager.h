@@ -4,9 +4,9 @@
 class Light_Manager
 {
 public:
-	static void Reset();
-	static void Add(std::shared_ptr<Light> light);
-	static std::list<std::weak_ptr<Light>> Light_list;
+	void Reset();
+	void Add(std::shared_ptr<Light> light);
+	std::list<std::weak_ptr<Light>> Light_list;
 private:
 
 };

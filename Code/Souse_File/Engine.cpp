@@ -8,23 +8,29 @@
 #include <fstream>
 using namespace std;
 
-unique_ptr<Scene_Manager> Engine::scene_manager;
-unique_ptr<Input_Manager> Engine::input_manager;
-unique_ptr<Audio_Manager> Engine::audio_manager;
-unique_ptr<Debug_UI>	  Engine::debug_ui;
-unique_ptr<View_Game>	  Engine::view_game;
-unique_ptr<View_Scene>	  Engine::view_scene;
+unique_ptr<Scene_Manager>	 Engine::scene_manager;
+unique_ptr<Input_Manager>	 Engine::input_manager;
+unique_ptr<Audio_Manager>	 Engine::audio_manager;
+unique_ptr<Render_Manager>	 Engine::render_manager;
+unique_ptr<Animator_Manager> Engine::animator_manager;
+unique_ptr<Light_Manager>	 Engine::light_manager;
+unique_ptr<Debug_UI>		 Engine::debug_ui;
+unique_ptr<View_Game>		 Engine::view_game;
+unique_ptr<View_Scene>		 Engine::view_scene;
 
 Engine::Engine()
 {
-	input_manager = make_unique<Input_Manager>();
-	audio_manager = make_unique<Audio_Manager>();
-	scene_manager = make_unique<Scene_Manager>();
+	input_manager    = make_unique<Input_Manager>();
+	audio_manager    = make_unique<Audio_Manager>();
+	scene_manager    = make_unique<Scene_Manager>();
+	render_manager   = make_unique<Render_Manager>();
+	animator_manager = make_unique<Animator_Manager>();
+	light_manager    = make_unique<Light_Manager>();
 
 	view_game = make_unique<View_Game>();
 
 #if _DEBUG
-	debug_ui   = make_unique<Debug_UI>();
+	debug_ui = make_unique<Debug_UI>();
 	view_scene = make_unique<View_Scene>();
 	//scene_manager->CreateScene_Default("Default_Scene");
 	string load_pass;
@@ -32,7 +38,7 @@ Engine::Engine()
 	if (iIfstream.is_open())
 	{
 		getline(iIfstream, load_pass);
-		if(load_pass != "")
+		if (load_pass != "")
 		{
 			Scene_Manager::LoadScene(load_pass);
 		}
@@ -98,13 +104,13 @@ void Engine::Update()
 
 #if _DEBUG
 	debug_ui->Update(scene_manager->Get_Active_Scene());
-	Animator_Manager::Update();
-	Render_Manager::Render();
+	animator_manager->Update();
+	render_manager->Render();
 	debug_ui->Render();
 #else
-	Engine::view_game->Set_Screen_Size(DxSystem::GetScreenWidth(), DxSystem::GetScreenHeight());
-	Animator_Manager::Update();
-	Render_Manager::Render();
+	view_game->Set_Screen_Size(DxSystem::GetScreenWidth(), DxSystem::GetScreenHeight());
+	animator_manager->Update();
+	render_manager->Render();
 #endif
 
 	DxSystem::Flip(0);

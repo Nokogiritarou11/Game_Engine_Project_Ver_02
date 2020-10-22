@@ -2,6 +2,7 @@
 #include "DxSystem.h"
 #include "Light_Manager.h"
 #include "GameObject.h"
+#include "Engine.h"
 using namespace std;
 using namespace DirectX;
 
@@ -9,11 +10,11 @@ void View_Game::Render(Matrix V, Matrix P, std::shared_ptr<Transform> trans)
 {
 	bool Cleared = false;
 	CbScene cbScene;
-	for (list<weak_ptr<Light>>::iterator itr = Light_Manager::Light_list.begin(); itr != Light_Manager::Light_list.end();)
+	for (list<weak_ptr<Light>>::iterator itr = Engine::light_manager->Light_list.begin(); itr != Engine::light_manager->Light_list.end();)
 	{
 		if (itr->expired())
 		{
-			itr = Light_Manager::Light_list.erase(itr);
+			itr = Engine::light_manager->Light_list.erase(itr);
 			continue;
 		}
 		shared_ptr<Light> m_light = itr->lock();

@@ -1,7 +1,7 @@
 #include "Sprite_Renderer.h"
 #include "DxSystem.h"
 #include "GameObject.h"
-#include "Render_Manager.h"
+#include "Engine.h"
 #include "Include_ImGui.h"
 #include "Debug.h"
 #include <sstream>
@@ -23,7 +23,7 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 {
 	gameObject = obj;
 	transform = obj->transform;
-	Render_Manager::Add(static_pointer_cast<Sprite_Renderer>(shared_from_this()));
+	Engine::render_manager->Add(static_pointer_cast<Sprite_Renderer>(shared_from_this()));
 
 	VERTEX v[] = {
 		XMFLOAT3(-0.5f, 0.5f,0),  XMFLOAT2(0,0), XMFLOAT4(1,1,1,1), //ç∂è„

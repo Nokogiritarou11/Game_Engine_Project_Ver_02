@@ -1,8 +1,8 @@
 #include "Mesh_Renderer.h"
 #include "GameObject.h"
 #include "Transform.h"
-#include "Render_Manager.h"
 #include "Include_ImGui.h"
+#include "Engine.h"
 using namespace std;
 
 Mesh_Renderer::Mesh_Renderer()
@@ -17,7 +17,7 @@ void Mesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 {
 	gameObject = obj;
 	transform = obj->transform;
-	Render_Manager::Add(static_pointer_cast<Mesh_Renderer>(shared_from_this()));
+	Engine::render_manager->Add(static_pointer_cast<Mesh_Renderer>(shared_from_this()));
 	// 定数バッファの生成
 	if (!ConstantBuffer)
 	{
