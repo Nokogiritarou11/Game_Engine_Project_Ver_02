@@ -426,6 +426,7 @@ void Debug_UI::Scene_File_Menu_Render()
 				string path = System_Function::Get_Open_File_Name();
 				if (path != "")
 				{
+					Engine::scene_manager->Last_Save_Path = path;
 					Scene_Manager::LoadScene(path);
 					Active_Object.reset();
 					ofstream oOfstream("Default_Resource\\System\\last_save.bin");
@@ -445,6 +446,12 @@ void Debug_UI::Scene_File_Menu_Render()
 				if (Engine::scene_manager->Last_Save_Path != "")
 				{
 					Engine::scene_manager->SaveScene(Engine::scene_manager->Last_Save_Path);
+					ofstream oOfstream("Default_Resource\\System\\last_save.bin");
+					if (oOfstream.is_open())
+					{
+						// ファイルへ書き込む
+						oOfstream << Engine::scene_manager->Last_Save_Path;
+					}
 					Debug::Log(u8"シーンの保存に成功");
 				}
 				else
@@ -458,6 +465,12 @@ void Debug_UI::Scene_File_Menu_Render()
 						string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 						path = pathname + filename + ".bin";
 						Engine::scene_manager->SaveScene(path);
+						ofstream oOfstream("Default_Resource\\System\\last_save.bin");
+						if (oOfstream.is_open())
+						{
+							// ファイルへ書き込む
+							oOfstream << Engine::scene_manager->Last_Save_Path;
+						}
 						Debug::Log(u8"シーンの保存に成功");
 					}
 				}
@@ -473,6 +486,12 @@ void Debug_UI::Scene_File_Menu_Render()
 					string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 					path = pathname + filename + ".bin";
 					Engine::scene_manager->SaveScene(path);
+					ofstream oOfstream("Default_Resource\\System\\last_save.bin");
+					if (oOfstream.is_open())
+					{
+						// ファイルへ書き込む
+						oOfstream << Engine::scene_manager->Last_Save_Path;
+					}
 					Debug::Log(u8"シーンの保存に成功");
 				}
 			}

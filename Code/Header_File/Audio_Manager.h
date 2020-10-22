@@ -13,20 +13,20 @@ class Audio_Manager
 public:
 	Audio_Manager();
 	unique_ptr <AudioEngine> m_audEngine;
-	/*
+
 	static unique_ptr <SoundEffect> BGM_play_eff;
 	static unique_ptr <SoundEffect> BGM_title_eff;
 
 	static unique_ptr <SoundEffectInstance> BGM_play;
 	static unique_ptr <SoundEffectInstance> BGM_title;
 
-	static unique_ptr <SoundEffect> title;
-	static unique_ptr <SoundEffect> attack;
-	static unique_ptr <SoundEffect> hit;
-	static unique_ptr <SoundEffect> death;
+	static unique_ptr <SoundEffect> Start;
+	static unique_ptr <SoundEffect> Get;
+	static unique_ptr <SoundEffect> Damage;
+	static unique_ptr <SoundEffect> Boost;
+	static unique_ptr <SoundEffect> Clash;
 
 	float volume = 0;
-	*/
 
 private:
 };

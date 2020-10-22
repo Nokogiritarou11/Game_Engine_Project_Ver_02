@@ -15,6 +15,9 @@ public:
 	void Pause();
 	void Update();
 
+	float       animation_speed = 1;
+	bool		loopAnimation = false;
+
 	bool Draw_ImGui();
 private:
 
@@ -24,10 +27,8 @@ private:
 	std::weak_ptr<SkinMesh_Renderer> skin_renderer;
 	std::shared_ptr<Mesh> mesh_data;
 
-	float       animation_speed  = 1;
 	int			currentAnimation = -1;
 	float		currentSeconds   = 0.0f;
-	bool		loopAnimation    = false;
 	bool		endAnimation     = false;
 	bool        Playing          = false;
 

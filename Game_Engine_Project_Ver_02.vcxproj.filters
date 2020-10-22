@@ -69,7 +69,6 @@
     <ClCompile Include="Librarys\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="Librarys\ImGui\imgui_stdlib.cpp" />
     <ClCompile Include="Librarys\ImGui\imgui_widgets.cpp" />
-    <ClCompile Include="Script\Souse\ObjectPool.cpp" />
     <ClCompile Include="Script\Souse\Player.cpp" />
     <ClCompile Include="Code\Libraries\ImGui\imgui.cpp" />
     <ClCompile Include="Code\Libraries\ImGui\imgui_draw.cpp" />
@@ -88,6 +87,7 @@
     <ClCompile Include="Script\Souse\Stage_Manager.cpp" />
     <ClCompile Include="Script\Souse\Collider.cpp" />
     <ClCompile Include="Code\Souse_File\System_Function.cpp" />
+    <ClCompile Include="Script\Souse\Break_Block.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Audio_Manager.h">
@@ -151,7 +151,6 @@
     <ClInclude Include="Librarys\ImGui\imstb_rectpack.h" />
     <ClInclude Include="Librarys\ImGui\imstb_textedit.h" />
     <ClInclude Include="Librarys\ImGui\imstb_truetype.h" />
-    <ClInclude Include="Script\Header\ObjectPool.h" />
     <ClInclude Include="Script\Header\Player.h" />
     <ClInclude Include="Code\Libraries\ImGui\imstb_truetype.h" />
     <ClInclude Include="Code\Libraries\ImGui\IconsFontAwesome4.h" />
@@ -261,6 +260,7 @@
     <ClInclude Include="Script\Header\Stage_Manager.h" />
     <ClInclude Include="Script\Header\Collider.h" />
     <ClInclude Include="Code\Header_File\System_Function.h" />
+    <ClInclude Include="Script\Header\Break_Block.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Sources">

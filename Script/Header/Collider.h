@@ -8,6 +8,7 @@ class Collider : public MonoBehaviour
 {
 public:
 	void Start();
+	void OnEnable();
 	void Update();
 
 	bool Draw_ImGui();
@@ -16,6 +17,7 @@ public:
 	float Size_Z;
 
 	float Disable_Line;
+	float turn_y;
 
 	int obj_type = 0;
 
@@ -24,7 +26,9 @@ public:
 		None,
 		Block,
 		Gas,
-		Bonus
+		Bonus,
+		Jump_Success,
+		Jump_Failed
 	};
 private:
 

@@ -148,6 +148,7 @@ void Scene_Manager::SaveScene(string Save_Path)
 void Scene_Manager::Start_DebugScene()
 {
 	Behind_Scene = Active_Scene;
+	Behind_Path = Last_Save_Path;
 	{
 		ofstream save("Default_Resource\\System\\Debug_Scene.bin", ios::binary);
 		{
@@ -164,6 +165,7 @@ void Scene_Manager::End_DebugScene()
 	Render_Manager::Reset();
 	Light_Manager::Reset();
 	Active_Scene = Behind_Scene;
+	Last_Save_Path = Behind_Path;
 	Initialize_Scene(Active_Scene);
 }
 

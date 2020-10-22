@@ -622,7 +622,7 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 		//EmissionTexture
 		GetTexture(surface_material, FbxSurfaceMaterial::sEmissive, mat, Texture::Emission);
 
-		subset.material_ID = index_of_material;
+		subset.material_ID = Default_Material_Passes.size();
 		
 		ofstream ss(new_mat_pass, ios::binary);
 		{

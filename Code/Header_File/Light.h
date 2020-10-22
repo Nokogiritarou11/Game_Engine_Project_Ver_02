@@ -46,12 +46,11 @@ public:
 	float Distance = 300;
 	float Intensity = 1;
 	float Bias = 0.001f;
+	u_int Shadow_Map_Texture_Size = 2048;
+	float Light_View_Size = 150;
 
 	std::shared_ptr<Shader> shader;
 private:
-
-	u_int Shadow_Map_Texture_Size = 2048;
-	float Light_View_Size = 150;
 
 	friend class cereal::access;
 	template<class Archive>
@@ -63,3 +62,4 @@ private:
 
 CEREAL_REGISTER_TYPE(Light)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Light)
+CEREAL_CLASS_VERSION(Light, 1);

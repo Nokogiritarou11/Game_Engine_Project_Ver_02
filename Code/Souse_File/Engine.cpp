@@ -72,7 +72,7 @@ Engine::Engine()
 		getline(iIfstream, load_pass);
 		if (load_pass != "")
 		{
-			scene_manager->CreateScene_FromFile(load_pass);
+			Scene_Manager::LoadScene(load_pass);
 		}
 		else
 		{

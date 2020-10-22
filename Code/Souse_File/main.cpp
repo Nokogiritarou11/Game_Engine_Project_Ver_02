@@ -114,7 +114,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 	//ÉÅÉCÉìÉãÅ[Év
 	MSG hMsg = { 0 };
 	float Interval = 1.0f;
-	DWORD before = GetTickCount64();
+	ULONGLONG before = GetTickCount64();
 	int fps = 0;
 
 	while (hMsg.message != WM_QUIT)
@@ -126,7 +126,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 		}
 		else
 		{
-			Time::deltaTime =
+			Time::deltaTime = //1/60.0f;
 				(GetTickCount64() - before) * 0.001f * Time::timeScale;
 
 			before = GetTickCount64();

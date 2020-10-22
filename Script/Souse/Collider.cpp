@@ -10,11 +10,25 @@ void Collider::Start()
 	Disable_Line = -75;
 }
 
+void Collider::OnEnable()
+{
+	if (obj_type != None && obj_type != Block)
+	{
+		transform->Set_eulerAngles(0, 0, 0);
+		turn_y = 0;
+	}
+}
+
 void Collider::Update()
 {
 	if (transform->Get_position().z < Disable_Line)
 	{
 		gameObject->SetActive(false);
+	}
+	if (obj_type != None && obj_type != Block)
+	{
+		turn_y += Time::deltaTime * 150;
+		transform->Set_eulerAngles(0, turn_y, 0);
 	}
 }
 

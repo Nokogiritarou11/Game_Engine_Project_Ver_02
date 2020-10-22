@@ -247,8 +247,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Script\Souse\All_Component_List.cpp" />
+    <ClCompile Include="Script\Souse\Break_Block.cpp" />
     <ClCompile Include="Script\Souse\Collider.cpp" />
-    <ClCompile Include="Script\Souse\ObjectPool.cpp" />
     <ClCompile Include="Script\Souse\Player.cpp" />
     <ClCompile Include="Script\Souse\Scroll.cpp" />
     <ClCompile Include="Script\Souse\Stage_Manager.cpp" />
@@ -696,8 +696,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Code\Header_File\All_Component_List.h" />
+    <ClInclude Include="Script\Header\Break_Block.h" />
     <ClInclude Include="Script\Header\Collider.h" />
-    <ClInclude Include="Script\Header\ObjectPool.h" />
     <ClInclude Include="Script\Header\Player.h" />
     <ClInclude Include="Script\Header\Scroll.h" />
     <ClInclude Include="Script\Header\Stage_Manager.h" />

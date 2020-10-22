@@ -4,6 +4,7 @@
 #include "Include_ImGui.h"
 #include "Player.h"
 #include "Collider.h"
+#include "Break_Block.h"
 using namespace std;
 
 void Player::Awake()
@@ -15,13 +16,27 @@ void Player::Start()
 	Speed_Bonus_Magnification_Set = Speed_Bonus_Magnification;
 	Speed_Bonus_Magnification = 1;
 	Gas = Gas_Max;
+	shared_ptr<Animator> anim = GetComponent<Animator>();
+	anim->loopAnimation = true;
+	anim->Play(0);
+	/*
+	blocks_count = 8;
+	for (int i = 0; i < blocks_count; ++i)
+	{
+		shared_ptr<GameObject> breaks = GameObject::Instantiate(u8"breaks_" + to_string(i));
+		breaks->AddComponent<Break_Block>();
+		breaks->SetActive(true);
+	}*/
 }
 
 void Player::Update()
 {
-	Check_Player_Move();
-	Check_Parameter();
-	Move();
+	if (Stage_State == 4)
+	{
+		Check_Player_Move();
+		Check_Parameter();
+		Move();
+	}
 }
 
 /*
@@ -89,14 +104,13 @@ void Player::Check_Player_Move()
 		Dash_Power = 0;
 	}
 	*/
-
 	if (Input_Manager::pad.connected)
 	{
 		Horizontal = Input_Manager::pad.thumbSticks.leftX;
 	}
 	else
 	{
-		float Horizontal_Power = 10.0f * Time::deltaTime;;
+		float Horizontal_Power = 7.5f * Time::deltaTime;
 		if (Input_Manager::kb.Right)  Horizontal += Horizontal_Power;
 		if (Input_Manager::kb.Left)   Horizontal -= Horizontal_Power;
 		Horizontal = Mathf::Clamp(Horizontal, -1, 1);
@@ -117,13 +131,14 @@ void Player::Check_Player_Move()
 			}
 		}
 	}
-	transform->Set_eulerAngles(0, 0, -20 * Horizontal);
+	transform->Set_eulerAngles(0, 0, -30 * Horizontal);
 
 	if (!Boosting && Can_Boost && (Input_Manager::key_tracker.IsKeyPressed(Keyboard::Space) || Input_Manager::pad_tracker.a == GamePad::ButtonStateTracker::PRESSED))
 	{
 		Boosting = true;
 		Can_Boost = false;
 		Boost_Timer = Boost_Time_Max;
+		Audio_Manager::Boost->Play();
 	}
 
 	moveForward = Vector3::Right * Horizontal;
@@ -131,11 +146,11 @@ void Player::Check_Player_Move()
 
 void Player::Check_Parameter()
 {
-	if(Gas > 100)
+	if (Gas > 100)
 	{
 		Gas = 100;
 	}
-	else if(Gas > 0)
+	else if (Gas > 0)
 	{
 		Gas -= Gas_Decrease * Time::deltaTime;
 	}
@@ -154,6 +169,37 @@ void Player::Check_Parameter()
 		{
 			Boost_Charge_Timer = 0;
 			Can_Boost = true;
+		}
+	}
+
+	if (Invincible)
+	{
+		Invincible_Timer += Time::deltaTime * 2;
+		if ((int)(Invincible_Timer * 2.0f) % 2 == 1)
+		{
+			if (!skin_enabled)
+			{
+				GetComponent<SkinMesh_Renderer>()->enabled = true;
+				skin_enabled = true;
+			}
+		}
+		else
+		{
+			if (skin_enabled)
+			{
+				GetComponent<SkinMesh_Renderer>()->enabled = false;
+				skin_enabled = false;
+			}
+		}
+		if (Invincible_Timer > 6.0f)
+		{
+			Invincible = false;
+			Invincible_Timer = 0;
+			if (!skin_enabled)
+			{
+				GetComponent<SkinMesh_Renderer>()->enabled = true;
+				skin_enabled = true;
+			}
 		}
 	}
 
@@ -240,29 +286,47 @@ void Player::Move()
 			float pos_z = to_pos.z;
 			if (pos_x > x_min && pos_x < x_max && pos_z < z_max && pos_z > z_min)
 			*/
-			if (Vector3::Distance(col->transform->Get_position(), transform->Get_position()) < col->Size_X)
+			Vector2 t = { col->transform->Get_position().x,col->transform->Get_position().z };
+			Vector2 p = { transform->Get_position().x,transform->Get_position().z };
+			if (Vector2::Distance(p, t) < col->Size_X)
 			{
 				if (col->obj_type == Collider::Block)
 				{
 					if (Boosting)
 					{
 						col->gameObject->SetActive(false);
+						Audio_Manager::Clash->Play();
 					}
-					else
+					else if (!Invincible)
 					{
 						Damage = true;
 						Gas -= Gas_Damage;
+						Invincible = true;
+						Audio_Manager::Damage->Play();
+						/*
+						for (int i = 0; i < blocks_count; ++i)
+						{
+							shared_ptr<GameObject> obj = blocks[i].lock();
+							if (!obj->activeSelf())
+							{
+								obj->SetActive(true);
+								obj->transform->Set_position(transform->Get_position());
+								break;
+							}
+						}*/
 					}
 				}
 				else if (col->obj_type == Collider::Gas)
 				{
+					Audio_Manager::Get->Play();
 					col->gameObject->SetActive(false);
 					Gas += Gas_Increase;
 				}
 				else if (col->obj_type == Collider::Bonus)
 				{
+					Audio_Manager::Get->Play();
 					col->gameObject->SetActive(false);
-					++Get_Bonus_Count;
+					Get_Bonus = true;
 				}
 			}
 		}

@@ -2,7 +2,6 @@
 #include "MonoBehaviour.h"
 #include "Transform.h"
 #include <Original_Math.h>
-#include "ObjectPool.h"
 using namespace DirectX;
 
 class Collider;
@@ -20,8 +19,12 @@ public:
 	bool Boosting = false;
 	bool Can_Boost = false;
 	bool Damage = false;
+	bool Get_Bonus = false;
+	int Stage_State = 0;
+
 	float Gas_Max;
 	float Gas;
+	float Boost_Charge_Timer;
 	float Boost_Magnification;
 	float Speed_Bonus_Magnification;
 
@@ -32,21 +35,25 @@ private:
 	float Boost_Time_Max;
 	float Boost_Timer;
 	float Boost_Charge_Time_Max;
-	float Boost_Charge_Timer;
 	float Gas_Decrease;
 	float Gas_Increase;
 	float Gas_Damage;
 	float Speed_Bonus_Magnification_Set;
-	int	  Speed_Bonus_Count;
 	float Speed_Bonus_Time_Max;
 	float Speed_Bonus_Timer;
+	int	Speed_Bonus_Count;
 
-	int Get_Bonus_Count = 0;
+	bool Invincible;
+	bool skin_enabled = true;
+	float Invincible_Timer;
 
 	float Horizontal;
 	//float Vertical;
 
 	Vector3 moveForward;
+
+	std::vector<std::weak_ptr<GameObject>> blocks;
+	int blocks_count;
 
 	void Check_Player_Move();
 	void Check_Parameter();

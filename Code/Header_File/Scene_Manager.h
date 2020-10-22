@@ -35,6 +35,7 @@ private:
 
 	static std::shared_ptr<Scene> Active_Scene;
 	std::shared_ptr<Scene> Behind_Scene;
+	std::string Behind_Path = "";
 
 	static bool Load;
 	static std::string Next_Scene_Path;
