@@ -19,7 +19,7 @@ void Animator_Manager::Update()
 		shared_ptr<Animator> animator = itr->lock();
 		if (animator->gameObject->activeSelf())
 		{
-			if (animator->enabled)
+			if (animator->enableSelf())
 			{
 				animator->Update();
 			}

@@ -17,10 +17,6 @@ public:
 	Matrix V = { 0.0f,0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 	Matrix P = { 0.0f,0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
-	void Initialize();
-	void Initialize(std::shared_ptr<GameObject> obj);
-	void Update(u_int width, u_int height);
-	bool Draw_ImGui();
 	Vector2 WorldToViewportPoint(Vector3 pos);
 
 
@@ -32,6 +28,9 @@ private:
 	{
 		archive(cereal::base_class<Behaviour>(this), focus, FOV, near_z, far_z);
 	}
+	void Initialize();
+	void Initialize(std::shared_ptr<GameObject> obj);
+	bool Draw_ImGui();
 
 	D3D11_VIEWPORT viewport;
 	UINT num_viewports = 1;

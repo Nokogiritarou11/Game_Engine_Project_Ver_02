@@ -11,10 +11,7 @@ using namespace DirectX;
 
 class Sprite_Renderer : public Renderer
 {
-
 public:
-	Sprite_Renderer();
-	~Sprite_Renderer();
 
 	Vector2 Size = { 100,100 };
 	Vector2 UV_Origin = { 0,0 };
@@ -22,13 +19,13 @@ public:
 	Vector4 Color = { 1,1,1,1 };
 	std::shared_ptr<Texture> texture;
 
+private:
+
 	void Initialize(std::shared_ptr<GameObject> obj);
 	void Render(Matrix V, Matrix P) override;
 	void Render(Matrix V, Matrix P, bool Use_Material = true, std::shared_ptr<Shader> shader = nullptr) override {};
 
 	bool Draw_ImGui();
-
-private:
 
 	struct VERTEX
 	{

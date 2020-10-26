@@ -9,7 +9,7 @@ void View_Scene::Render(Matrix V, Matrix P, std::shared_ptr<Transform> trans)
 {
 	bool Cleared = false;
 	CbScene cbScene;
-	for (list<weak_ptr<Light>>::iterator itr = Engine::light_manager->Light_list.begin(); itr != Engine::light_manager->Light_list.end();)
+	for (vector<weak_ptr<Light>>::iterator itr = Engine::light_manager->Light_list.begin(); itr != Engine::light_manager->Light_list.end();)
 	{
 		if (itr->expired())
 		{
@@ -19,7 +19,7 @@ void View_Scene::Render(Matrix V, Matrix P, std::shared_ptr<Transform> trans)
 		shared_ptr<Light> m_light = itr->lock();
 		if (m_light->gameObject->activeSelf())
 		{
-			if (m_light->enabled)
+			if (m_light->enableSelf())
 			{
 
 				//シャドウマップ描画
@@ -67,6 +67,6 @@ void View_Scene::Render(Matrix V, Matrix P, std::shared_ptr<Transform> trans)
 				}
 			}
 		}
-		itr++;
+		++itr;
 	}
 }

@@ -7,6 +7,14 @@ GameObject::~GameObject()
 	Component_List.clear();
 }
 
+void GameObject::Initialize()
+{
+	for (shared_ptr<Component> c : Component_List)
+	{
+		c->Initialize(dynamic_pointer_cast<GameObject>(shared_from_this()));
+	}
+}
+
 bool GameObject::CompareTag(string _tag)
 {
 	if (tag == _tag)
@@ -26,19 +34,25 @@ void GameObject::SetActive(bool value)
 	Active = value;
 	if (Old_Active != Active)
 	{
+		shared_ptr<MonoBehaviour> mono;
 		for (shared_ptr<Component> com : Component_List)
 		{
-			shared_ptr<MonoBehaviour> buff = std::dynamic_pointer_cast<MonoBehaviour>(com);
-			if (buff != nullptr)
+			mono = std::dynamic_pointer_cast<MonoBehaviour>(com);
+			if (mono != nullptr)
 			{
 				if (Active)
 				{
-					Scene_Manager::Get_Active_Scene()->Add_Enable(buff);
+					mono->OnEnable();
 				}
 				else
 				{
-					Scene_Manager::Get_Active_Scene()->Add_Disable(buff);
+					mono->OnDisable();
 				}
+				continue;
+			}
+			if (Active)
+			{
+
 			}
 		}
 		Old_Active = Active;

@@ -6,6 +6,8 @@
 #include "GameObject.h"
 #include "MonoBehaviour.h"
 
+class Scene_Manager;
+
 class Scene
 {
 public:
@@ -14,9 +16,6 @@ public:
 	std::shared_ptr<GameObject> Instance_GameObject(std::string name);
 	void Destroy_GameObject(std::shared_ptr<GameObject> gameObject);
 	void Destroy_Component(std::shared_ptr<Component> component);
-	void Update();
-	void Reset();
-
 	void Add(std::shared_ptr<MonoBehaviour> mono);
 	void Add_Disable(std::shared_ptr<MonoBehaviour> mono);
 	void Add_Enable(std::shared_ptr<MonoBehaviour> mono);
@@ -35,13 +34,19 @@ private:
 		archive(gameObject_List);
 	}
 
-	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Update_list;
+	friend class Scene_Manager;
+
+	void Initialize();
+	void Update();
+	void Reset();
+
 	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Awake_list;
 	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Start_list;
+	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Start_Next_list;
+	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Update_list;
+	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Update_Next_list;
 	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Disable_list;
 	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Enable_list;
-
-	//std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Next_Update_list;
 
 	int Update_Stage = 0;
 };

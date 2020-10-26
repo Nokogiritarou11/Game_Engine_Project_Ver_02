@@ -25,14 +25,7 @@ using Microsoft::WRL::ComPtr;
 class Light : public Behaviour
 {
 public:
-	Light();
-	~Light();
-
-	void Initialize();
-	void Initialize(std::shared_ptr<GameObject> obj);
 	void Set(std::shared_ptr<Transform> trans);
-
-	bool Draw_ImGui();
 
 	ComPtr<ID3D11DepthStencilView>		DepthStencilView = nullptr;
 	ComPtr<ID3D11Texture2D>				DepthStencilTexture = nullptr;
@@ -50,8 +43,11 @@ public:
 	float Light_View_Size = 150;
 
 	std::shared_ptr<Shader> shader;
-private:
 
+private:
+	void Initialize();
+	void Initialize(std::shared_ptr<GameObject> obj);
+	bool Draw_ImGui();
 	friend class cereal::access;
 	template<class Archive>
 	void serialize(Archive& archive)

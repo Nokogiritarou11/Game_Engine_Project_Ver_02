@@ -4,6 +4,8 @@
 #include <typeinfo>
 #include <memory>
 
+class GameObject;
+
 class Component : public Object
 {
 public:
@@ -16,9 +18,6 @@ public:
 
 	bool CompareTag(std::string _tag);
 
-	virtual void Initialize(){};
-	virtual void Initialize(std::shared_ptr<GameObject> obj){};
-	virtual bool Draw_ImGui(){return true;};
 	template<class T>
 	std::shared_ptr<T> GetComponent();
 	template<class T>
@@ -32,6 +31,13 @@ private:
 	{
 		archive(cereal::base_class<Object>(this), tag);
 	}
+
+	friend class GameObject;
+	virtual void Initialize() {};
+	virtual void Initialize(std::shared_ptr<GameObject> obj) {};
+
+	friend class Debug_UI;
+	virtual bool Draw_ImGui() { return true; };
 };
 
 CEREAL_REGISTER_TYPE(Component)

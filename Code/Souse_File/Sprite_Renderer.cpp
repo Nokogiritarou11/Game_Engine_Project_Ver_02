@@ -11,14 +11,6 @@
 #include "System_Function.h"
 using namespace std;
 
-Sprite_Renderer::Sprite_Renderer()
-{
-}
-
-Sprite_Renderer::~Sprite_Renderer()
-{
-}
-
 void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 {
 	gameObject = obj;

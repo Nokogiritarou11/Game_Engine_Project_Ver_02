@@ -6,14 +6,6 @@
 #include "Include_ImGui.h"
 using namespace std;
 
-Animator::Animator()
-{
-}
-
-Animator::~Animator()
-{
-}
-
 void Animator::Initialize(shared_ptr<GameObject> obj)
 {
 	gameObject = obj;

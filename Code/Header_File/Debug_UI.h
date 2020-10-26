@@ -23,6 +23,7 @@ private:
 	vector<string> Debug_Log = {};
 	bool Debug_Log_Changed = false;
 	weak_ptr<GameObject> Active_Object;
+	weak_ptr<GameObject> Active_Object_Old;
 
 	Matrix Debug_Camera_V;
 	Matrix Debug_Camera_P;

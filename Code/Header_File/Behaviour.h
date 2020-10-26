@@ -4,12 +4,16 @@
 class Behaviour : public Component
 {
 public:
-	bool enabled = true;
+
+	void SetEnabled(bool value);
+	bool enableSelf();
 
 	Behaviour();
 	~Behaviour();
 
 private:
+	bool enabled = true;
+
 	friend class cereal::access;
 	template<class Archive>
 	void serialize(Archive& archive)

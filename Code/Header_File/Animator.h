@@ -4,10 +4,6 @@
 class Animator : public Behaviour
 {
 public:
-	Animator();
-	~Animator();
-
-	void Initialize(std::shared_ptr<GameObject> obj);
 
 	bool IsPlayAnimation() const { return currentAnimation >= 0; }
 	void Play(int animationIndex);
@@ -18,8 +14,9 @@ public:
 	float       animation_speed = 1;
 	bool		loopAnimation = false;
 
-	bool Draw_ImGui();
 private:
+	void Initialize(std::shared_ptr<GameObject> obj);
+	bool Draw_ImGui();
 
 	void Set_Skin_Renderer(std::shared_ptr<SkinMesh_Renderer> render);
 	void Set_Mesh(std::shared_ptr<Mesh> mesh);

@@ -14,17 +14,14 @@
 #include <stdio.h>
 #include <locale.h>
 
+class View_Texture;
+
 class Renderer : public Component
 {
 public:
-	Renderer();
-	~Renderer();
 
 	bool enabled = true;
 	std::vector<std::shared_ptr<Material>> material;
-
-	virtual void Render(Matrix V, Matrix P) {};
-	virtual void Render(Matrix V, Matrix P, bool Use_Material, std::shared_ptr<Shader> shader) {};
 
 private:
 	friend class cereal::access;
@@ -37,6 +34,10 @@ private:
 	static int Set_BlendState;
 	static int Set_RasterizerState;
 	static int Set_DepthStencilState;
+
+	friend class View_Texture;
+	virtual void Render(Matrix V, Matrix P) {};
+	virtual void Render(Matrix V, Matrix P, bool Use_Material, std::shared_ptr<Shader> shader) {};
 };
 
 CEREAL_REGISTER_TYPE(Renderer)

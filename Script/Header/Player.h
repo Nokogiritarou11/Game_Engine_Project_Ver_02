@@ -10,11 +10,6 @@ class Player : public MonoBehaviour
 {
 public:
 
-	void Awake();
-	void Start();
-	void Update();
-
-	bool Draw_ImGui();
 
 	bool Boosting = false;
 	bool Can_Boost = false;
@@ -31,6 +26,11 @@ public:
 	std::vector<std::weak_ptr<Collider>> colliders;
 
 private:
+	void Awake() override;
+	void Start() override;
+	void Update() override;
+	bool Draw_ImGui() override;
+
 	float Move_Speed;
 	float Boost_Time_Max;
 	float Boost_Timer;

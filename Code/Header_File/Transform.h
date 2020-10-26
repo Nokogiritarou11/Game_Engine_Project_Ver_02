@@ -22,9 +22,6 @@ public:
 	Transform(Vector3 _position, Vector3 _euler);
 	~Transform();
 
-	void Initialize(std::shared_ptr<GameObject> obj);
-	//void Update();
-	bool Draw_ImGui();
 	bool hasChanged = false;
 
 	//GetterSetter
@@ -76,6 +73,9 @@ public:
 
 
 private:
+	void Initialize(std::shared_ptr<GameObject> obj);
+	bool Draw_ImGui();
+
 	friend class cereal::access;
 	template<class Archive>
 	void serialize(Archive& archive);

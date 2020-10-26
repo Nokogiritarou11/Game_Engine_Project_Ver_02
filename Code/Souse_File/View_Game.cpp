@@ -10,7 +10,7 @@ void View_Game::Render(Matrix V, Matrix P, std::shared_ptr<Transform> trans)
 {
 	bool Cleared = false;
 	CbScene cbScene;
-	for (list<weak_ptr<Light>>::iterator itr = Engine::light_manager->Light_list.begin(); itr != Engine::light_manager->Light_list.end();)
+	for (vector<weak_ptr<Light>>::iterator itr = Engine::light_manager->Light_list.begin(); itr != Engine::light_manager->Light_list.end();)
 	{
 		if (itr->expired())
 		{
@@ -20,9 +20,8 @@ void View_Game::Render(Matrix V, Matrix P, std::shared_ptr<Transform> trans)
 		shared_ptr<Light> m_light = itr->lock();
 		if (m_light->gameObject->activeSelf())
 		{
-			if (m_light->enabled)
+			if (m_light->enableSelf())
 			{
-
 				//シャドウマップ描画
 				{
 					m_light->Set(trans);
@@ -32,10 +31,10 @@ void View_Game::Render(Matrix V, Matrix P, std::shared_ptr<Transform> trans)
 						0.0f, -0.5f, 0.0f, 0.0f,
 						0.0f, 0.0f, 1.0f, 0.0f,
 						0.5f, 0.5f, 0.0f, 1.0f };
-					cbScene.shadowMatrix   = (m_light->V * m_light->P) * SHADOW_BIAS;
+					cbScene.shadowMatrix = (m_light->V * m_light->P) * SHADOW_BIAS;
 					cbScene.lightDirection = m_light->Direction;
-					cbScene.lightColor	   = { m_light->Color.x,m_light->Color.y,m_light->Color.z };
-					cbScene.Bias		   = m_light->Bias;
+					cbScene.lightColor = { m_light->Color.x,m_light->Color.y,m_light->Color.z };
+					cbScene.Bias = m_light->Bias;
 
 					DxSystem::DeviceContext->VSSetConstantBuffers(0, 1, ConstantBuffer_CbScene.GetAddressOf());
 					DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbScene.Get(), 0, 0, &cbScene, 0, 0);
@@ -69,9 +68,9 @@ void View_Game::Render(Matrix V, Matrix P, std::shared_ptr<Transform> trans)
 					DxSystem::DeviceContext->PSSetShaderResources(0, 1, m_light->ShaderResourceView.GetAddressOf());
 					Render_3D(V, P);
 					Render_2D(V, P);
-					}
 				}
 			}
-		itr++;
 		}
+		++itr;
+	}
 }

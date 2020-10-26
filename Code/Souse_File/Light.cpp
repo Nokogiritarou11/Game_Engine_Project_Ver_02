@@ -6,13 +6,6 @@
 #include "Debug_UI.h"
 using namespace std;
 
-Light::Light()
-{
-}
-Light::~Light()
-{
-}
-
 void Light::Initialize()
 {
 }
@@ -37,9 +30,9 @@ void Light::Initialize(std::shared_ptr<GameObject> obj)
 		td.MipLevels = 1;
 		td.ArraySize = 1;
 		td.Format = DXGI_FORMAT_R24G8_TYPELESS;
-		td.SampleDesc = DxSystem::MSAA;
-		//td.SampleDesc.Count = 1;
-		//td.SampleDesc.Quality = 0;
+		//td.SampleDesc = DxSystem::MSAA;
+		td.SampleDesc.Count = 1;
+		td.SampleDesc.Quality = 0;
 		td.Usage = D3D11_USAGE_DEFAULT;
 		td.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 		td.CPUAccessFlags = 0;
@@ -53,7 +46,8 @@ void Light::Initialize(std::shared_ptr<GameObject> obj)
 		D3D11_DEPTH_STENCIL_VIEW_DESC dsvd;
 		ZeroMemory(&dsvd, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
 		dsvd.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+		//dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+		dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		dsvd.Texture2D.MipSlice = 0;
 
 		// 深度ステンシルビュー生成
@@ -64,7 +58,8 @@ void Light::Initialize(std::shared_ptr<GameObject> obj)
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
 		ZeroMemory(&srvd, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
 		srvd.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-		srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
+		//srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
+		srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		srvd.Texture2D.MostDetailedMip = 0;
 		srvd.Texture2D.MipLevels = 1;
 

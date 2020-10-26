@@ -113,21 +113,6 @@ void Scene_Manager::CreateScene_Default(string file_path, string file_name)
 	LoadScene(file_path);
 }
 
-void Scene_Manager::Initialize_Scene(weak_ptr<Scene> s)
-{
-	shared_ptr<Scene> scene = s.lock();
-	//scene->Reset();
-	list<shared_ptr<GameObject>>::iterator itr_end = scene->gameObject_List.end();
-	for (list<shared_ptr<GameObject>>::iterator itr = scene->gameObject_List.begin(); itr != itr_end; itr++)
-	{
-		list<shared_ptr<Component>>::iterator itr_comp_end = (*itr)->Component_List.end();
-		for (list<shared_ptr<Component>>::iterator itr_comp = (*itr)->Component_List.begin(); itr_comp != itr_comp_end; itr_comp++)
-		{
-			(*itr_comp)->Initialize((*itr));
-		}
-	}
-}
-
 void Scene_Manager::SaveScene(string Save_Path)
 {
 	int path_i = Save_Path.find_last_of("\\") + 1;
@@ -164,7 +149,7 @@ void Scene_Manager::End_DebugScene()
 	Engine::light_manager->Reset();
 	Active_Scene = Behind_Scene;
 	Last_Save_Path = Behind_Path;
-	Initialize_Scene(Active_Scene);
+	Active_Scene->Initialize();
 }
 
 void Scene_Manager::LoadScene(string Scene_Path)
@@ -181,7 +166,7 @@ void Scene_Manager::Update()
 		Engine::render_manager->Reset();
 		Engine::light_manager->Reset();
 		Active_Scene = CreateScene_FromFile(Next_Scene_Path);
-		Initialize_Scene(Active_Scene);
+		Active_Scene->Initialize();
 		Load = false;
 	}
 

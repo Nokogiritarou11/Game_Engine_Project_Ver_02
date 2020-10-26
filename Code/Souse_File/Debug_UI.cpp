@@ -278,14 +278,24 @@ void Debug_UI::Inspector_Render()
 	ImGui::SetNextWindowPos(ImVec2(1500, 0), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
 	shared_ptr<GameObject> obj = Active_Object.lock();
+	shared_ptr<GameObject> obj_old = Active_Object_Old.lock();
 
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_NoCollapse;
 	ImGui::Begin(u8"インスペクタ", NULL, window_flags);
 	if (obj)
 	{
+		static bool active = false;
+		if (obj_old != obj)
+		{
+			active = obj->activeSelf();
+			Active_Object_Old = Active_Object;
+		}
 		//選択時
-		ImGui::Checkbox("##active", &obj->Active);
+		if (ImGui::Checkbox("##active", &active))
+		{
+			obj->SetActive(active);
+		}
 		ImGui::SameLine();
 		ImGui::InputText(u8"名前", &obj->name);
 
@@ -293,10 +303,9 @@ void Debug_UI::Inspector_Render()
 		while (removed)
 		{
 			bool removed_comp = false;
-			list<shared_ptr<Component>>::iterator itr_end = obj->Component_List.end();
-			for (list<shared_ptr<Component>>::iterator itr = obj->Component_List.begin(); itr != itr_end; itr++)
+			for (shared_ptr<Component> c : obj->Component_List)
 			{
-				if (!(*itr)->Draw_ImGui())
+				if (!c->Draw_ImGui())
 				{
 					removed_comp = true;
 					break;
@@ -329,6 +338,7 @@ void Debug_UI::ScenePlayer_Render()
 		if (ImGui::Button(ICON_FA_STOP))
 		{
 			Active_Object.reset();
+			Active_Object_Old.reset();
 			Engine::scene_manager->End_DebugScene();
 			Engine::scene_manager->Run = false;
 			Engine::scene_manager->Pause = false;
@@ -341,6 +351,7 @@ void Debug_UI::ScenePlayer_Render()
 			if (!Engine::scene_manager->Pause)
 			{
 				Active_Object.reset();
+				Active_Object_Old.reset();
 				Engine::scene_manager->Start_DebugScene();
 			}
 			Engine::scene_manager->Run = true;
@@ -429,6 +440,7 @@ void Debug_UI::Scene_File_Menu_Render()
 					Engine::scene_manager->Last_Save_Path = path;
 					Scene_Manager::LoadScene(path);
 					Active_Object.reset();
+					Active_Object_Old.reset();
 					ofstream oOfstream("Default_Resource\\System\\last_save.bin");
 					if (oOfstream.is_open())
 					{
@@ -541,23 +553,22 @@ void Debug_UI::GameObject_List_Render(std::shared_ptr<Scene> scene)
 
 		static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 		static int selection_mask = (0);
-		list<shared_ptr<GameObject>>::iterator itr_end = scene->gameObject_List.end();
-		for (list<shared_ptr<GameObject>>::iterator itr = scene->gameObject_List.begin(); itr != itr_end; itr++)
+		for (shared_ptr<GameObject> g : scene->gameObject_List)
 		{
 			ImGui::PushID(ID);
 			ImGuiTreeNodeFlags node_flags = base_flags;
 			const bool is_selected = (selection_mask & (1 << ID)) != 0;
 			if (is_selected) node_flags |= ImGuiTreeNodeFlags_Selected;
 
-			const bool active = (*itr)->activeSelf();
+			const bool active = g->activeSelf();
 			if (!active) { ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(0.f, 0.f, 0.4f)); }
-			bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)ID, node_flags, (*itr)->name.c_str());
+			bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)ID, node_flags, g->name.c_str());
 			if (!active) { ImGui::PopStyleColor(); }
 
 			if (ImGui::IsItemClicked() || ImGui::IsItemClicked(1))
 			{
 				node_clicked = ID;
-				Active_Object = *itr;
+				Active_Object = g;
 			}
 			if (node_open)
 			{
@@ -579,6 +590,7 @@ void Debug_UI::GameObject_List_Render(std::shared_ptr<Scene> scene)
 				{
 					GameObject::Destroy(Active_Object.lock());
 					Active_Object.reset();
+					Active_Object_Old.reset();
 				}
 			}
 			ImGui::EndPopup();

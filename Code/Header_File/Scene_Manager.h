@@ -29,8 +29,6 @@ public:
 
 private:
 
-	void Initialize_Scene(std::weak_ptr<Scene> s);
-
 	//std::list<std::shared_ptr<Scene>> Scene_List;
 
 	static std::shared_ptr<Scene> Active_Scene;
