@@ -7,10 +7,9 @@
 
 class MonoBehaviour : public Behaviour
 {
-public:
-
-	MonoBehaviour();
-	~MonoBehaviour();
+private:
+	friend class Scene;
+	friend class GameObject;
 
 	virtual void Awake() {};
 	virtual void Start() {};
@@ -21,13 +20,16 @@ public:
 	virtual void OnDisable() {};
 	virtual void OnDestroy() {};
 
-	void Initialize();
-	void Initialize(std::shared_ptr<GameObject> obj);
+	void Initialize() override;
+	void Initialize(std::shared_ptr<GameObject> obj) override;
+	void SetActive(bool value) override;
 
 	bool IsCalled_Awake = false;
 	bool IsCalled_Start = false;
+	bool IsCalled_Update = false;
+	bool Disable_flg = false;
+	void Add();
 
-private:
 	friend class cereal::access;
 	template<class Archive>
 	void serialize(Archive& archive)

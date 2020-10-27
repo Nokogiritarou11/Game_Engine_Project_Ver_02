@@ -5,14 +5,6 @@
 using namespace DirectX;
 using namespace std;
 
-Object::Object()
-{
-}
-
-Object::~Object()
-{
-}
-
 string Object::ToString()
 {
 	return name;

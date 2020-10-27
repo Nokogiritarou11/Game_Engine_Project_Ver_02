@@ -24,8 +24,8 @@ class Object : public std::enable_shared_from_this<Object>
 public:
 	std::string name;
 
-	Object();
-	virtual ~Object();
+	Object(){};
+	virtual ~Object(){};
 
 	std::string ToString();
 	static void Destroy(std::shared_ptr<GameObject> obj);

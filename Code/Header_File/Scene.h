@@ -13,13 +13,6 @@ class Scene
 public:
 	std::string name;
 
-	std::shared_ptr<GameObject> Instance_GameObject(std::string name);
-	void Destroy_GameObject(std::shared_ptr<GameObject> gameObject);
-	void Destroy_Component(std::shared_ptr<Component> component);
-	void Add(std::shared_ptr<MonoBehaviour> mono);
-	void Add_Disable(std::shared_ptr<MonoBehaviour> mono);
-	void Add_Enable(std::shared_ptr<MonoBehaviour> mono);
-
 	std::weak_ptr<GameObject> Find(std::string Name);
 	std::weak_ptr<GameObject> FindWithTag(std::string Tag);
 
@@ -35,18 +28,28 @@ private:
 	}
 
 	friend class Scene_Manager;
+	friend class Object;
+	friend class MonoBehaviour;
+
+	std::shared_ptr<GameObject> Instance_GameObject(std::string name);
+	void Destroy_GameObject(std::shared_ptr<GameObject> gameObject);
+	void Destroy_Component(std::shared_ptr<Component> component);
+	//void Add(std::shared_ptr<MonoBehaviour> mono);
+	//void Add_Enable(std::shared_ptr<MonoBehaviour> mono);
 
 	void Initialize();
 	void Update();
 	void Reset();
 
-	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Awake_list;
+	void Processing_Start();
+	void Processing_Update(int state);
+
+	//std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Awake_list;
 	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Start_list;
 	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Start_Next_list;
 	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Update_list;
-	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Update_Next_list;
-	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Disable_list;
-	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Enable_list;
+	//std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Update_Next_list;
+	//std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Enable_list;
 
-	int Update_Stage = 0;
+	//int Update_Stage = 0;
 };

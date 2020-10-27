@@ -87,60 +87,19 @@ weak_ptr<GameObject> Scene::FindWithTag(std::string Tag)
 
 void Scene::Update()
 {
+	Processing_Start();
+	Processing_Update(0);
+	Processing_Start();
+	Processing_Update(1);
+}
+
+void Scene::Processing_Start()
+{
 	if (!MonoBehaviour_Start_Next_list.empty())
 	{
-		std::copy(MonoBehaviour_Start_Next_list.begin(), MonoBehaviour_Start_Next_list.end(), std::back_inserter(MonoBehaviour_Start_list));
+		copy(MonoBehaviour_Start_Next_list.begin(), MonoBehaviour_Start_Next_list.end(), std::back_inserter(MonoBehaviour_Start_list));
 		MonoBehaviour_Start_Next_list.clear();
 	}
-	if (!MonoBehaviour_Update_Next_list.empty())
-	{
-		std::copy(MonoBehaviour_Update_Next_list.begin(), MonoBehaviour_Update_Next_list.end(), std::back_inserter(MonoBehaviour_Update_list));
-		MonoBehaviour_Update_Next_list.clear();
-	}
-
-	Update_Stage = 1;
-	if (!MonoBehaviour_Awake_list.empty())
-	{
-		for (weak_ptr<MonoBehaviour> m : MonoBehaviour_Awake_list)
-		{
-			if (!m.expired())
-			{
-				shared_ptr<MonoBehaviour> mono = m.lock();
-				if (mono->gameObject->activeSelf())
-				{
-					mono->Awake();
-					mono->IsCalled_Awake = true;
-					if (mono->gameObject->activeSelf())
-					{
-						MonoBehaviour_Enable_list.emplace_back(m);
-					}
-				}
-			}
-		}
-		//auto removeIt = remove_if(MonoBehaviour_Awake_list.begin(), MonoBehaviour_Awake_list.end(), [](weak_ptr<MonoBehaviour> m) { shared_ptr<MonoBehaviour> _m = m.lock(); return _m->IsCalled_Awake; });
-		//MonoBehaviour_Awake_list.erase(removeIt, MonoBehaviour_Awake_list.end());
-		MonoBehaviour_Awake_list.clear();
-	}
-
-	Update_Stage = 2;
-	if (!MonoBehaviour_Enable_list.empty())
-	{
-		for (weak_ptr<MonoBehaviour> m : MonoBehaviour_Enable_list)
-		{
-			if (!m.expired())
-			{
-				shared_ptr<MonoBehaviour> mono = m.lock();
-				mono->OnEnable();
-				if (!mono->IsCalled_Start)
-				{
-					MonoBehaviour_Start_list.emplace_back(m);
-				}
-			}
-		}
-		MonoBehaviour_Enable_list.clear();
-	}
-
-	Update_Stage = 3;
 	if (!MonoBehaviour_Start_list.empty())
 	{
 		for (weak_ptr<MonoBehaviour> m : MonoBehaviour_Start_list)
@@ -158,19 +117,27 @@ void Scene::Update()
 							mono->IsCalled_Start = true;
 							if (mono->gameObject->activeSelf())
 							{
-								MonoBehaviour_Update_list.emplace_back(m);
+								if (mono->enableSelf())
+								{
+									if (!mono->IsCalled_Update)
+									{
+										MonoBehaviour_Update_list.emplace_back(m);
+										mono->IsCalled_Update = true;
+										mono->Disable_flg = false;
+									}
+								}
 							}
 						}
 					}
 				}
 			}
 		}
-		//auto removeIt = remove_if(MonoBehaviour_Start_list.begin(), MonoBehaviour_Start_list.end(), [](weak_ptr<MonoBehaviour> m) { shared_ptr<MonoBehaviour> _m = m.lock(); return _m->IsCalled_Start; });
-		//MonoBehaviour_Start_list.erase(removeIt, MonoBehaviour_Start_list.end());
 		MonoBehaviour_Start_list.clear();
 	}
+}
 
-	Update_Stage = 4;
+void Scene::Processing_Update(int state)
+{
 	bool expired = false;
 	bool Disabled = false;
 	for (weak_ptr<MonoBehaviour> m : MonoBehaviour_Update_list)
@@ -182,11 +149,24 @@ void Scene::Update()
 			{
 				if (mono->enableSelf())
 				{
-					mono->Update();
+					if (state == 0)
+					{
+						mono->Update();
+					}
+					else
+					{
+						mono->LateUpdate();
+					}
+				}
+				else
+				{
+					mono->Disable_flg = true;
+					Disabled = true;
 				}
 			}
 			else
 			{
+				mono->Disable_flg = true;
 				Disabled = true;
 			}
 		}
@@ -200,47 +180,10 @@ void Scene::Update()
 		auto removeIt = remove_if(MonoBehaviour_Update_list.begin(), MonoBehaviour_Update_list.end(), [](weak_ptr<MonoBehaviour> m) { return m.expired(); });
 		MonoBehaviour_Update_list.erase(removeIt, MonoBehaviour_Update_list.end());
 	}
-
-	Update_Stage = 5;
-	for (weak_ptr<MonoBehaviour> m : MonoBehaviour_Update_list)
-	{
-		if (!m.expired())
-		{
-			shared_ptr<MonoBehaviour> mono = m.lock();
-			if (mono->gameObject->activeSelf())
-			{
-				if (mono->enableSelf())
-				{
-					if (mono->IsCalled_Start)
-					{
-						mono->LateUpdate();
-					}
-				}
-			}
-			else
-			{
-				Disabled = true;
-			}
-		}
-	}
 	if (Disabled)
 	{
-		auto removeIt = remove_if(MonoBehaviour_Update_list.begin(), MonoBehaviour_Update_list.end(), [](weak_ptr<MonoBehaviour> m) { shared_ptr<MonoBehaviour> mono = m.lock(); return mono->gameObject->activeSelf(); });
+		auto removeIt = remove_if(MonoBehaviour_Update_list.begin(), MonoBehaviour_Update_list.end(), [](weak_ptr<MonoBehaviour> m) { shared_ptr<MonoBehaviour> mono = m.lock(); mono->IsCalled_Update = false; return mono->Disable_flg; });
 		MonoBehaviour_Update_list.erase(removeIt, MonoBehaviour_Update_list.end());
-	}
-
-	Update_Stage = 6;
-	if (!MonoBehaviour_Disable_list.empty())
-	{
-		for (weak_ptr<MonoBehaviour> m : MonoBehaviour_Disable_list)
-		{
-			if (!m.expired())
-			{
-				shared_ptr<MonoBehaviour> mono = m.lock();
-				mono->OnDisable();
-			}
-		}
-		MonoBehaviour_Disable_list.clear();
 	}
 }
 
@@ -249,112 +192,37 @@ void Scene::Reset()
 	gameObject_List.clear();
 	MonoBehaviour_Update_list.clear();
 	MonoBehaviour_Start_list.clear();
-	MonoBehaviour_Start_list.clear();
-	MonoBehaviour_Disable_list.clear();
-	MonoBehaviour_Enable_list.clear();
-	Update_Stage = 0;
+	MonoBehaviour_Start_Next_list.clear();
+	//MonoBehaviour_Enable_list.clear();
+	//Update_Stage = 0;
 }
-
+/*
 void Scene::Add(shared_ptr<MonoBehaviour> mono)
 {
-	switch (Update_Stage)
+	if (mono->gameObject->activeSelf())
 	{
-		case 0: //‰Šú
-			MonoBehaviour_Awake_list.emplace_back(mono);
-			break;
-		case 1: //Awake
-			if (mono->gameObject->activeSelf())
+		if (!mono->IsCalled_Awake)
+		{
+			mono->Awake();
+			mono->IsCalled_Awake = true;
+		}
+		if (mono->gameObject->activeSelf())
+		{
+			if (mono->enableSelf())
 			{
-				mono->Awake();
+				mono->OnEnable();
 				if (mono->gameObject->activeSelf())
 				{
-					MonoBehaviour_Enable_list.emplace_back(mono);
+					if (mono->enableSelf())
+					{
+						MonoBehaviour_Start_list.emplace_back(mono);
+					}
 				}
 			}
-			break;
-		case 2: //Enabled
-			if (mono->gameObject->activeSelf())
-			{
-				mono->Awake();
-				if (mono->gameObject->activeSelf())
-				{
-					MonoBehaviour_Enable_list.emplace_back(mono);
-				}
-			}
-			break;
-		case 3: //Start
-			if (mono->gameObject->activeSelf())
-			{
-				mono->Awake();
-				if (mono->gameObject->activeSelf())
-				{
-					MonoBehaviour_Enable_list.emplace_back(mono);
-				}
-			}
-			break;
-		case 4: //Update
-			if (mono->gameObject->activeSelf())
-			{
-				mono->Awake();
-				if (mono->gameObject->activeSelf())
-				{
-					MonoBehaviour_Enable_list.emplace_back(mono);
-				}
-			}
-			break;
-		case 5: //LateUpdate
-			if (mono->gameObject->activeSelf())
-			{
-				mono->Awake();
-				if (mono->gameObject->activeSelf())
-				{
-					MonoBehaviour_Enable_list.emplace_back(mono);
-				}
-			}
-			break;
-		case 6: //Disabled
-			if (mono->gameObject->activeSelf())
-			{
-				mono->Awake();
-				if (mono->gameObject->activeSelf())
-				{
-					MonoBehaviour_Enable_list.emplace_back(mono);
-				}
-			}
-			break;
-		default:
-			break;
+		}
 	}
 }
-void Scene::Add_Disable(shared_ptr<MonoBehaviour> mono)
-{
-	switch (Update_Stage)
-	{
-		case 0: //‰Šú
-			MonoBehaviour_Disable_list.emplace_back(mono);
-			break;
-		case 1: //Awake
-			MonoBehaviour_Disable_list.emplace_back(mono);
-			break;
-		case 2: //Enabled
-			MonoBehaviour_Disable_list.emplace_back(mono);
-			break;
-		case 3: //Start
-			MonoBehaviour_Disable_list.emplace_back(mono);
-			break;
-		case 4: //Update
-			MonoBehaviour_Disable_list.emplace_back(mono);
-			break;
-		case 5: //LateUpdate
-			MonoBehaviour_Disable_list.emplace_back(mono);
-			break;
-		case 6: //Disabled
-			mono->OnDisable();
-			break;
-		default:
-			break;
-	}
-}
+/*
 void Scene::Add_Enable(shared_ptr<MonoBehaviour> mono)
 {
 	switch (Update_Stage)
@@ -384,3 +252,4 @@ void Scene::Add_Enable(shared_ptr<MonoBehaviour> mono)
 			break;
 	}
 }
+*/

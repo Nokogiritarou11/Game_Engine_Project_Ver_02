@@ -4,17 +4,12 @@
 #include <typeinfo>
 #include <memory>
 
-class GameObject;
-
 class Component : public Object
 {
 public:
 	std::shared_ptr<GameObject> gameObject;
 	std::shared_ptr<Transform> transform;
 	std::string tag;
-
-	Component();
-	~Component();
 
 	bool CompareTag(std::string _tag);
 
@@ -35,6 +30,7 @@ private:
 	friend class GameObject;
 	virtual void Initialize() {};
 	virtual void Initialize(std::shared_ptr<GameObject> obj) {};
+	virtual void SetActive(bool value) {};
 
 	friend class Debug_UI;
 	virtual bool Draw_ImGui() { return true; };

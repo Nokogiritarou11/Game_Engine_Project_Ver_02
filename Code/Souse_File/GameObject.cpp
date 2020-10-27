@@ -2,11 +2,6 @@
 #include "Scene_Manager.h"
 using namespace std;
 
-GameObject::~GameObject()
-{
-	Component_List.clear();
-}
-
 void GameObject::Initialize()
 {
 	for (shared_ptr<Component> c : Component_List)
@@ -37,23 +32,7 @@ void GameObject::SetActive(bool value)
 		shared_ptr<MonoBehaviour> mono;
 		for (shared_ptr<Component> com : Component_List)
 		{
-			mono = std::dynamic_pointer_cast<MonoBehaviour>(com);
-			if (mono != nullptr)
-			{
-				if (Active)
-				{
-					mono->OnEnable();
-				}
-				else
-				{
-					mono->OnDisable();
-				}
-				continue;
-			}
-			if (Active)
-			{
-
-			}
+			com->SetActive(Active);
 		}
 		Old_Active = Active;
 	}

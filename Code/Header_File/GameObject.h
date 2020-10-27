@@ -10,8 +10,6 @@ class Scene;
 class GameObject : public Object
 {
 public:
-	~GameObject();
-
 	bool CompareTag(std::string _tag);
 	bool activeSelf();
 	void SetActive(bool value);

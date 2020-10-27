@@ -7,12 +7,6 @@ using namespace DirectX;
 class Collider : public MonoBehaviour
 {
 public:
-	void Start();
-	void OnEnable();
-	void Update();
-
-	bool Draw_ImGui();
-
 	float Size_X;
 	float Size_Z;
 
@@ -31,6 +25,12 @@ public:
 		Jump_Failed
 	};
 private:
+
+	void Start();
+	void OnEnable();
+	void Update();
+
+	bool Draw_ImGui();
 
 	friend class cereal::access;
 	template<class Archive>
