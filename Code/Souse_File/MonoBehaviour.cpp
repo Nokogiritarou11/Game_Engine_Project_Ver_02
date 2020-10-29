@@ -1,6 +1,6 @@
 #include "MonoBehaviour.h"
 #include "GameObject.h"
-#include "Scene_Manager.h"
+#include "Engine.h"
 using namespace std;
 
 void MonoBehaviour::Initialize()
@@ -9,7 +9,10 @@ void MonoBehaviour::Initialize()
 	IsCalled_Start = false;
 	IsCalled_Update = false;
 	Disable_flg = false;
-	Add();
+	if (Engine::scene_manager->Run)
+	{
+		Add();
+	}
 }
 void MonoBehaviour::Initialize(shared_ptr<GameObject> obj)
 {
@@ -19,7 +22,10 @@ void MonoBehaviour::Initialize(shared_ptr<GameObject> obj)
 	IsCalled_Start = false;
 	IsCalled_Update = false;
 	Disable_flg = false;
-	Add();
+	if (Engine::scene_manager->Run)
+	{
+		Add();
+	}
 }
 
 void  MonoBehaviour::SetActive(bool value)
@@ -65,8 +71,8 @@ void  MonoBehaviour::Add()
 							{
 								Scene_Manager::Get_Active_Scene()->MonoBehaviour_Update_list.emplace_back(static_pointer_cast<MonoBehaviour>(shared_from_this()));
 								IsCalled_Update = true;
-								Disable_flg = false;
 							}
+							Disable_flg = false;
 						}
 					}
 				}

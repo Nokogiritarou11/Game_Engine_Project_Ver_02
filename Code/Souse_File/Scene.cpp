@@ -139,7 +139,7 @@ void Scene::Processing_Start()
 void Scene::Processing_Update(int state)
 {
 	bool expired = false;
-	bool Disabled = false;
+	bool disabled = false;
 	for (weak_ptr<MonoBehaviour> m : MonoBehaviour_Update_list)
 	{
 		if (!m.expired())
@@ -161,13 +161,13 @@ void Scene::Processing_Update(int state)
 				else
 				{
 					mono->Disable_flg = true;
-					Disabled = true;
+					disabled = true;
 				}
 			}
 			else
 			{
 				mono->Disable_flg = true;
-				Disabled = true;
+				disabled = true;
 			}
 		}
 		else
@@ -180,7 +180,7 @@ void Scene::Processing_Update(int state)
 		auto removeIt = remove_if(MonoBehaviour_Update_list.begin(), MonoBehaviour_Update_list.end(), [](weak_ptr<MonoBehaviour> m) { return m.expired(); });
 		MonoBehaviour_Update_list.erase(removeIt, MonoBehaviour_Update_list.end());
 	}
-	if (Disabled)
+	if (disabled)
 	{
 		auto removeIt = remove_if(MonoBehaviour_Update_list.begin(), MonoBehaviour_Update_list.end(), [](weak_ptr<MonoBehaviour> m) { shared_ptr<MonoBehaviour> mono = m.lock(); mono->IsCalled_Update = false; return mono->Disable_flg; });
 		MonoBehaviour_Update_list.erase(removeIt, MonoBehaviour_Update_list.end());
@@ -245,7 +245,7 @@ void Scene::Add_Enable(shared_ptr<MonoBehaviour> mono)
 		case 5: //LateUpdate
 			mono->OnEnable();
 			break;
-		case 6: //Disabled
+		case 6: //disabled
 			mono->OnEnable();
 			break;
 		default:

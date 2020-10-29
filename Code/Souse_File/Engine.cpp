@@ -20,8 +20,8 @@ unique_ptr<View_Scene>		 Engine::view_scene;
 
 Engine::Engine()
 {
+	audio_manager = make_unique<Audio_Manager>();
 	input_manager    = make_unique<Input_Manager>();
-	audio_manager    = make_unique<Audio_Manager>();
 	scene_manager    = make_unique<Scene_Manager>();
 	render_manager   = make_unique<Render_Manager>();
 	animator_manager = make_unique<Animator_Manager>();

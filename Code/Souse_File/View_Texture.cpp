@@ -190,29 +190,48 @@ void View_Texture::Render_3D(Matrix V, Matrix P, bool Use_Material, std::shared_
 	//デプスステンシルステート設定
 	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_TRUE), 1);
 
-	for (list<weak_ptr<Renderer>>::iterator itr = Engine::render_manager->Renderer_3D_list.begin(); itr != Engine::render_manager->Renderer_3D_list.end();)
+	shared_ptr<Renderer> m_rend = nullptr;
+	bool expired = false;
+	bool disabled = false;
+	for (weak_ptr<Renderer> r : Engine::render_manager->Renderer_3D_list)
 	{
-		if (itr->expired())
+		if (!r.expired())
 		{
-			itr = Engine::render_manager->Renderer_3D_list.erase(itr);
-			continue;
-		}
-		shared_ptr<Renderer> m_rend = itr->lock();
-		if (m_rend->gameObject->activeSelf())
-		{
-			if (m_rend->enabled)
+			m_rend = r.lock();
+			if (m_rend->gameObject->activeSelf())
 			{
-				if (Use_Material)
+				if (m_rend->enableSelf())
 				{
-					m_rend->Render(V, P);
-				}
-				else
-				{
-					m_rend->Render(V, P, Use_Material, shader);
+					if (Use_Material)
+					{
+						m_rend->Render(V, P);
+					}
+					else
+					{
+						m_rend->Render(V, P, Use_Material, shader);
+					}
 				}
 			}
+			else
+			{
+				m_rend->Disable_flg = true;
+				disabled = true;
+			}
 		}
-		itr++;
+		else
+		{
+			expired = true;
+		}
+	}
+	if (expired)
+	{
+		auto removeIt = remove_if(Engine::render_manager->Renderer_3D_list.begin(), Engine::render_manager->Renderer_3D_list.end(), [](weak_ptr<Renderer> r) { return r.expired(); });
+		Engine::render_manager->Renderer_3D_list.erase(removeIt, Engine::render_manager->Renderer_3D_list.end());
+	}
+	if (disabled)
+	{
+		auto removeIt = remove_if(Engine::render_manager->Renderer_3D_list.begin(), Engine::render_manager->Renderer_3D_list.end(), [](weak_ptr<Renderer> r) { shared_ptr<Renderer> rend = r.lock(); rend->IsCalled = false; return rend->Disable_flg; });
+		Engine::render_manager->Renderer_3D_list.erase(removeIt, Engine::render_manager->Renderer_3D_list.end());
 	}
 }
 
@@ -226,21 +245,40 @@ void View_Texture::Render_2D(Matrix V, Matrix P)
 	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	//デプスステンシルステート設定
 	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_FALSE), 1);
-	for (list<weak_ptr<Renderer>>::iterator itr = Engine::render_manager->Renderer_2D_list.begin(); itr != Engine::render_manager->Renderer_2D_list.end();)
+	shared_ptr<Renderer> m_rend = nullptr;
+	bool expired = false;
+	bool disabled = false;
+	for (weak_ptr<Renderer> r : Engine::render_manager->Renderer_2D_list)
 	{
-		if (itr->expired())
+		if (!r.expired())
 		{
-			itr = Engine::render_manager->Renderer_2D_list.erase(itr);
-			continue;
-		}
-		shared_ptr<Renderer> m_rend = itr->lock();
-		if (m_rend->gameObject->activeSelf())
-		{
-			if (m_rend->enabled)
+			m_rend = r.lock();
+			if (m_rend->gameObject->activeSelf())
 			{
-				m_rend->Render(V, P);
+				if (m_rend->enableSelf())
+				{
+					m_rend->Render(V, P);
+				}
+			}
+			else
+			{
+				m_rend->Disable_flg = true;
+				disabled = true;
 			}
 		}
-		itr++;
+		else
+		{
+			expired = true;
+		}
+	}
+	if (expired)
+	{
+		auto removeIt = remove_if(Engine::render_manager->Renderer_2D_list.begin(), Engine::render_manager->Renderer_2D_list.end(), [](weak_ptr<Renderer> r) { return r.expired(); });
+		Engine::render_manager->Renderer_2D_list.erase(removeIt, Engine::render_manager->Renderer_2D_list.end());
+	}
+	if (disabled)
+	{
+		auto removeIt = remove_if(Engine::render_manager->Renderer_2D_list.begin(), Engine::render_manager->Renderer_2D_list.end(), [](weak_ptr<Renderer> r) { shared_ptr<Renderer> rend = r.lock(); rend->IsCalled = false; return rend->Disable_flg; });
+		Engine::render_manager->Renderer_2D_list.erase(removeIt, Engine::render_manager->Renderer_2D_list.end());
 	}
 }

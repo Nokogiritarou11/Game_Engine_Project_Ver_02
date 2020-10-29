@@ -18,6 +18,8 @@ public:
 	template<class T>
 	std::shared_ptr<T> AddComponent();
 
+protected:
+	virtual void SetActive(bool value) {};
 
 private:
 	friend class cereal::access;
@@ -30,7 +32,6 @@ private:
 	friend class GameObject;
 	virtual void Initialize() {};
 	virtual void Initialize(std::shared_ptr<GameObject> obj) {};
-	virtual void SetActive(bool value) {};
 
 	friend class Debug_UI;
 	virtual bool Draw_ImGui() { return true; };

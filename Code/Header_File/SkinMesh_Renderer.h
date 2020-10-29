@@ -43,9 +43,9 @@ private:
 	void Initialize();
 	void Initialize(std::shared_ptr<GameObject> obj);
 	void Render(Matrix V, Matrix P) override;
-	void Render(Matrix V, Matrix P, bool Use_Material = true, std::shared_ptr<Shader> shader = nullptr) override;
-	bool Draw_ImGui();
-
+	void Render(Matrix V, Matrix P, bool Use_Material, std::shared_ptr<Shader> shader) override;
+	bool Draw_ImGui() override;
+	void SetActive(bool value) override;
 
 	// çsóÒåvéZ
 	void CalculateLocalTransform();

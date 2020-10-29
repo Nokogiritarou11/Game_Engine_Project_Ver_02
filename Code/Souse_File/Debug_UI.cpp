@@ -339,23 +339,23 @@ void Debug_UI::ScenePlayer_Render()
 		{
 			Active_Object.reset();
 			Active_Object_Old.reset();
-			Engine::scene_manager->End_DebugScene();
 			Engine::scene_manager->Run = false;
 			Engine::scene_manager->Pause = false;
+			Engine::scene_manager->End_DebugScene();
 		}
 	}
 	else
 	{
 		if (ImGui::Button(ICON_FA_PLAY))
 		{
+			Engine::scene_manager->Run = true;
+			Engine::scene_manager->Pause = false;
 			if (!Engine::scene_manager->Pause)
 			{
 				Active_Object.reset();
 				Active_Object_Old.reset();
 				Engine::scene_manager->Start_DebugScene();
 			}
-			Engine::scene_manager->Run = true;
-			Engine::scene_manager->Pause = false;
 		}
 	}
 	ImGui::SameLine();

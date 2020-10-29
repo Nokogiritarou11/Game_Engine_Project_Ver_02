@@ -328,7 +328,7 @@ void Stage_Manager::Update()
 		{
 			if (UI_Flush_Old)
 			{
-				UI_Start.lock()->enabled = false;
+				UI_Start.lock()->SetEnabled(false);
 				UI_Flush_Old = false;
 			}
 		}
@@ -336,7 +336,7 @@ void Stage_Manager::Update()
 		{
 			if (!UI_Flush_Old)
 			{
-				UI_Start.lock()->enabled = true;
+				UI_Start.lock()->SetEnabled(true);
 				UI_Flush_Old = true;
 			}
 		}

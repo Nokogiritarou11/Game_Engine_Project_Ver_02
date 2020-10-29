@@ -8,11 +8,9 @@ public:
 	void SetEnabled(bool value);
 	bool enableSelf();
 
-	Behaviour();
-	~Behaviour();
-
 private:
 	bool enabled = true;
+	bool enabled_old = false;
 
 	friend class cereal::access;
 	template<class Archive>

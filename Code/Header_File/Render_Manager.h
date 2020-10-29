@@ -14,9 +14,9 @@ public:
 	void Add(std::shared_ptr<Camera> mono);
 	void Render();
 
-	std::list<std::weak_ptr<Renderer>> Renderer_3D_list;
-	std::list<std::weak_ptr<Renderer>> Renderer_2D_list;
-	std::list<std::weak_ptr<Camera>> Camera_list;
+	std::vector<std::weak_ptr<Renderer>> Renderer_3D_list;
+	std::vector<std::weak_ptr<Renderer>> Renderer_2D_list;
+	std::vector<std::weak_ptr<Camera>> Camera_list;
 
 private:
 

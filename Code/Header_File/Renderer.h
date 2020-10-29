@@ -20,16 +20,19 @@ class Renderer : public Component
 {
 public:
 
-	bool enabled = true;
+	void SetEnabled(bool value);
+	bool enableSelf();
 	std::vector<std::shared_ptr<Material>> material;
 
+protected:
+	friend class View_Texture;
+	friend class Render_Manager;
+	bool IsCalled = false;
+	bool Disable_flg = false;
+
 private:
-	friend class cereal::access;
-	template<class Archive>
-	void serialize(Archive& archive)
-	{
-		archive(cereal::base_class<Component>(this), enabled);
-	}
+	bool enabled = true;
+	bool enabled_old = false;
 
 	static int Set_BlendState;
 	static int Set_RasterizerState;
@@ -38,6 +41,13 @@ private:
 	friend class View_Texture;
 	virtual void Render(Matrix V, Matrix P) {};
 	virtual void Render(Matrix V, Matrix P, bool Use_Material, std::shared_ptr<Shader> shader) {};
+
+	friend class cereal::access;
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(cereal::base_class<Component>(this), enabled);
+	}
 };
 
 CEREAL_REGISTER_TYPE(Renderer)

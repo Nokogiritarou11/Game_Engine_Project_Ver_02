@@ -16,7 +16,7 @@ ComPtr <ID3D11Buffer> SkinMesh_Renderer::ConstantBuffer_CbColor;
 
 void SkinMesh_Renderer::Initialize()
 {
-	Engine::render_manager->Add(static_pointer_cast<SkinMesh_Renderer>(shared_from_this()));
+	SetActive(enableSelf());
 	// 定数バッファの生成
 	if (!ConstantBuffer_CbMesh)
 	{
@@ -47,7 +47,7 @@ void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 {
 	gameObject = obj;
 	transform = obj->transform;
-	Engine::render_manager->Add(static_pointer_cast<SkinMesh_Renderer>(shared_from_this()));
+	SetActive(enableSelf());
 	// 定数バッファの生成
 	if (!ConstantBuffer_CbMesh)
 	{
@@ -77,6 +77,25 @@ void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 	if (file_pass != "")
 	{
 		Set_Mesh(Mesh::Load_Mesh(file_pass.c_str(), file_name.c_str()));
+	}
+}
+
+void SkinMesh_Renderer::SetActive(bool value)
+{
+	if (value)
+	{
+		if (gameObject->activeSelf())
+		{
+			if (enableSelf())
+			{
+				if (!IsCalled)
+				{
+					Engine::render_manager->Add(static_pointer_cast<SkinMesh_Renderer>(shared_from_this()));
+					IsCalled = true;
+				}
+				Disable_flg = false;
+			}
+		}
 	}
 }
 
@@ -182,7 +201,7 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 		}
 	}
 }
-void SkinMesh_Renderer::Render(Matrix V, Matrix P, bool Use_Material, std::shared_ptr<Shader> shader)
+void SkinMesh_Renderer::Render(Matrix V, Matrix P, bool Use_Material = true, shared_ptr<Shader> shader = nullptr)
 {
 	CalculateLocalTransform();
 	const Matrix C = {

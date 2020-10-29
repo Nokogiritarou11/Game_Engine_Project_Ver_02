@@ -15,7 +15,8 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 {
 	gameObject = obj;
 	transform = obj->transform;
-	Engine::render_manager->Add(static_pointer_cast<Sprite_Renderer>(shared_from_this()));
+
+	SetEnabled(enableSelf());
 
 	VERTEX v[] = {
 		XMFLOAT3(-0.5f, 0.5f,0),  XMFLOAT2(0,0), XMFLOAT4(1,1,1,1), //左上
@@ -43,6 +44,25 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 	if (file_pass != "")
 	{
 		texture->Load(file_pass + file_name);
+	}
+}
+
+void Sprite_Renderer::SetActive(bool value)
+{
+	if (value)
+	{
+		if (gameObject->activeSelf())
+		{
+			if (enableSelf())
+			{
+				if (!IsCalled)
+				{
+					Engine::render_manager->Add(static_pointer_cast<Sprite_Renderer>(shared_from_this()));
+					IsCalled = true;
+				}
+				Disable_flg = false;
+			}
+		}
 	}
 }
 
@@ -167,14 +187,14 @@ void Sprite_Renderer::Render(Matrix V, Matrix P)
 bool Sprite_Renderer::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	if (ImGui::CollapsingHeader("SkinMesh_Renderer"))
+	if (ImGui::CollapsingHeader("Sprite_Renderer"))
 	{
 		bool removed = true;
-		if (ImGui::BeginPopupContextItem("SkinMesh_Renderer_sub"))
+		if (ImGui::BeginPopupContextItem("Sprite_Renderer_sub"))
 		{
 			if (ImGui::Selectable(u8"コンポーネントを削除"))
 			{
-				Object::Destroy(dynamic_pointer_cast<SkinMesh_Renderer>(shared_from_this()));
+				Object::Destroy(dynamic_pointer_cast<Sprite_Renderer>(shared_from_this()));
 				removed = false;
 			}
 			ImGui::EndPopup();

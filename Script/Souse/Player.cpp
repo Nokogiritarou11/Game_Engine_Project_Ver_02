@@ -179,7 +179,7 @@ void Player::Check_Parameter()
 		{
 			if (!skin_enabled)
 			{
-				GetComponent<SkinMesh_Renderer>()->enabled = true;
+				GetComponent<SkinMesh_Renderer>()->SetEnabled(true);
 				skin_enabled = true;
 			}
 		}
@@ -187,7 +187,7 @@ void Player::Check_Parameter()
 		{
 			if (skin_enabled)
 			{
-				GetComponent<SkinMesh_Renderer>()->enabled = false;
+				GetComponent<SkinMesh_Renderer>()->SetEnabled(false);
 				skin_enabled = false;
 			}
 		}
@@ -197,7 +197,7 @@ void Player::Check_Parameter()
 			Invincible_Timer = 0;
 			if (!skin_enabled)
 			{
-				GetComponent<SkinMesh_Renderer>()->enabled = true;
+				GetComponent<SkinMesh_Renderer>()->SetEnabled(true);
 				skin_enabled = true;
 			}
 		}
