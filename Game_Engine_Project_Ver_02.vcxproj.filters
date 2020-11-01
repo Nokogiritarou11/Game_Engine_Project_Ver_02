@@ -88,6 +88,8 @@
     <ClCompile Include="Script\Souse\Collider.cpp" />
     <ClCompile Include="Code\Souse_File\System_Function.cpp" />
     <ClCompile Include="Script\Souse\Break_Block.cpp" />
+    <ClCompile Include="Code\Souse_File\Particle.cpp" />
+    <ClCompile Include="Code\Souse_File\Particle_Manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Audio_Manager.h">
@@ -261,6 +263,10 @@
     <ClInclude Include="Script\Header\Collider.h" />
     <ClInclude Include="Code\Header_File\System_Function.h" />
     <ClInclude Include="Script\Header\Break_Block.h" />
+    <ClInclude Include="Code\Libraries\Effekseer\include\Effekseer.h" />
+    <ClInclude Include="Code\Libraries\Effekseer\include\EffekseerRendererDX11.h" />
+    <ClInclude Include="Code\Header_File\Particle.h" />
+    <ClInclude Include="Code\Header_File\Particle_Manager.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Sources">

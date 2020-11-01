@@ -3,6 +3,7 @@
 #include "Transform.h"
 #include "Include_ImGui.h"
 #include "Engine.h"
+#include "Render_Manager.h"
 using namespace std;
 
 Mesh_Renderer::Mesh_Renderer()

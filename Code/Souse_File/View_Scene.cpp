@@ -1,6 +1,7 @@
 #include "View_Scene.h"
 #include "DxSystem.h"
 #include "Engine.h"
+#include "Particle_Manager.h"
 #include "GameObject.h"
 using namespace std;
 using namespace DirectX;
@@ -64,6 +65,9 @@ void View_Scene::Render(Matrix V, Matrix P, std::shared_ptr<Transform> trans)
 					DxSystem::DeviceContext->PSSetShaderResources(0, 1, m_light->ShaderResourceView.GetAddressOf());
 					Render_3D(V, P);
 					//Render_2D(V, P);
+
+					Engine::particle_manager->Render();
+
 				}
 			}
 		}

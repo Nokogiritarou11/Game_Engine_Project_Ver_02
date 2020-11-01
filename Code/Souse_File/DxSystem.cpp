@@ -278,7 +278,7 @@ bool DxSystem::CreateDepthStencil()
 
 	//デプスステンシルステート
 	D3D11_DEPTH_STENCIL_DESC depth_stencil_desc;
-	
+
 	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
 	depth_stencil_desc.DepthEnable = FALSE;
 	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[DS_FALSE].GetAddressOf());
@@ -309,7 +309,7 @@ bool DxSystem::CreateDepthStencil()
 	{
 		return false;
 	}
-	
+
 	// シェーダリソースビュー設定
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
 	ZeroMemory(&srvd, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));

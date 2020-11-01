@@ -1,5 +1,6 @@
 #include "Animator.h"
 #include "Engine.h"
+#include "Animator_Manager.h"
 #include "GameObject.h"
 #include "Transform.h"
 #include "Time.h"

@@ -23,7 +23,6 @@ bool Texture::Load(string filename, int sampler_state)
 	//	シェーダーリソースビュー作成
 	ComPtr<ID3D11Resource>resource;
 
-
 	setlocale(LC_ALL, "japanese");
 	wchar_t FileName[MAX_PATH] = { 0 };
 	size_t ret = 0;

@@ -2,6 +2,7 @@
 #include "GameObject.h"
 #include "Transform.h"
 #include "Engine.h"
+#include "Render_Manager.h"
 #include "Debug.h"
 #include "Include_ImGui.h"
 #include <sstream>
@@ -14,40 +15,10 @@ using namespace std;
 ComPtr <ID3D11Buffer> SkinMesh_Renderer::ConstantBuffer_CbMesh;
 ComPtr <ID3D11Buffer> SkinMesh_Renderer::ConstantBuffer_CbColor;
 
-void SkinMesh_Renderer::Initialize()
-{
-	SetActive(enableSelf());
-	// 定数バッファの生成
-	if (!ConstantBuffer_CbMesh)
-	{
-		D3D11_BUFFER_DESC bd = {};
-		bd.Usage = D3D11_USAGE_DEFAULT;
-		bd.ByteWidth = sizeof(CbMesh);
-		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		bd.CPUAccessFlags = 0;
-		bd.MiscFlags = 0;
-		bd.StructureByteStride = 0;
-		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer_CbMesh.GetAddressOf());
-		assert(SUCCEEDED(hr));
-	}
-	if (!ConstantBuffer_CbColor)
-	{
-		D3D11_BUFFER_DESC bd = {};
-		bd.Usage = D3D11_USAGE_DEFAULT;
-		bd.ByteWidth = sizeof(CbColor);
-		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		bd.CPUAccessFlags = 0;
-		bd.MiscFlags = 0;
-		bd.StructureByteStride = 0;
-		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer_CbColor.GetAddressOf());
-		assert(SUCCEEDED(hr));
-	}
-}
 void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 {
 	gameObject = obj;
 	transform = obj->transform;
-	SetActive(enableSelf());
 	// 定数バッファの生成
 	if (!ConstantBuffer_CbMesh)
 	{
@@ -74,26 +45,30 @@ void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 		assert(SUCCEEDED(hr));
 	}
 
-	if (file_pass != "")
+	if (file_path != "")
 	{
-		Set_Mesh(Mesh::Load_Mesh(file_pass.c_str(), file_name.c_str()));
+		Set_Mesh(Mesh::Load_Mesh(file_path.c_str(), file_name.c_str()));
 	}
+	SetActive(enableSelf());
 }
 
 void SkinMesh_Renderer::SetActive(bool value)
 {
 	if (value)
 	{
-		if (gameObject->activeSelf())
+		if (mesh_data)
 		{
-			if (enableSelf())
+			if (gameObject->activeSelf())
 			{
-				if (!IsCalled)
+				if (enableSelf())
 				{
-					Engine::render_manager->Add(static_pointer_cast<SkinMesh_Renderer>(shared_from_this()));
-					IsCalled = true;
+					if (!IsCalled)
+					{
+						Engine::render_manager->Add(static_pointer_cast<SkinMesh_Renderer>(shared_from_this()));
+						IsCalled = true;
+					}
+					Disable_flg = false;
 				}
-				Disable_flg = false;
 			}
 		}
 	}
@@ -105,7 +80,7 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 	{
 		mesh_data = Mesh_Data;
 		file_name = mesh_data->name;
-		file_pass = mesh_data->file_pass;
+		file_path = mesh_data->file_path;
 		//マテリアル
 		for (size_t i = 0; i < mesh_data->Default_Material_Passes.size(); i++)
 		{

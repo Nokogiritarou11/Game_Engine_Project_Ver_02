@@ -74,16 +74,16 @@ inline DirectX::XMFLOAT4X4 FbxAMatrixToFloat4x4(const FbxAMatrix& fbxValue)
 	);
 }
 
-shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename, const char* ignoreRootMotionNodeName)
+shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_path, const char* fbx_filename, const char* ignoreRootMotionNodeName)
 {
 	shared_ptr<Mesh> mesh_ptr = make_shared<Mesh>();
 	mesh_ptr->name = (string)fbx_filename;
-	mesh_ptr->file_pass = (string)file_pass;
+	mesh_ptr->file_path = (string)file_path;
 
 	static unordered_map<string, shared_ptr<Mesh>> cache;
-	const string fullpass = (string)file_pass + (string)fbx_filename;
+	const string fullpath = (string)file_path + (string)fbx_filename;
 
-	auto it = cache.find(fullpass);
+	auto it = cache.find(fullpath);
 	if (it != cache.end())
 	{
 		mesh_ptr = it->second;
@@ -91,7 +91,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 	}
 	else //ファイルから読み込み
 	{
-		const string bin = fullpass + ".mesh";
+		const string bin = fullpath + ".mesh";
 		ifstream in_bin(bin, ios::binary);
 		if (in_bin.is_open())
 		{
@@ -101,7 +101,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 			binaryInputArchive(mesh_ptr);
 
 			mesh_ptr->name = (string)fbx_filename;
-			mesh_ptr->file_pass = (string)file_pass;
+			mesh_ptr->file_path = (string)file_path;
 
 			for (u_int i = 0; i < mesh_ptr->meshes.size(); i++)
 			{
@@ -144,11 +144,11 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 				//mesh_ptr->meshes[i].vertices.clear();
 				//mesh_ptr->meshes[i].indices.clear();
 			}
-			cache.insert(make_pair(fullpass, mesh_ptr));
+			cache.insert(make_pair(fullpath, mesh_ptr));
 		}
 		else
 		{
-			const string fbx = fullpass + ".fbx";
+			const string fbx = fullpath + ".fbx";
 
 			FbxManager* fbxManager = FbxManager::Create();
 
@@ -334,14 +334,14 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 								D3D11_TEXTURE2D_DESC g_TEXTURE2D_DESC = {};
 								const char* filename = file_texture->GetRelativeFileName();
 								subset.diffuse.TexName = (string)filename;
-								subset.diffuse.TexPass = (string)file_pass + (string)filename;
+								subset.diffuse.TexPass = (string)file_path + (string)filename;
 							}
 						}
 						else
 						{
-							string Texpass = "Default_Resource\\Image\\Default_Texture.png";
+							string Texpath = "Default_Resource\\Image\\Default_Texture.png";
 							subset.diffuse.TexName = "Default_Texture.png";
-							subset.diffuse.TexPass = Texpass;
+							subset.diffuse.TexPass = Texpath;
 						}
 					}
 				}
@@ -475,7 +475,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 				}
 			}
 
-			ofstream ss(fullpass + ".bin", ios::binary);
+			ofstream ss(fullpath + ".bin", ios::binary);
 			{
 				cereal::BinaryOutputArchive o_archive(ss);
 				o_archive(skin_meshes);
@@ -485,9 +485,9 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_pass, const char* fbx_filename
 		}
 		*/
 
-			cache.insert(make_pair(fullpass, mesh_ptr));
+			cache.insert(make_pair(fullpath, mesh_ptr));
 
-			ofstream ss(fullpass + ".mesh", ios::binary);
+			ofstream ss(fullpath + ".mesh", ios::binary);
 			{
 				cereal::BinaryOutputArchive o_archive(ss);
 				o_archive(mesh_ptr);
@@ -597,11 +597,11 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 		const FbxSurfaceMaterial* surface_material = fbxNode->GetMaterial(index_of_material);
 		string material_name = surface_material->GetName();
 
-		string new_mat_pass = file_pass + material_name + ".mat";
+		string new_mat_path = file_path + material_name + ".mat";
 		bool cashed = false;
 		for (u_int i = 0; i < Default_Material_Passes.size(); i++)
 		{
-			if (Default_Material_Passes[i] == new_mat_pass)
+			if (Default_Material_Passes[i] == new_mat_path)
 			{
 				subset.material_ID = i;
 				cashed = true;
@@ -609,7 +609,7 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 		}
 		if (cashed) continue;
 
-		shared_ptr<Material> mat = Material::Create(file_pass, material_name, L"Shader/Standard_Shader_VS.hlsl", L"Shader/Standard_Shader_PS.hlsl");
+		shared_ptr<Material> mat = Material::Create(file_path, material_name, L"Shader/Standard_Shader_VS.hlsl", L"Shader/Standard_Shader_PS.hlsl");
 
 		//Main(Diffuse)Texture
 		GetTexture(surface_material, FbxSurfaceMaterial::sDiffuse, mat, Texture::Main);
@@ -623,13 +623,13 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 		GetTexture(surface_material, FbxSurfaceMaterial::sEmissive, mat, Texture::Emission);
 
 		subset.material_ID = Default_Material_Passes.size();
-		
-		ofstream ss(new_mat_pass, ios::binary);
+
+		ofstream ss(new_mat_path, ios::binary);
 		{
 			cereal::BinaryOutputArchive o_archive(ss);
 			o_archive(mat);
 		}
-		Default_Material_Passes.push_back(new_mat_pass);
+		Default_Material_Passes.push_back(new_mat_path);
 	}
 
 	// サブセットの頂点インデックス範囲設定
@@ -1102,8 +1102,8 @@ void Mesh::GetTexture(const FbxSurfaceMaterial* fbx_mat, const char* fbx_tex_typ
 				//画像読み込み
 				const char* filename = file_texture->GetRelativeFileName();
 				mat->texture_info[tex_type].Texture_Name = (string)filename;
-				mat->texture_info[tex_type].Texture_Pass = file_pass;
-				mat->texture_info[tex_type].Texture_FullPass = file_pass + (string)filename;
+				mat->texture_info[tex_type].Texture_Pass = file_path;
+				mat->texture_info[tex_type].Texture_FullPass = file_path + (string)filename;
 				mat->texture[tex_type]->Load(mat->texture_info[tex_type].Texture_FullPass);
 			}
 		}

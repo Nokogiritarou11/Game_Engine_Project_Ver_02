@@ -3,15 +3,10 @@
 #include "GameObject.h"
 #include "Include_ImGui.h"
 #include "Engine.h"
+#include "Render_Manager.h"
 using namespace DirectX;
 
 using namespace std;
-
-void Camera::Initialize()
-{
-	Engine::render_manager->Add(static_pointer_cast<Camera>(shared_from_this()));
-	DxSystem::DeviceContext->RSGetViewports(&num_viewports, &viewport);
-}
 
 void Camera::Initialize(std::shared_ptr<GameObject> obj)
 {

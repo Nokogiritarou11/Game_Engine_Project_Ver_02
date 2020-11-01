@@ -2,6 +2,7 @@
 #include "DxSystem.h"
 #include "GameObject.h"
 #include "Engine.h"
+#include "Render_Manager.h"
 #include "Include_ImGui.h"
 #include "Debug.h"
 #include <sstream>
@@ -41,9 +42,9 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 
 	material.emplace_back(Material::Create("Default_Resource\\Image\\", "Default_2D", L"Shader/2D_Shader_VS.hlsl", L"Shader/2D_Shader_PS.hlsl"));
 
-	if (file_pass != "")
+	if (file_path != "")
 	{
-		texture->Load(file_pass + file_name);
+		texture->Load(file_path + file_name);
 	}
 }
 
@@ -219,7 +220,7 @@ bool Sprite_Renderer::Draw_ImGui()
 				string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
 				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 				texture->Load(path);
-				file_pass = pathname;
+				file_path = pathname;
 				file_name = filename + extname;
 			}
 			else

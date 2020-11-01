@@ -45,9 +45,8 @@ public:
 	std::shared_ptr<Shader> shader;
 
 private:
-	void Initialize();
-	void Initialize(std::shared_ptr<GameObject> obj);
-	bool Draw_ImGui();
+	void Initialize(std::shared_ptr<GameObject> obj) override;
+	bool Draw_ImGui() override;
 	friend class cereal::access;
 	template<class Archive>
 	void serialize(Archive& archive)

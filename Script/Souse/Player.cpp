@@ -104,36 +104,29 @@ void Player::Check_Player_Move()
 		Dash_Power = 0;
 	}
 	*/
-	if (Input_Manager::pad.connected)
-	{
-		Horizontal = Input_Manager::pad.thumbSticks.leftX;
-	}
-	else
-	{
-		float Horizontal_Power = 7.5f * Time::deltaTime;
-		if (Input_Manager::kb.Right)  Horizontal += Horizontal_Power;
-		if (Input_Manager::kb.Left)   Horizontal -= Horizontal_Power;
-		Horizontal = Mathf::Clamp(Horizontal, -1, 1);
+	float Horizontal_Power = 7.5f * Time::deltaTime;
+	if (Input_Manager::kb.Right)  Horizontal += Horizontal_Power;
+	if (Input_Manager::kb.Left)   Horizontal -= Horizontal_Power;
+	Horizontal = Mathf::Clamp(Horizontal, -1, 1);
 
-		if (!Input_Manager::kb.Right && !Input_Manager::kb.Left)
+	if (!Input_Manager::kb.Right && !Input_Manager::kb.Left)
+	{
+		if (Horizontal > 0.1f)
 		{
-			if (Horizontal > 0.1f)
-			{
-				Horizontal -= Horizontal_Power;
-			}
-			else if (Horizontal < -0.1f)
-			{
-				Horizontal += Horizontal_Power;
-			}
-			else
-			{
-				Horizontal = 0;
-			}
+			Horizontal -= Horizontal_Power;
+		}
+		else if (Horizontal < -0.1f)
+		{
+			Horizontal += Horizontal_Power;
+		}
+		else
+		{
+			Horizontal = 0;
 		}
 	}
 	transform->Set_eulerAngles(0, 0, -30 * Horizontal);
 
-	if (!Boosting && Can_Boost && (Input_Manager::key_tracker.IsKeyPressed(Keyboard::Space) || Input_Manager::pad_tracker.a == GamePad::ButtonStateTracker::PRESSED))
+	if (!Boosting && Can_Boost && (Input_Manager::key_tracker.IsKeyPressed(Keyboard::Space)))
 	{
 		Boosting = true;
 		Can_Boost = false;

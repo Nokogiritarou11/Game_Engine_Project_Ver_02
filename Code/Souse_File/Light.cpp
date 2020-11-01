@@ -1,14 +1,12 @@
 #include "Light.h"
 #include "Engine.h"
+#include "Light_Manager.h"
 #include "GameObject.h"
 #include "Transform.h"
 #include "Include_ImGui.h"
 #include "Debug_UI.h"
 using namespace std;
 
-void Light::Initialize()
-{
-}
 void Light::Initialize(std::shared_ptr<GameObject> obj)
 {
 	Engine::light_manager->Add(static_pointer_cast<Light>(shared_from_this()));

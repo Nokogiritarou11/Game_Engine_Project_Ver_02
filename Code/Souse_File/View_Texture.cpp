@@ -2,6 +2,7 @@
 #include "DxSystem.h"
 #include "Light_Manager.h"
 #include "Engine.h"
+#include "Render_Manager.h"
 using namespace std;
 using namespace DirectX;
 
@@ -190,31 +191,31 @@ void View_Texture::Render_3D(Matrix V, Matrix P, bool Use_Material, std::shared_
 	//デプスステンシルステート設定
 	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_TRUE), 1);
 
-	shared_ptr<Renderer> m_rend = nullptr;
+	shared_ptr<Renderer> p_rend = nullptr;
 	bool expired = false;
 	bool disabled = false;
 	for (weak_ptr<Renderer> r : Engine::render_manager->Renderer_3D_list)
 	{
 		if (!r.expired())
 		{
-			m_rend = r.lock();
-			if (m_rend->gameObject->activeSelf())
+			p_rend = r.lock();
+			if (p_rend->gameObject->activeSelf())
 			{
-				if (m_rend->enableSelf())
+				if (p_rend->enableSelf())
 				{
 					if (Use_Material)
 					{
-						m_rend->Render(V, P);
+						p_rend->Render(V, P);
 					}
 					else
 					{
-						m_rend->Render(V, P, Use_Material, shader);
+						p_rend->Render(V, P, Use_Material, shader);
 					}
 				}
 			}
 			else
 			{
-				m_rend->Disable_flg = true;
+				p_rend->Disable_flg = true;
 				disabled = true;
 			}
 		}
@@ -245,24 +246,24 @@ void View_Texture::Render_2D(Matrix V, Matrix P)
 	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	//デプスステンシルステート設定
 	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_FALSE), 1);
-	shared_ptr<Renderer> m_rend = nullptr;
+	shared_ptr<Renderer> p_rend = nullptr;
 	bool expired = false;
 	bool disabled = false;
 	for (weak_ptr<Renderer> r : Engine::render_manager->Renderer_2D_list)
 	{
 		if (!r.expired())
 		{
-			m_rend = r.lock();
-			if (m_rend->gameObject->activeSelf())
+			p_rend = r.lock();
+			if (p_rend->gameObject->activeSelf())
 			{
-				if (m_rend->enableSelf())
+				if (p_rend->enableSelf())
 				{
-					m_rend->Render(V, P);
+					p_rend->Render(V, P);
 				}
 			}
 			else
 			{
-				m_rend->Disable_flg = true;
+				p_rend->Disable_flg = true;
 				disabled = true;
 			}
 		}

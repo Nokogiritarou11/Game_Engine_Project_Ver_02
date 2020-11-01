@@ -28,6 +28,10 @@ private:
 	Matrix Debug_Camera_V;
 	Matrix Debug_Camera_P;
 	shared_ptr<Transform> Debug_Camera_Transform;
+	float fov_y;
+	float aspect;
+	float near_z;
+	float far_z;
 
 	void Main_Window_Render();
 	void Debug_Log_Render();

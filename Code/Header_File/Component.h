@@ -30,7 +30,6 @@ private:
 	}
 
 	friend class GameObject;
-	virtual void Initialize() {};
 	virtual void Initialize(std::shared_ptr<GameObject> obj) {};
 
 	friend class Debug_UI;

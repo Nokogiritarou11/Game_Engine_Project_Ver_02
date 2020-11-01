@@ -9,6 +9,9 @@
 #include <fstream>
 #include "System_Function.h"
 #include "Engine.h"
+#include "Scene_Manager.h"
+#include "Render_Manager.h"
+#include "Particle_Manager.h"
 using namespace std;
 
 //**********************************************
@@ -165,6 +168,7 @@ void Scene_Manager::Update()
 		Engine::animator_manager->Reset();
 		Engine::render_manager->Reset();
 		Engine::light_manager->Reset();
+		Engine::particle_manager->Reset();
 		Active_Scene = CreateScene_FromFile(Next_Scene_Path);
 		Active_Scene->Initialize();
 		Load = false;

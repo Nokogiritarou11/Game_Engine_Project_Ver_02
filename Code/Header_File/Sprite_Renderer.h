@@ -36,13 +36,13 @@ private:
 	ComPtr<ID3D11Buffer> VertexBuffer;
 
 	std::string file_name;
-	std::string file_pass;
+	std::string file_path;
 
 	friend class cereal::access;
 	template<class Archive>
 	void serialize(Archive& archive)
 	{
-		archive(cereal::base_class<Renderer>(this), Size, UV_Origin, UV_Size, Color, file_name, file_pass);
+		archive(cereal::base_class<Renderer>(this), Size, UV_Origin, UV_Size, Color, file_name, file_path);
 	}
 };
 CEREAL_REGISTER_TYPE(Sprite_Renderer)

@@ -8,6 +8,7 @@
 #include "SkinMesh_Renderer.h"
 #include "Sprite_Renderer.h"
 #include "Animator.h"
+#include "Particle.h"
 #include "Player.h"
 #include "Scroll.h"
 #include "Stage_Manager.h"
@@ -22,7 +23,7 @@ void All_Component_List::Add(shared_ptr<GameObject> obj)
 	{
 		ImGui::OpenPopup(u8"コンポーネントリスト");
 	}
-	ImGui::SetNextWindowSize(ImVec2(250, 100));
+	ImGui::SetNextWindowSize(ImVec2(300, 250));
 	static int list_current = 0;
 	if (ImGui::BeginPopup(u8"コンポーネントリスト"))
 	{
@@ -57,6 +58,12 @@ void All_Component_List::Add(shared_ptr<GameObject> obj)
 		if (ImGui::Button("Animator", ImVec2(-FLT_MIN, 0.0f)))
 		{
 			obj->AddComponent<Animator>();
+			ImGui::CloseCurrentPopup();
+		}
+
+		if (ImGui::Button("Particle", ImVec2(-FLT_MIN, 0.0f)))
+		{
+			obj->AddComponent<Particle>();
 			ImGui::CloseCurrentPopup();
 		}
 

@@ -20,7 +20,6 @@ private:
 	virtual void OnDisable() {};
 	virtual void OnDestroy() {};
 
-	void Initialize() override;
 	void Initialize(std::shared_ptr<GameObject> obj) override;
 	void SetActive(bool value) override;
 

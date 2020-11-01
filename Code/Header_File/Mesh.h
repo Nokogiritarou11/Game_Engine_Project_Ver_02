@@ -142,14 +142,14 @@ public:
 	};
 
 	std::string name;
-	std::string file_pass;
+	std::string file_path;
 
 	std::vector<Node>		nodes;
 	std::vector<mesh>		meshes;
 	std::vector<Animation>	animations;
 	std::vector<std::string> Default_Material_Passes;
 
-	static std::shared_ptr<Mesh> Load_Mesh(const char* file_pass, const char* fbx_filename, const char* ignoreRootMotionNodeName = nullptr);
+	static std::shared_ptr<Mesh> Load_Mesh(const char* file_path, const char* fbx_filename, const char* ignoreRootMotionNodeName = nullptr);
 
 private:
 	// ノードデータを構築

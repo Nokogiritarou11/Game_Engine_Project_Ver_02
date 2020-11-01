@@ -90,14 +90,14 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>.\Script\Header;.\Code\Libraries;.\Code\Libraries\ImGui;.\DirectXTK-master\Inc;.\Code\Header_File;.\2020.0.1\include;.\Code\Libraries\DirectXTex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\Script\Header;.\Code\Libraries;.\Code\Libraries\ImGui;.\DirectXTK-master\Inc;.\Code\Header_File;.\2020.0.1\include;.\Code\Libraries\DirectXTex;.\Code\Libraries\Effekseer\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;DirectXTK.lib;wininet.lib;d3dcompiler.lib;libfbxsdk-md.lib;libxml2-md.lib;zlib-md.lib;DirectXTex.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>.\2020.0.1\lib\vs2017\x86\debug;.\DirectXTK-master\Bin\Desktop_2019_Win10\Win32\Debug;.\Code\Libraries\DirectXTex\Bin\Desktop_2019_Win10\Win32\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;DirectXTK.lib;wininet.lib;d3dcompiler.lib;libfbxsdk-md.lib;libxml2-md.lib;zlib-md.lib;DirectXTex.lib;shlwapi.lib;Effekseerd.lib;EffekseerRendererDX11d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>.\2020.0.1\lib\vs2017\x86\debug;.\DirectXTK-master\Bin\Desktop_2019_Win10\Win32\Debug;.\Code\Libraries\DirectXTex\Bin\Desktop_2019_Win10\Win32\Debug;.\Code\Libraries\Effekseer\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -130,7 +130,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>.\Script\Header;.\Code\Libraries;.\Code\Libraries\ImGui;.\DirectXTK-master\Inc;.\Code\Header_File;.\2020.0.1\include;.\Code\Libraries\DirectXTex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\Script\Header;.\Code\Libraries;.\Code\Libraries\ImGui;.\DirectXTK-master\Inc;.\Code\Header_File;.\2020.0.1\include;.\Code\Libraries\DirectXTex;.\Code\Libraries\Effekseer\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -138,8 +138,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>.\2020.0.1\lib\vs2017\x86\release;.\DirectXTK-master\Bin\Desktop_2019_Win10\Win32\Release;.\Code\Libraries\DirectXTex\Bin\Desktop_2019_Win10\Win32\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>DirectXTK.lib;d3d11.lib;dxgi.lib;wininet.lib;libfbxsdk-md.lib;libxml2-md.lib;zlib-md.lib;DirectXTex.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>.\2020.0.1\lib\vs2017\x86\release;.\DirectXTK-master\Bin\Desktop_2019_Win10\Win32\Release;.\Code\Libraries\DirectXTex\Bin\Desktop_2019_Win10\Win32\Release;.\Code\Libraries\Effekseer\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>DirectXTK.lib;d3d11.lib;dxgi.lib;wininet.lib;libfbxsdk-md.lib;libxml2-md.lib;zlib-md.lib;DirectXTex.lib;shlwapi.lib;EffekseerRendererDX11.lib;Effekseer.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
@@ -197,6 +197,8 @@
     <ClCompile Include="Code\Souse_File\MonoBehaviour.cpp" />
     <ClCompile Include="Code\Souse_File\Object.cpp" />
     <ClCompile Include="Code\Souse_File\Original_Math.cpp" />
+    <ClCompile Include="Code\Souse_File\Particle.cpp" />
+    <ClCompile Include="Code\Souse_File\Particle_Manager.cpp" />
     <ClCompile Include="Code\Souse_File\Rect_Transform.cpp" />
     <ClCompile Include="Code\Souse_File\Renderer.cpp" />
     <ClCompile Include="Code\Souse_File\Render_Manager.cpp" />
@@ -280,6 +282,8 @@
     <ClInclude Include="Code\Header_File\Include_Mono.h" />
     <ClInclude Include="Code\Header_File\Object.h" />
     <ClInclude Include="Code\Header_File\Original_Math.h" />
+    <ClInclude Include="Code\Header_File\Particle.h" />
+    <ClInclude Include="Code\Header_File\Particle_Manager.h" />
     <ClInclude Include="Code\Header_File\RectTransform.h" />
     <ClInclude Include="Code\Header_File\Renderer.h" />
     <ClInclude Include="Code\Header_File\Render_Manager.h" />
@@ -645,6 +649,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Code\Libraries\Effekseer\include\Effekseer.h" />
+    <ClInclude Include="Code\Libraries\Effekseer\include\EffekseerRendererDX11.h" />
     <ClInclude Include="Code\Libraries\ImGui\IconsFontAwesome4.h" />
     <ClInclude Include="Code\Libraries\ImGui\imconfig.h" />
     <ClInclude Include="Code\Libraries\ImGui\imgui.h" />

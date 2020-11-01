@@ -1,19 +1,9 @@
 #include "MonoBehaviour.h"
 #include "GameObject.h"
 #include "Engine.h"
+#include "Scene_Manager.h"
 using namespace std;
 
-void MonoBehaviour::Initialize()
-{
-	IsCalled_Awake = false;
-	IsCalled_Start = false;
-	IsCalled_Update = false;
-	Disable_flg = false;
-	if (Engine::scene_manager->Run)
-	{
-		Add();
-	}
-}
 void MonoBehaviour::Initialize(shared_ptr<GameObject> obj)
 {
 	gameObject = obj;

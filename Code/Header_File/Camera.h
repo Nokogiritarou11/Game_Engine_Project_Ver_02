@@ -28,7 +28,6 @@ private:
 	{
 		archive(cereal::base_class<Behaviour>(this), focus, FOV, near_z, far_z);
 	}
-	void Initialize();
 	void Initialize(std::shared_ptr<GameObject> obj);
 	bool Draw_ImGui();
 

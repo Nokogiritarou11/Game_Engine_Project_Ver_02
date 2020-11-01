@@ -4,6 +4,9 @@
 #include "Original_Math.h"
 #include "Scene_Manager.h"
 #include "Engine.h"
+#include "Particle_Manager.h"
+#include "View_Scene.h"
+#include "View_Game.h"
 #include "All_Component_List.h"
 #include "Include_ImGui.h"
 #include "System_Function.h"
@@ -97,6 +100,7 @@ void Debug_UI::Update(shared_ptr<Scene> scene)
 		}
 		//デバッグログ
 		Debug_Log_Render();
+
 	}
 }
 
@@ -104,6 +108,7 @@ void Debug_UI::Render()
 {
 	if (Draw_Debug_UI)
 	{
+		Engine::particle_manager->Update(Debug_Camera_Transform, fov_y, near_z, far_z, aspect);
 		Engine::view_scene->Render(Debug_Camera_V, Debug_Camera_P, Debug_Camera_Transform);
 
 		// レンダーターゲットビュー設定
@@ -670,10 +675,12 @@ void Debug_UI::Debug_Camera_Update()
 		// 画面サイズ取得のためビューポートを取得
 		{
 			// 角度をラジアン(θ)に変換
-			float fov_y = XMConvertToRadians(30);	// 画角
-			float aspect = (float)Engine::view_scene->screen_x / (float)Engine::view_scene->screen_y;	// 画面比率
+			fov_y = XMConvertToRadians(30);	// 画角
+			aspect = (float)Engine::view_scene->screen_x / (float)Engine::view_scene->screen_y;	// 画面比率
+			near_z = 0.1f;
+			far_z = 100000.0f;
 
-			XMStoreFloat4x4(&Debug_Camera_P, XMMatrixPerspectiveFovLH(fov_y, aspect, 0.1f, 100000.0f));
+			XMStoreFloat4x4(&Debug_Camera_P, XMMatrixPerspectiveFovLH(fov_y, aspect, near_z, far_z));
 
 			//XMStoreFloat4x4(&Debug_Camera_P, XMMatrixOrthographicLH((float)Engine::view_scene->screen_x, (float)Engine::view_scene->screen_y, 0.1f, 1000.0f));
 		}

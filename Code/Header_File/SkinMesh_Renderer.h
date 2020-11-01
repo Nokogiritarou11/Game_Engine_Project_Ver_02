@@ -40,7 +40,6 @@ public:
 	std::vector<Node>	  nodes;
 
 private:
-	void Initialize();
 	void Initialize(std::shared_ptr<GameObject> obj);
 	void Render(Matrix V, Matrix P) override;
 	void Render(Matrix V, Matrix P, bool Use_Material, std::shared_ptr<Shader> shader) override;
@@ -57,11 +56,11 @@ private:
 	template<class Archive>
 	void serialize(Archive& archive)
 	{
-		archive(cereal::base_class<Renderer>(this), file_name, file_pass);
+		archive(cereal::base_class<Renderer>(this), file_name, file_path);
 	}
 
 	std::string file_name;
-	std::string file_pass;
+	std::string file_path;
 
 };
 

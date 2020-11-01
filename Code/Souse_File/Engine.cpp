@@ -1,6 +1,13 @@
 #include "Engine.h"
+#include "Scene_Manager.h"
+#include "Audio_Manager.h"
 #include "Render_Manager.h"
 #include "Animator_Manager.h"
+#include "Light_Manager.h"
+#include "Particle_Manager.h"
+#include "Debug_UI.h"
+#include "View_Game.h"
+#include "View_Scene.h"
 #include "System_Function.h"
 #include <sstream>
 #include <functional>
@@ -14,6 +21,7 @@ unique_ptr<Audio_Manager>	 Engine::audio_manager;
 unique_ptr<Render_Manager>	 Engine::render_manager;
 unique_ptr<Animator_Manager> Engine::animator_manager;
 unique_ptr<Light_Manager>	 Engine::light_manager;
+unique_ptr<Particle_Manager> Engine::particle_manager;
 unique_ptr<Debug_UI>		 Engine::debug_ui;
 unique_ptr<View_Game>		 Engine::view_game;
 unique_ptr<View_Scene>		 Engine::view_scene;
@@ -26,6 +34,7 @@ Engine::Engine()
 	render_manager   = make_unique<Render_Manager>();
 	animator_manager = make_unique<Animator_Manager>();
 	light_manager    = make_unique<Light_Manager>();
+	particle_manager = make_unique<Particle_Manager>();
 
 	view_game = make_unique<View_Game>();
 
@@ -33,14 +42,14 @@ Engine::Engine()
 	debug_ui = make_unique<Debug_UI>();
 	view_scene = make_unique<View_Scene>();
 	//scene_manager->CreateScene_Default("Default_Scene");
-	string load_pass;
+	string load_path;
 	ifstream iIfstream("Default_Resource\\System\\last_save.bin");
 	if (iIfstream.is_open())
 	{
-		getline(iIfstream, load_pass);
-		if (load_pass != "")
+		getline(iIfstream, load_path);
+		if (load_path != "")
 		{
-			Scene_Manager::LoadScene(load_pass);
+			Scene_Manager::LoadScene(load_path);
 		}
 		else
 		{
@@ -71,14 +80,14 @@ Engine::Engine()
 	}
 
 #else
-	string load_pass;
+	string load_path;
 	ifstream iIfstream("Default_Resource\\System\\last_save.bin");
 	if (iIfstream.is_open())
 	{
-		getline(iIfstream, load_pass);
-		if (load_pass != "")
+		getline(iIfstream, load_path);
+		if (load_path != "")
 		{
-			Scene_Manager::LoadScene(load_pass);
+			Scene_Manager::LoadScene(load_path);
 		}
 		else
 		{

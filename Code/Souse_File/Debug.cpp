@@ -1,5 +1,6 @@
 #include "Debug.h"
 #include "Engine.h"
+#include "Debug_UI.h"
 using namespace std;
 using namespace DirectX;
 
