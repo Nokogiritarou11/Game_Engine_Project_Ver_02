@@ -115,6 +115,7 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 			dst.rotation = src.rotation;
 			dst.position = src.position;
 		}
+		SetActive(enableSelf());
 	}
 }
 void SkinMesh_Renderer::Render(Matrix V, Matrix P)
@@ -179,8 +180,8 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 void SkinMesh_Renderer::Render(Matrix V, Matrix P, bool Use_Material = true, shared_ptr<Shader> shader = nullptr)
 {
 	CalculateLocalTransform();
-	const Matrix C = {
-		-1, 0, 0, 0,
+	static const Matrix C = {
+	   -1, 0, 0, 0,
 		0, 1, 0, 0,
 		0, 0, 1, 0,
 		0, 0, 0, 1

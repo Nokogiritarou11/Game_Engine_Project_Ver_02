@@ -37,13 +37,19 @@ void Particle::Set_Particle(const char* filepath, const char* filename)
 {
 	if (effect != nullptr)
 	{
+		// インスタンスが存在しているか確認して
+		if (Engine::particle_manager->manager->Exists(handle))
+		{
+			// 再生を停止する
+			Engine::particle_manager->manager->StopEffect(handle);
+		}
 		effect = nullptr;
 		handle = -1;
 	}
 	file_name = filename;
 	file_path = filepath;
 	// EffekseerはUTF-16のファイルパス以外は対応していないため文字コード変換が必要
-	const string fullpath = (string)filepath + (string)filename + ".efk";
+	const string fullpath = (string)filepath + (string)filename;
 
 	auto it = Engine::particle_manager->effect_cache.find(fullpath);
 	if (it != Engine::particle_manager->effect_cache.end())
@@ -168,7 +174,6 @@ bool Particle::Draw_ImGui()
 		ImGui::Text(u8"現在のパーティクル::");
 		ImGui::SameLine();
 		ImGui::Text(file_name.c_str());
-		ImGui::SameLine();
 		if (ImGui::Button(u8"パーティクルを選択"))
 		{
 			string path = System_Function::Get_Open_File_Name();
@@ -180,7 +185,8 @@ bool Particle::Draw_ImGui()
 				string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
 				string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
 				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
-				Set_Particle(pathname.c_str(), filename.c_str());
+				string name = filename + extname;
+				Set_Particle(pathname.c_str(), name.c_str());
 			}
 			else
 			{
@@ -196,10 +202,12 @@ bool Particle::Draw_ImGui()
 			{
 				Play();
 			}
+			ImGui::SameLine();
 			if (ImGui::Button(ICON_FA_PAUSE))
 			{
 				Pause();
 			}
+			ImGui::SameLine();
 			if (ImGui::Button(ICON_FA_STOP))
 			{
 				Stop();

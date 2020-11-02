@@ -9,14 +9,6 @@ class Transform : public Component
 {
 public:
 
-	// convert coordinate system from 'UP:+Z FRONT:+Y RIGHT-HAND' to 'UP:+Y FRONT:+Z LEFT-HAND'
-	Matrix coordinate_conversion = {
-	1, 0, 0, 0,
-	0, 0, 1, 0,
-	0, 1, 0, 0,
-	0, 0, 0, 1
-	};
-
 	Transform();
 	Transform(Vector3 _position, Quaternion _rotation);
 	Transform(Vector3 _position, Vector3 _euler);
@@ -46,14 +38,14 @@ public:
 	void                Set_localScale   (float f1, float f2, float f3);
 
 	Vector3             Get_forward      () const;
-	void                Set_forward      (Vector3 V);
-	void                Set_forward      (float f1, float f2, float f3);
+	//void                Set_forward      (Vector3 V);
+	//void                Set_forward      (float f1, float f2, float f3);
 	Vector3             Get_right        () const;
-	void                Set_right        (Vector3 V);
-	void                Set_right        (float f1, float f2, float f3);
+	//void                Set_right        (Vector3 V);
+	//void                Set_right        (float f1, float f2, float f3);
 	Vector3             Get_up           () const;
-	void                Set_up           (Vector3 V);
-	void                Set_up           (float f1, float f2, float f3);
+	//void                Set_up           (Vector3 V);
+	//void                Set_up           (float f1, float f2, float f3);
 
 	Vector3             Get_eulerAngles  () const;
 	void                Set_eulerAngles  (Vector3 V);
@@ -62,8 +54,7 @@ public:
 	void                Set_localEulerAngles(Vector3 V);
 	void                Set_localEulerAngles(float f1, float f2, float f3);
 
-	std::weak_ptr<Transform> Get_parent       () const;
-	void				Set_parent       (std::weak_ptr<Transform>   P);
+	std::weak_ptr<Transform> Get_parent  () const;
 	void				Set_parent       (std::shared_ptr<Transform> P);
 
 	Matrix              Get_world_matrix() const;
@@ -73,12 +64,6 @@ public:
 
 
 private:
-	void Initialize(std::shared_ptr<GameObject> obj);
-	bool Draw_ImGui();
-
-	friend class cereal::access;
-	template<class Archive>
-	void serialize(Archive& archive);
 
 	Vector3    position         = { 0, 0, 0 };
 	Quaternion rotation         = { 0, 0, 0 ,1 };
@@ -103,6 +88,17 @@ private:
 	Matrix localTranslation_matrix = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 
 	std::weak_ptr<Transform> parent;
+	std::vector<std::weak_ptr<Transform>> children;
+
+	void OnParentChanged();
+	void Change_Children();
+
+	void Initialize(std::shared_ptr<GameObject> obj) override;
+	bool Draw_ImGui() override;
+
+	friend class cereal::access;
+	template<class Archive>
+	void serialize(Archive& archive);
 };
 CEREAL_REGISTER_TYPE(Transform)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component,Transform)
@@ -115,5 +111,6 @@ void Transform::serialize(Archive& archive)
 		localPosition, localRotation, localScale,
 		forward, right, up,
 		world_matrix, scale_matrix, rotation_matrix, translation_matrix,
-		local_matrix, localScale_matrix, localRotation_matrix, localTranslation_matrix, parent);
+		local_matrix, localScale_matrix, localRotation_matrix, localTranslation_matrix,
+		parent, children);
 }

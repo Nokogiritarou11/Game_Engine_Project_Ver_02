@@ -42,16 +42,16 @@ shared_ptr<GameObject> Object::Instantiate(string name, shared_ptr<Transform> pa
 shared_ptr<GameObject> Object::Instantiate(string name, Vector3 position, Vector3 euler)
 {
 	shared_ptr<GameObject> obj = Scene_Manager::Get_Active_Scene()->Instance_GameObject(name);
-	obj->transform->Set_position(position);
-	obj->transform->Set_eulerAngles(euler);
+	obj->transform->Set_localPosition(position);
+	obj->transform->Set_localEulerAngles(euler);
 	return obj;
 }
 
 shared_ptr<GameObject> Object::Instantiate(string name, Vector3 position, Vector4 rotation)
 {
 	shared_ptr<GameObject> obj = Scene_Manager::Get_Active_Scene()->Instance_GameObject(name);
-	obj->transform->Set_position(position);
-	obj->transform->Set_rotation(rotation);
+	obj->transform->Set_localPosition(position);
+	obj->transform->Set_localRotation(rotation);
 	return obj;
 }
 
