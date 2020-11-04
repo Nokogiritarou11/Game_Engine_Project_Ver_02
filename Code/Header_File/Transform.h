@@ -61,7 +61,8 @@ public:
 
 	//Function
 	Quaternion LookAt(Vector3 pos);
-
+	bool has_Child() const;
+	std::vector<std::weak_ptr<Transform>>& Get_Children();
 
 private:
 
@@ -92,6 +93,7 @@ private:
 
 	void OnParentChanged();
 	void Change_Children();
+	void Remove_Parent();
 
 	void Initialize(std::shared_ptr<GameObject> obj) override;
 	bool Draw_ImGui() override;

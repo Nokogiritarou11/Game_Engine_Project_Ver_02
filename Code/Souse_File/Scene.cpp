@@ -107,7 +107,7 @@ void Scene::Processing_Start()
 			if (!m.expired())
 			{
 				shared_ptr<MonoBehaviour> mono = m.lock();
-				if (mono->gameObject->activeSelf())
+				if (mono->gameObject->activeInHierarchy())
 				{
 					if (mono->enableSelf())
 					{
@@ -115,7 +115,7 @@ void Scene::Processing_Start()
 						{
 							mono->Start();
 							mono->IsCalled_Start = true;
-							if (mono->gameObject->activeSelf())
+							if (mono->gameObject->activeInHierarchy())
 							{
 								if (mono->enableSelf())
 								{
@@ -145,7 +145,7 @@ void Scene::Processing_Update(int state)
 		if (!m.expired())
 		{
 			shared_ptr<MonoBehaviour> mono = m.lock();
-			if (mono->gameObject->activeSelf())
+			if (mono->gameObject->activeInHierarchy())
 			{
 				if (mono->enableSelf())
 				{

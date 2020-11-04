@@ -24,17 +24,50 @@ bool GameObject::activeSelf()
 	return Active;
 }
 
+bool GameObject::activeInHierarchy()
+{
+	if (Active)
+	{
+		if (transform->Get_parent().expired())
+		{
+			return Active;
+		}
+		else
+		{
+			return transform->Get_parent().lock()->gameObject->activeInHierarchy();
+		}
+	}
+	return Active;
+}
+
 void GameObject::SetActive(bool value)
 {
 	Active = value;
 	if (Old_Active != Active)
 	{
-		shared_ptr<MonoBehaviour> mono;
 		for (shared_ptr<Component> com : Component_List)
 		{
 			com->SetActive(Active);
 		}
+		Set_Child_Active(Active);
 		Old_Active = Active;
+	}
+}
+
+void GameObject::Set_Child_Active(bool value)
+{
+	if (transform->has_Child())
+	{
+		shared_ptr<Transform> c_trans;
+		for (weak_ptr<Transform> child : transform->Get_Children())
+		{
+			c_trans = child.lock();
+			for (shared_ptr<Component> com : c_trans->gameObject->Component_List)
+			{
+				com->SetActive(value);
+			}
+			c_trans->gameObject->Set_Child_Active(value);
+		}
 	}
 }
 

@@ -18,7 +18,7 @@ void View_Scene::Render(Matrix V, Matrix P, std::shared_ptr<Transform> trans)
 			continue;
 		}
 		shared_ptr<Light> m_light = itr->lock();
-		if (m_light->gameObject->activeSelf())
+		if (m_light->gameObject->activeInHierarchy())
 		{
 			if (m_light->enableSelf())
 			{

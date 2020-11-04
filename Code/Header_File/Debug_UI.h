@@ -25,6 +25,8 @@ private:
 	weak_ptr<GameObject> Active_Object;
 	weak_ptr<GameObject> Active_Object_Old;
 
+	weak_ptr<GameObject> Drag_Object;
+
 	Matrix Debug_Camera_V;
 	Matrix Debug_Camera_P;
 	shared_ptr<Transform> Debug_Camera_Transform;
@@ -43,6 +45,8 @@ private:
 
 	void Scene_File_Menu_Render();
 	void GameObject_List_Render(std::shared_ptr<Scene> scene);
+	void GameObject_Tree_Render(int& ID, const std::shared_ptr<GameObject>& obj, int& selecting, int flag);
+	void GameObject_DragMenu_Render(const std::shared_ptr<GameObject>& obj);
 
 	void Debug_Camera_Update();
 };

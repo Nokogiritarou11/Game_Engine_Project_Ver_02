@@ -12,6 +12,7 @@ class GameObject : public Object
 public:
 	bool CompareTag(std::string _tag);
 	bool activeSelf();
+	bool activeInHierarchy();
 	void SetActive(bool value);
 
 	int layer = 0;
@@ -29,15 +30,15 @@ public:
 
 private:
 
+	void Initialize();
+	void Set_Child_Active(bool value);
+	bool Active = true;
+	bool Old_Active = true;
+
+	friend class Scene;
 	friend class cereal::access;
 	template<class Archive>
 	void serialize(Archive& archive);
-
-	friend class Scene;
-
-	void Initialize();
-	bool Active = true;
-	bool Old_Active = true;
 };
 
 CEREAL_REGISTER_TYPE(GameObject)

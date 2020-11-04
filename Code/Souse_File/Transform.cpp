@@ -647,6 +647,11 @@ void Transform::Set_parent(shared_ptr<Transform>   P)
 	{
 		if (P != parent.lock())
 		{
+			if (!parent.expired())
+			{
+				Remove_Parent();
+			}
+
 			parent = P;
 			P->children.emplace_back(static_pointer_cast<Transform>(shared_from_this()));
 
@@ -680,33 +685,7 @@ void Transform::Set_parent(shared_ptr<Transform>   P)
 	}
 	else
 	{
-		if (shared_ptr<Transform> pa = parent.lock())
-		{
-			shared_ptr<Transform> trans;
-			auto it = P->children.begin();
-			while (it != P->children.end())
-			{
-				trans = (*it).lock();
-				if (trans == static_pointer_cast<Transform>(shared_from_this()))
-				{
-					P->children.erase(it);
-					break;
-				}
-				else ++it;
-			}
-
-			parent.reset();
-
-			localPosition = position;
-			localRotation = rotation;
-			localScale = localScale;
-
-			localTranslation_matrix = translation_matrix;
-			localRotation_matrix = rotation_matrix;
-			localScale_matrix = scale_matrix;
-
-			local_matrix = world_matrix;
-		}
+		Remove_Parent();
 	}
 	hasChanged = true;
 }
@@ -739,6 +718,37 @@ void Transform::Change_Children()
 			C = child.lock();
 			C->OnParentChanged();
 		}
+	}
+}
+
+void Transform::Remove_Parent()
+{
+	if (shared_ptr<Transform> P = parent.lock())
+	{
+		shared_ptr<Transform> trans;
+		auto it = P->children.begin();
+		while (it != P->children.end())
+		{
+			trans = (*it).lock();
+			if (trans == static_pointer_cast<Transform>(shared_from_this()))
+			{
+				P->children.erase(it);
+				break;
+			}
+			else ++it;
+		}
+
+		parent.reset();
+
+		localPosition = position;
+		localRotation = rotation;
+		localScale = localScale;
+
+		localTranslation_matrix = translation_matrix;
+		localRotation_matrix = rotation_matrix;
+		localScale_matrix = scale_matrix;
+
+		local_matrix = world_matrix;
 	}
 }
 
@@ -807,4 +817,15 @@ Quaternion Transform::LookAt(Vector3 pos)
 	}
 	Quaternion rot = { q[0],q[1], q[2], q[3] };
 	return rot;
+}
+
+bool Transform::has_Child() const
+{
+	return !children.empty();
+
+}
+
+vector<weak_ptr<Transform>>& Transform::Get_Children()
+{
+	return children;
 }

@@ -517,70 +517,26 @@ void Debug_UI::Scene_File_Menu_Render()
 		ImGui::EndMenuBar();
 	}
 
-	/*
-	if (open_new_scene_menu)
-	{
-		ImGui::OpenPopup(u8"新規シーン");
-	}
-	if (ImGui::BeginPopupModal(u8"新規シーン", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		static char input[MAX_PATH] = "";
-		ImGui::InputText(u8"新規シーン名", input, MAX_PATH);
-		if (ImGui::Button(u8"作成", ImVec2(120, 0)))
-		{
-			string s = input;
-			Engine::scene_manager->CreateScene_Default(s);
-			strcpy_s(input, "");
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::SetItemDefaultFocus();
-		ImGui::SameLine();
-		if (ImGui::Button(u8"キャンセル", ImVec2(120, 0)))
-		{
-			strcpy_s(input, "");
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::EndPopup();
-	}*/
-
 }
 
 //ヒエラルキー内のオブジェクトツリー描画
 void Debug_UI::GameObject_List_Render(std::shared_ptr<Scene> scene)
 {
-	int node_clicked = -1;
 	static int ID = 0;
 
 	ImGui::SetNextItemOpen(true, ImGuiCond_Always);
 	if (ImGui::TreeNode(scene->name.c_str()))
 	{
-		ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-
 		static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
-		static int selection_mask = (0);
+		static int selecting = -1;
+		bool DragMenu_Active = false;
+
 		for (shared_ptr<GameObject> g : scene->gameObject_List)
 		{
-			ImGui::PushID(ID);
-			ImGuiTreeNodeFlags node_flags = base_flags;
-			const bool is_selected = (selection_mask & (1 << ID)) != 0;
-			if (is_selected) node_flags |= ImGuiTreeNodeFlags_Selected;
-
-			const bool active = g->activeSelf();
-			if (!active) { ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(0.f, 0.f, 0.4f)); }
-			bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)ID, node_flags, g->name.c_str());
-			if (!active) { ImGui::PopStyleColor(); }
-
-			if (ImGui::IsItemClicked() || ImGui::IsItemClicked(1))
+			if (g->transform->Get_parent().expired())
 			{
-				node_clicked = ID;
-				Active_Object = g;
+				GameObject_Tree_Render(ID, g, selecting, base_flags);
 			}
-			if (node_open)
-			{
-				ImGui::TreePop();
-			}
-			ID++;
-			ImGui::PopID();
 		}
 
 		if (ImGui::BeginPopupContextWindow(u8"ヒエラルキーサブ"))
@@ -600,19 +556,115 @@ void Debug_UI::GameObject_List_Render(std::shared_ptr<Scene> scene)
 			}
 			ImGui::EndPopup();
 		}
-
-		if (node_clicked != -1)
-		{
-			// Update selection state
-			// (process outside of tree loop to avoid visual inconsistencies during the clicking frame)
-			if (ImGui::GetIO().KeyCtrl)
-				selection_mask ^= (1 << node_clicked);          // CTRL+click to toggle
-			else //if (!(selection_mask & (1 << node_clicked))) // Depending on selection behavior you want, may want to preserve selection when clicking on item that is part of the selection
-				selection_mask = (1 << node_clicked);           // Click to single-select
-		}
 		ImGui::TreePop();
 	}
 	ID = 0;
+}
+
+//オブジェクトツリー描画
+void Debug_UI::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj, int& selecting, int flag)
+{
+	ImGui::PushID(ID);
+	const ImGuiTreeNodeFlags in_flag = flag;
+	if (selecting == ID) flag |= ImGuiTreeNodeFlags_Selected;
+
+	bool active = obj->activeSelf();
+	if (active) active = obj->activeInHierarchy();
+
+	if (obj->transform->has_Child())
+	{
+		bool open = false;
+		if (!active) { ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(0.f, 0.f, 0.4f)); }
+		open = ImGui::TreeNodeEx((void*)(intptr_t)ID, flag, obj->name.c_str());
+		if (!active) { ImGui::PopStyleColor(); }
+
+		if (ImGui::IsItemClicked() || ImGui::IsItemClicked(1))
+		{
+			selecting = ID;
+			Active_Object = obj;
+		}
+
+		GameObject_DragMenu_Render(obj);
+
+		if (open)
+		{
+			for (std::weak_ptr<Transform> child : obj->transform->Get_Children())
+			{
+				++ID;
+				GameObject_Tree_Render(ID, child.lock()->gameObject, selecting, in_flag);
+			}
+			ImGui::TreePop();
+		}
+	}
+	else
+	{
+		flag |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen; // ImGuiTreeNodeFlags_Bullet
+
+		if (!active) { ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(0.f, 0.f, 0.4f)); }
+		ImGui::TreeNodeEx((void*)(intptr_t)ID, flag, obj->name.c_str());
+		if (!active) { ImGui::PopStyleColor(); }
+
+		if (ImGui::IsItemClicked() || ImGui::IsItemClicked(1))
+		{
+			selecting = ID;
+			Active_Object = obj;
+		}
+
+		GameObject_DragMenu_Render(obj);
+
+		++ID;
+	}
+	ImGui::PopID();
+}
+
+//ヒエラルキーでのオブジェクトドラッグ
+void Debug_UI::GameObject_DragMenu_Render(const std::shared_ptr<GameObject>& obj)
+{
+	if (ImGui::BeginDragDropSource())
+	{
+		Drag_Object = obj;
+		int a = 0;
+		ImGui::SetDragDropPayload("DragDrop_Object", &a, sizeof(int));
+		ImGui::EndDragDropSource();
+	}
+	if (ImGui::BeginDragDropTarget())
+	{
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DragDrop_Object"))
+		{
+			if (!Drag_Object.expired() && Drag_Object.lock() != obj)
+			{
+				ImGui::OpenPopup("Drag_Object_Menu");
+			}
+		}
+		ImGui::EndDragDropTarget();
+	}
+
+	if (ImGui::BeginPopup("Drag_Object_Menu"))
+	{
+		if (ImGui::Selectable(u8"子に設定"))
+		{
+			if (!Drag_Object.expired())
+			{
+				Drag_Object.lock()->transform->Set_parent(obj->transform);
+				Drag_Object.reset();
+			}
+		}
+		if (ImGui::Selectable(u8"この上に移動"))
+		{
+			if (!Drag_Object.expired())
+			{
+				Drag_Object.reset();
+			}
+		}
+		if (ImGui::Selectable(u8"この下に移動"))
+		{
+			if (!Drag_Object.expired())
+			{
+				Drag_Object.reset();
+			}
+		}
+		ImGui::EndPopup();
+	}
 }
 
 //シーンビューのカメラ操作

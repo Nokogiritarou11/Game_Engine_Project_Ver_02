@@ -35,19 +35,19 @@ void  MonoBehaviour::SetActive(bool value)
 
 void  MonoBehaviour::Add()
 {
-	if (gameObject->activeSelf())
+	if (gameObject->activeInHierarchy())
 	{
 		if (!IsCalled_Awake)
 		{
 			Awake();
 			IsCalled_Awake = true;
 		}
-		if (gameObject->activeSelf())
+		if (gameObject->activeInHierarchy())
 		{
 			if (enableSelf())
 			{
 				OnEnable();
-				if (gameObject->activeSelf())
+				if (gameObject->activeInHierarchy())
 				{
 					if (enableSelf())
 					{

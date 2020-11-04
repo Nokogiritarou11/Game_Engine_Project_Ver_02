@@ -26,7 +26,7 @@ void Particle::Initialize(shared_ptr<GameObject> obj)
 {
 	gameObject = obj;
 	transform = obj->transform;
-	SetActive(gameObject->activeSelf());
+	SetActive(gameObject->activeInHierarchy());
 	if (file_path != "")
 	{
 		Set_Particle(file_path.c_str(), file_name.c_str());
@@ -69,7 +69,7 @@ void Particle::Set_Particle(const char* filepath, const char* filename)
 	}
 	handle = -1;
 	IsCalled = false;
-	SetActive(gameObject->activeSelf());
+	SetActive(gameObject->activeInHierarchy());
 }
 
 void Particle::SetActive(bool value)
@@ -101,7 +101,7 @@ void Particle::Play()
 {
 	if (effect != nullptr)
 	{
-		if (gameObject->activeSelf())
+		if (gameObject->activeInHierarchy())
 		{
 			if (!Engine::particle_manager->manager->Exists(handle))
 			{
@@ -123,7 +123,7 @@ void Particle::Pause()
 {
 	if (effect != nullptr)
 	{
-		if (gameObject->activeSelf())
+		if (gameObject->activeInHierarchy())
 		{
 			// インスタンスが存在しているか確認して
 			if (Engine::particle_manager->manager->Exists(handle))
@@ -139,7 +139,7 @@ void Particle::Stop()
 {
 	if (effect != nullptr)
 	{
-		if (gameObject->activeSelf())
+		if (gameObject->activeInHierarchy())
 		{
 			// インスタンスが存在しているか確認して
 			if (Engine::particle_manager->manager->Exists(handle))

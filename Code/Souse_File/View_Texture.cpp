@@ -199,7 +199,7 @@ void View_Texture::Render_3D(Matrix V, Matrix P, bool Use_Material, std::shared_
 		if (!r.expired())
 		{
 			p_rend = r.lock();
-			if (p_rend->gameObject->activeSelf())
+			if (p_rend->gameObject->activeInHierarchy())
 			{
 				if (p_rend->enableSelf())
 				{
@@ -254,7 +254,7 @@ void View_Texture::Render_2D(Matrix V, Matrix P)
 		if (!r.expired())
 		{
 			p_rend = r.lock();
-			if (p_rend->gameObject->activeSelf())
+			if (p_rend->gameObject->activeInHierarchy())
 			{
 				if (p_rend->enableSelf())
 				{

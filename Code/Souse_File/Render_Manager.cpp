@@ -53,7 +53,7 @@ void Render_Manager::Render()
 		if (!c.expired())
 		{
 			camera = c.lock();
-			if (camera->gameObject->activeSelf())
+			if (camera->gameObject->activeInHierarchy())
 			{
 				if (camera->enableSelf())
 				{
