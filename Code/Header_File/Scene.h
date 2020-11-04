@@ -16,7 +16,7 @@ public:
 	std::weak_ptr<GameObject> Find(std::string Name);
 	std::weak_ptr<GameObject> FindWithTag(std::string Tag);
 
-	std::list<std::shared_ptr<GameObject>> gameObject_List;
+	std::vector<std::shared_ptr<GameObject>> gameObject_List;
 
 private:
 

@@ -17,6 +17,7 @@ public:
 	bool hasChanged = false;
 
 	//GetterSetter
+
 	Vector3             Get_position     () const;
 	void                Set_position     (Vector3 V);
 	void                Set_position     (float f1, float f2, float f3);
@@ -40,9 +41,11 @@ public:
 	Vector3             Get_forward      () const;
 	//void                Set_forward      (Vector3 V);
 	//void                Set_forward      (float f1, float f2, float f3);
+
 	Vector3             Get_right        () const;
 	//void                Set_right        (Vector3 V);
 	//void                Set_right        (float f1, float f2, float f3);
+
 	Vector3             Get_up           () const;
 	//void                Set_up           (Vector3 V);
 	//void                Set_up           (float f1, float f2, float f3);
@@ -55,14 +58,20 @@ public:
 	void                Set_localEulerAngles(float f1, float f2, float f3);
 
 	std::weak_ptr<Transform> Get_parent  () const;
-	void				Set_parent       (std::shared_ptr<Transform> P);
+	void					 Set_parent  (std::shared_ptr<Transform> P);
+	void					 Set_parent  (std::shared_ptr<Transform> P, int index_insert);
 
-	Matrix              Get_world_matrix() const;
+	std::weak_ptr<Transform> GetChild(int index);
+	int						 childCount();
+
+	int						 GetSiblingIndex() const;
+	void					 SetSiblingIndex(int index);
+
+	Matrix					 Get_world_matrix() const;
 
 	//Function
+
 	Quaternion LookAt(Vector3 pos);
-	bool has_Child() const;
-	std::vector<std::weak_ptr<Transform>>& Get_Children();
 
 private:
 
@@ -98,6 +107,7 @@ private:
 	void Initialize(std::shared_ptr<GameObject> obj) override;
 	bool Draw_ImGui() override;
 
+	friend class Debug_UI;
 	friend class cereal::access;
 	template<class Archive>
 	void serialize(Archive& archive);

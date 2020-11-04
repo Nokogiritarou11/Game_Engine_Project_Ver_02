@@ -27,8 +27,8 @@ void Scene::Initialize()
 
 void Scene::Destroy_GameObject(shared_ptr<GameObject> gameObject)
 {
-	list<shared_ptr<GameObject>>::iterator itr_end = gameObject_List.end();
-	for (list<shared_ptr<GameObject>>::iterator itr = gameObject_List.begin(); itr != itr_end; ++itr)
+	vector<shared_ptr<GameObject>>::iterator itr_end = gameObject_List.end();
+	for (vector<shared_ptr<GameObject>>::iterator itr = gameObject_List.begin(); itr != itr_end; ++itr)
 	{
 		if ((*itr) == gameObject)
 		{
@@ -40,8 +40,8 @@ void Scene::Destroy_GameObject(shared_ptr<GameObject> gameObject)
 }
 void Scene::Destroy_Component(shared_ptr<Component> component)
 {
-	list<shared_ptr<GameObject>>::iterator itr_end = gameObject_List.end();
-	for (list<shared_ptr<GameObject>>::iterator itr = gameObject_List.begin(); itr != itr_end; ++itr)
+	vector<shared_ptr<GameObject>>::iterator itr_end = gameObject_List.end();
+	for (vector<shared_ptr<GameObject>>::iterator itr = gameObject_List.begin(); itr != itr_end; ++itr)
 	{
 		if ((*itr) == component->gameObject)
 		{

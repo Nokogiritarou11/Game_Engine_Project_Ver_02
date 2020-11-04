@@ -1,4 +1,5 @@
 #include "Transform.h"
+#include "Scene_Manager.h"
 #include "Include_ImGui.h"
 using namespace DirectX;
 using namespace std;
@@ -641,7 +642,7 @@ weak_ptr<Transform> Transform::Get_parent() const
 	return this->parent;
 }
 
-void Transform::Set_parent(shared_ptr<Transform>   P)
+void Transform::Set_parent(shared_ptr<Transform> P)
 {
 	if (P != nullptr)
 	{
@@ -655,6 +656,61 @@ void Transform::Set_parent(shared_ptr<Transform>   P)
 			parent = P;
 			P->children.emplace_back(static_pointer_cast<Transform>(shared_from_this()));
 
+			localScale = { scale.x / P->scale.x, scale.y / P->scale.y, scale.z / P->scale.z };
+			localPosition = { (position.x - P->position.x) * P->localScale.x, (position.y - P->position.y) * P->localScale.y, (position.z - P->position.z) * P->localScale.z };
+			Quaternion q;
+			P->rotation.Inverse(q);
+			localRotation = rotation * q;
+
+			localTranslation_matrix = Matrix::CreateTranslation(localPosition);
+			localRotation_matrix = Matrix::CreateFromQuaternion(localRotation);
+			localScale_matrix = Matrix::CreateScale(localScale);
+
+			local_matrix = localScale_matrix * localRotation_matrix * localTranslation_matrix;
+			world_matrix = local_matrix * P->Get_world_matrix();
+			world_matrix.Decompose(scale, rotation, position);
+
+			scale_matrix = Matrix::CreateScale(scale);
+			rotation_matrix = Matrix::CreateFromQuaternion(rotation);
+			translation_matrix = Matrix::CreateTranslation(position);
+
+			forward = Vector3::Transform(Vector3::Forward, rotation_matrix);
+			forward.Normalize();
+			right = Vector3::Transform(Vector3::Right, rotation_matrix);
+			right.Normalize();
+			up = Vector3::Transform(Vector3::Up, rotation_matrix);
+			up.Normalize();
+
+			Change_Children();
+		}
+	}
+	else
+	{
+		Remove_Parent();
+	}
+	hasChanged = true;
+}
+
+void Transform::Set_parent(shared_ptr<Transform> P, int index_insert)
+{
+	if (P != nullptr)
+	{
+		if (P != parent.lock())
+		{
+			if (!parent.expired())
+			{
+				Remove_Parent();
+			}
+
+			parent = P;
+			if (index_insert < 0)
+			{
+				P->children.emplace_back(static_pointer_cast<Transform>(shared_from_this()));
+			}
+			else
+			{
+				P->children.insert(P->children.begin() + index_insert, static_pointer_cast<Transform>(shared_from_this()));
+			}
 			localScale = { scale.x / P->scale.x, scale.y / P->scale.y, scale.z / P->scale.z };
 			localPosition = { (position.x - P->position.x) * P->localScale.x, (position.y - P->position.y) * P->localScale.y, (position.z - P->position.z) * P->localScale.z };
 			Quaternion q;
@@ -752,6 +808,162 @@ void Transform::Remove_Parent()
 	}
 }
 
+std::weak_ptr<Transform> Transform::GetChild(int index)
+{
+	return children[index];
+}
+
+int Transform::childCount()
+{
+	return (int)children.size();
+}
+
+int Transform::GetSiblingIndex() const
+{
+	if (shared_ptr<Transform> P = parent.lock())
+	{
+		shared_ptr<Transform> child;
+		for (size_t i = 0; i < P->children.size(); ++i)
+		{
+			child = P->children[i].lock();
+			if (child == transform)
+			{
+				return i;
+			}
+		}
+	}
+	else
+	{
+		shared_ptr<Scene> scene = Scene_Manager::Get_Active_Scene();
+		int index_this = -1;
+
+		for (size_t i = 0; i < scene->gameObject_List.size(); ++i)
+		{
+			if (scene->gameObject_List[i]->transform->Get_parent().expired())
+			{
+				++index_this;
+				if (scene->gameObject_List[i] == gameObject)
+				{
+					return index_this;
+				}
+			}
+		}
+	}
+	return -1;
+}
+
+void Transform::SetSiblingIndex(int index)
+{
+	if (GetSiblingIndex() != index)
+	{
+		if (index < 0) index = 0;
+
+		if (shared_ptr<Transform> P = parent.lock())
+		{
+			shared_ptr<Transform> insert_at;
+			if (index >= (int)P->children.size())
+			{
+				insert_at = P->children[(int)P->children.size() - 1].lock();
+			}
+			else
+			{
+				insert_at = P->children[index].lock();
+			}
+
+			shared_ptr<Transform> child;
+			for (int i = 0; i < (int)P->children.size(); ++i)
+			{
+				child = P->children[i].lock();
+				if (child == transform)
+				{
+					P->children.erase(P->children.begin() + i);
+					break;
+				}
+			}
+
+			if (index <= (int)P->children.size())
+			{
+				bool is_last = true;
+				shared_ptr<Transform> child;
+				for (int i = 0; i < (int)P->children.size(); ++i)
+				{
+					child = P->children[i].lock();
+					if (child == insert_at)
+					{
+						is_last = false;
+						P->children.insert(P->children.begin() + i, static_pointer_cast<Transform>(shared_from_this()));
+						break;
+					}
+				}
+				if (is_last)
+				{
+					P->children.emplace_back(static_pointer_cast<Transform>(shared_from_this()));
+				}
+			}
+			else
+			{
+				P->children.emplace_back(static_pointer_cast<Transform>(shared_from_this()));
+			}
+		}
+		else
+		{
+			shared_ptr<Scene> scene = Scene_Manager::Get_Active_Scene();
+
+			shared_ptr<Transform> insert_at;
+			int index_insert = -1;
+			for (size_t i = 0; i < scene->gameObject_List.size(); ++i)
+			{
+				if (scene->gameObject_List[i]->transform->Get_parent().expired())
+				{
+					++index_insert;
+					if (index_insert == index)
+					{
+						insert_at = scene->gameObject_List[i]->transform;
+						break;
+					}
+				}
+			}
+
+			for (size_t i = 0; i < scene->gameObject_List.size(); ++i)
+			{
+				if (scene->gameObject_List[i]->transform->Get_parent().expired())
+				{
+					if (scene->gameObject_List[i] == gameObject)
+					{
+						scene->gameObject_List.erase(scene->gameObject_List.begin() + i);
+						break;
+					}
+				}
+			}
+
+			if (index <= (int)scene->gameObject_List.size())
+			{
+				bool is_last = true;
+				for (size_t i = 0; i < scene->gameObject_List.size(); ++i)
+				{
+					if (scene->gameObject_List[i]->transform->Get_parent().expired())
+					{
+						if (scene->gameObject_List[i]->transform == insert_at)
+						{
+							is_last = false;
+							scene->gameObject_List.insert(scene->gameObject_List.begin() + i, gameObject);
+							break;
+						}
+					}
+				}
+				if (is_last)
+				{
+					scene->gameObject_List.emplace_back(gameObject);
+				}
+			}
+			else
+			{
+				scene->gameObject_List.emplace_back(gameObject);
+			}
+		}
+	}
+}
+
 Matrix Transform::Get_world_matrix() const
 {
 	return this->world_matrix;
@@ -760,6 +972,7 @@ Matrix Transform::Get_world_matrix() const
 /*  ///////////////////////////////////////////////////////
 	Function
 */  ///////////////////////////////////////////////////////
+
 Quaternion Transform::LookAt(Vector3 pos)
 {
 	Vector3 up = { 0,1,0 };
@@ -817,15 +1030,4 @@ Quaternion Transform::LookAt(Vector3 pos)
 	}
 	Quaternion rot = { q[0],q[1], q[2], q[3] };
 	return rot;
-}
-
-bool Transform::has_Child() const
-{
-	return !children.empty();
-
-}
-
-vector<weak_ptr<Transform>>& Transform::Get_Children()
-{
-	return children;
 }

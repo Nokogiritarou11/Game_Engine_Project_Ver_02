@@ -531,11 +531,11 @@ void Debug_UI::GameObject_List_Render(std::shared_ptr<Scene> scene)
 		static int selecting = -1;
 		bool DragMenu_Active = false;
 
-		for (shared_ptr<GameObject> g : scene->gameObject_List)
+		for (size_t i = 0; i < scene->gameObject_List.size();++i)
 		{
-			if (g->transform->Get_parent().expired())
+			if (scene->gameObject_List[i]->transform->parent.expired())
 			{
-				GameObject_Tree_Render(ID, g, selecting, base_flags);
+				GameObject_Tree_Render(ID, scene->gameObject_List[i], selecting, base_flags);
 			}
 		}
 
@@ -552,6 +552,13 @@ void Debug_UI::GameObject_List_Render(std::shared_ptr<Scene> scene)
 					GameObject::Destroy(Active_Object.lock());
 					Active_Object.reset();
 					Active_Object_Old.reset();
+				}
+				if (Active_Object.lock()->transform->parent.lock())
+				{
+					if (ImGui::Selectable(u8"オブジェクトの親子関係を解除"))
+					{
+						Active_Object.lock()->transform->Set_parent(nullptr);
+					}
 				}
 			}
 			ImGui::EndPopup();
@@ -571,8 +578,9 @@ void Debug_UI::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj
 	bool active = obj->activeSelf();
 	if (active) active = obj->activeInHierarchy();
 
-	if (obj->transform->has_Child())
+	if (obj->transform->childCount())
 	{
+		ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 		bool open = false;
 		if (!active) { ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(0.f, 0.f, 0.4f)); }
 		open = ImGui::TreeNodeEx((void*)(intptr_t)ID, flag, obj->name.c_str());
@@ -588,12 +596,16 @@ void Debug_UI::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj
 
 		if (open)
 		{
-			for (std::weak_ptr<Transform> child : obj->transform->Get_Children())
+			for (size_t i = 0; i < obj->transform->children.size();++i)
 			{
 				++ID;
-				GameObject_Tree_Render(ID, child.lock()->gameObject, selecting, in_flag);
+				GameObject_Tree_Render(ID, obj->transform->children[i].lock()->gameObject, selecting, in_flag);
 			}
 			ImGui::TreePop();
+		}
+		else
+		{
+			++ID;
 		}
 	}
 	else
@@ -641,7 +653,14 @@ void Debug_UI::GameObject_DragMenu_Render(const std::shared_ptr<GameObject>& obj
 
 	if (ImGui::BeginPopup("Drag_Object_Menu"))
 	{
-		if (ImGui::Selectable(u8"子に設定"))
+		string obj_name = obj->name;
+
+		string s1 = u8"の子に設定";
+		string s2 = u8"の上に移動";
+		string s3 = u8"の下に移動";
+
+		string s_set = obj_name + s1;
+		if (ImGui::Selectable(s_set.c_str()))
 		{
 			if (!Drag_Object.expired())
 			{
@@ -649,17 +668,28 @@ void Debug_UI::GameObject_DragMenu_Render(const std::shared_ptr<GameObject>& obj
 				Drag_Object.reset();
 			}
 		}
-		if (ImGui::Selectable(u8"この上に移動"))
+
+		s_set = obj_name + s2;
+		if (ImGui::Selectable(s_set.c_str()))
 		{
 			if (!Drag_Object.expired())
 			{
+				shared_ptr<GameObject> drag_obj = Drag_Object.lock();
+				drag_obj->transform->Set_parent(obj->transform->parent.lock());
+				drag_obj->transform->SetSiblingIndex(obj->transform->GetSiblingIndex());
 				Drag_Object.reset();
 			}
 		}
-		if (ImGui::Selectable(u8"この下に移動"))
+
+		s_set = obj_name + s3;
+		if (ImGui::Selectable(s_set.c_str()))
 		{
 			if (!Drag_Object.expired())
 			{
+				shared_ptr<GameObject> drag_obj = Drag_Object.lock();
+				shared_ptr<Transform> parent = obj->transform->parent.lock();
+				drag_obj->transform->Set_parent(parent);
+				drag_obj->transform->SetSiblingIndex(obj->transform->GetSiblingIndex() + 1);
 				Drag_Object.reset();
 			}
 		}

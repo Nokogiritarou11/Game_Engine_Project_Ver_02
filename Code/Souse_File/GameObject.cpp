@@ -56,12 +56,12 @@ void GameObject::SetActive(bool value)
 
 void GameObject::Set_Child_Active(bool value)
 {
-	if (transform->has_Child())
+	if (transform->childCount())
 	{
 		shared_ptr<Transform> c_trans;
-		for (weak_ptr<Transform> child : transform->Get_Children())
+		for (int i = 0; i < transform->childCount(); ++i)
 		{
-			c_trans = child.lock();
+			c_trans = transform->GetChild(i).lock();
 			for (shared_ptr<Component> com : c_trans->gameObject->Component_List)
 			{
 				com->SetActive(value);
