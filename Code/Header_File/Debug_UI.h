@@ -43,6 +43,7 @@ private:
 	void SceneView_Render();
 	void GameView_Render();
 
+	void MenuBar_Render();
 	void Scene_File_Menu_Render();
 	void GameObject_List_Render(std::shared_ptr<Scene> scene);
 	void GameObject_Tree_Render(int& ID, const std::shared_ptr<GameObject>& obj, int& selecting, int flag);

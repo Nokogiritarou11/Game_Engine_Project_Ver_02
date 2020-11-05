@@ -149,6 +149,9 @@ public:
 	std::vector<Animation>	animations;
 	std::vector<std::string> Default_Material_Passes;
 
+	//指定したパスのメッシュを読み込む
+	//第1引数にメッシュまでのパス
+	//第2引数にファイル名(拡張子はいらない)を入力する
 	static std::shared_ptr<Mesh> Load_Mesh(const char* file_path, const char* fbx_filename, const char* ignoreRootMotionNodeName = nullptr);
 
 private:

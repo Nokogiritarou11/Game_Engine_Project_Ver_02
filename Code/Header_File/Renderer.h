@@ -14,15 +14,14 @@
 #include <stdio.h>
 #include <locale.h>
 
-class View_Texture;
-
 class Renderer : public Component
 {
 public:
 
-	void SetEnabled(bool value);
-	bool enableSelf();
-	std::vector<std::shared_ptr<Material>> material;
+	void SetEnabled(bool value); //表示するか
+	bool enableSelf();			 //現在アクティブか
+
+	std::vector<std::shared_ptr<Material>> material; //使用するマテリアル
 
 protected:
 	friend class View_Texture;

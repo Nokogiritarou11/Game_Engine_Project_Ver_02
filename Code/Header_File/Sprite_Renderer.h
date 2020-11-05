@@ -13,11 +13,11 @@ class Sprite_Renderer : public Renderer
 {
 public:
 
-	Vector2 Size = { 100,100 };
-	Vector2 UV_Origin = { 0,0 };
-	Vector2 UV_Size = { 100,100 };
-	Vector4 Color = { 1,1,1,1 };
-	std::shared_ptr<Texture> texture;
+	Vector2 Size = { 100,100 };			//表示サイズ
+	Vector2 UV_Origin = { 0,0 };		//テクスチャのUV原点
+	Vector2 UV_Size = { 100,100 };		//テクスチャから切り出すサイズ(UV原点基準)
+	Vector4 Color = { 1,1,1,1 };		//テクスチャカラー({1,1,1,1}でオリジナル)
+	std::shared_ptr<Texture> texture;	//描画するテクスチャ
 
 private:
 

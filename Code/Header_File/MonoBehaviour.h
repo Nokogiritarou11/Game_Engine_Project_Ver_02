@@ -8,17 +8,15 @@
 class MonoBehaviour : public Behaviour
 {
 private:
-	friend class Scene;
-	friend class GameObject;
 
-	virtual void Awake() {};
-	virtual void Start() {};
-	virtual void Update() {};
-	virtual void LateUpdate() {};
+	virtual void Awake() {}; //初めてアクティブになった時に一回だけ呼ばれる(Enableに依存し、ゲームオブジェクトのActiveを無視する)
+	virtual void Start() {}; //初めてアクティブになった時に一回だけ呼ばれる(ゲームオブジェクトのActiveと自身のEnableに依存する)
+	virtual void Update() {}; //アクティブ時に毎フレーム呼ばれる
+	virtual void LateUpdate() {}; //アクティブ時に毎フレーム、Updateのあとに呼ばれる
 
-	virtual void OnEnable() {};
-	virtual void OnDisable() {};
-	virtual void OnDestroy() {};
+	virtual void OnEnable() {};//アクティブになった時に呼ばれる
+	virtual void OnDisable() {};//非アクティブになった時に呼ばれる
+	virtual void OnDestroy() {};//削除時に呼ばれる
 
 	void Initialize(std::shared_ptr<GameObject> obj) override;
 	void SetActive(bool value) override;
@@ -29,6 +27,8 @@ private:
 	bool Disable_flg = false;
 	void Add();
 
+	friend class Scene;
+	friend class GameObject;
 	friend class cereal::access;
 	template<class Archive>
 	void serialize(Archive& archive)

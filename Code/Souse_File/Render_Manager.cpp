@@ -82,7 +82,6 @@ void Render_Manager::Render()
 					XMVECTOR camRight = XMVectorSet(-XMVectorGetZ(camForward), 0.0f, XMVectorGetX(camForward), 0.0f);
 
 					XMVECTOR up_v = camera->transform->Get_up();
-					XMStoreFloat4(&camera->focus, focus_v);
 					XMStoreFloat4x4(&camera->V, XMMatrixLookAtLH(eye_v, focus_v, up_v));
 					//}
 

@@ -21,13 +21,14 @@ protected:
 public:
 	Texture();
 	virtual ~Texture();
-	bool Load(std::string filename,int sampler_state = 0);
-	void Set(UINT Slot = 0, BOOL flg = TRUE);
-	UINT GetWidth() { return texture2d_desc.Width; }
-	UINT GetHeight() { return texture2d_desc.Height; }
-	ID3D11RenderTargetView* GetRenderTarget() { return RenderTargetView.Get(); }
 
-	bool Texture_Have = false;
+	bool Load(std::string filename,int sampler_state = 0);							//テクスチャをファイルを指定し読み込む(失敗したらFalseを返す)
+	void Set(UINT Slot = 0, BOOL flg = TRUE);										//テクスチャをシェーダーにステージする
+	UINT GetWidth() { return texture2d_desc.Width; }								//テクスチャの横幅を返す
+	UINT GetHeight() { return texture2d_desc.Height; }								//テクスチャの縦幅を返す
+	ID3D11RenderTargetView* GetRenderTarget() { return RenderTargetView.Get(); }	//レンダーターゲットを返す
+
+	bool Texture_Have = false;														//テクスチャデータを保持しているか
 
 	enum Texture_Type
 	{

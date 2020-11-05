@@ -15,12 +15,12 @@ public:
 
 	void Set_Particle(const char* filepath, const char* filename);
 
-	void Play();
-	void Pause();
-	void Stop();
+	void Play();  //再生(一時停止中の場合は再開)
+	void Pause(); //一時停止
+	void Stop();  //停止
 
-	bool Play_On_Awake = true;
-	float Play_Speed = 1.0f;
+	bool Play_On_Awake = true; //アクティブ時に自動で再生を開始するか
+	float Play_Speed = 1.0f;   //再生速度
 
 private:
 	void Initialize(std::shared_ptr<GameObject> obj) override;

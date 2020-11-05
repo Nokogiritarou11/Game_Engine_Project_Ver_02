@@ -11,12 +11,12 @@ class Scene_Manager;
 class Scene
 {
 public:
-	std::string name;
+	std::string name; //シーン名
 
-	std::weak_ptr<GameObject> Find(std::string Name);
-	std::weak_ptr<GameObject> FindWithTag(std::string Tag);
+	std::weak_ptr<GameObject> Find(std::string Name);         //指定した名前のゲームオブジェクトを返す
+	std::weak_ptr<GameObject> FindWithTag(std::string Tag);   //指定したタグのゲームオブジェクトを返す
 
-	std::vector<std::shared_ptr<GameObject>> gameObject_List;
+	std::vector<std::shared_ptr<GameObject>> gameObject_List; //シーン内の全ゲームオブジェクト
 
 private:
 

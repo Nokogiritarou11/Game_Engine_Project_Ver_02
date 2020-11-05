@@ -5,14 +5,14 @@ class Animator : public Behaviour
 {
 public:
 
-	bool IsPlayAnimation() const { return currentAnimation >= 0; }
-	void Play(int animationIndex);
-	void Stop();
-	void Pause();
-	void Update();
+	bool IsPlayAnimation() const { return currentAnimation >= 0; } //再生中か
+	void Play(int animationIndex);                                 //再生
+	void Stop();                                                   //停止
+	void Pause();                                                  //一時停止
+	void Update();                                                 //更新
 
-	float       animation_speed = 1;
-	bool		loopAnimation = false;
+	float       animation_speed = 1;                               //再生速度
+	bool		loopAnimation = false;                             //ループするか
 
 private:
 	void Initialize(std::shared_ptr<GameObject> obj);

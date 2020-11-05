@@ -6,7 +6,7 @@ class SkinMesh_Renderer : public Renderer
 {
 public:
 
-	void Set_Mesh(std::shared_ptr<Mesh> Mesh_Data);
+	void Set_Mesh(std::shared_ptr<Mesh> Mesh_Data); //メッシュデータを設定する
 
 	struct Node
 	{
@@ -34,8 +34,8 @@ public:
 		Vector4	materialColor;
 	};
 
-	static ComPtr <ID3D11Buffer> ConstantBuffer_CbMesh; //コンスタントバッファ
-	static ComPtr <ID3D11Buffer> ConstantBuffer_CbColor; //コンスタントバッファ
+	static ComPtr <ID3D11Buffer> ConstantBuffer_CbMesh;  //コンスタントバッファ(メッシュデータ)
+	static ComPtr <ID3D11Buffer> ConstantBuffer_CbColor; //コンスタントバッファ(カラー)
 
 	std::vector<Node>	  nodes;
 

@@ -10,11 +10,11 @@ class Scene_Manager
 {
 public:
 
-	static void LoadScene(std::string Scene_Path);
-	static std::shared_ptr<Scene> Get_Active_Scene();
+	static void LoadScene(std::string Scene_Path);	  //指定した不シーンファイルをロードし、切り替える
+	static std::shared_ptr<Scene> Get_Active_Scene(); //現在アクティブなシーンを返す
 
-	bool Run = false;
-	bool Pause = false;
+	bool Run = false;   //再生中か
+	bool Pause = false; //ポーズ中か
 
 private:
 

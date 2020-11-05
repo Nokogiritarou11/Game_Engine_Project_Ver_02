@@ -10,10 +10,10 @@ class Scene;
 class GameObject : public Object
 {
 public:
-	bool CompareTag(std::string _tag);
-	bool activeSelf();
-	bool activeInHierarchy();
-	void SetActive(bool value);
+	bool CompareTag(std::string _tag);								//指定したタグに一致するか返す
+	bool activeSelf();												//ゲームオブジェクトがアクティブか(親の状態を考慮しない)
+	bool activeInHierarchy();										//ヒエラルキー上でアクティブか(親の状態を考慮する)
+	void SetActive(bool value);										//アクティブ状態を指定する
 
 	int layer = 0;
 	std::string tag = "Default";
@@ -21,12 +21,12 @@ public:
 	std::vector<std::shared_ptr<Component>> Component_List;
 
 	template<class T>
-	std::shared_ptr<T> GetComponent();
+	std::shared_ptr<T> GetComponent();								//アタッチサれているコンポーネントを検索し返す(存在しない場合null_ptr)
 	template<class T>
-	std::shared_ptr<T> AddComponent();
+	std::shared_ptr<T> AddComponent();								//コンポーネントをアタッチする
 
-	static std::weak_ptr<GameObject> Find(std::string Name);
-	static std::weak_ptr<GameObject> FindWithTag(std::string Tag);
+	static std::weak_ptr<GameObject> Find(std::string Name);		//シーン内のゲームオブジェクトを名前で検索する
+	static std::weak_ptr<GameObject> FindWithTag(std::string Tag);	//シーン内のゲームオブジェクトをタグで検索する
 
 private:
 

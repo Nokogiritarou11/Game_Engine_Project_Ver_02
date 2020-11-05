@@ -143,7 +143,7 @@ void Debug_UI::Main_Window_Render()
 	ImGuiIO& io = ImGui::GetIO();
 	ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-	Scene_File_Menu_Render();
+	MenuBar_Render();
 	ImGui::End();
 }
 
@@ -415,84 +415,69 @@ void Debug_UI::GameView_Render()
 	ImGui::End();
 }
 
-//シーン保存、展開UI描画
-void Debug_UI::Scene_File_Menu_Render()
+//メニューバー描画
+void Debug_UI::MenuBar_Render()
 {
-	//static bool open_new_scene_menu = false;
-	//open_new_scene_menu = false;
 	if (ImGui::BeginMenuBar())
 	{
-		if (ImGui::BeginMenu(u8"ファイル"))
+		Scene_File_Menu_Render();
+		ImGui::EndMenuBar();
+	}
+}
+
+//シーン保存、展開メニュー描画
+void Debug_UI::Scene_File_Menu_Render()
+{
+	if (ImGui::BeginMenu(u8"ファイル"))
+	{
+		if (ImGui::MenuItem(u8"新規シーン"))
 		{
-			if (ImGui::MenuItem(u8"新規シーン"))
+			string path = System_Function::Get_Save_File_Name();
+			if (path != "")
 			{
-				string path = System_Function::Get_Save_File_Name();
-				if (path != "")
+				int path_i = path.find_last_of("\\") + 1;//7
+				int ext_i = path.find_last_of(".");//10
+				string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
+				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+				path = pathname + filename + ".bin";
+				Engine::scene_manager->CreateScene_Default(path, filename);
+			}
+		}
+		if (ImGui::MenuItem(u8"開く"))
+		{
+			string path = System_Function::Get_Open_File_Name();
+			if (path != "")
+			{
+				Engine::scene_manager->Last_Save_Path = path;
+				Scene_Manager::LoadScene(path);
+				Active_Object.reset();
+				Active_Object_Old.reset();
+				ofstream oOfstream("Default_Resource\\System\\last_save.bin");
+				if (oOfstream.is_open())
 				{
-					int path_i = path.find_last_of("\\") + 1;//7
-					int ext_i = path.find_last_of(".");//10
-					string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
-					string filename = path.substr(path_i, ext_i - path_i); //ファイル名
-					path = pathname + filename + ".bin";
-					Engine::scene_manager->CreateScene_Default(path, filename);
+					// ファイルへ書き込む
+					oOfstream << Engine::scene_manager->Last_Save_Path;
 				}
 			}
-			if (ImGui::MenuItem(u8"開く"))
+			else
 			{
-				string path = System_Function::Get_Open_File_Name();
-				if (path != "")
-				{
-					Engine::scene_manager->Last_Save_Path = path;
-					Scene_Manager::LoadScene(path);
-					Active_Object.reset();
-					Active_Object_Old.reset();
-					ofstream oOfstream("Default_Resource\\System\\last_save.bin");
-					if (oOfstream.is_open())
-					{
-						// ファイルへ書き込む
-						oOfstream << Engine::scene_manager->Last_Save_Path;
-					}
-				}
-				else
-				{
-					Debug::Log(u8"ファイルが開けませんでした");
-				}
+				Debug::Log(u8"ファイルが開けませんでした");
 			}
-			if (ImGui::MenuItem(u8"上書き保存"))
+		}
+		if (ImGui::MenuItem(u8"上書き保存"))
+		{
+			if (Engine::scene_manager->Last_Save_Path != "")
 			{
-				if (Engine::scene_manager->Last_Save_Path != "")
+				Engine::scene_manager->SaveScene(Engine::scene_manager->Last_Save_Path);
+				ofstream oOfstream("Default_Resource\\System\\last_save.bin");
+				if (oOfstream.is_open())
 				{
-					Engine::scene_manager->SaveScene(Engine::scene_manager->Last_Save_Path);
-					ofstream oOfstream("Default_Resource\\System\\last_save.bin");
-					if (oOfstream.is_open())
-					{
-						// ファイルへ書き込む
-						oOfstream << Engine::scene_manager->Last_Save_Path;
-					}
-					Debug::Log(u8"シーンの保存に成功");
+					// ファイルへ書き込む
+					oOfstream << Engine::scene_manager->Last_Save_Path;
 				}
-				else
-				{
-					string path = System_Function::Get_Save_File_Name();
-					if (path != "")
-					{
-						int path_i = path.find_last_of("\\") + 1;//7
-						int ext_i = path.find_last_of(".");//10
-						string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
-						string filename = path.substr(path_i, ext_i - path_i); //ファイル名
-						path = pathname + filename + ".bin";
-						Engine::scene_manager->SaveScene(path);
-						ofstream oOfstream("Default_Resource\\System\\last_save.bin");
-						if (oOfstream.is_open())
-						{
-							// ファイルへ書き込む
-							oOfstream << Engine::scene_manager->Last_Save_Path;
-						}
-						Debug::Log(u8"シーンの保存に成功");
-					}
-				}
+				Debug::Log(u8"シーンの保存に成功");
 			}
-			if (ImGui::MenuItem(u8"名前をつけて保存"))
+			else
 			{
 				string path = System_Function::Get_Save_File_Name();
 				if (path != "")
@@ -512,11 +497,29 @@ void Debug_UI::Scene_File_Menu_Render()
 					Debug::Log(u8"シーンの保存に成功");
 				}
 			}
-			ImGui::EndMenu();
 		}
-		ImGui::EndMenuBar();
+		if (ImGui::MenuItem(u8"名前をつけて保存"))
+		{
+			string path = System_Function::Get_Save_File_Name();
+			if (path != "")
+			{
+				int path_i = path.find_last_of("\\") + 1;//7
+				int ext_i = path.find_last_of(".");//10
+				string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
+				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+				path = pathname + filename + ".bin";
+				Engine::scene_manager->SaveScene(path);
+				ofstream oOfstream("Default_Resource\\System\\last_save.bin");
+				if (oOfstream.is_open())
+				{
+					// ファイルへ書き込む
+					oOfstream << Engine::scene_manager->Last_Save_Path;
+				}
+				Debug::Log(u8"シーンの保存に成功");
+			}
+		}
+		ImGui::EndMenu();
 	}
-
 }
 
 //ヒエラルキー内のオブジェクトツリー描画

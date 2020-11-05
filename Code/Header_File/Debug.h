@@ -6,16 +6,16 @@
 class Debug
 {
 public:
-	static void Log();
-	static void Log(std::string s);
-	static void Log(char* c);
-	static void Log(int i);
-	static void Log(float f);
-	static void Log(double d);
-	static void Log(Vector2 v);
-	static void Log(Vector3 v);
-	static void Log(Vector4 v);
-	static void Log(bool b);
+	static void Log();              //デバッグログに追加する
+	static void Log(std::string s); //デバッグログに追加する
+	static void Log(char* c);       //デバッグログに追加する
+	static void Log(int i);         //デバッグログに追加する
+	static void Log(float f);       //デバッグログに追加する
+	static void Log(double d);      //デバッグログに追加する
+	static void Log(Vector2 v);     //デバッグログに追加する
+	static void Log(Vector3 v);     //デバッグログに追加する
+	static void Log(Vector4 v);     //デバッグログに追加する
+	static void Log(bool b);        //デバッグログに追加する
 private:
 
 };

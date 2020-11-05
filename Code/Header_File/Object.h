@@ -22,22 +22,22 @@ class Component;
 class Object : public std::enable_shared_from_this<Object>
 {
 public:
-	std::string name;
+	std::string name; //名前
 
 	Object(){};
 	virtual ~Object(){};
 
-	std::string ToString();
-	static void Destroy(std::shared_ptr<GameObject> obj);
-	static void Destroy(std::shared_ptr<Component> comp);
+	std::string ToString(); //名前を返す
+	static void Destroy(std::shared_ptr<GameObject> obj); //オブジェクトを削除する
+	static void Destroy(std::shared_ptr<Component> comp); //オブジェクトを削除する
 
-	static std::shared_ptr<GameObject> Instantiate(std::string name);
-	static std::shared_ptr<GameObject> Instantiate(std::string name, std::shared_ptr<Transform> parent);
-	static std::shared_ptr<GameObject> Instantiate(std::string name, std::shared_ptr<Transform> parent, bool instantiateInWorldSpace);
-	static std::shared_ptr<GameObject> Instantiate(std::string name, Vector3 position, Vector3 euler);
-	static std::shared_ptr<GameObject> Instantiate(std::string name, Vector3 position, Vector4 rotation);
-	static std::shared_ptr<GameObject> Instantiate(std::string name, Vector3 position, Vector3 euler, std::shared_ptr<Transform> parent);
-	static std::shared_ptr<GameObject> Instantiate(std::string name, Vector3 position, Vector4 rotation, std::shared_ptr<Transform> parent);
+	static std::shared_ptr<GameObject> Instantiate(std::string name);                                                                        //オブジェクトを生成する
+	static std::shared_ptr<GameObject> Instantiate(std::string name, std::shared_ptr<Transform> parent);                                     //オブジェクトを生成する
+	static std::shared_ptr<GameObject> Instantiate(std::string name, std::shared_ptr<Transform> parent, bool instantiateInWorldSpace);       //オブジェクトを生成する
+	static std::shared_ptr<GameObject> Instantiate(std::string name, Vector3 position, Vector3 euler);                                       //オブジェクトを生成する
+	static std::shared_ptr<GameObject> Instantiate(std::string name, Vector3 position, Vector4 rotation);                                    //オブジェクトを生成する
+	static std::shared_ptr<GameObject> Instantiate(std::string name, Vector3 position, Vector3 euler, std::shared_ptr<Transform> parent);    //オブジェクトを生成する
+	static std::shared_ptr<GameObject> Instantiate(std::string name, Vector3 position, Vector4 rotation, std::shared_ptr<Transform> parent); //オブジェクトを生成する
 
 private:
 	friend class cereal::access;
