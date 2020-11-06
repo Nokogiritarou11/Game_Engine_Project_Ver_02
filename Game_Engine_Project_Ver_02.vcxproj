@@ -90,7 +90,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>.\Script\Header;.\Code\Libraries;.\Code\Libraries\ImGui;.\DirectXTK-master\Inc;.\Code\Header_File;.\2020.0.1\include;.\Code\Libraries\DirectXTex;.\Code\Libraries\Effekseer\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\Script\Header;.\Code\Libraries;.\Code\Libraries\ImGui;.\DirectXTK-master\Inc;.\Code\Header_File;.\2020.0.1\include;.\Code\Libraries\DirectXTex;.\Code\Libraries\Effekseer\include;.\Code\Libraries\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -130,7 +130,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>.\Script\Header;.\Code\Libraries;.\Code\Libraries\ImGui;.\DirectXTK-master\Inc;.\Code\Header_File;.\2020.0.1\include;.\Code\Libraries\DirectXTex;.\Code\Libraries\Effekseer\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\Script\Header;.\Code\Libraries;.\Code\Libraries\ImGui;.\DirectXTK-master\Inc;.\Code\Header_File;.\2020.0.1\include;.\Code\Libraries\DirectXTex;.\Code\Libraries\Effekseer\include;.\Code\Libraries\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -168,12 +168,34 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Code\Libraries\ImGui\imgui.cpp" />
-    <ClCompile Include="Code\Libraries\ImGui\imgui_draw.cpp" />
-    <ClCompile Include="Code\Libraries\ImGui\imgui_impl_dx11.cpp" />
-    <ClCompile Include="Code\Libraries\ImGui\imgui_impl_win32.cpp" />
-    <ClCompile Include="Code\Libraries\ImGui\imgui_stdlib.cpp" />
-    <ClCompile Include="Code\Libraries\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="Code\Libraries\ImGuizmo\ImCurveEdit.cpp" />
+    <ClCompile Include="Code\Libraries\ImGuizmo\ImGradient.cpp" />
+    <ClCompile Include="Code\Libraries\ImGuizmo\ImGuizmo.cpp" />
+    <ClCompile Include="Code\Libraries\ImGuizmo\ImSequencer.cpp" />
+    <ClCompile Include="Code\Libraries\ImGui\imgui.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Code\Libraries\ImGui\imgui_draw.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Code\Libraries\ImGui\imgui_impl_dx11.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Code\Libraries\ImGui\imgui_impl_win32.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Code\Libraries\ImGui\imgui_stdlib.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Code\Libraries\ImGui\imgui_widgets.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Code\Souse_File\Animator.cpp" />
     <ClCompile Include="Code\Souse_File\Animator_Manager.cpp" />
     <ClCompile Include="Code\Souse_File\Audio_Manager.cpp">
@@ -647,16 +669,50 @@
     </ClInclude>
     <ClInclude Include="Code\Libraries\Effekseer\include\Effekseer.h" />
     <ClInclude Include="Code\Libraries\Effekseer\include\EffekseerRendererDX11.h" />
-    <ClInclude Include="Code\Libraries\ImGui\IconsFontAwesome4.h" />
-    <ClInclude Include="Code\Libraries\ImGui\imconfig.h" />
-    <ClInclude Include="Code\Libraries\ImGui\imgui.h" />
-    <ClInclude Include="Code\Libraries\ImGui\imgui_impl_dx11.h" />
-    <ClInclude Include="Code\Libraries\ImGui\imgui_impl_win32.h" />
-    <ClInclude Include="Code\Libraries\ImGui\imgui_internal.h" />
-    <ClInclude Include="Code\Libraries\ImGui\imgui_stdlib.h" />
-    <ClInclude Include="Code\Libraries\ImGui\imstb_rectpack.h" />
-    <ClInclude Include="Code\Libraries\ImGui\imstb_textedit.h" />
-    <ClInclude Include="Code\Libraries\ImGui\imstb_truetype.h" />
+    <ClInclude Include="Code\Libraries\ImGuizmo\ImCurveEdit.h" />
+    <ClInclude Include="Code\Libraries\ImGuizmo\ImGradient.h" />
+    <ClInclude Include="Code\Libraries\ImGuizmo\ImGuizmo.h" />
+    <ClInclude Include="Code\Libraries\ImGuizmo\ImSequencer.h" />
+    <ClInclude Include="Code\Libraries\ImGui\IconsFontAwesome4.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Code\Libraries\ImGui\imconfig.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Code\Libraries\ImGui\imgui.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Code\Libraries\ImGui\imgui_impl_dx11.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Code\Libraries\ImGui\imgui_impl_win32.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Code\Libraries\ImGui\imgui_internal.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Code\Libraries\ImGui\imgui_stdlib.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Code\Libraries\ImGui\imstb_rectpack.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Code\Libraries\ImGui\imstb_textedit.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Code\Libraries\ImGui\imstb_truetype.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Librarys\ImGui\IconsFontAwesome4.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

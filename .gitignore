@@ -1,15 +1,10 @@
-Audio/
-Image/
-Model/
 .vs/
 Debug/
 Default_Resource/
 DirectXTK-master/
-fonts/
 x64/
 Release/
-Scene/
 2020.0.1/
-Effect/
+Resouces/
 *.sdf
 Game_Engine_Project_Ver_02.exe

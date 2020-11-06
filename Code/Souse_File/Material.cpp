@@ -124,16 +124,19 @@ void Material::Active_Shader()
 
 void Material::Draw_ImGui()
 {
-	ImGui::Text(name.c_str());
-	float out_color[4] = { color.x,color.y,color.z,color.w };
-	ImGui::ColorEdit4("Color", out_color);
-	color = { out_color[0],out_color[1] ,out_color[2] ,out_color[3] };
-	if (ImGui::Button(u8"•Û‘¶"))
+	if (ImGui::TreeNode(name.c_str()))
 	{
-		ofstream ss(Self_Save_Pass, ios::binary);
+		float out_color[4] = { color.x,color.y,color.z,color.w };
+		ImGui::ColorEdit4("Color", out_color);
+		color = { out_color[0],out_color[1] ,out_color[2] ,out_color[3] };
+		if (ImGui::Button(u8"•Û‘¶"))
 		{
-			cereal::BinaryOutputArchive o_archive(ss);
-			o_archive(shared_from_this());
+			ofstream ss(Self_Save_Pass, ios::binary);
+			{
+				cereal::BinaryOutputArchive o_archive(ss);
+				o_archive(shared_from_this());
+			}
 		}
+		ImGui::TreePop();
 	}
 }

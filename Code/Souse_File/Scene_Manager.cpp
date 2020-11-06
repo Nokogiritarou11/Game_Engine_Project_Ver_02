@@ -100,12 +100,6 @@ void Scene_Manager::CreateScene_Default(string file_path, string file_name)
 	camera->transform->Set_position(-100, 80, -100);
 	camera->transform->Set_eulerAngles(30, 45, 0);
 
-	shared_ptr<GameObject> Floor = GameObject::Instantiate(u8"Glid_Tile");
-	shared_ptr<SkinMesh_Renderer> f_renderer = Floor->AddComponent<SkinMesh_Renderer>();
-	Floor->transform->Set_eulerAngles(0, 0, 0);
-	Floor->transform->Set_scale(1, 1, 1);
-	f_renderer->Set_Mesh(Mesh::Load_Mesh("Default_Resource\\Model\\Glid_Tile\\", "Glid_Tile"));
-
 	ofstream ss(file_path.c_str(), ios::binary);
 	{
 		cereal::BinaryOutputArchive o_archive(ss);

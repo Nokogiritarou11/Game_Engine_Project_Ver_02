@@ -19,7 +19,7 @@ Audio_Manager::Audio_Manager()
 	eflags |= AudioEngine_Debug;
 #endif
 	m_audEngine = make_unique<AudioEngine>(eflags);
-
+	/*
 	Start = make_unique<SoundEffect>(m_audEngine.get(), L"Audio\\SE\\start.wav");
 	Get = make_unique<SoundEffect>(m_audEngine.get(), L"Audio\\SE\\ƒAƒCƒeƒ€“üè.wav");
 	Damage = make_unique<SoundEffect>(m_audEngine.get(), L"Audio\\SE\\‚ ‚½‚Á‚½‚Ì‰¹.wav");
@@ -30,5 +30,5 @@ Audio_Manager::Audio_Manager()
 	BGM_play = BGM_play_eff->CreateInstance();
 	BGM_title_eff = make_unique<SoundEffect>(m_audEngine.get(), L"Audio\\BGM\\title2.wav");
 	BGM_title = BGM_title_eff->CreateInstance();
-
+	*/
 }

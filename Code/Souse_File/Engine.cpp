@@ -39,8 +39,8 @@ Engine::Engine()
 	view_game = make_unique<View_Game>();
 
 #if _DEBUG
-	debug_ui = make_unique<Debug_UI>();
 	view_scene = make_unique<View_Scene>();
+	debug_ui = make_unique<Debug_UI>();
 	//scene_manager->CreateScene_Default("Default_Scene");
 	string load_path;
 	ifstream iIfstream("Default_Resource\\System\\last_save.bin");

@@ -86,6 +86,10 @@
     <ClCompile Include="Code\Souse_File\System_Function.cpp" />
     <ClCompile Include="Code\Souse_File\Particle.cpp" />
     <ClCompile Include="Code\Souse_File\Particle_Manager.cpp" />
+    <ClCompile Include="Code\Libraries\ImGuizmo\ImCurveEdit.cpp" />
+    <ClCompile Include="Code\Libraries\ImGuizmo\ImGradient.cpp" />
+    <ClCompile Include="Code\Libraries\ImGuizmo\ImGuizmo.cpp" />
+    <ClCompile Include="Code\Libraries\ImGuizmo\ImSequencer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Audio_Manager.h">
@@ -259,6 +263,10 @@
     <ClInclude Include="Code\Libraries\Effekseer\include\EffekseerRendererDX11.h" />
     <ClInclude Include="Code\Header_File\Particle.h" />
     <ClInclude Include="Code\Header_File\Particle_Manager.h" />
+    <ClInclude Include="Code\Libraries\ImGuizmo\ImCurveEdit.h" />
+    <ClInclude Include="Code\Libraries\ImGuizmo\ImGradient.h" />
+    <ClInclude Include="Code\Libraries\ImGuizmo\ImGuizmo.h" />
+    <ClInclude Include="Code\Libraries\ImGuizmo\ImSequencer.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Sources">

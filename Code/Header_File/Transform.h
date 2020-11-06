@@ -61,6 +61,7 @@ public:
 	void					 SetSiblingIndex     (int index);										//ヒエラルキー上でその階層(兄弟関係)の中での順番をインデックスで指定する
 
 	Matrix					 Get_world_matrix    () const;											//Transformのワールド変換行列を返す
+	void					 Set_world_matrix	 (Matrix matrix);									//Transformのワールド変換行列を直接設定する
 
 	//Function
 
@@ -92,6 +93,8 @@ private:
 
 	std::weak_ptr<Transform> parent;
 	std::vector<std::weak_ptr<Transform>> children;
+
+	bool Update_GUI = false;
 
 	void OnParentChanged();
 	void Change_Children();

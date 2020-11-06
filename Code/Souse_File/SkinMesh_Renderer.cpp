@@ -299,7 +299,6 @@ bool SkinMesh_Renderer::Draw_ImGui()
 		ImGui::Text(u8"現在のメッシュ::");
 		ImGui::SameLine();
 		ImGui::Text(file_name.c_str());
-		ImGui::SameLine();
 		if (ImGui::Button(u8"メッシュを選択"))
 		{
 			string path = System_Function::Get_Open_File_Name();
@@ -311,9 +310,6 @@ bool SkinMesh_Renderer::Draw_ImGui()
 				string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
 				string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
 				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
-				//Debug::Log(pathname);
-				//Debug::Log(extname);
-				//Debug::Log(filename);
 				Reset();
 				Set_Mesh(Mesh::Load_Mesh(pathname.c_str(), filename.c_str()));
 			}
@@ -326,12 +322,16 @@ bool SkinMesh_Renderer::Draw_ImGui()
 		static int ID = 0;
 		if (mesh_data)
 		{
-			for (size_t i = 0; i < material.size(); i++)
+			if (ImGui::TreeNode(u8"マテリアル"))
 			{
-				ImGui::PushID(ID);
-				material[i]->Draw_ImGui();
-				ID++;
-				ImGui::PopID();
+				for (size_t i = 0; i < material.size(); ++i)
+				{
+					ImGui::PushID(ID);
+					material[i]->Draw_ImGui();
+					++ID;
+					ImGui::PopID();
+				}
+				ImGui::TreePop();
 			}
 		}
 		ID = 0;

@@ -9,6 +9,7 @@
 #include "View_Game.h"
 #include "All_Component_List.h"
 #include "Include_ImGui.h"
+#include <ImGuizmo.h>
 #include "System_Function.h"
 #include <sstream>
 #include <functional>
@@ -58,12 +59,46 @@ Debug_UI::Debug_UI()
 	config.PixelSnapH = true;
 	config.GlyphMinAdvanceX = size_icon; // アイコンを等幅にします。
 	static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-	io.Fonts->AddFontFromFileTTF("Font/fontawesome-webfont.ttf", size_icon, &config, icon_ranges);
+	io.Fonts->AddFontFromFileTTF("Default_Resource/Font/fontawesome-webfont.ttf", size_icon, &config, icon_ranges);
 	io.Fonts->Build();
 
 	Vector3 p = { -50, 40, -50 };
 	Vector3 e = { 15, 45, 0 };
 	Debug_Camera_Transform = make_unique<Transform>(p, e);
+
+	//カメラ行列初回計算
+	{
+		// プロジェクション行列を作成
+		// 画面サイズ取得のためビューポートを取得
+		{
+			// 角度をラジアン(θ)に変換
+			fov_y = XMConvertToRadians(30);	// 画角
+			aspect = (float)Engine::view_scene->screen_x / (float)Engine::view_scene->screen_y;	// 画面比率
+			near_z = 0.1f;
+			far_z = 100000.0f;
+
+			XMStoreFloat4x4(&Debug_Camera_P, XMMatrixPerspectiveFovLH(fov_y, aspect, near_z, far_z));
+
+			//XMStoreFloat4x4(&Debug_Camera_P, XMMatrixOrthographicLH((float)Engine::view_scene->screen_x, (float)Engine::view_scene->screen_y, 0.1f, 1000.0f));
+		}
+		// ビュー行列を作成
+		// カメラの設定
+		{
+			Vector3 pos = Debug_Camera_Transform->Get_position();
+			Vector4 eye = { pos.x,pos.y,pos.z ,0 };
+			XMVECTOR eye_v = XMLoadFloat4(&eye);
+
+			XMVECTOR focus_v = eye_v + XMLoadFloat3(&Debug_Camera_Transform->Get_forward());
+
+			XMVECTOR camForward = XMVector3Normalize(focus_v - eye_v);    // Get forward vector based on target
+			camForward = XMVectorSetY(camForward, 0.0f);    // set forwards y component to 0 so it lays only on
+			camForward = XMVector3Normalize(camForward);
+			XMVECTOR camRight = XMVectorSet(-XMVectorGetZ(camForward), 0.0f, XMVectorGetX(camForward), 0.0f);
+
+			XMVECTOR up_v = Debug_Camera_Transform->Get_up();
+			XMStoreFloat4x4(&Debug_Camera_V, XMMatrixLookAtLH(eye_v, focus_v, up_v));
+		}
+	}
 }
 
 Debug_UI::~Debug_UI()
@@ -80,6 +115,9 @@ void Debug_UI::Update(shared_ptr<Scene> scene)
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
+
+		ImGuizmo::SetOrthographic(false);
+		ImGuizmo::BeginFrame();
 
 		Main_Window_Render();
 		//ゲームオブジェクト関連
@@ -101,6 +139,8 @@ void Debug_UI::Update(shared_ptr<Scene> scene)
 		//デバッグログ
 		Debug_Log_Render();
 
+		//ショートカットキーチェック
+		ShortCut_Check();
 	}
 }
 
@@ -395,6 +435,54 @@ void Debug_UI::SceneView_Render()
 		Debug_Camera_Update();
 	}
 
+	static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
+	static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
+
+	if (ImGui::IsKeyPressed(87)) //w
+		mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+	if (ImGui::IsKeyPressed(69)) //e
+		mCurrentGizmoOperation = ImGuizmo::ROTATE;
+	if (ImGui::IsKeyPressed(82)) //r
+		mCurrentGizmoOperation = ImGuizmo::SCALE;
+	if (ImGui::IsKeyPressed(88)) //x
+	{
+		if (mCurrentGizmoMode == ImGuizmo::LOCAL)
+		{
+			mCurrentGizmoMode = ImGuizmo::WORLD;
+		}
+		else
+		{
+			mCurrentGizmoMode = ImGuizmo::LOCAL;
+		}
+	}
+
+	ImVec2 winPos = ImGui::GetWindowPos();
+	ImGuizmo::SetRect(winPos.x, winPos.y + titleBarHeight, ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - titleBarHeight);
+	ImGuizmo::SetDrawlist();
+
+	static const Matrix grid = Matrix::CreateScale(Vector3(10, 10, 10)) * Matrix::CreateFromQuaternion(Quaternion::Identity) * Matrix::CreateTranslation(0, 0, 0);
+	ImGuizmo::DrawGrid(&Debug_Camera_V._11, &Debug_Camera_P._11, &grid._11, 100.f);
+
+	if (!Active_Object.expired())
+	{
+		static Matrix matrix;
+
+		shared_ptr<Transform> trans = Active_Object.lock()->transform;
+		matrix = trans->Get_world_matrix();
+
+		// 選択ノードの行列を操作する
+		ImGuizmo::Manipulate(
+			&Debug_Camera_V._11, &Debug_Camera_P._11,	// ビュー＆プロジェクション行列
+			mCurrentGizmoOperation,		// 移動操作
+			mCurrentGizmoMode,			// ローカル空間での操作
+			&matrix._11,	// 操作するワールド行列
+			nullptr);
+
+		if (ImGuizmo::IsUsing())
+		{
+			trans->Set_world_matrix(matrix);
+		}
+	}
 	ImGui::End();
 }
 
@@ -556,11 +644,14 @@ void Debug_UI::GameObject_List_Render(std::shared_ptr<Scene> scene)
 					Active_Object.reset();
 					Active_Object_Old.reset();
 				}
-				if (Active_Object.lock()->transform->parent.lock())
+				if (!Active_Object.expired())
 				{
-					if (ImGui::Selectable(u8"オブジェクトの親子関係を解除"))
+					if (Active_Object.lock()->transform->parent.lock())
 					{
-						Active_Object.lock()->transform->Set_parent(nullptr);
+						if (ImGui::Selectable(u8"オブジェクトの親子関係を解除"))
+						{
+							Active_Object.lock()->transform->Set_parent(nullptr);
+						}
 					}
 				}
 			}
@@ -700,6 +791,49 @@ void Debug_UI::GameObject_DragMenu_Render(const std::shared_ptr<GameObject>& obj
 	}
 }
 
+//ショートカットキーチェック
+void Debug_UI::ShortCut_Check()
+{
+	ImGuiIO& io = ImGui::GetIO();
+	if (!Engine::scene_manager->Run && !Engine::scene_manager->Pause)
+	{
+		if (io.KeyCtrl && ImGui::IsKeyPressed(83)) //Ctrl + S
+		{
+			if (Engine::scene_manager->Last_Save_Path != "")
+			{
+				Engine::scene_manager->SaveScene(Engine::scene_manager->Last_Save_Path);
+				ofstream oOfstream("Default_Resource\\System\\last_save.bin");
+				if (oOfstream.is_open())
+				{
+					// ファイルへ書き込む
+					oOfstream << Engine::scene_manager->Last_Save_Path;
+				}
+				Debug::Log(u8"シーンの保存に成功");
+			}
+			else
+			{
+				string path = System_Function::Get_Save_File_Name();
+				if (path != "")
+				{
+					int path_i = path.find_last_of("\\") + 1;//7
+					int ext_i = path.find_last_of(".");//10
+					string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
+					string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+					path = pathname + filename + ".bin";
+					Engine::scene_manager->SaveScene(path);
+					ofstream oOfstream("Default_Resource\\System\\last_save.bin");
+					if (oOfstream.is_open())
+					{
+						// ファイルへ書き込む
+						oOfstream << Engine::scene_manager->Last_Save_Path;
+					}
+					Debug::Log(u8"シーンの保存に成功");
+				}
+			}
+		}
+	}
+}
+
 //シーンビューのカメラ操作
 void Debug_UI::Debug_Camera_Update()
 {
@@ -727,32 +861,31 @@ void Debug_UI::Debug_Camera_Update()
 
 				mouse_old_pos = mouse_pos;
 			}
+
+			Vector3 move = { 0,0,0 };
+			const float speed = 50;
+			if (Input_Manager::kb.W)
+			{
+				move += Debug_Camera_Transform->Get_forward() * Time::deltaTime * speed;
+			}
+			if (Input_Manager::kb.S)
+			{
+				move -= Debug_Camera_Transform->Get_forward() * Time::deltaTime * speed;
+			}
+			if (Input_Manager::kb.A)
+			{
+				move -= Debug_Camera_Transform->Get_right() * Time::deltaTime * speed;
+			}
+			if (Input_Manager::kb.D)
+			{
+				move += Debug_Camera_Transform->Get_right() * Time::deltaTime * speed;
+			}
+			Debug_Camera_Transform->Set_position(Debug_Camera_Transform->Get_position() + move);
 		}
 		else
 		{
 			mouse_old_pos = { -1,-1 };
 		}
-		Vector3 a = Debug_Camera_Transform->Get_eulerAngles();
-
-		Vector3 move = { 0,0,0 };
-		const float speed = 50;
-		if (Input_Manager::kb.W)
-		{
-			move += Debug_Camera_Transform->Get_forward() * Time::deltaTime * speed;
-		}
-		if (Input_Manager::kb.S)
-		{
-			move -= Debug_Camera_Transform->Get_forward() * Time::deltaTime * speed;
-		}
-		if (Input_Manager::kb.A)
-		{
-			move -= Debug_Camera_Transform->Get_right() * Time::deltaTime * speed;
-		}
-		if (Input_Manager::kb.D)
-		{
-			move += Debug_Camera_Transform->Get_right() * Time::deltaTime * speed;
-		}
-		Debug_Camera_Transform->Set_position(Debug_Camera_Transform->Get_position() + move);
 	}
 	//カメラ行列計算
 	{

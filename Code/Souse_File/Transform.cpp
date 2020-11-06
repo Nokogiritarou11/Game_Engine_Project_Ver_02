@@ -168,7 +168,7 @@ bool Transform::Draw_ImGui()
 		static float rot[3] = { 0,0,0 };
 		static float scl[3] = { 1,1,1 };
 
-		if (active_trans.lock() != gameObject->transform)
+		if (active_trans.lock() != gameObject->transform || Update_GUI)
 		{
 			active_trans = gameObject->transform;
 
@@ -191,6 +191,8 @@ bool Transform::Draw_ImGui()
 			scl[0] = trans_scl.x;
 			scl[1] = trans_scl.y;
 			scl[2] = trans_scl.z;
+
+			Update_GUI = false;
 		}
 
 		if (ImGui::DragFloat3(u8"Position", pos, 0.05f, -FLT_MAX, FLT_MAX))
@@ -242,6 +244,7 @@ void Transform::Set_position(Vector3 V)
 
 	Change_Children();
 	hasChanged = true;
+	Update_GUI = true;
 }
 
 void Transform::Set_position(float f1, float f2, float f3)
@@ -269,6 +272,7 @@ void Transform::Set_position(float f1, float f2, float f3)
 
 	Change_Children();
 	hasChanged = true;
+	Update_GUI = true;
 }
 
 Quaternion Transform::Get_rotation() const
@@ -313,6 +317,7 @@ void Transform::Set_rotation(Quaternion Q)
 
 	Change_Children();
 	hasChanged = true;
+	Update_GUI = true;
 }
 void Transform::Set_rotation(float f1, float f2, float f3, float f4)
 {
@@ -351,6 +356,7 @@ void Transform::Set_rotation(float f1, float f2, float f3, float f4)
 
 	Change_Children();
 	hasChanged = true;
+	Update_GUI = true;
 }
 
 Vector3 Transform::Get_scale() const
@@ -381,6 +387,7 @@ void Transform::Set_scale(Vector3 V)
 	}
 	Change_Children();
 	hasChanged = true;
+	Update_GUI = true;
 }
 void Transform::Set_scale(float f1, float f2, float f3)
 {
@@ -405,6 +412,7 @@ void Transform::Set_scale(float f1, float f2, float f3)
 	}
 	Change_Children();
 	hasChanged = true;
+	Update_GUI = true;
 }
 
 Vector3 Transform::Get_localPosition() const
@@ -432,6 +440,7 @@ void Transform::Set_localPosition(Vector3 V)
 
 	Change_Children();
 	hasChanged = true;
+	Update_GUI = true;
 }
 void Transform::Set_localPosition(float f1, float f2, float f3)
 {
@@ -453,6 +462,7 @@ void Transform::Set_localPosition(float f1, float f2, float f3)
 
 	Change_Children();
 	hasChanged = true;
+	Update_GUI = true;
 }
 
 Quaternion Transform::Get_localRotation() const
@@ -487,6 +497,7 @@ void Transform::Set_localRotation(Quaternion Q)
 
 	Change_Children();
 	hasChanged = true;
+	Update_GUI = true;
 }
 void Transform::Set_localRotation(float f1, float f2, float f3, float f4)
 {
@@ -517,6 +528,7 @@ void Transform::Set_localRotation(float f1, float f2, float f3, float f4)
 
 	Change_Children();
 	hasChanged = true;
+	Update_GUI = true;
 }
 
 Vector3 Transform::Get_localScale() const
@@ -544,6 +556,7 @@ void Transform::Set_localScale(Vector3 V)
 
 	Change_Children();
 	hasChanged = true;
+	Update_GUI = true;
 }
 void Transform::Set_localScale(float f1, float f2, float f3)
 {
@@ -565,50 +578,24 @@ void Transform::Set_localScale(float f1, float f2, float f3)
 
 	Change_Children();
 	hasChanged = true;
+	Update_GUI = true;
 }
 
 Vector3 Transform::Get_forward() const
 {
 	return this->forward;
 }
-/*
-void Transform::Set_forward(Vector3 V)
-{
-	forward = V;
-}
-void Transform::Set_forward(float f1, float f2, float f3)
-{
-	forward = { f1,f2,f3 };
-}
-*/
+
 Vector3 Transform::Get_right() const
 {
 	return this->right;
 }
-/*
-void Transform::Set_right(Vector3 V)
-{
-	right = V;
-}
-void Transform::Set_right(float f1, float f2, float f3)
-{
-	right = { f1,f2,f3 };
-}
-*/
+
 Vector3 Transform::Get_up() const
 {
 	return this->up;
 }
-/*
-void Transform::Set_up(Vector3 V)
-{
-	up = V;
-}
-void Transform::Set_up(float f1, float f2, float f3)
-{
-	up = { f1,f2,f3 };
-}
-*/
+
 Vector3 Transform::Get_eulerAngles() const
 {
 	return this->rotation.To_Euler();
@@ -689,6 +676,7 @@ void Transform::Set_parent(shared_ptr<Transform> P)
 		Remove_Parent();
 	}
 	hasChanged = true;
+	Update_GUI = true;
 }
 
 void Transform::Set_parent(shared_ptr<Transform> P, int index_insert)
@@ -744,6 +732,7 @@ void Transform::Set_parent(shared_ptr<Transform> P, int index_insert)
 		Remove_Parent();
 	}
 	hasChanged = true;
+	Update_GUI = true;
 }
 
 void Transform::OnParentChanged()
@@ -762,6 +751,7 @@ void Transform::OnParentChanged()
 	up.Normalize();
 
 	Change_Children();
+	Update_GUI = true;
 }
 
 void Transform::Change_Children()
@@ -967,6 +957,44 @@ void Transform::SetSiblingIndex(int index)
 Matrix Transform::Get_world_matrix() const
 {
 	return this->world_matrix;
+}
+
+void Transform::Set_world_matrix(Matrix matrix)
+{
+	world_matrix = matrix;
+	world_matrix.Decompose(scale, rotation, position);
+
+	scale_matrix = Matrix::CreateScale(scale);
+	rotation_matrix = Matrix::CreateFromQuaternion(rotation);
+	translation_matrix = Matrix::CreateTranslation(position);
+
+	if (shared_ptr<Transform> p = parent.lock())
+	{
+		localPosition = { (position.x - p->position.x) * p->localScale.x, (position.y - p->position.y) * p->localScale.y, (position.z - p->position.z) * p->localScale.z };
+		localTranslation_matrix = Matrix::CreateTranslation(localPosition);
+		Quaternion q;
+		p->rotation.Inverse(q);
+		localRotation = rotation * q;
+		localRotation_matrix = Matrix::CreateFromQuaternion(localRotation);
+		localScale = { scale.x / p->scale.x, scale.y / p->scale.y, scale.z / p->scale.z };
+		localScale_matrix = Matrix::CreateScale(localScale);
+
+		local_matrix = localScale_matrix * localRotation_matrix * localTranslation_matrix;
+	}
+	else
+	{
+		local_matrix = world_matrix;
+		localScale = scale;
+		localScale_matrix = scale_matrix;
+		localRotation = rotation;
+		localRotation_matrix = rotation_matrix;
+		localPosition = position;
+		localTranslation_matrix = translation_matrix;
+	}
+
+	Change_Children();
+	hasChanged = true;
+	Update_GUI = true;
 }
 
 /*  ///////////////////////////////////////////////////////
