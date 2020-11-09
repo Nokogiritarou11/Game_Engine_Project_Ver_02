@@ -3,6 +3,7 @@
 #include "Transform.h"
 #include "Include_ImGui.h"
 #include "Engine.h"
+#include "Scene_Manager.h"
 #include "Particle_Manager.h"
 #include "System_Function.h"
 #include "Debug.h"
@@ -26,11 +27,11 @@ void Particle::Initialize(shared_ptr<GameObject> obj)
 {
 	gameObject = obj;
 	transform = obj->transform;
-	SetActive(gameObject->activeInHierarchy());
 	if (file_path != "")
 	{
 		Set_Particle(file_path.c_str(), file_name.c_str());
 	}
+	SetActive(gameObject->activeInHierarchy());
 }
 
 void Particle::Set_Particle(const char* filepath, const char* filename)
@@ -83,17 +84,27 @@ void Particle::SetActive(bool value)
 		}
 		if (Play_On_Awake)
 		{
-			Play();
+			if (Engine::scene_manager->Run)
+			{
+				Play();
+			}
 		}
 		else
 		{
-			Stop();
+			if (Engine::scene_manager->Run)
+			{
+				Stop();
+			}
 		}
 		Disable_flg = false;
 	}
 	else
 	{
-		Stop();
+
+		if (Engine::scene_manager->Run)
+		{
+			Stop();
+		}
 	}
 }
 
@@ -186,18 +197,28 @@ bool Particle::Draw_ImGui()
 				string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
 				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 				string name = filename + extname;
-				Set_Particle(pathname.c_str(), name.c_str());
+				if (extname == ".efkefc" || extname == ".efk")
+				{
+					Set_Particle(pathname.c_str(), name.c_str());
+				}
+				else
+				{
+					Debug::Log("ファイル形式が対応していません");
+				}
 			}
 			else
 			{
 				Debug::Log("ファイルを開けませんでした");
 			}
 		}
+		for (int i = 0; i < 5; ++i) ImGui::Spacing();
 
+		ImGui::DragFloat(u8"再生速度", &Play_Speed, 0.01f, 0.0f, FLT_MAX);
+		for (int i = 0; i < 5; ++i) ImGui::Spacing();
+		ImGui::Checkbox(u8"アクティブ時の自動再生", &Play_On_Awake);
+		for (int i = 0; i < 5; ++i) ImGui::Spacing();
 		if (effect != nullptr)
 		{
-			ImGui::DragFloat(u8"再生速度", &Play_Speed, 0.01f, 0.0f, FLT_MAX);
-			ImGui::Checkbox(u8"アクティブ時の自動再生", &Play_On_Awake);
 			if (ImGui::Button(ICON_FA_PLAY))
 			{
 				Play();

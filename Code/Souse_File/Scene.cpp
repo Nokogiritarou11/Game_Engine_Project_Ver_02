@@ -21,7 +21,10 @@ void Scene::Initialize()
 {
 	for (shared_ptr<GameObject> g : gameObject_List)
 	{
-		g->Initialize();
+		if (g->transform->Get_parent().expired())
+		{
+			g->Initialize();
+		}
 	}
 }
 
@@ -32,7 +35,7 @@ void Scene::Destroy_GameObject(shared_ptr<GameObject> gameObject)
 	{
 		if ((*itr) == gameObject)
 		{
-			(*itr)->Component_List.clear();
+			(*itr)->Release();
 			gameObject_List.erase(itr);
 			return;
 		}
@@ -50,6 +53,8 @@ void Scene::Destroy_Component(shared_ptr<Component> component)
 			{
 				if (typeid(*(*itr_comp)) == typeid(*component))
 				{
+					(*itr_comp)->gameObject.reset();
+					(*itr_comp)->transform.reset();
 					(*itr)->Component_List.erase(itr_comp);
 					return;
 				}
@@ -189,67 +194,14 @@ void Scene::Processing_Update(int state)
 
 void Scene::Reset()
 {
-	gameObject_List.clear();
 	MonoBehaviour_Update_list.clear();
 	MonoBehaviour_Start_list.clear();
 	MonoBehaviour_Start_Next_list.clear();
-	//MonoBehaviour_Enable_list.clear();
-	//Update_Stage = 0;
-}
-/*
-void Scene::Add(shared_ptr<MonoBehaviour> mono)
-{
-	if (mono->gameObject->activeSelf())
+
+	for (shared_ptr<GameObject> g : gameObject_List)
 	{
-		if (!mono->IsCalled_Awake)
-		{
-			mono->Awake();
-			mono->IsCalled_Awake = true;
-		}
-		if (mono->gameObject->activeSelf())
-		{
-			if (mono->enableSelf())
-			{
-				mono->OnEnable();
-				if (mono->gameObject->activeSelf())
-				{
-					if (mono->enableSelf())
-					{
-						MonoBehaviour_Start_list.emplace_back(mono);
-					}
-				}
-			}
-		}
+		g->Release();
+		g->transform.reset();
 	}
+	gameObject_List.clear();
 }
-/*
-void Scene::Add_Enable(shared_ptr<MonoBehaviour> mono)
-{
-	switch (Update_Stage)
-	{
-		case 0: //‰Šú
-			MonoBehaviour_Enable_list.emplace_back(mono);
-			break;
-		case 1: //Awake
-			MonoBehaviour_Enable_list.emplace_back(mono);
-			break;
-		case 2: //Enabled
-			mono->OnEnable();
-			break;
-		case 3: //Start
-			mono->OnEnable();
-			break;
-		case 4: //Update
-			mono->OnEnable();
-			break;
-		case 5: //LateUpdate
-			mono->OnEnable();
-			break;
-		case 6: //disabled
-			mono->OnEnable();
-			break;
-		default:
-			break;
-	}
-}
-*/

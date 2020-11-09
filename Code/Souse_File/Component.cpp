@@ -5,7 +5,7 @@ using namespace std;
 
 bool Component::CompareTag(string _tag)
 {
-	if (tag == _tag)
+	if (gameObject->tag == _tag)
 	{
 		return true;
 	}

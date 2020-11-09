@@ -198,6 +198,7 @@
     </ClCompile>
     <ClCompile Include="Code\Souse_File\Animator.cpp" />
     <ClCompile Include="Code\Souse_File\Animator_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\AudioSource.cpp" />
     <ClCompile Include="Code\Souse_File\Audio_Manager.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
@@ -276,6 +277,7 @@
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Animator.h" />
     <ClInclude Include="Code\Header_File\Animator_Manager.h" />
+    <ClInclude Include="Code\Header_File\AudioSource.h" />
     <ClInclude Include="Code\Header_File\Audio_Manager.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
@@ -297,7 +299,6 @@
     <ClInclude Include="Code\Header_File\Mesh_Renderer.h" />
     <ClInclude Include="Code\Header_File\misc.h" />
     <ClInclude Include="Code\Header_File\MonoBehaviour.h" />
-    <ClInclude Include="Code\Header_File\Include_Mono.h" />
     <ClInclude Include="Code\Header_File\Object.h" />
     <ClInclude Include="Code\Header_File\Original_Math.h" />
     <ClInclude Include="Code\Header_File\Particle.h" />

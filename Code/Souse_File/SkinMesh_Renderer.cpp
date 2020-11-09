@@ -58,7 +58,7 @@ void SkinMesh_Renderer::SetActive(bool value)
 	{
 		if (mesh_data)
 		{
-			if (gameObject->activeSelf())
+			if (gameObject->activeInHierarchy())
 			{
 				if (enableSelf())
 				{
@@ -310,15 +310,19 @@ bool SkinMesh_Renderer::Draw_ImGui()
 				string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
 				string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
 				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
-				Reset();
-				Set_Mesh(Mesh::Load_Mesh(pathname.c_str(), filename.c_str()));
-			}
-			else
-			{
-				Debug::Log("ファイルを開けませんでした");
+				if (extname == ".fbx" || extname == ".mesh")
+				{
+					Reset();
+					Set_Mesh(Mesh::Load_Mesh(pathname.c_str(), filename.c_str()));
+				}
+				else
+				{
+					Debug::Log("ファイル形式が対応していません");
+				}
 			}
 		}
 
+		for (int i=0; i<5; ++i) ImGui::Spacing();
 		static int ID = 0;
 		if (mesh_data)
 		{

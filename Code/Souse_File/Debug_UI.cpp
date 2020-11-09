@@ -108,7 +108,7 @@ Debug_UI::~Debug_UI()
 	ImGui::DestroyContext();
 }
 
-void Debug_UI::Update(shared_ptr<Scene> scene)
+void Debug_UI::Update(const unique_ptr<Scene>& scene)
 {
 	if (Draw_Debug_UI)
 	{
@@ -302,7 +302,7 @@ void Debug_UI::Debug_Log_Render()
 }
 
 //ヒエラルキー描画
-void Debug_UI::Hierarchy_Render(shared_ptr<Scene> scene)
+void Debug_UI::Hierarchy_Render(const unique_ptr<Scene>& scene)
 {
 	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_FirstUseEver);
@@ -372,26 +372,23 @@ void Debug_UI::Inspector_Render()
 //シーン再生UI描画
 void Debug_UI::ScenePlayer_Render()
 {
-	ImGui::SetNextWindowPos(ImVec2(935, 0), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowSize(ImVec2(45, 30), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(915, 0), ImGuiCond_Appearing);
+	ImGui::SetNextWindowSize(ImVec2(65, 30), ImGuiCond_Appearing);
 	ImGuiWindowFlags window_flags = 0;
 	window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
 	ImGui::Begin(u8"シーン再生", NULL, window_flags);
 
-	if (Engine::scene_manager->Run)
+	bool Running = Engine::scene_manager->Run;
+
+	if (Running)
 	{
-		if (ImGui::Button(ICON_FA_STOP))
-		{
-			Active_Object.reset();
-			Active_Object_Old.reset();
-			Engine::scene_manager->Run = false;
-			Engine::scene_manager->Pause = false;
-			Engine::scene_manager->End_DebugScene();
-		}
+		ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.0f, 1.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.0f, 0.7f, 0.85f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.0f, 0.6f, 1.0f));
 	}
-	else
+	if (ImGui::Button(ICON_FA_PLAY))
 	{
-		if (ImGui::Button(ICON_FA_PLAY))
+		if (!Running)
 		{
 			Engine::scene_manager->Run = true;
 			Engine::scene_manager->Pause = false;
@@ -403,13 +400,42 @@ void Debug_UI::ScenePlayer_Render()
 			}
 		}
 	}
+	if (Running)
+	{
+		ImGui::PopStyleColor(3);
+	}
+
 	ImGui::SameLine();
+	bool Pausing = Engine::scene_manager->Pause;
+	if (Pausing)
+	{
+		ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.0f, 1.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.0f, 0.7f, 0.85f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.0f, 0.6f, 1.0f));
+	}
 	if (ImGui::Button(ICON_FA_PAUSE))
 	{
-		if (Engine::scene_manager->Run)
+		if (Running)
 		{
 			Engine::scene_manager->Run = false;
 			Engine::scene_manager->Pause = true;
+		}
+	}
+	if (Pausing)
+	{
+		ImGui::PopStyleColor(3);
+	}
+
+	ImGui::SameLine();
+	if (ImGui::Button(ICON_FA_STOP))
+	{
+		if (Running || Pausing)
+		{
+			Active_Object.reset();
+			Active_Object_Old.reset();
+			Engine::scene_manager->Run = false;
+			Engine::scene_manager->Pause = false;
+			Engine::scene_manager->End_DebugScene();
 		}
 	}
 
@@ -427,41 +453,39 @@ void Debug_UI::SceneView_Render()
 
 	ImGui::Begin(u8"シーン", NULL, window_flags);
 	const float titleBarHeight = ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2.0f + 10;
-	Engine::view_scene->Set_Screen_Size((int)ImGui::GetWindowWidth(), (int)ImGui::GetWindowHeight() - (int)titleBarHeight);
-	ImGui::Image((void*)Engine::view_scene->ShaderResourceView_Render.Get(), ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - titleBarHeight));
-
-	if (ImGui::IsWindowFocused())
-	{
-		Debug_Camera_Update();
-	}
+	const float window_width = ImGui::GetCurrentWindow()->InnerRect.GetWidth();
+	const float window_height = ImGui::GetCurrentWindow()->InnerRect.GetHeight();
+	Engine::view_scene->Set_Screen_Size((int)window_width, (int)window_height);
+	ImGui::Image((void*)Engine::view_scene->ShaderResourceView_Render.Get(), ImVec2(window_width, window_height));
 
 	static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
 	static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
 
-	if (ImGui::IsKeyPressed(87)) //w
-		mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-	if (ImGui::IsKeyPressed(69)) //e
-		mCurrentGizmoOperation = ImGuizmo::ROTATE;
-	if (ImGui::IsKeyPressed(82)) //r
-		mCurrentGizmoOperation = ImGuizmo::SCALE;
-	if (ImGui::IsKeyPressed(88)) //x
+	if (ImGui::IsWindowFocused())
 	{
-		if (mCurrentGizmoMode == ImGuizmo::LOCAL)
+		Debug_Camera_Update();
+
+		if (!ImGui::IsMouseDown(1))
 		{
-			mCurrentGizmoMode = ImGuizmo::WORLD;
-		}
-		else
-		{
-			mCurrentGizmoMode = ImGuizmo::LOCAL;
+			if (ImGui::IsKeyPressed(87)) //w
+				mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+			if (ImGui::IsKeyPressed(69)) //e
+				mCurrentGizmoOperation = ImGuizmo::ROTATE;
+			if (ImGui::IsKeyPressed(82)) //r
+				mCurrentGizmoOperation = ImGuizmo::SCALE;
+			if (ImGui::IsKeyPressed(88)) //x
+			{
+				if (mCurrentGizmoMode == ImGuizmo::LOCAL)
+				{
+					mCurrentGizmoMode = ImGuizmo::WORLD;
+				}
+				else
+				{
+					mCurrentGizmoMode = ImGuizmo::LOCAL;
+				}
+			}
 		}
 	}
-
-	ImVec2 winPos = ImGui::GetWindowPos();
-	ImGuizmo::SetRect(winPos.x, winPos.y + titleBarHeight, ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - titleBarHeight);
-	ImGuizmo::SetDrawlist();
-
-	static const Matrix grid = Matrix::CreateScale(Vector3(10, 10, 10)) * Matrix::CreateFromQuaternion(Quaternion::Identity) * Matrix::CreateTranslation(0, 0, 0);
-	ImGuizmo::DrawGrid(&Debug_Camera_V._11, &Debug_Camera_P._11, &grid._11, 100.f);
 
 	if (!Active_Object.expired())
 	{
@@ -469,6 +493,10 @@ void Debug_UI::SceneView_Render()
 
 		shared_ptr<Transform> trans = Active_Object.lock()->transform;
 		matrix = trans->Get_world_matrix();
+
+		ImVec2 winPos = ImGui::GetWindowPos();
+		ImGuizmo::SetRect(winPos.x, winPos.y + titleBarHeight, window_width, window_height - titleBarHeight);
+		ImGuizmo::SetDrawlist();
 
 		// 選択ノードの行列を操作する
 		ImGuizmo::Manipulate(
@@ -497,8 +525,10 @@ void Debug_UI::GameView_Render()
 
 	ImGui::Begin(u8"ゲーム", NULL, window_flags);
 	const float titleBarHeight = ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2.0f + 10;
-	Engine::view_game->Set_Screen_Size((int)ImGui::GetWindowWidth(), (int)ImGui::GetWindowHeight() - (int)titleBarHeight);
-	ImGui::Image((void*)Engine::view_game->ShaderResourceView_Render.Get(), ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - titleBarHeight));
+	const float window_width = ImGui::GetCurrentWindow()->InnerRect.GetWidth();
+	const float window_height = ImGui::GetCurrentWindow()->InnerRect.GetHeight();
+	Engine::view_game->Set_Screen_Size((int)window_width, (int)window_height);
+	ImGui::Image((void*)Engine::view_game->ShaderResourceView_Render.Get(), ImVec2(window_width, window_height));
 
 	ImGui::End();
 }
@@ -520,52 +550,84 @@ void Debug_UI::Scene_File_Menu_Render()
 	{
 		if (ImGui::MenuItem(u8"新規シーン"))
 		{
-			string path = System_Function::Get_Save_File_Name();
-			if (path != "")
+			if (!Engine::scene_manager->Run && !Engine::scene_manager->Pause)
 			{
-				int path_i = path.find_last_of("\\") + 1;//7
-				int ext_i = path.find_last_of(".");//10
-				string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
-				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
-				path = pathname + filename + ".bin";
-				Engine::scene_manager->CreateScene_Default(path, filename);
+				string path = System_Function::Get_Save_File_Name();
+				if (path != "")
+				{
+					int path_i = path.find_last_of("\\") + 1;//7
+					int ext_i = path.find_last_of(".");//10
+					string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
+					string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+					path = pathname + filename + ".bin";
+					Engine::scene_manager->CreateScene_Default(path, filename);
+				}
 			}
 		}
 		if (ImGui::MenuItem(u8"開く"))
 		{
-			string path = System_Function::Get_Open_File_Name();
-			if (path != "")
+			if (!Engine::scene_manager->Run && !Engine::scene_manager->Pause)
 			{
-				Engine::scene_manager->Last_Save_Path = path;
-				Scene_Manager::LoadScene(path);
-				Active_Object.reset();
-				Active_Object_Old.reset();
-				ofstream oOfstream("Default_Resource\\System\\last_save.bin");
-				if (oOfstream.is_open())
+				string path = System_Function::Get_Open_File_Name();
+				if (path != "")
 				{
-					// ファイルへ書き込む
-					oOfstream << Engine::scene_manager->Last_Save_Path;
+					Engine::scene_manager->Last_Save_Path = path;
+					Scene_Manager::LoadScene(path);
+					Active_Object.reset();
+					Active_Object_Old.reset();
+					ofstream oOfstream("Default_Resource\\System\\last_save.bin");
+					if (oOfstream.is_open())
+					{
+						// ファイルへ書き込む
+						oOfstream << Engine::scene_manager->Last_Save_Path;
+					}
 				}
-			}
-			else
-			{
-				Debug::Log(u8"ファイルが開けませんでした");
+				else
+				{
+					Debug::Log(u8"ファイルが開けませんでした");
+				}
 			}
 		}
 		if (ImGui::MenuItem(u8"上書き保存"))
 		{
-			if (Engine::scene_manager->Last_Save_Path != "")
+			if (!Engine::scene_manager->Run && !Engine::scene_manager->Pause)
 			{
-				Engine::scene_manager->SaveScene(Engine::scene_manager->Last_Save_Path);
-				ofstream oOfstream("Default_Resource\\System\\last_save.bin");
-				if (oOfstream.is_open())
+				if (Engine::scene_manager->Last_Save_Path != "")
 				{
-					// ファイルへ書き込む
-					oOfstream << Engine::scene_manager->Last_Save_Path;
+					Engine::scene_manager->SaveScene(Engine::scene_manager->Last_Save_Path);
+					ofstream oOfstream("Default_Resource\\System\\last_save.bin");
+					if (oOfstream.is_open())
+					{
+						// ファイルへ書き込む
+						oOfstream << Engine::scene_manager->Last_Save_Path;
+					}
+					Debug::Log(u8"シーンの保存に成功");
 				}
-				Debug::Log(u8"シーンの保存に成功");
+				else
+				{
+					string path = System_Function::Get_Save_File_Name();
+					if (path != "")
+					{
+						int path_i = path.find_last_of("\\") + 1;//7
+						int ext_i = path.find_last_of(".");//10
+						string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
+						string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+						path = pathname + filename + ".bin";
+						Engine::scene_manager->SaveScene(path);
+						ofstream oOfstream("Default_Resource\\System\\last_save.bin");
+						if (oOfstream.is_open())
+						{
+							// ファイルへ書き込む
+							oOfstream << Engine::scene_manager->Last_Save_Path;
+						}
+						Debug::Log(u8"シーンの保存に成功");
+					}
+				}
 			}
-			else
+		}
+		if (ImGui::MenuItem(u8"名前をつけて保存"))
+		{
+			if (!Engine::scene_manager->Run && !Engine::scene_manager->Pause)
 			{
 				string path = System_Function::Get_Save_File_Name();
 				if (path != "")
@@ -586,32 +648,12 @@ void Debug_UI::Scene_File_Menu_Render()
 				}
 			}
 		}
-		if (ImGui::MenuItem(u8"名前をつけて保存"))
-		{
-			string path = System_Function::Get_Save_File_Name();
-			if (path != "")
-			{
-				int path_i = path.find_last_of("\\") + 1;//7
-				int ext_i = path.find_last_of(".");//10
-				string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
-				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
-				path = pathname + filename + ".bin";
-				Engine::scene_manager->SaveScene(path);
-				ofstream oOfstream("Default_Resource\\System\\last_save.bin");
-				if (oOfstream.is_open())
-				{
-					// ファイルへ書き込む
-					oOfstream << Engine::scene_manager->Last_Save_Path;
-				}
-				Debug::Log(u8"シーンの保存に成功");
-			}
-		}
 		ImGui::EndMenu();
 	}
 }
 
 //ヒエラルキー内のオブジェクトツリー描画
-void Debug_UI::GameObject_List_Render(std::shared_ptr<Scene> scene)
+void Debug_UI::GameObject_List_Render(const unique_ptr<Scene>& scene)
 {
 	static int ID = 0;
 
@@ -794,33 +836,15 @@ void Debug_UI::GameObject_DragMenu_Render(const std::shared_ptr<GameObject>& obj
 //ショートカットキーチェック
 void Debug_UI::ShortCut_Check()
 {
-	ImGuiIO& io = ImGui::GetIO();
-	if (!Engine::scene_manager->Run && !Engine::scene_manager->Pause)
+	if (ImGui::IsKeyDown(17)) //Ctrl
 	{
-		if (io.KeyCtrl && ImGui::IsKeyPressed(83)) //Ctrl + S
+		if (!Engine::scene_manager->Run && !Engine::scene_manager->Pause)
 		{
-			if (Engine::scene_manager->Last_Save_Path != "")
+			if (ImGui::IsKeyPressed(83)) //S
 			{
-				Engine::scene_manager->SaveScene(Engine::scene_manager->Last_Save_Path);
-				ofstream oOfstream("Default_Resource\\System\\last_save.bin");
-				if (oOfstream.is_open())
+				if (Engine::scene_manager->Last_Save_Path != "")
 				{
-					// ファイルへ書き込む
-					oOfstream << Engine::scene_manager->Last_Save_Path;
-				}
-				Debug::Log(u8"シーンの保存に成功");
-			}
-			else
-			{
-				string path = System_Function::Get_Save_File_Name();
-				if (path != "")
-				{
-					int path_i = path.find_last_of("\\") + 1;//7
-					int ext_i = path.find_last_of(".");//10
-					string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
-					string filename = path.substr(path_i, ext_i - path_i); //ファイル名
-					path = pathname + filename + ".bin";
-					Engine::scene_manager->SaveScene(path);
+					Engine::scene_manager->SaveScene(Engine::scene_manager->Last_Save_Path);
 					ofstream oOfstream("Default_Resource\\System\\last_save.bin");
 					if (oOfstream.is_open())
 					{
@@ -828,6 +852,60 @@ void Debug_UI::ShortCut_Check()
 						oOfstream << Engine::scene_manager->Last_Save_Path;
 					}
 					Debug::Log(u8"シーンの保存に成功");
+				}
+				else
+				{
+					string path = System_Function::Get_Save_File_Name();
+					if (path != "")
+					{
+						int path_i = path.find_last_of("\\") + 1;//7
+						int ext_i = path.find_last_of(".");//10
+						string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
+						string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+						path = pathname + filename + ".bin";
+						Engine::scene_manager->SaveScene(path);
+						ofstream oOfstream("Default_Resource\\System\\last_save.bin");
+						if (oOfstream.is_open())
+						{
+							// ファイルへ書き込む
+							oOfstream << Engine::scene_manager->Last_Save_Path;
+						}
+						Debug::Log(u8"シーンの保存に成功");
+					}
+				}
+			}
+		}
+
+		if (ImGui::IsKeyPressed(80)) //P
+		{
+			if (ImGui::IsKeyDown(16)) //Shift
+			{
+				if (Engine::scene_manager->Run)
+				{
+					Engine::scene_manager->Run = false;
+					Engine::scene_manager->Pause = true;
+				}
+			}
+			else
+			{
+				if (Engine::scene_manager->Run)
+				{
+					Active_Object.reset();
+					Active_Object_Old.reset();
+					Engine::scene_manager->Run = false;
+					Engine::scene_manager->Pause = false;
+					Engine::scene_manager->End_DebugScene();
+				}
+				else
+				{
+					Engine::scene_manager->Run = true;
+					Engine::scene_manager->Pause = false;
+					if (!Engine::scene_manager->Pause)
+					{
+						Active_Object.reset();
+						Active_Object_Old.reset();
+						Engine::scene_manager->Start_DebugScene();
+					}
 				}
 			}
 		}
@@ -841,7 +919,7 @@ void Debug_UI::Debug_Camera_Update()
 	{
 		static ImVec2 mouse_old_pos = { 0,0 };
 		static ImVec2 mouse_pos = { 0,0 };
-		if (Input_Manager::ms.rightButton)
+		if (ImGui::IsMouseDown(1))
 		{
 			mouse_pos = ImGui::GetMousePos();
 			if (mouse_old_pos.x == -1 && mouse_old_pos.y == -1)
@@ -864,19 +942,19 @@ void Debug_UI::Debug_Camera_Update()
 
 			Vector3 move = { 0,0,0 };
 			const float speed = 50;
-			if (Input_Manager::kb.W)
+			if (ImGui::IsKeyDown(87))
 			{
 				move += Debug_Camera_Transform->Get_forward() * Time::deltaTime * speed;
 			}
-			if (Input_Manager::kb.S)
+			if (ImGui::IsKeyDown(83))
 			{
 				move -= Debug_Camera_Transform->Get_forward() * Time::deltaTime * speed;
 			}
-			if (Input_Manager::kb.A)
+			if (ImGui::IsKeyDown(65))
 			{
 				move -= Debug_Camera_Transform->Get_right() * Time::deltaTime * speed;
 			}
-			if (Input_Manager::kb.D)
+			if (ImGui::IsKeyDown(68))
 			{
 				move += Debug_Camera_Transform->Get_right() * Time::deltaTime * speed;
 			}

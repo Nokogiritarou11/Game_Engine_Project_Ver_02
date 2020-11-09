@@ -1,7 +1,3 @@
-#include "Animator.h"
-#include "Camera.h"
-#include "Include_Mono.h"
-#include "Include_ImGui.h"
 #include "Player.h"
 using namespace std;
 
@@ -11,12 +7,14 @@ void Player::Awake()
 
 void Player::Start()
 {
-	shared_ptr<Transform> trans = GameObject::Find("Test").lock()->transform;
-	trans->Set_parent(transform);
 }
 
 void Player::Update()
 {
+	if (Input_Manager::key_tracker.IsKeyPressed(Keyboard::Enter))
+	{
+		GetComponent<AudioSource>()->PlayOneShot();
+	}
 }
 
 bool Player::Draw_ImGui()

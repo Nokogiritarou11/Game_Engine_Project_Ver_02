@@ -115,6 +115,7 @@ template<class Archive>
 void Transform::serialize(Archive& archive)
 {
 	archive(cereal::base_class<Component>(this),
+		gameObject,
 		position, rotation, scale,
 		localPosition, localRotation, localScale,
 		forward, right, up,

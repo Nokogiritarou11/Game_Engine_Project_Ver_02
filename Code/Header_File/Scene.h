@@ -34,8 +34,6 @@ private:
 	std::shared_ptr<GameObject> Instance_GameObject(std::string name);
 	void Destroy_GameObject(std::shared_ptr<GameObject> gameObject);
 	void Destroy_Component(std::shared_ptr<Component> component);
-	//void Add(std::shared_ptr<MonoBehaviour> mono);
-	//void Add_Enable(std::shared_ptr<MonoBehaviour> mono);
 
 	void Initialize();
 	void Update();
@@ -44,12 +42,7 @@ private:
 	void Processing_Start();
 	void Processing_Update(int state);
 
-	//std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Awake_list;
 	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Start_list;
 	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Start_Next_list;
 	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Update_list;
-	//std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Update_Next_list;
-	//std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Enable_list;
-
-	//int Update_Stage = 0;
 };

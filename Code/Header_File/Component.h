@@ -9,7 +9,6 @@ class Component : public Object
 public:
 	std::shared_ptr<GameObject> gameObject;
 	std::shared_ptr<Transform> transform;
-	std::string tag;
 
 	bool CompareTag(std::string _tag);
 
@@ -26,7 +25,7 @@ private:
 	template<class Archive>
 	void serialize(Archive& archive)
 	{
-		archive(cereal::base_class<Object>(this), tag);
+		archive(cereal::base_class<Object>(this));
 	}
 
 	friend class GameObject;

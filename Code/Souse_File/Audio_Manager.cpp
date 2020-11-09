@@ -1,16 +1,8 @@
 #include "Audio_Manager.h"
-
-unique_ptr <SoundEffect> Audio_Manager::BGM_play_eff;
-unique_ptr <SoundEffect> Audio_Manager::BGM_title_eff;
-
-unique_ptr <SoundEffectInstance> Audio_Manager::BGM_play;
-unique_ptr <SoundEffectInstance> Audio_Manager::BGM_title;
-
-unique_ptr <SoundEffect> Audio_Manager::Start;
-unique_ptr <SoundEffect> Audio_Manager::Get;
-unique_ptr <SoundEffect> Audio_Manager::Damage;
-unique_ptr <SoundEffect> Audio_Manager::Boost;
-unique_ptr <SoundEffect> Audio_Manager::Clash;
+#include <clocale>
+#include <tchar.h>
+using namespace std;
+using namespace DirectX;
 
 Audio_Manager::Audio_Manager()
 {
@@ -18,17 +10,62 @@ Audio_Manager::Audio_Manager()
 #ifdef _DEBUG
 	eflags |= AudioEngine_Debug;
 #endif
-	m_audEngine = make_unique<AudioEngine>(eflags);
-	/*
-	Start = make_unique<SoundEffect>(m_audEngine.get(), L"Audio\\SE\\start.wav");
-	Get = make_unique<SoundEffect>(m_audEngine.get(), L"Audio\\SE\\アイテム入手.wav");
-	Damage = make_unique<SoundEffect>(m_audEngine.get(), L"Audio\\SE\\あたった時の音.wav");
-	Boost = make_unique<SoundEffect>(m_audEngine.get(), L"Audio\\SE\\ブースト.wav");
-	Clash = make_unique<SoundEffect>(m_audEngine.get(), L"Audio\\SE\\崩れる音.wav");
+	Engine = make_unique<AudioEngine>(eflags);
+}
 
-	BGM_play_eff = make_unique<SoundEffect>(m_audEngine.get(), L"Audio\\BGM\\BGM.wav");
-	BGM_play = BGM_play_eff->CreateInstance();
-	BGM_title_eff = make_unique<SoundEffect>(m_audEngine.get(), L"Audio\\BGM\\title2.wav");
-	BGM_title = BGM_title_eff->CreateInstance();
-	*/
+void Audio_Manager::Update()
+{
+	if (!Engine->Update())
+	{
+		if (Engine->IsCriticalError())
+		{
+			Engine->Reset();
+		}
+	}
+}
+
+void Audio_Manager::Reset()
+{
+	Engine->TrimVoicePool();
+	Engine->Reset();
+}
+
+unique_ptr<DirectX::SoundEffectInstance> Audio_Manager::Load_SoundEffect(string filename)
+{
+	setlocale(LC_ALL, "japanese");
+	wchar_t FileName[MAX_PATH] = { 0 };
+	size_t ret = 0;
+	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
+
+	auto it = Effect_Map.find(FileName);
+	if (it != Effect_Map.end())
+	{
+		return move(it->second->CreateInstance());
+	}
+	else
+	{
+		Effect_Map.insert(make_pair(FileName, make_unique<SoundEffect>(Engine.get(), FileName)));
+		return move(Effect_Map.find(FileName)->second->CreateInstance());
+	}
+
+	return nullptr;
+}
+
+void Audio_Manager::PlayOneShot(std::string filename, float volume, float pitch)
+{
+	setlocale(LC_ALL, "japanese");
+	wchar_t FileName[MAX_PATH] = { 0 };
+	size_t ret = 0;
+	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
+
+	auto it = Effect_Map.find(FileName);
+	if (it != Effect_Map.end())
+	{
+		it->second->Play(volume, pitch, 0.0f);
+	}
+	else
+	{
+		Effect_Map.insert(make_pair(FileName, make_unique<SoundEffect>(Engine.get(), FileName)));
+		Effect_Map.find(FileName)->second->Play(volume, pitch, 0.0f);
+	}
 }

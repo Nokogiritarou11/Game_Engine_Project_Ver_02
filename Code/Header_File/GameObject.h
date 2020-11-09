@@ -31,6 +31,7 @@ public:
 private:
 
 	void Initialize();
+	void Release();
 	void Set_Child_Active(bool value);
 	bool Active = true;
 	bool Old_Active = true;
@@ -64,26 +65,10 @@ std::shared_ptr<T> GameObject::GetComponent()
 template<class T>
 std::shared_ptr<T> GameObject::AddComponent()
 {
-	bool already_attach = false;
-	for (std::shared_ptr<Component> com : Component_List)
-	{
-		std::shared_ptr<T> buff = std::dynamic_pointer_cast<T>(com);
-		if (buff != nullptr)
-		{
-			if (typeid(shared_ptr<T>) == typeid(buff))
-			{
-				already_attach = true;
-			}
-		}
-	}
-	if (!already_attach)
-	{
-		std::shared_ptr<T> buff = std::make_shared<T>();
-		std::dynamic_pointer_cast<Component>(buff)->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
-		Component_List.emplace_back(buff);
-		return buff;
-	}
-	return nullptr;
+	std::shared_ptr<T> buff = std::make_shared<T>();
+	std::dynamic_pointer_cast<Component>(buff)->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
+	Component_List.emplace_back(buff);
+	return buff;
 }
 
 #include "Transform.h"

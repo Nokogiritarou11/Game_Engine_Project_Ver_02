@@ -9,7 +9,7 @@ public:
 	Debug_UI();
 	~Debug_UI();
 
-	void Update(std::shared_ptr<Scene> scene);
+	void Update(const std::unique_ptr<Scene>& scene);
 	void Render();
 
 	bool Draw_Debug_UI = true;
@@ -37,7 +37,7 @@ private:
 
 	void Main_Window_Render();
 	void Debug_Log_Render();
-	void Hierarchy_Render(std::shared_ptr<Scene> scene);
+	void Hierarchy_Render(const std::unique_ptr<Scene>& scene);
 	void Inspector_Render();
 	void ScenePlayer_Render();
 	void SceneView_Render();
@@ -45,7 +45,7 @@ private:
 
 	void MenuBar_Render();
 	void Scene_File_Menu_Render();
-	void GameObject_List_Render(std::shared_ptr<Scene> scene);
+	void GameObject_List_Render(const std::unique_ptr<Scene>& scene);
 	void GameObject_Tree_Render(int& ID, const std::shared_ptr<GameObject>& obj, int& selecting, int flag);
 	void GameObject_DragMenu_Render(const std::shared_ptr<GameObject>& obj);
 

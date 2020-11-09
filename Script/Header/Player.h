@@ -1,10 +1,5 @@
 #pragma once
 #include "MonoBehaviour.h"
-#include "Transform.h"
-#include <Original_Math.h>
-using namespace DirectX;
-
-class Collider;
 
 class Player : public MonoBehaviour
 {

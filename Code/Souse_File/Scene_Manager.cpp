@@ -11,6 +11,7 @@
 #include "Engine.h"
 #include "Scene_Manager.h"
 #include "Render_Manager.h"
+#include "Audio_Manager.h"
 #include "Particle_Manager.h"
 using namespace std;
 
@@ -20,11 +21,11 @@ using namespace std;
 //
 //**********************************************
 
-shared_ptr<Scene> Scene_Manager::Active_Scene;
+unique_ptr<Scene> Scene_Manager::Active_Scene;
 bool Scene_Manager::Load = false;
 string Scene_Manager::Next_Scene_Path;
 
-shared_ptr<Scene> Scene_Manager::CreateScene_FromFile()
+unique_ptr<Scene> Scene_Manager::CreateScene_FromFile()
 {
 	string load_path = System_Function::Get_Open_File_Name();
 
@@ -37,7 +38,7 @@ shared_ptr<Scene> Scene_Manager::CreateScene_FromFile()
 		ifstream in_bin(load_path, ios::binary);
 		if (in_bin.is_open())
 		{
-			shared_ptr<Scene> New_Scene = make_shared<Scene>();
+			unique_ptr<Scene> New_Scene = make_unique<Scene>();
 			stringstream bin_s_stream;
 			bin_s_stream << in_bin.rdbuf();
 			cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
@@ -45,7 +46,7 @@ shared_ptr<Scene> Scene_Manager::CreateScene_FromFile()
 			New_Scene->name = file_name;
 
 			Last_Save_Path = load_path;
-			return New_Scene;
+			return move(New_Scene);
 		}
 		else
 		{
@@ -55,7 +56,7 @@ shared_ptr<Scene> Scene_Manager::CreateScene_FromFile()
 	return nullptr;
 }
 
-shared_ptr<Scene> Scene_Manager::CreateScene_FromFile(std::string file_path)
+unique_ptr<Scene> Scene_Manager::CreateScene_FromFile(std::string file_path)
 {
 	int path_i = file_path.find_last_of("\\") + 1;//7
 	int ext_i = file_path.find_last_of(".");//10
@@ -64,7 +65,7 @@ shared_ptr<Scene> Scene_Manager::CreateScene_FromFile(std::string file_path)
 	ifstream in_bin(file_path, ios::binary);
 	if (in_bin.is_open())
 	{
-		shared_ptr<Scene> New_Scene = make_shared<Scene>();
+		unique_ptr<Scene> New_Scene = make_unique<Scene>();
 		stringstream bin_s_stream;
 		bin_s_stream << in_bin.rdbuf();
 		cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
@@ -72,7 +73,7 @@ shared_ptr<Scene> Scene_Manager::CreateScene_FromFile(std::string file_path)
 		New_Scene->name = file_name;
 
 		Last_Save_Path = file_path;
-		return New_Scene;
+		return move(New_Scene);
 	}
 	else
 	{
@@ -84,11 +85,11 @@ shared_ptr<Scene> Scene_Manager::CreateScene_FromFile(std::string file_path)
 
 void Scene_Manager::CreateScene_Default(string file_path, string file_name)
 {
-	shared_ptr<Scene> New_Scene = make_shared<Scene>();
-	New_Scene = make_shared<Scene>();
+	unique_ptr<Scene> New_Scene = make_unique<Scene>();
 	New_Scene->name = file_name;
 
-	Active_Scene = New_Scene;
+	Active_Scene->Reset();
+	Active_Scene = move(New_Scene);
 
 	shared_ptr<GameObject> directional_light = GameObject::Instantiate(u8"Directional_Light");
 	directional_light->AddComponent<Light>();
@@ -103,7 +104,7 @@ void Scene_Manager::CreateScene_Default(string file_path, string file_name)
 	ofstream ss(file_path.c_str(), ios::binary);
 	{
 		cereal::BinaryOutputArchive o_archive(ss);
-		o_archive(New_Scene);
+		o_archive(Active_Scene);
 		Last_Save_Path = file_path;
 	}
 
@@ -127,13 +128,13 @@ void Scene_Manager::SaveScene(string Save_Path)
 
 void Scene_Manager::Start_DebugScene()
 {
-	Behind_Scene = Active_Scene;
+	Behind_Scene = move(Active_Scene);
 	Behind_Path = Last_Save_Path;
 	{
 		ofstream save("Default_Resource\\System\\Debug_Scene.bin", ios::binary);
 		{
 			cereal::BinaryOutputArchive out_archive(save);
-			out_archive(Active_Scene);
+			out_archive(Behind_Scene);
 		}
 	}
 	LoadScene("Default_Resource\\System\\Debug_Scene.bin");
@@ -144,7 +145,11 @@ void Scene_Manager::End_DebugScene()
 	Engine::animator_manager->Reset();
 	Engine::render_manager->Reset();
 	Engine::light_manager->Reset();
-	Active_Scene = Behind_Scene;
+	Engine::particle_manager->Reset();
+	Engine::audio_manager->Reset();
+
+	Active_Scene->Reset();
+	Active_Scene = move(Behind_Scene);
 	Last_Save_Path = Behind_Path;
 	Active_Scene->Initialize();
 }
@@ -163,6 +168,12 @@ void Scene_Manager::Update()
 		Engine::render_manager->Reset();
 		Engine::light_manager->Reset();
 		Engine::particle_manager->Reset();
+		Engine::audio_manager->Reset();
+
+		if (Active_Scene)
+		{
+			Active_Scene->Reset();
+		}
 		Active_Scene = CreateScene_FromFile(Next_Scene_Path);
 		Active_Scene->Initialize();
 		Load = false;
@@ -174,7 +185,12 @@ void Scene_Manager::Update()
 	}
 }
 
-shared_ptr<Scene>  Scene_Manager::Get_Active_Scene()
+unique_ptr<Scene>& Scene_Manager::Get_Active_Scene()
 {
 	return Active_Scene;
+}
+
+void Scene_Manager::Release()
+{
+	if (Active_Scene) Active_Scene->Reset();
 }

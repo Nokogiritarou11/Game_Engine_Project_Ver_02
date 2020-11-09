@@ -8,6 +8,21 @@ void GameObject::Initialize()
 	{
 		c->Initialize(dynamic_pointer_cast<GameObject>(shared_from_this()));
 	}
+	for (int i = 0; i < transform->childCount(); ++i)
+	{
+		transform->GetChild(i).lock()->gameObject->Initialize();
+	}
+}
+
+void GameObject::Release()
+{
+	for (shared_ptr<Component> c : Component_List)
+	{
+		c->gameObject.reset();
+		c->transform.reset();
+		c.reset();
+	}
+	Component_List.clear();
 }
 
 bool GameObject::CompareTag(string _tag)

@@ -824,7 +824,7 @@ int Transform::GetSiblingIndex() const
 	}
 	else
 	{
-		shared_ptr<Scene> scene = Scene_Manager::Get_Active_Scene();
+		const unique_ptr<Scene>& scene = Scene_Manager::Get_Active_Scene();
 		int index_this = -1;
 
 		for (size_t i = 0; i < scene->gameObject_List.size(); ++i)
@@ -897,7 +897,7 @@ void Transform::SetSiblingIndex(int index)
 		}
 		else
 		{
-			shared_ptr<Scene> scene = Scene_Manager::Get_Active_Scene();
+			const unique_ptr<Scene>& scene = Scene_Manager::Get_Active_Scene();
 
 			shared_ptr<Transform> insert_at;
 			int index_insert = -1;

@@ -10,17 +10,21 @@ void Render_Manager::Reset()
 {
 	for (weak_ptr<Renderer> r : Renderer_3D_list)
 	{
-		shared_ptr<Renderer> rend = r.lock();
-		rend->Disable_flg = false;
-		rend->enabled_old = false;
-		rend->IsCalled = false;
+		if (shared_ptr<Renderer> rend = r.lock())
+		{
+			rend->Disable_flg = false;
+			rend->enabled_old = false;
+			rend->IsCalled = false;
+		}
 	}
 	for (weak_ptr<Renderer> r : Renderer_2D_list)
 	{
-		shared_ptr<Renderer> rend = r.lock();
-		rend->Disable_flg = false;
-		rend->enabled_old = false;
-		rend->IsCalled = false;
+		if (shared_ptr<Renderer> rend = r.lock())
+		{
+			rend->Disable_flg = false;
+			rend->enabled_old = false;
+			rend->IsCalled = false;
+		}
 	}
 	Renderer_3D_list.clear();
 	Renderer_2D_list.clear();

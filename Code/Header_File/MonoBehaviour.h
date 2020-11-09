@@ -1,8 +1,20 @@
 #pragma once
 #include <stdio.h>
 #include "Behaviour.h"
+#include "Debug.h"
+#include "Input_Manager.h"
+#include "Audio_Manager.h"
+#include "Scene_Manager.h"
+#include "Animator.h"
+#include "AudioSource.h"
+#include "Camera.h"
+#include "Light.h"
+#include "Material.h"
 #include "Mathf.h"
-#include "Original_Math.h"
+#include "Particle.h"
+#include "SkinMesh_Renderer.h"
+#include "Sprite_Renderer.h"
+#include "Include_ImGui.h"
 #include "Time.h"
 
 class MonoBehaviour : public Behaviour
