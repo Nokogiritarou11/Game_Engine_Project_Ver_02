@@ -6,8 +6,6 @@
 #include "GameObject.h"
 #include "MonoBehaviour.h"
 
-class Scene_Manager;
-
 class Scene
 {
 public:
@@ -16,9 +14,8 @@ public:
 	std::weak_ptr<GameObject> Find(std::string Name);         //指定した名前のゲームオブジェクトを返す
 	std::weak_ptr<GameObject> FindWithTag(std::string Tag);   //指定したタグのゲームオブジェクトを返す
 
-	std::vector<std::shared_ptr<GameObject>> gameObject_List; //シーン内の全ゲームオブジェクト
-
 private:
+	std::vector<std::shared_ptr<GameObject>> gameObject_List; //シーン内の全ゲームオブジェクト
 
 	friend class cereal::access;
 	template<class Archive>
@@ -30,6 +27,9 @@ private:
 	friend class Scene_Manager;
 	friend class Object;
 	friend class MonoBehaviour;
+	friend class Resources;
+	friend class Transform;
+	friend class Debug_UI;
 
 	std::shared_ptr<GameObject> Instance_GameObject(std::string name);
 	void Destroy_GameObject(std::shared_ptr<GameObject> gameObject);

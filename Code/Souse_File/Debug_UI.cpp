@@ -8,6 +8,7 @@
 #include "View_Scene.h"
 #include "View_Game.h"
 #include "All_Component_List.h"
+#include "Resources.h"
 #include "Include_ImGui.h"
 #include <ImGuizmo.h>
 #include "System_Function.h"
@@ -372,8 +373,8 @@ void Debug_UI::Inspector_Render()
 //シーン再生UI描画
 void Debug_UI::ScenePlayer_Render()
 {
-	ImGui::SetNextWindowPos(ImVec2(915, 0), ImGuiCond_Appearing);
-	ImGui::SetNextWindowSize(ImVec2(65, 30), ImGuiCond_Appearing);
+	ImGui::SetNextWindowPos(ImVec2(895, 0), ImGuiCond_Appearing);
+	ImGui::SetNextWindowSize(ImVec2(105, 28), ImGuiCond_Appearing);
 	ImGuiWindowFlags window_flags = 0;
 	window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
 	ImGui::Begin(u8"シーン再生", NULL, window_flags);
@@ -386,18 +387,22 @@ void Debug_UI::ScenePlayer_Render()
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.0f, 0.7f, 0.85f));
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.0f, 0.6f, 1.0f));
 	}
-	if (ImGui::Button(ICON_FA_PLAY))
+	if (ImGui::Button(ICON_FA_PLAY, ImVec2(30, 0)))
 	{
 		if (!Running)
 		{
-			Engine::scene_manager->Run = true;
-			Engine::scene_manager->Pause = false;
 			if (!Engine::scene_manager->Pause)
 			{
 				Active_Object.reset();
 				Active_Object_Old.reset();
 				Engine::scene_manager->Start_DebugScene();
 			}
+			else
+			{
+				Engine::audio_manager->Resume();
+			}
+			Engine::scene_manager->Run = true;
+			Engine::scene_manager->Pause = false;
 		}
 	}
 	if (Running)
@@ -413,12 +418,13 @@ void Debug_UI::ScenePlayer_Render()
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.0f, 0.7f, 0.85f));
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.0f, 0.6f, 1.0f));
 	}
-	if (ImGui::Button(ICON_FA_PAUSE))
+	if (ImGui::Button(ICON_FA_PAUSE, ImVec2(30, 0)))
 	{
 		if (Running)
 		{
 			Engine::scene_manager->Run = false;
 			Engine::scene_manager->Pause = true;
+			Engine::audio_manager->Suspend();
 		}
 	}
 	if (Pausing)
@@ -427,7 +433,7 @@ void Debug_UI::ScenePlayer_Render()
 	}
 
 	ImGui::SameLine();
-	if (ImGui::Button(ICON_FA_STOP))
+	if (ImGui::Button(ICON_FA_STOP, ImVec2(30, 0)))
 	{
 		if (Running || Pausing)
 		{
@@ -674,10 +680,6 @@ void Debug_UI::GameObject_List_Render(const unique_ptr<Scene>& scene)
 
 		if (ImGui::BeginPopupContextWindow(u8"ヒエラルキーサブ"))
 		{
-			if (ImGui::Selectable(u8"新規オブジェクトを追加"))
-			{
-				GameObject::Instantiate(u8"GameObject");
-			}
 			if (!Active_Object.expired())
 			{
 				if (ImGui::Selectable(u8"オブジェクトを削除"))
@@ -685,21 +687,83 @@ void Debug_UI::GameObject_List_Render(const unique_ptr<Scene>& scene)
 					GameObject::Destroy(Active_Object.lock());
 					Active_Object.reset();
 					Active_Object_Old.reset();
+					selecting = -1;
 				}
+
 				if (!Active_Object.expired())
 				{
-					if (Active_Object.lock()->transform->parent.lock())
+					if (ImGui::Selectable(u8"オブジェクトを複製"))
+					{
+						{
+							ofstream ss("Default_Resource\\System\\copy.prefab", ios::binary);
+							{
+								cereal::BinaryOutputArchive o_archive(ss);
+								o_archive(Active_Object.lock());
+							}
+						}
+						Resources::Load_Prefab("Default_Resource\\System\\copy.prefab");
+					}
+
+					if (ImGui::Selectable(u8"オブジェクトをプレハブ化"))
+					{
+						Resources::Create_Prefab(Active_Object.lock());
+					}
+
+					if (!Active_Object.lock()->transform->parent.expired())
 					{
 						if (ImGui::Selectable(u8"オブジェクトの親子関係を解除"))
 						{
 							Active_Object.lock()->transform->Set_parent(nullptr);
 						}
 					}
+					ImGui::Separator();
+					if (ImGui::Selectable(u8"選択解除"))
+					{
+						Active_Object.reset();
+						Active_Object_Old.reset();
+						selecting = -1;
+					}
+				}
+			}
+			ImGui::Separator();
+			if (ImGui::Selectable(u8"新規オブジェクトを追加"))
+			{
+				GameObject::Instantiate(u8"GameObject");
+			}
+			if (ImGui::Selectable(u8"プレハブを読み込む"))
+			{
+				string path = System_Function::Get_Open_File_Name();
+				if (path != "")
+				{
+					Resources::Load_Prefab(path);
 				}
 			}
 			ImGui::EndPopup();
 		}
 		ImGui::TreePop();
+
+		if (ImGui::IsWindowFocused() && !Active_Object.expired())
+		{
+			if (ImGui::IsKeyDown(17) && ImGui::IsKeyPressed(68)) //Ctrl + D
+			{
+				{
+					ofstream ss("Default_Resource\\System\\copy.prefab", ios::binary);
+					{
+						cereal::BinaryOutputArchive o_archive(ss);
+						o_archive(Active_Object.lock());
+					}
+				}
+				Resources::Load_Prefab("Default_Resource\\System\\copy.prefab");
+			}
+
+			if (ImGui::IsKeyPressed(46)) //Delete
+			{
+				GameObject::Destroy(Active_Object.lock());
+				Active_Object.reset();
+				Active_Object_Old.reset();
+				selecting = -1;
+			}
+		}
 	}
 	ID = 0;
 }
@@ -884,6 +948,7 @@ void Debug_UI::ShortCut_Check()
 				{
 					Engine::scene_manager->Run = false;
 					Engine::scene_manager->Pause = true;
+					Engine::audio_manager->Suspend();
 				}
 			}
 			else
@@ -898,14 +963,18 @@ void Debug_UI::ShortCut_Check()
 				}
 				else
 				{
-					Engine::scene_manager->Run = true;
-					Engine::scene_manager->Pause = false;
 					if (!Engine::scene_manager->Pause)
 					{
 						Active_Object.reset();
 						Active_Object_Old.reset();
 						Engine::scene_manager->Start_DebugScene();
 					}
+					else
+					{
+						Engine::audio_manager->Resume();
+					}
+					Engine::scene_manager->Run = true;
+					Engine::scene_manager->Pause = false;
 				}
 			}
 		}

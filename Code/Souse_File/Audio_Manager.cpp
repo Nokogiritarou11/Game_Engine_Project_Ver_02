@@ -24,6 +24,16 @@ void Audio_Manager::Update()
 	}
 }
 
+void Audio_Manager::Resume()
+{
+	Engine->Resume();
+}
+
+void Audio_Manager::Suspend()
+{
+	Engine->Suspend();
+}
+
 void Audio_Manager::Reset()
 {
 	Engine->TrimVoicePool();

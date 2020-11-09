@@ -37,6 +37,7 @@ private:
 	bool Old_Active = true;
 
 	friend class Scene;
+	friend class Resources;
 	friend class cereal::access;
 	template<class Archive>
 	void serialize(Archive& archive);

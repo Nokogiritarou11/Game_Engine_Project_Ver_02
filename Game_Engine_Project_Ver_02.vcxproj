@@ -225,6 +225,7 @@
     <ClCompile Include="Code\Souse_File\Rect_Transform.cpp" />
     <ClCompile Include="Code\Souse_File\Renderer.cpp" />
     <ClCompile Include="Code\Souse_File\Render_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\Resources.cpp" />
     <ClCompile Include="Code\Souse_File\Scene.cpp" />
     <ClCompile Include="Code\Souse_File\Scene_Manager.cpp" />
     <ClCompile Include="Code\Souse_File\Shader.cpp">
@@ -306,6 +307,7 @@
     <ClInclude Include="Code\Header_File\RectTransform.h" />
     <ClInclude Include="Code\Header_File\Renderer.h" />
     <ClInclude Include="Code\Header_File\Render_Manager.h" />
+    <ClInclude Include="Code\Header_File\Resources.h" />
     <ClInclude Include="Code\Header_File\Scene.h" />
     <ClInclude Include="Code\Header_File\Scene_Manager.h" />
     <ClInclude Include="Code\Header_File\Shader.h">

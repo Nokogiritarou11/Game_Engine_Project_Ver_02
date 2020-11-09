@@ -219,17 +219,17 @@ bool Particle::Draw_ImGui()
 		for (int i = 0; i < 5; ++i) ImGui::Spacing();
 		if (effect != nullptr)
 		{
-			if (ImGui::Button(ICON_FA_PLAY))
+			if (ImGui::Button(ICON_FA_PLAY, ImVec2(30, 0)))
 			{
 				Play();
 			}
 			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_PAUSE))
+			if (ImGui::Button(ICON_FA_PAUSE, ImVec2(30, 0)))
 			{
 				Pause();
 			}
 			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_STOP))
+			if (ImGui::Button(ICON_FA_STOP, ImVec2(30, 0)))
 			{
 				Stop();
 			}

@@ -11,6 +11,8 @@ public:
 	Audio_Manager();
 
 	void Update();
+	void Suspend();
+	void Resume();
 	void Reset();
 
 	std::unique_ptr<DirectX::SoundEffectInstance> Load_SoundEffect(std::string filename);

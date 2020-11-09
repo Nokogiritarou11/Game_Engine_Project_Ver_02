@@ -187,8 +187,8 @@ bool AudioSource::Draw_ImGui()
 			string path = System_Function::Get_Open_File_Name();
 			if (path != "")
 			{
-				int path_i = path.find_last_of("\\") + 1;//7
-				int ext_i = path.find_last_of(".");//10
+				int path_i = path.find_last_of("\\") + 1;
+				int ext_i = path.find_last_of(".");
 				string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
 				string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
 				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
@@ -245,17 +245,17 @@ bool AudioSource::Draw_ImGui()
 		for (int i = 0; i < 5; ++i) ImGui::Spacing();
 		if (Effect_Instance)
 		{
-			if (ImGui::Button(ICON_FA_PLAY))
+			if (ImGui::Button(ICON_FA_PLAY, ImVec2(30, 0)))
 			{
 				Play();
 			}
 			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_PAUSE))
+			if (ImGui::Button(ICON_FA_PAUSE, ImVec2(30, 0)))
 			{
 				Pause();
 			}
 			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_STOP))
+			if (ImGui::Button(ICON_FA_STOP, ImVec2(30, 0)))
 			{
 				Stop();
 			}

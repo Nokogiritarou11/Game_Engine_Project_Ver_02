@@ -91,6 +91,7 @@
     <ClCompile Include="Code\Libraries\ImGuizmo\ImGuizmo.cpp" />
     <ClCompile Include="Code\Libraries\ImGuizmo\ImSequencer.cpp" />
     <ClCompile Include="Code\Souse_File\AudioSource.cpp" />
+    <ClCompile Include="Code\Souse_File\Resources.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Audio_Manager.h">
@@ -268,6 +269,7 @@
     <ClInclude Include="Code\Libraries\ImGuizmo\ImGuizmo.h" />
     <ClInclude Include="Code\Libraries\ImGuizmo\ImSequencer.h" />
     <ClInclude Include="Code\Header_File\AudioSource.h" />
+    <ClInclude Include="Code\Header_File\Resources.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Sources">
