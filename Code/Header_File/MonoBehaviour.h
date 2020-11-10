@@ -33,6 +33,7 @@ private:
 
 	void Initialize(std::shared_ptr<GameObject> obj) override;
 	void SetActive(bool value) override;
+	bool CanMultiple() override { return true; };
 
 	bool IsCalled_Awake = false;
 	bool IsCalled_Start = false;

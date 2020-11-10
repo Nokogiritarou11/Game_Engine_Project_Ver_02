@@ -30,6 +30,8 @@ protected:
 	bool Disable_flg = false;
 
 private:
+	bool CanMultiple() override { return false; };
+
 	bool enabled = true;
 	bool enabled_old = false;
 

@@ -8,17 +8,6 @@ public:
 
 	void Set_Mesh(std::shared_ptr<Mesh> Mesh_Data); //メッシュデータを設定する
 
-	struct Node
-	{
-		const char* name;
-		Node* parent;
-		Vector3	scale;
-		Vector4	rotation;
-		Vector3	position;
-		Matrix	localTransform;
-		Matrix	worldTransform;
-	};
-
 	//const std::vector<Node>& GetNodes() const { return nodes; }
 	//std::vector<Node>& GetNodes() { return nodes; }
 
@@ -37,9 +26,21 @@ public:
 	static ComPtr <ID3D11Buffer> ConstantBuffer_CbMesh;  //コンスタントバッファ(メッシュデータ)
 	static ComPtr <ID3D11Buffer> ConstantBuffer_CbColor; //コンスタントバッファ(カラー)
 
-	std::vector<Node>	  nodes;
 
 private:
+	struct Node
+	{
+		const char* name;
+		Node* parent;
+		Vector3	scale;
+		Vector4	rotation;
+		Vector3	euler;
+		Vector3	position;
+		Matrix	localTransform;
+		Matrix	worldTransform;
+	};
+	std::vector<Node>	  nodes;
+
 	void Initialize(std::shared_ptr<GameObject> obj);
 	void Render(Matrix V, Matrix P) override;
 	void Render(Matrix V, Matrix P, bool Use_Material, std::shared_ptr<Shader> shader) override;
@@ -52,6 +53,7 @@ private:
 
 	void Reset();
 
+	friend class Animator;
 	friend class cereal::access;
 	template<class Archive>
 	void serialize(Archive& archive)

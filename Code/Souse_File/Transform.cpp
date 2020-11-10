@@ -168,7 +168,7 @@ bool Transform::Draw_ImGui()
 		static float rot[3] = { 0,0,0 };
 		static float scl[3] = { 1,1,1 };
 
-		if (active_trans.lock() != gameObject->transform || Update_GUI)
+		if (Update_GUI || active_trans.lock() != gameObject->transform)
 		{
 			active_trans = gameObject->transform;
 

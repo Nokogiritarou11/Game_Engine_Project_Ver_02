@@ -41,7 +41,6 @@ void Animator::Update()
 	if (mesh_data->animations.empty()) return;
 
 	const Mesh::Animation& animation = mesh_data->animations.at(currentAnimation);
-
 	const std::vector<Mesh::Keyframe>& keyframes = animation.keyframes;
 
 	shared_ptr<SkinMesh_Renderer> skin = skin_renderer.lock();
@@ -68,20 +67,9 @@ void Animator::Update()
 
 				SkinMesh_Renderer::Node& node = nodes[nodeIndex];
 
-				DirectX::XMVECTOR s0 = DirectX::XMLoadFloat3(&key0.scale);
-				DirectX::XMVECTOR s1 = DirectX::XMLoadFloat3(&key1.scale);
-				DirectX::XMVECTOR r0 = DirectX::XMLoadFloat4(&key0.rotation);
-				DirectX::XMVECTOR r1 = DirectX::XMLoadFloat4(&key1.rotation);
-				DirectX::XMVECTOR t0 = DirectX::XMLoadFloat3(&key0.position);
-				DirectX::XMVECTOR t1 = DirectX::XMLoadFloat3(&key1.position);
-
-				DirectX::XMVECTOR s = DirectX::XMVectorLerp(s0, s1, rate);
-				DirectX::XMVECTOR r = DirectX::XMQuaternionSlerp(r0, r1, rate);
-				DirectX::XMVECTOR t = DirectX::XMVectorLerp(t0, t1, rate);
-
-				DirectX::XMStoreFloat3(&node.scale, s);
-				DirectX::XMStoreFloat4(&node.rotation, r);
-				DirectX::XMStoreFloat3(&node.position, t);
+				node.scale = DirectX::XMVectorLerp(key0.scale, key1.scale, rate);
+				node.rotation = DirectX::XMQuaternionSlerp(key0.rotation, key1.rotation, rate);
+				node.position = DirectX::XMVectorLerp(key0.position, key1.position, rate);
 			}
 			break;
 		}

@@ -102,6 +102,7 @@ private:
 
 	void Initialize(std::shared_ptr<GameObject> obj) override;
 	bool Draw_ImGui() override;
+	bool CanMultiple() override { return false; };
 
 	friend class Debug_UI;
 	friend class cereal::access;

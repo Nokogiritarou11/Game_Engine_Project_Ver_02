@@ -67,9 +67,36 @@ template<class T>
 std::shared_ptr<T> GameObject::AddComponent()
 {
 	std::shared_ptr<T> buff = std::make_shared<T>();
-	std::dynamic_pointer_cast<Component>(buff)->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
-	Component_List.emplace_back(buff);
-	return buff;
+	bool can_multiple = std::dynamic_pointer_cast<Component>(buff)->CanMultiple();
+
+	if (!can_multiple)
+	{
+		bool already_attach = false;
+		for (std::shared_ptr<Component> com : Component_List)
+		{
+			std::shared_ptr<T> _buff = std::dynamic_pointer_cast<T>(com);
+			if (_buff != nullptr)
+			{
+				if (typeid(shared_ptr<T>) == typeid(_buff))
+				{
+					already_attach = true;
+				}
+			}
+		}
+		if (!already_attach)
+		{
+			std::dynamic_pointer_cast<Component>(buff)->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
+			Component_List.emplace_back(buff);
+			return buff;
+		}
+	}
+	else
+	{
+		std::dynamic_pointer_cast<Component>(buff)->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
+		Component_List.emplace_back(buff);
+		return buff;
+	}
+	return nullptr;
 }
 
 #include "Transform.h"

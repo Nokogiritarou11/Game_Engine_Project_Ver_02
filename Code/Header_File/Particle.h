@@ -26,6 +26,7 @@ private:
 	void Initialize(std::shared_ptr<GameObject> obj) override;
 	bool Draw_ImGui() override;
 	void SetActive(bool value) override;
+	bool CanMultiple() override { return false; };
 
 	bool IsCalled = false;
 	bool Disable_flg = false;

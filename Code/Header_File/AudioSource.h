@@ -42,6 +42,7 @@ private:
 	void Initialize(std::shared_ptr<GameObject> obj) override;
 	void SetActive(bool value) override;
 	bool Draw_ImGui() override;
+	bool CanMultiple() override { return true; };
 
 	friend class cereal::access;
 	template<class Archive>

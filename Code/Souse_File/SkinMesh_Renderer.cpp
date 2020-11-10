@@ -240,7 +240,7 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P, bool Use_Material = true, sha
 // ローカル変換行列計算
 void SkinMesh_Renderer::CalculateLocalTransform()
 {
-	for (Node& node : nodes)
+	for (auto& node : nodes)
 	{
 		Matrix scale, rotation, position;
 		scale = DirectX::XMMatrixScaling(node.scale.x, node.scale.y, node.scale.z);
@@ -254,7 +254,7 @@ void SkinMesh_Renderer::CalculateLocalTransform()
 // ワールド変換行列計算
 void SkinMesh_Renderer::CalculateWorldTransform(const Matrix& world_transform)
 {
-	for (Node& node : nodes)
+	for (auto& node : nodes)
 	{
 		Matrix localTransform = DirectX::XMLoadFloat4x4(&node.localTransform);
 		if (node.parent != nullptr)
@@ -322,23 +322,50 @@ bool SkinMesh_Renderer::Draw_ImGui()
 			}
 		}
 
-		for (int i=0; i<5; ++i) ImGui::Spacing();
-		static int ID = 0;
+		for (int i = 0; i < 5; ++i) ImGui::Spacing();
+		static int ID_bone = 0;
 		if (mesh_data)
 		{
-			if (ImGui::TreeNode(u8"マテリアル"))
+			if (ImGui::TreeNode(u8"ボーン"))
 			{
-				for (size_t i = 0; i < material.size(); ++i)
+				for (auto& node : nodes)
 				{
-					ImGui::PushID(ID);
-					material[i]->Draw_ImGui();
-					++ID;
+					ImGui::PushID(ID_bone);
+					if (ImGui::TreeNode(node.name))
+					{
+						ImGui::DragFloat3(u8"Position", &node.position.x, 0.05f, -FLT_MAX, FLT_MAX);
+						if (ImGui::DragFloat3(u8"Rotation", &node.euler.x, 0.05f, -FLT_MAX, FLT_MAX))
+						{
+							node.rotation = Quaternion::Euler(node.euler);
+						}
+						ImGui::DragFloat3(u8"Scale", &node.scale.x, 0.05f, -FLT_MAX, FLT_MAX);
+						ImGui::TreePop();
+					}
+					++ID_bone;
 					ImGui::PopID();
 				}
 				ImGui::TreePop();
 			}
 		}
-		ID = 0;
+		ID_bone = 0;
+
+		for (int i=0; i<5; ++i) ImGui::Spacing();
+		static int ID_mat = 0;
+		if (mesh_data)
+		{
+			if (ImGui::TreeNode(u8"マテリアル"))
+			{
+				for (shared_ptr<Material> mat : material)
+				{
+					ImGui::PushID(ID_mat);
+					mat->Draw_ImGui();
+					++ID_mat;
+					ImGui::PopID();
+				}
+				ImGui::TreePop();
+			}
+		}
+		ID_mat = 0;
 	}
 	return true;
 }

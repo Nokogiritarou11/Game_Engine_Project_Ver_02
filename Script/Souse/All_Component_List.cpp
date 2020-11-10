@@ -1,4 +1,5 @@
 #include "All_Component_List.h"
+#include "Debug.h"
 #include "Include_ImGui.h"
 #include "GameObject.h"
 #include "Camera.h"
@@ -30,31 +31,46 @@ void All_Component_List::Add(shared_ptr<GameObject> obj)
 
 		if (ImGui::Button("Camera", ImVec2(-FLT_MIN, 0.0f)))
 		{
-			obj->AddComponent<Camera>();
+			if (!obj->AddComponent<Camera>())
+			{
+				Debug::Log(u8"このコンポーネントは一つのオブジェクトに複数アタッチできません");
+			}
 			ImGui::CloseCurrentPopup();
 		}
 
 		if (ImGui::Button("SkinMesh_Renderer", ImVec2(-FLT_MIN, 0.0f)))
 		{
-			obj->AddComponent<SkinMesh_Renderer>();
+			if (!obj->AddComponent<SkinMesh_Renderer>())
+			{
+				Debug::Log(u8"このコンポーネントは一つのオブジェクトに複数アタッチできません");
+			}
 			ImGui::CloseCurrentPopup();
 		}
 
 		if (ImGui::Button("Sprite_Renderer", ImVec2(-FLT_MIN, 0.0f)))
 		{
-			obj->AddComponent<Sprite_Renderer>();
+			if (!obj->AddComponent<Sprite_Renderer>())
+			{
+				Debug::Log(u8"このコンポーネントは一つのオブジェクトに複数アタッチできません");
+			}
 			ImGui::CloseCurrentPopup();
 		}
 
 		if (ImGui::Button("Animator", ImVec2(-FLT_MIN, 0.0f)))
 		{
-			obj->AddComponent<Animator>();
+			if (!obj->AddComponent<Animator>())
+			{
+				Debug::Log(u8"このコンポーネントは一つのオブジェクトに複数アタッチできません");
+			}
 			ImGui::CloseCurrentPopup();
 		}
 
 		if (ImGui::Button("Particle", ImVec2(-FLT_MIN, 0.0f)))
 		{
-			obj->AddComponent<Particle>();
+			if (!obj->AddComponent<Particle>())
+			{
+				Debug::Log(u8"このコンポーネントは一つのオブジェクトに複数アタッチできません");
+			}
 			ImGui::CloseCurrentPopup();
 		}
 

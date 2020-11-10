@@ -19,7 +19,7 @@ void Resources::Create_Prefab(shared_ptr<GameObject> gameobject)
 		{
 			for (int i = 1; ; ++i)
 			{
-				string _path = "Resouces\\Prefab" + gameobject->name + "_" + to_string(i) + ".prefab";
+				string _path = "Resouces\\Prefab\\" + gameobject->name + "_" + to_string(i) + ".prefab";
 				ifstream in_bin(_path, ios::binary);
 				if (!in_bin.is_open())
 				{

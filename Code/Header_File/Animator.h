@@ -15,8 +15,9 @@ public:
 	bool		loopAnimation = false;                             //ƒ‹[ƒv‚·‚é‚©
 
 private:
-	void Initialize(std::shared_ptr<GameObject> obj);
-	bool Draw_ImGui();
+	void Initialize(std::shared_ptr<GameObject> obj) override;
+	bool Draw_ImGui() override;
+	bool CanMultiple() override { return false; };
 
 	void Set_Skin_Renderer(std::shared_ptr<SkinMesh_Renderer> render);
 	void Set_Mesh(std::shared_ptr<Mesh> mesh);
