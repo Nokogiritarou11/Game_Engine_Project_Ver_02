@@ -52,4 +52,11 @@ public:
 	bool Create(WCHAR* filename, LPCSTR VSName, LPCSTR PSName, LPCSTR GSName, LPCSTR HSName, LPCSTR DSName);
 
 	void Activate();
+
+	void Activate_VS();
+	void Activate_PS();
+	void Activate_GS();
+	void Activate_HS();
+	void Activate_DS();
+
 };

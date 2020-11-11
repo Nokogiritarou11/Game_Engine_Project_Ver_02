@@ -17,8 +17,8 @@ class Material : public std::enable_shared_from_this<Material>
 {
 public:
 	std::string name;
-	std::shared_ptr<Shader> shader;
-	std::shared_ptr<Texture> texture[5];
+	std::unique_ptr<Shader> shader;
+	std::unique_ptr<Texture> texture[5];
 
 	Vector4 color = { 1,1,1,1 };
 
@@ -53,19 +53,24 @@ public:
 	};
 	Texture_Info texture_info[5];
 
+	static std::shared_ptr<Material> Create(const std::string& Material_Pass, const std::string& Material_Name, WCHAR* PS_Name);
+	void Save(const std::string& path = "");
+	void Set_Texture(int texture_type, const std::string& filepath, const std::string& filename);
+
+private:
+	static std::unordered_map<std::string, std::shared_ptr<Material>> mat_cache;
+
 	std::string Self_Save_Pass;
 
-	static std::shared_ptr<Material> Create(std::string Material_Pass, std::string Material_Name, WCHAR* VS_Name, WCHAR* PS_Name);
-	static void Initialize(shared_ptr<Material>& mat, std::string Material_FullPass);
-	void Set_Texture(int texture_type, std::string filename);
+	static void Initialize(std::shared_ptr<Material>& mat, std::string Material_FullPass);
 	void Set_Texture_All();
 	void Active_Texture(bool Use_Material = true);
 	void Active_Shader();
 	void Draw_ImGui();
 
-private:
-	static std::unordered_map<std::string, std::shared_ptr<Material>> mat_cache;
-
+	friend class SkyBox;
+	friend class SkinMesh_Renderer;
+	friend class Mesh_Renderer;
 	friend class cereal::access;
 	template<class Archive>
 	void serialize(Archive& archive)

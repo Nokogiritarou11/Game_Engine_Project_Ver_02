@@ -339,7 +339,7 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 		}
 		if (cashed) continue;
 
-		shared_ptr<Material> mat = Material::Create(file_path, material_name, L"Shader/Standard_Shader_VS.hlsl", L"Shader/Standard_Shader_PS.hlsl");
+		shared_ptr<Material> mat = Material::Create(file_path, material_name, L"Shader/Standard_Shader_PS.hlsl");
 
 		//Main(Diffuse)Texture
 		GetTexture(surface_material, FbxSurfaceMaterial::sDiffuse, mat, Texture::Main);
@@ -354,11 +354,7 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 
 		subset.material_ID = Default_Material_Passes.size();
 
-		ofstream ss(new_mat_path, ios::binary);
-		{
-			cereal::BinaryOutputArchive o_archive(ss);
-			o_archive(mat);
-		}
+		mat->Save();
 		Default_Material_Passes.push_back(new_mat_path);
 	}
 
@@ -831,27 +827,18 @@ void Mesh::GetTexture(const FbxSurfaceMaterial* fbx_mat, const char* fbx_tex_typ
 			{
 				//‰æ‘œ“Ç‚Ýž‚Ý
 				const char* filename = file_texture->GetRelativeFileName();
-				mat->texture_info[tex_type].Texture_Name = (string)filename;
-				mat->texture_info[tex_type].Texture_Pass = file_path;
-				mat->texture_info[tex_type].Texture_FullPass = file_path + (string)filename;
-				mat->texture[tex_type]->Load(mat->texture_info[tex_type].Texture_FullPass);
+				mat->Set_Texture(tex_type, file_path, filename);
 			}
 		}
 		else
 		{
 			if (tex_type == Texture::Main)
 			{
-				mat->texture_info[tex_type].Texture_Name = "Default_Texture.png";
-				mat->texture_info[tex_type].Texture_Pass = "Default_Resource\\Image\\";
-				mat->texture_info[tex_type].Texture_FullPass = "Default_Resource\\Image\\Default_Texture.png";
-				mat->texture[tex_type]->Load(mat->texture_info[tex_type].Texture_FullPass);
+				mat->Set_Texture(tex_type, "Default_Resource\\Image\\", "Default_Texture.png");
 			}
 			else if (tex_type == Texture::Normal)
 			{
-				mat->texture_info[tex_type].Texture_Name = "Default_NormalMap.png";
-				mat->texture_info[tex_type].Texture_Pass = "Default_Resource\\Image\\";
-				mat->texture_info[tex_type].Texture_FullPass = "Default_Resource\\Image\\Default_NormalMap.png";
-				mat->texture[tex_type]->Load(mat->texture_info[tex_type].Texture_FullPass);
+				mat->Set_Texture(tex_type, "Default_Resource\\Image\\", "Default_NormalMap.png");
 			}
 		}
 	}

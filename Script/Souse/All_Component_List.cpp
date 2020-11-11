@@ -3,6 +3,7 @@
 #include "Include_ImGui.h"
 #include "GameObject.h"
 #include "Camera.h"
+#include "Mesh_Renderer.h"
 #include "SkinMesh_Renderer.h"
 #include "Sprite_Renderer.h"
 #include "Animator.h"
@@ -32,6 +33,15 @@ void All_Component_List::Add(shared_ptr<GameObject> obj)
 		if (ImGui::Button("Camera", ImVec2(-FLT_MIN, 0.0f)))
 		{
 			if (!obj->AddComponent<Camera>())
+			{
+				Debug::Log(u8"このコンポーネントは一つのオブジェクトに複数アタッチできません");
+			}
+			ImGui::CloseCurrentPopup();
+		}
+
+		if (ImGui::Button("Mesh_Renderer", ImVec2(-FLT_MIN, 0.0f)))
+		{
+			if (!obj->AddComponent<Mesh_Renderer>())
 			{
 				Debug::Log(u8"このコンポーネントは一つのオブジェクトに複数アタッチできません");
 			}

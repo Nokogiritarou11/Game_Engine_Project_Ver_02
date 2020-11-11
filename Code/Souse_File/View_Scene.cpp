@@ -40,7 +40,7 @@ void View_Scene::Render(Matrix V, Matrix P, std::shared_ptr<Transform> trans)
 					DxSystem::DeviceContext->VSSetConstantBuffers(0, 1, ConstantBuffer_CbScene.GetAddressOf());
 					DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbScene.Get(), 0, 0, &cbScene, 0, 0);
 
-					Render_3D(m_light->V, m_light->P, false, m_light->shader);
+					Render_3D(m_light->V, m_light->P, true);
 
 				}
 				//’Êí•`‰æ
@@ -63,7 +63,7 @@ void View_Scene::Render(Matrix V, Matrix P, std::shared_ptr<Transform> trans)
 					Render_Sky(trans);
 					DxSystem::DeviceContext->PSSetSamplers(0, 1, m_light->sampler.GetAddressOf());
 					DxSystem::DeviceContext->PSSetShaderResources(0, 1, m_light->ShaderResourceView.GetAddressOf());
-					Render_3D(V, P);
+					Render_3D(V, P, false);
 					//Render_2D(V, P);
 
 					Engine::particle_manager->Render();

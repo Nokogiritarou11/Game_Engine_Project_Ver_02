@@ -12,6 +12,8 @@
 #include "System_Function.h"
 using namespace std;
 
+unique_ptr<Shader> Sprite_Renderer::default_shader;
+
 void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 {
 	gameObject = obj;
@@ -40,7 +42,12 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 	DxSystem::Device->CreateBuffer(&bd, &res, VertexBuffer.GetAddressOf());
 	texture = make_shared<Texture>();
 
-	material.emplace_back(Material::Create("Default_Resource\\Image\\", "Default_2D", L"Shader/2D_Shader_VS.hlsl", L"Shader/2D_Shader_PS.hlsl"));
+	if (!default_shader)
+	{
+		default_shader = make_unique<Shader>();
+		default_shader->Create_VS(L"Shader/2D_Shader_VS.hlsl", "VSMain");
+		default_shader->Create_PS(L"Shader/2D_Shader_PS.hlsl", "PSMain");
+	}
 
 	if (file_path != "")
 	{
@@ -71,7 +78,14 @@ void Sprite_Renderer::Render(Matrix V, Matrix P)
 {
 	if (texture)
 	{
-		material[0]->shader->Activate();
+		if (material.empty())
+		{
+			default_shader->Activate();
+		}
+		else
+		{
+			material[0]->shader->Activate();
+		}
 		//頂点データ設定
 		VERTEX data[4];
 

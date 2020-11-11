@@ -451,16 +451,13 @@ void Debug_UI::ScenePlayer_Render()
 //シーンビュー描画
 void Debug_UI::SceneView_Render()
 {
-	ImGui::SetNextWindowPos(ImVec2(200, 0), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
-
 	ImGuiWindowFlags window_flags = 0;
-	window_flags |= ImGuiWindowFlags_NoCollapse;
+	window_flags |= ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
 
 	ImGui::Begin(u8"シーン", NULL, window_flags);
-	const float titleBarHeight = ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2.0f + 10;
-	const float window_width = ImGui::GetCurrentWindow()->InnerRect.GetWidth();
-	const float window_height = ImGui::GetCurrentWindow()->InnerRect.GetHeight();
+	//const float titleBarHeight = ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2.0f + 10;
+	const float window_width = ImGui::GetCurrentWindow()->InnerRect.GetWidth() - 8;
+	const float window_height = ImGui::GetCurrentWindow()->InnerRect.GetHeight() - 8;
 	Engine::view_scene->Set_Screen_Size((int)window_width, (int)window_height);
 	ImGui::Image((void*)Engine::view_scene->ShaderResourceView_Render.Get(), ImVec2(window_width, window_height));
 
@@ -501,7 +498,7 @@ void Debug_UI::SceneView_Render()
 		matrix = trans->Get_world_matrix();
 
 		ImVec2 winPos = ImGui::GetWindowPos();
-		ImGuizmo::SetRect(winPos.x, winPos.y + titleBarHeight, window_width, window_height - titleBarHeight);
+		ImGuizmo::SetRect(winPos.x, winPos.y, window_width, window_height);
 		ImGuizmo::SetDrawlist();
 
 		// 選択ノードの行列を操作する
@@ -530,9 +527,8 @@ void Debug_UI::GameView_Render()
 	window_flags |= ImGuiWindowFlags_NoCollapse;
 
 	ImGui::Begin(u8"ゲーム", NULL, window_flags);
-	const float titleBarHeight = ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2.0f + 10;
-	const float window_width = ImGui::GetCurrentWindow()->InnerRect.GetWidth();
-	const float window_height = ImGui::GetCurrentWindow()->InnerRect.GetHeight();
+	const float window_width = ImGui::GetCurrentWindow()->InnerRect.GetWidth() - 8;
+	const float window_height = ImGui::GetCurrentWindow()->InnerRect.GetHeight() - 8;
 	Engine::view_game->Set_Screen_Size((int)window_width, (int)window_height);
 	ImGui::Image((void*)Engine::view_game->ShaderResourceView_Render.Get(), ImVec2(window_width, window_height));
 

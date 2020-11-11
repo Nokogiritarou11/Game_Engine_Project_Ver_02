@@ -14,6 +14,8 @@ using namespace std;
 
 ComPtr <ID3D11Buffer> SkinMesh_Renderer::ConstantBuffer_CbMesh;
 ComPtr <ID3D11Buffer> SkinMesh_Renderer::ConstantBuffer_CbColor;
+unique_ptr<Shader> SkinMesh_Renderer::shadow_shader;
+unique_ptr<Shader> SkinMesh_Renderer::vertex_shader;
 
 void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 {
@@ -43,6 +45,18 @@ void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 		bd.StructureByteStride = 0;
 		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer_CbColor.GetAddressOf());
 		assert(SUCCEEDED(hr));
+	}
+
+	if (!shadow_shader)
+	{
+		shadow_shader = make_unique<Shader>();
+		shadow_shader->Create_VS(L"Shader/SkinMesh_ShadowMap_Shader_VS.hlsl", "VSMain");
+	}
+
+	if (!vertex_shader)
+	{
+		vertex_shader = make_unique<Shader>();
+		vertex_shader->Create_VS(L"Shader/SkinMesh_Shader_VS.hlsl", "VSMain");
 	}
 
 	if (file_path != "")
@@ -95,10 +109,6 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 				Material::Initialize(Mat, mesh_data->Default_Material_Passes[i]);
 				material.push_back(Mat);
 			}
-			else
-			{
-
-			}
 		}
 		// ノード
 		const std::vector<Mesh::Node>& res_nodes = mesh_data->nodes;
@@ -140,7 +150,7 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 			DxSystem::DeviceContext->IASetIndexBuffer(mesh.index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 			for (auto& subset : mesh.subsets)
 			{
-				DxSystem::DeviceContext->IASetInputLayout(material[subset.material_ID]->shader->VertexLayout.Get());
+				DxSystem::DeviceContext->IASetInputLayout(vertex_shader->VertexLayout.Get());
 
 				// メッシュ用定数バッファ更新
 				CbMesh cbMesh;
@@ -149,10 +159,10 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 				{
 					for (size_t i = 0; i < mesh.nodeIndices.size(); ++i)
 					{
-						DirectX::XMMATRIX world_transform = DirectX::XMLoadFloat4x4(&nodes.at(mesh.nodeIndices.at(i)).worldTransform);
-						DirectX::XMMATRIX inverse_transform = DirectX::XMLoadFloat4x4(&mesh.inverseTransforms.at(i));
-						DirectX::XMMATRIX bone_transform = inverse_transform * world_transform;
-						DirectX::XMStoreFloat4x4(&cbMesh.bone_transforms[i], bone_transform);
+						Matrix world_transform = nodes.at(mesh.nodeIndices.at(i)).worldTransform;
+						Matrix inverse_transform = mesh.inverseTransforms.at(i);
+						Matrix bone_transform = inverse_transform * world_transform;
+						cbMesh.bone_transforms[i] = bone_transform;
 					}
 				}
 				else
@@ -170,14 +180,15 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 
 				material[subset.material_ID]->Active_Texture(); //PSSetSamplar PSSetShaderResources
 				//シェーダーリソースのバインド
-				material[subset.material_ID]->Active_Shader(); //PS,VSSetShader
+				vertex_shader->Activate_VS(); //VSsetShader
+				material[subset.material_ID]->shader->Activate_PS(); //PSSetShader
 				// ↑で設定したリソースを利用してポリゴンを描画する。
 				DxSystem::DeviceContext->DrawIndexed(subset.index_count, subset.index_start, 0);
 			}
 		}
 	}
 }
-void SkinMesh_Renderer::Render(Matrix V, Matrix P, bool Use_Material = true, shared_ptr<Shader> shader = nullptr)
+void SkinMesh_Renderer::Render_Shadow(Matrix V, Matrix P)
 {
 	CalculateLocalTransform();
 	static const Matrix C = {
@@ -199,7 +210,7 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P, bool Use_Material = true, sha
 			DxSystem::DeviceContext->IASetIndexBuffer(mesh.index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 			for (auto& subset : mesh.subsets)
 			{
-				DxSystem::DeviceContext->IASetInputLayout(material[subset.material_ID]->shader->VertexLayout.Get());
+				DxSystem::DeviceContext->IASetInputLayout(vertex_shader->VertexLayout.Get());
 
 				// メッシュ用定数バッファ更新
 				CbMesh cbMesh;
@@ -208,10 +219,10 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P, bool Use_Material = true, sha
 				{
 					for (size_t i = 0; i < mesh.nodeIndices.size(); ++i)
 					{
-						DirectX::XMMATRIX world_transform = DirectX::XMLoadFloat4x4(&nodes.at(mesh.nodeIndices.at(i)).worldTransform);
-						DirectX::XMMATRIX inverse_transform = DirectX::XMLoadFloat4x4(&mesh.inverseTransforms.at(i));
-						DirectX::XMMATRIX bone_transform = inverse_transform * world_transform;
-						DirectX::XMStoreFloat4x4(&cbMesh.bone_transforms[i], bone_transform);
+						Matrix world_transform = nodes.at(mesh.nodeIndices.at(i)).worldTransform;
+						Matrix inverse_transform = mesh.inverseTransforms.at(i);
+						Matrix bone_transform = inverse_transform * world_transform;
+						cbMesh.bone_transforms[i] = bone_transform;
 					}
 				}
 				else
@@ -227,9 +238,8 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P, bool Use_Material = true, sha
 				DxSystem::DeviceContext->PSSetConstantBuffers(2, 1, ConstantBuffer_CbColor.GetAddressOf());
 				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbColor.Get(), 0, 0, &cbColor, 0, 0);
 
-				//material[subset.material_ID]->texture->Set(Use_Material); //PSSetSamplar PSSetShaderResources
 				//シェーダーリソースのバインド
-				shader->Activate(); //PS,VSSetShader
+				shadow_shader->Activate(); //PS,VSSetShader
 				// ↑で設定したリソースを利用してポリゴンを描画する。
 				DxSystem::DeviceContext->DrawIndexed(subset.index_count, subset.index_start, 0);
 			}
@@ -243,11 +253,11 @@ void SkinMesh_Renderer::CalculateLocalTransform()
 	for (auto& node : nodes)
 	{
 		Matrix scale, rotation, position;
-		scale = DirectX::XMMatrixScaling(node.scale.x, node.scale.y, node.scale.z);
-		rotation = DirectX::XMMatrixRotationQuaternion(DirectX::XMVectorSet(node.rotation.x, node.rotation.y, node.rotation.z, node.rotation.w));
-		position = DirectX::XMMatrixTranslation(node.position.x, node.position.y, node.position.z);
+		scale = Matrix::CreateScale(node.scale.x, node.scale.y, node.scale.z);
+		rotation = Matrix::CreateFromQuaternion(DirectX::XMVectorSet(node.rotation.x, node.rotation.y, node.rotation.z, node.rotation.w));
+		position = Matrix::CreateTranslation(node.position.x, node.position.y, node.position.z);
 
-		DirectX::XMStoreFloat4x4(&node.localTransform, scale * rotation * position);
+		node.localTransform = scale * rotation * position;
 	}
 }
 
@@ -256,15 +266,15 @@ void SkinMesh_Renderer::CalculateWorldTransform(const Matrix& world_transform)
 {
 	for (auto& node : nodes)
 	{
-		Matrix localTransform = DirectX::XMLoadFloat4x4(&node.localTransform);
+		Matrix localTransform = node.localTransform;
 		if (node.parent != nullptr)
 		{
-			Matrix parentTransform = DirectX::XMLoadFloat4x4(&node.parent->worldTransform);
-			DirectX::XMStoreFloat4x4(&node.worldTransform, localTransform * parentTransform);
+			Matrix parentTransform = node.parent->worldTransform;
+			node.worldTransform = localTransform * parentTransform;
 		}
 		else
 		{
-			DirectX::XMStoreFloat4x4(&node.worldTransform, localTransform * world_transform);
+			node.worldTransform = localTransform * world_transform;
 		}
 	}
 }
@@ -349,7 +359,7 @@ bool SkinMesh_Renderer::Draw_ImGui()
 		}
 		ID_bone = 0;
 
-		for (int i=0; i<5; ++i) ImGui::Spacing();
+		for (int i = 0; i < 5; ++i) ImGui::Spacing();
 		static int ID_mat = 0;
 		if (mesh_data)
 		{

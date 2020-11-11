@@ -27,4 +27,5 @@ private:
 	};
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> ConstantBuffer_CbSkyBox;		//コンスタントバッファ
+	std::unique_ptr<Shader> vertex_shader;
 };

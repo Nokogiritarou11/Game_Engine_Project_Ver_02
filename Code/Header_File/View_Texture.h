@@ -29,7 +29,7 @@ public:
 	void Set_Screen_Size(int x, int y);
 	virtual void Render(Matrix V, Matrix P, std::shared_ptr<Transform> trans) = 0;
 	void Render_Sky(std::shared_ptr<Transform> trans);
-	void Render_3D(Matrix V, Matrix P, bool Use_Material = true, std::shared_ptr<Shader> shader = nullptr);
+	void Render_3D(Matrix V, Matrix P, bool Is_Shadow);
 	void Render_2D(Matrix V, Matrix P);
 
 	int screen_x = 0;

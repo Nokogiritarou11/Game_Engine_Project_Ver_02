@@ -38,6 +38,8 @@ private:
 	std::string file_name;
 	std::string file_path;
 
+	static std::unique_ptr<Shader> default_shader;
+
 	friend class cereal::access;
 	template<class Archive>
 	void serialize(Archive& archive)

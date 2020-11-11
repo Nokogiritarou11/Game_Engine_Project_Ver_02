@@ -1,5 +1,10 @@
-#include "Shader\\Standard_Shader.hlsli"
-#include "Shader\\Scene_Constants.hlsli"
+#include "Scene_Constants.hlsli"
+
+#define MAX_BONES 128
+cbuffer CbMesh : register(b1)
+{
+    row_major float4x4 boneTransforms[MAX_BONES];
+};
 
 VS_OUT VSMain(
 	float3 position : POSITION,
@@ -41,7 +46,7 @@ VS_OUT VSMain(
 	vout.color.w = materialColor.w;
 	*/
 	vout.texcoord = texcoord;
-	
+
 	///*
 	vout.sdwcoord = mul(w_pos, shadowMatrix);
 	//*/

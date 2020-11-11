@@ -1,6 +1,6 @@
-#include "Shader\\Scene_Constants.hlsli"
+#include "Scene_Constants.hlsli"
 
-struct VS_OUT
+struct VS_SHADOW_OUT
 {
 	float4 position : SV_POSITION;
 };
@@ -11,7 +11,7 @@ cbuffer CbMesh : register(b1)
 	row_major float4x4	boneTransforms[MAX_BONES];
 };
 
-VS_OUT VSMain(
+VS_SHADOW_OUT VSMain(
 	float3 position : POSITION,
 	float3 normal : NORMAL,
 	float3 tangent : TANGENT,
@@ -20,7 +20,7 @@ VS_OUT VSMain(
 	uint4 bone_indices : BONES
 )
 {
-	VS_OUT vout;
+    VS_SHADOW_OUT vout;
 
 	float4 pos = float4(position, 1.0f);
 	float3 p = { 0, 0, 0 };

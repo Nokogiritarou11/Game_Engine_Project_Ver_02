@@ -5,12 +5,9 @@
 class SkinMesh_Renderer : public Renderer
 {
 public:
-
 	void Set_Mesh(std::shared_ptr<Mesh> Mesh_Data); //メッシュデータを設定する
 
-	//const std::vector<Node>& GetNodes() const { return nodes; }
-	//std::vector<Node>& GetNodes() { return nodes; }
-
+private:
 	std::shared_ptr<Mesh> mesh_data;
 
 	struct CbMesh
@@ -26,8 +23,6 @@ public:
 	static ComPtr <ID3D11Buffer> ConstantBuffer_CbMesh;  //コンスタントバッファ(メッシュデータ)
 	static ComPtr <ID3D11Buffer> ConstantBuffer_CbColor; //コンスタントバッファ(カラー)
 
-
-private:
 	struct Node
 	{
 		const char* name;
@@ -43,7 +38,7 @@ private:
 
 	void Initialize(std::shared_ptr<GameObject> obj);
 	void Render(Matrix V, Matrix P) override;
-	void Render(Matrix V, Matrix P, bool Use_Material, std::shared_ptr<Shader> shader) override;
+	void Render_Shadow(Matrix V, Matrix P) override;
 	bool Draw_ImGui() override;
 	void SetActive(bool value) override;
 
@@ -53,6 +48,12 @@ private:
 
 	void Reset();
 
+	std::string file_name;
+	std::string file_path;
+
+	static std::unique_ptr<Shader> shadow_shader;
+	static std::unique_ptr<Shader> vertex_shader;
+
 	friend class Animator;
 	friend class cereal::access;
 	template<class Archive>
@@ -60,10 +61,6 @@ private:
 	{
 		archive(cereal::base_class<Renderer>(this), file_name, file_path);
 	}
-
-	std::string file_name;
-	std::string file_path;
-
 };
 
 CEREAL_REGISTER_TYPE(SkinMesh_Renderer)

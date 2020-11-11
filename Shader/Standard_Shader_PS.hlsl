@@ -1,5 +1,9 @@
-#include "Shader\\Standard_Shader.hlsli"
-#include "Shader\\Scene_Constants.hlsli"
+#include "Scene_Constants.hlsli"
+
+cbuffer CbColor : register(b2)
+{
+    float4 materialColor;
+};
 
 Texture2D shadowMap : register(t0);
 Texture2D diffuseMap : register(t1);

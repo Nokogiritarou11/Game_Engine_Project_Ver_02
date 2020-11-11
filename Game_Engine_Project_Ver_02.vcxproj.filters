@@ -6,13 +6,15 @@
     </FxCompile>
     <FxCompile Include="Code\Shader\Default_Mesh.fx" />
     <FxCompile Include="Code\Shader\Default_SkinMesh.fx" />
-    <FxCompile Include="Shader\Standard_Shader_VS.hlsl" />
     <FxCompile Include="Shader\Standard_Shader_PS.hlsl" />
     <FxCompile Include="Shader\SkyBox_Shader_VS.hlsl" />
     <FxCompile Include="Shader\SkyBox_Shader_PS.hlsl" />
-    <FxCompile Include="Shader\ShadowMap_Shader_VS.hlsl" />
     <FxCompile Include="Shader\2D_Shader_VS.hlsl" />
     <FxCompile Include="Shader\2D_Shader_PS.hlsl" />
+    <FxCompile Include="Shader\SkinMesh_Shader_VS.hlsl" />
+    <FxCompile Include="Shader\Mesh_Shader_VS.hlsl" />
+    <FxCompile Include="Shader\SkinMesh_ShadowMap_Shader_VS.hlsl" />
+    <FxCompile Include="Shader\Mesh_ShadowMap_Shader_VS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Souse_File\Audio_Manager.cpp">
@@ -92,6 +94,7 @@
     <ClCompile Include="Code\Libraries\ImGuizmo\ImSequencer.cpp" />
     <ClCompile Include="Code\Souse_File\AudioSource.cpp" />
     <ClCompile Include="Code\Souse_File\Resources.cpp" />
+    <ClCompile Include="Code\Souse_File\Line_Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Audio_Manager.h">
@@ -270,6 +273,7 @@
     <ClInclude Include="Code\Libraries\ImGuizmo\ImSequencer.h" />
     <ClInclude Include="Code\Header_File\AudioSource.h" />
     <ClInclude Include="Code\Header_File\Resources.h" />
+    <ClInclude Include="Code\Header_File\Line_Renderer.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Sources">
@@ -286,9 +290,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shader\Standard_Shader.hlsli" />
     <None Include="Shader\SkyBox_Shader.hlsli" />
     <None Include="Shader\Scene_Constants.hlsli" />
-    <None Include="Shader\2D_Shader.hlsli" />
   </ItemGroup>
 </Project>

@@ -25,12 +25,6 @@ using Microsoft::WRL::ComPtr;
 class Light : public Behaviour
 {
 public:
-	void Set(std::shared_ptr<Transform> trans);
-
-	ComPtr<ID3D11DepthStencilView>		DepthStencilView = nullptr;
-	ComPtr<ID3D11Texture2D>				DepthStencilTexture = nullptr;
-	ComPtr<ID3D11ShaderResourceView>	ShaderResourceView = nullptr;
-	ComPtr<ID3D11SamplerState>		    sampler = nullptr;
 
 	Vector4 Direction = { 0,1,0,0 };
 	Matrix V = { 1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1 };
@@ -42,12 +36,21 @@ public:
 	u_int Shadow_Map_Texture_Size = 2048;
 	float Light_View_Size = 150;
 
-	std::shared_ptr<Shader> shader;
 
 private:
 	void Initialize(std::shared_ptr<GameObject> obj) override;
 	bool Draw_ImGui() override;
 	bool CanMultiple() override { return false; };
+
+	void Set(std::shared_ptr<Transform> trans);
+
+	ComPtr<ID3D11DepthStencilView>		DepthStencilView = nullptr;
+	ComPtr<ID3D11Texture2D>				DepthStencilTexture = nullptr;
+	ComPtr<ID3D11ShaderResourceView>	ShaderResourceView = nullptr;
+	ComPtr<ID3D11SamplerState>		    sampler = nullptr;
+
+	friend class View_Game;
+	friend class View_Scene;
 	friend class cereal::access;
 	template<class Archive>
 	void serialize(Archive& archive)

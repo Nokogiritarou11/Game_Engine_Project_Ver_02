@@ -41,7 +41,7 @@ private:
 
 	friend class View_Texture;
 	virtual void Render(Matrix V, Matrix P) {};
-	virtual void Render(Matrix V, Matrix P, bool Use_Material, std::shared_ptr<Shader> shader) {};
+	virtual void Render_Shadow(Matrix V, Matrix P) {};
 
 	friend class cereal::access;
 	template<class Archive>

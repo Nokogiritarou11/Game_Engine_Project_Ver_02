@@ -180,7 +180,7 @@ void View_Texture::Render_Sky(std::shared_ptr<Transform> trans)
 	skybox->Render(trans->Get_position());
 }
 
-void View_Texture::Render_3D(Matrix V, Matrix P, bool Use_Material, std::shared_ptr<Shader> shader)
+void View_Texture::Render_3D(Matrix V, Matrix P, bool Is_Shadow)
 {
 	//ブレンドステート設定
 	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_NONE), nullptr, 0xFFFFFFFF);
@@ -203,13 +203,13 @@ void View_Texture::Render_3D(Matrix V, Matrix P, bool Use_Material, std::shared_
 			{
 				if (p_rend->enableSelf())
 				{
-					if (Use_Material)
+					if (Is_Shadow)
 					{
-						p_rend->Render(V, P);
+						p_rend->Render_Shadow(V, P);
 					}
 					else
 					{
-						p_rend->Render(V, P, Use_Material, shader);
+						p_rend->Render(V, P);
 					}
 				}
 			}

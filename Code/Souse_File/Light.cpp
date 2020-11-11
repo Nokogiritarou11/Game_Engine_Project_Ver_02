@@ -14,12 +14,8 @@ void Light::Initialize(std::shared_ptr<GameObject> obj)
 	gameObject = obj;
 	transform = obj->transform;
 
-	if (!shader)
+	if (!ShaderResourceView)
 	{
-		//Shadow_Map_Texture_Size = 4096;
-
-		shader = make_shared<Shader>();
-		shader->Create_VS(L"Shader\\ShadowMap_Shader_VS.hlsl", "VSMain");
 		// 深度ステンシル設定
 		D3D11_TEXTURE2D_DESC td;
 		ZeroMemory(&td, sizeof(D3D11_TEXTURE2D_DESC));
@@ -81,16 +77,7 @@ void Light::Initialize(std::shared_ptr<GameObject> obj)
 		sd.MipLODBias = 0;
 		sd.MinLOD = -FLT_MAX;
 		sd.MaxLOD = +FLT_MAX;
-		//*/
-		/*
-		sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-		sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-		sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-		sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-		sd.ComparisonFunc = D3D11_COMPARISON_NEVER;
-		sd.MinLOD = 0;
-		sd.MaxLOD = D3D11_FLOAT32_MAX;
-		*/
+
 		hr = DxSystem::Device->CreateSamplerState(
 			&sd, sampler.GetAddressOf());
 		assert(SUCCEEDED(hr));
@@ -99,7 +86,6 @@ void Light::Initialize(std::shared_ptr<GameObject> obj)
 
 void Light::Set(shared_ptr<Transform> trans)
 {
-	shader->Activate();
 	DxSystem::DeviceContext->OMSetRenderTargets(0, NULL, DepthStencilView.Get());
 	DxSystem::DeviceContext->ClearDepthStencilView(DepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 

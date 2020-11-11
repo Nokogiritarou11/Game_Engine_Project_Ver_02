@@ -492,3 +492,24 @@ void Shader::Activate()
 	DxSystem::DeviceContext->HSSetShader(HS.Get(), NULL, 0);
 	DxSystem::DeviceContext->DSSetShader(DS.Get(), NULL, 0);
 }
+
+void Shader::Activate_VS()
+{
+	DxSystem::DeviceContext->VSSetShader(VS.Get(), NULL, 0);
+}
+void Shader::Activate_PS()
+{
+	DxSystem::DeviceContext->PSSetShader(PS.Get(), NULL, 0);
+}
+void Shader::Activate_GS()
+{
+	DxSystem::DeviceContext->GSSetShader(GS.Get(), NULL, 0);
+}
+void Shader::Activate_HS()
+{
+	DxSystem::DeviceContext->HSSetShader(HS.Get(), NULL, 0);
+}
+void Shader::Activate_DS()
+{
+	DxSystem::DeviceContext->DSSetShader(DS.Get(), NULL, 0);
+}

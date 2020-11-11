@@ -1,13 +1,4 @@
-struct VS_IN
-{
-	float3 position : POSITION;
-	float3 normal : NORMAL;
-	float2 texcoord : TEXCOORD;
-	float4 bone_weights : WEIGHTS;
-	uint4 bone_indices : BONES;
-};
-
-struct VS_OUT
+struct VS_SKY_OUT
 {
 	float4 position : SV_POSITION;
 	float3 texcoord : TEXCOORD;

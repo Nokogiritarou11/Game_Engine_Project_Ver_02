@@ -1,4 +1,9 @@
-#include "Shader\\2D_Shader.hlsli"
+struct VS_OUT
+{
+    float4 position : SV_POSITION;
+    float2 texcoord : TEXCOORD;
+    float4 color : COLOR;
+};
 
 Texture2D tex2d : register(t1);
 SamplerState smpState : register(s1);

@@ -1,10 +1,23 @@
 #include "SkyBox.h"
+#include <sstream>
+#include <functional>
+#include <iostream>
+#include <fstream>
 using namespace std;
 
 SkyBox::SkyBox()
 {
-	material = Material::Create("Default_Resource\\Model\\sphere\\SkyBoxes\\envmap_miramar\\", "envmap_miramar", L"Shader\\SkyBox_Shader_VS.hlsl", L"Shader\\SkyBox_Shader_PS.hlsl");
-	material->texture[Texture::Main]->Load("Default_Resource\\Model\\sphere\\SkyBoxes\\envmap_miramar\\envmap_miramar.dds");
+	material = make_shared<Material>();
+	ifstream in_bin("Default_Resource\\Model\\sphere\\SkyBoxes\\envmap_miramar\\envmap_miramar.mat", ios::binary);
+	if (in_bin.is_open())
+	{
+		stringstream bin_s_stream;
+		bin_s_stream << in_bin.rdbuf();
+		cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
+		binaryInputArchive(material);
+		Material::Initialize(material, "Default_Resource\\Model\\sphere\\SkyBoxes\\envmap_miramar\\envmap_miramar.mat");
+	}
+
 	mesh_data = Mesh::Load_Mesh("Default_Resource\\Model\\sphere\\", "sphere");
 
 	// 定数バッファの生成
@@ -20,6 +33,12 @@ SkyBox::SkyBox()
 		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer_CbSkyBox.GetAddressOf());
 		assert(SUCCEEDED(hr));
 	}
+
+	if (!vertex_shader)
+	{
+		vertex_shader = make_unique<Shader>();
+		vertex_shader->Create_VS(L"Shader/SkyBox_Shader_VS.hlsl", "VSMain");
+	}
 }
 
 void SkyBox::Render(Vector3 pos)
@@ -27,7 +46,9 @@ void SkyBox::Render(Vector3 pos)
 	DxSystem::DeviceContext->IASetInputLayout(material->shader->VertexLayout.Get());
 	//シェーダーリソースのバインド
 	material->texture[Texture::Main]->Set(1); //PSSetSamplar PSSetShaderResources
-	material->shader->Activate(); //PS,VSSetShader
+
+	vertex_shader->Activate_VS();
+	material->shader->Activate_PS(); //PS,VSSetShader
 
 	// 定数バッファ更新
 	CbSkyBox cbSkyBox;
