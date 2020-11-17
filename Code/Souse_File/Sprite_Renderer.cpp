@@ -53,6 +53,10 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 	{
 		texture->Load(file_path + file_name);
 	}
+	else
+	{
+		texture->Load("Default_Resource\\Image\\Default_Texture.png");
+	}
 }
 
 void Sprite_Renderer::SetActive(bool value)
@@ -181,7 +185,14 @@ void Sprite_Renderer::Render(Matrix V, Matrix P)
 		data[2].Color = Color;
 		data[3].Color = Color;
 
-		DxSystem::DeviceContext->IASetInputLayout(material[0]->shader->VertexLayout.Get());
+		if (material.empty())
+		{
+			DxSystem::DeviceContext->IASetInputLayout(default_shader->VertexLayout.Get());
+		}
+		else
+		{
+			DxSystem::DeviceContext->IASetInputLayout(material[0]->shader->VertexLayout.Get());
+		}
 		//	頂点バッファの指定
 		UINT stride = sizeof(VERTEX);
 		UINT offset = 0;
