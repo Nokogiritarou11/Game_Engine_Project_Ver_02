@@ -17,7 +17,6 @@
 class Renderer : public Component
 {
 public:
-
 	void SetEnabled(bool value); //表示するか
 	bool enableSelf();			 //現在アクティブか
 
@@ -28,6 +27,7 @@ protected:
 	friend class Render_Manager;
 	bool IsCalled = false;
 	bool Disable_flg = false;
+	static const Matrix CorrectionMatrix;
 
 private:
 	bool CanMultiple() override { return false; };

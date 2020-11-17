@@ -156,15 +156,15 @@ public:
 
 private:
 	// ノードデータを構築
-	void BuildNodes(FbxNode* fbxNode, int parentNodeIndex);
-	void BuildNode(FbxNode* fbxNode, int parentNodeIndex);
+	void BuildNodes(FbxNode* fbxNode, int parentNodeIndex, bool isRight_Hand);
+	void BuildNode(FbxNode* fbxNode, int parentNodeIndex, bool isRight_Hand);
 
 	// メッシュデータを構築
-	void BuildMeshes(FbxNode* fbxNode);
-	void BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh);
+	void BuildMeshes(FbxNode* fbxNode, bool isRight_Hand);
+	void BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh, bool isRight_Hand);
 
 	// アニメーションデータを構築
-	void BuildAnimations(FbxScene* fbxScene);
+	void BuildAnimations(FbxScene* fbxScene, bool isRight_Hand);
 
 	// インデックスの検索
 	int FindNodeIndex(const char* name);

@@ -117,13 +117,6 @@ void Mesh_Renderer::Render(Matrix V, Matrix P)
 {
 	if (mesh_data)
 	{
-		const Matrix C = {
-			-1, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, 1, 0,
-			0, 0, 0, 1
-		};
-
 		for (auto& mesh : mesh_data->meshes)
 		{
 			// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
@@ -138,7 +131,7 @@ void Mesh_Renderer::Render(Matrix V, Matrix P)
 				// メッシュ用定数バッファ更新
 				CbMesh cbMesh;
 				::memset(&cbMesh, 0, sizeof(cbMesh));
-				cbMesh.world = C * transform->Get_world_matrix();
+				cbMesh.world = transform->Get_world_matrix();
 				DxSystem::DeviceContext->VSSetConstantBuffers(1, 1, ConstantBuffer_CbMesh.GetAddressOf());
 				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbMesh.Get(), 0, 0, &cbMesh, 0, 0);
 

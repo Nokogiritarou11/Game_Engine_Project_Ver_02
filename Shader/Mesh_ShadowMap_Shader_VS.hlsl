@@ -7,7 +7,7 @@ struct VS_SHADOW_OUT
 
 cbuffer CbMesh : register(b1)
 {
-    column_major float4x4 world;
+    row_major float4x4 world;
 };
 
 VS_SHADOW_OUT VSMain(

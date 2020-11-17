@@ -131,13 +131,7 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 {
 	CalculateLocalTransform();
-	const Matrix C = {
-		-1, 0, 0, 0,
-		0, 1, 0, 0,
-		0, 0, 1, 0,
-		0, 0, 0, 1
-	};
-	CalculateWorldTransform(C * transform->Get_world_matrix());
+	CalculateWorldTransform(transform->Get_world_matrix());
 
 	if (mesh_data)
 	{
@@ -155,19 +149,26 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 				// メッシュ用定数バッファ更新
 				CbMesh cbMesh;
 				::memset(&cbMesh, 0, sizeof(cbMesh));
-				if (mesh.nodeIndices.size() > 0)
+				if (!nodes.empty())
 				{
-					for (size_t i = 0; i < mesh.nodeIndices.size(); ++i)
+					if (mesh.nodeIndices.size() > 0)
 					{
-						Matrix world_transform = nodes.at(mesh.nodeIndices.at(i)).worldTransform;
-						Matrix inverse_transform = mesh.inverseTransforms.at(i);
-						Matrix bone_transform = inverse_transform * world_transform;
-						cbMesh.bone_transforms[i] = bone_transform;
+						for (size_t i = 0; i < mesh.nodeIndices.size(); ++i)
+						{
+							Matrix world_transform = nodes.at(mesh.nodeIndices.at(i)).worldTransform;
+							Matrix inverse_transform = mesh.inverseTransforms.at(i);
+							Matrix bone_transform = world_transform;
+							cbMesh.bone_transforms[i] = bone_transform;
+						}
+					}
+					else
+					{
+						cbMesh.bone_transforms[0] = nodes.at(mesh.nodeIndex).worldTransform;
 					}
 				}
 				else
 				{
-					cbMesh.bone_transforms[0] = nodes.at(mesh.nodeIndex).worldTransform;
+					cbMesh.bone_transforms[0] = Matrix::Identity;
 				}
 				DxSystem::DeviceContext->VSSetConstantBuffers(1, 1, ConstantBuffer_CbMesh.GetAddressOf());
 				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbMesh.Get(), 0, 0, &cbMesh, 0, 0);
@@ -191,13 +192,7 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 void SkinMesh_Renderer::Render_Shadow(Matrix V, Matrix P)
 {
 	CalculateLocalTransform();
-	static const Matrix C = {
-	   -1, 0, 0, 0,
-		0, 1, 0, 0,
-		0, 0, 1, 0,
-		0, 0, 0, 1
-	};
-	CalculateWorldTransform(C * transform->Get_world_matrix());
+	CalculateWorldTransform(transform->Get_world_matrix());
 
 	if (mesh_data)
 	{
@@ -215,19 +210,26 @@ void SkinMesh_Renderer::Render_Shadow(Matrix V, Matrix P)
 				// メッシュ用定数バッファ更新
 				CbMesh cbMesh;
 				::memset(&cbMesh, 0, sizeof(cbMesh));
-				if (mesh.nodeIndices.size() > 0)
+				if (!nodes.empty())
 				{
-					for (size_t i = 0; i < mesh.nodeIndices.size(); ++i)
+					if (mesh.nodeIndices.size() > 0)
 					{
-						Matrix world_transform = nodes.at(mesh.nodeIndices.at(i)).worldTransform;
-						Matrix inverse_transform = mesh.inverseTransforms.at(i);
-						Matrix bone_transform = inverse_transform * world_transform;
-						cbMesh.bone_transforms[i] = bone_transform;
+						for (size_t i = 0; i < mesh.nodeIndices.size(); ++i)
+						{
+							Matrix world_transform = nodes.at(mesh.nodeIndices.at(i)).worldTransform;
+							Matrix inverse_transform = mesh.inverseTransforms.at(i);
+							Matrix bone_transform = inverse_transform * world_transform;
+							cbMesh.bone_transforms[i] = bone_transform;
+						}
+					}
+					else
+					{
+						cbMesh.bone_transforms[0] = nodes.at(mesh.nodeIndex).worldTransform;
 					}
 				}
 				else
 				{
-					cbMesh.bone_transforms[0] = nodes.at(mesh.nodeIndex).worldTransform;
+					cbMesh.bone_transforms[0] = Matrix::Identity;
 				}
 				DxSystem::DeviceContext->VSSetConstantBuffers(1, 1, ConstantBuffer_CbMesh.GetAddressOf());
 				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbMesh.Get(), 0, 0, &cbMesh, 0, 0);

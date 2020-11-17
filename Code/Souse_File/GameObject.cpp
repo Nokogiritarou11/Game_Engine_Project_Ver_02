@@ -16,6 +16,18 @@ void GameObject::Initialize()
 
 void GameObject::Release()
 {
+	transform->Set_parent(nullptr);
+	while (transform->childCount())
+	{
+		for (int i = 0; i < transform->childCount(); ++i)
+		{
+			if (shared_ptr<Transform> child = transform->GetChild(i).lock())
+			{
+				GameObject::Destroy(child->gameObject);
+			}
+		}
+	}
+
 	for (shared_ptr<Component> c : Component_List)
 	{
 		c->gameObject.reset();

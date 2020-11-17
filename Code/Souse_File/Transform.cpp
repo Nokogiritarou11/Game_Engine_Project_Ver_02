@@ -198,14 +198,17 @@ bool Transform::Draw_ImGui()
 		if (ImGui::DragFloat3(u8"Position", pos, 0.05f, -FLT_MAX, FLT_MAX))
 		{
 			Set_localPosition(pos[0], pos[1], pos[2]);
+			Update_GUI = false;
 		}
 		if (ImGui::DragFloat3(u8"Rotation", rot, 0.05f, -FLT_MAX, FLT_MAX))
 		{
 			Set_localEulerAngles(rot[0], rot[1], rot[2]);
+			Update_GUI = false;
 		}
 		if (ImGui::DragFloat3(u8"Scale", scl, 0.01f, -FLT_MAX, FLT_MAX))
 		{
 			Set_localScale(scl[0], scl[1], scl[2]);
+			Update_GUI = false;
 		}
 	}
 	return true;
@@ -991,6 +994,15 @@ void Transform::Set_world_matrix(Matrix matrix)
 		localPosition = position;
 		localTranslation_matrix = translation_matrix;
 	}
+
+	forward = Vector3::Transform(Vector3::Forward, rotation_matrix);
+	forward.Normalize();
+
+	right = Vector3::Transform(Vector3::Right, rotation_matrix);
+	right.Normalize();
+
+	up = Vector3::Transform(Vector3::Up, rotation_matrix);
+	up.Normalize();
 
 	Change_Children();
 	hasChanged = true;
