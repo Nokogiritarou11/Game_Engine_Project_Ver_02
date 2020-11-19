@@ -171,6 +171,13 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_path, const char* fbx_filename
 			fbxGeometryConverter.Triangulate(fbxScene, true);
 			fbxGeometryConverter.RemoveBadPolygonsFromMeshes(fbxScene);
 
+			bool isRight_Hand = false;
+			FbxAxisSystem::ECoordSystem lCoorSystem = fbxScene->GetGlobalSettings().GetAxisSystem().GetCoorSystem();
+			if (lCoorSystem == FbxAxisSystem::eRightHanded)
+			{
+				//isRight_Hand = true;
+			}
+
 #if 0
 			// DirectX座標系へ変換
 			FbxAxisSystem sceneAxisSystem = fbxScene->GetGlobalSettings().GetAxisSystem();
@@ -186,13 +193,6 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_path, const char* fbx_filename
 				FbxAxisSystem::OpenGL.ConvertScene(fbxScene);
 			}
 #endif
-			bool isRight_Hand = false;
-			FbxAxisSystem::ECoordSystem lCoorSystem = fbxScene->GetGlobalSettings().GetAxisSystem().GetCoorSystem();
-			if (lCoorSystem == FbxAxisSystem::eRightHanded)
-			{
-				isRight_Hand = true;
-			}
-
 			// 単位系の統一。
 			FbxSystemUnit SceneSystemUnit = fbxScene->GetGlobalSettings().GetSystemUnit();
 			// センチメーター単位にコンバートする。
@@ -288,11 +288,11 @@ void Mesh::BuildNode(FbxNode* fbxNode, int parentNodeIndex, bool isRight_Hand)
 	node.rotation = FbxDouble4ToFloat4(fbxLocalTransform.GetQ());
 	node.position = FbxDouble4ToFloat3(fbxLocalTransform.GetT());
 	///*
-	if (isRight_Hand && parentNodeIndex != -1)
+	if (isRight_Hand)
 	{
-		//node.position.z *= -1;
+		//node.scale.z *= -1;
+		//node.rotation.x *= -1;
 		//node.rotation.y *= -1;
-		//node.rotation.z *= -1;
 	}//*/
 
 	nodes.emplace_back(node);
@@ -834,9 +834,10 @@ void Mesh::BuildAnimations(FbxScene* fbxScene, bool isRight_Hand)
 					///*
 					if (isRight_Hand)
 					{
+						//keyData.scale.z *= -1;
 						//keyData.position.z *= -1;
+						//keyData.rotation.x *= -1;
 						//keyData.rotation.y *= -1;
-						//keyData.rotation.z *= -1;
 					}//*/
 				}
 			}

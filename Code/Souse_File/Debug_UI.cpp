@@ -299,7 +299,7 @@ void Debug_UI::Debug_Log_Render()
 		}
 		Debug_Log.clear();
 	}
-	logger.Draw((u8"デバッグログ"), &Open_Log);
+	logger.Draw((u8"コンソール"), &Open_Log);
 }
 
 //ヒエラルキー描画
@@ -345,20 +345,26 @@ void Debug_UI::Inspector_Render()
 		ImGui::SameLine();
 		ImGui::InputText(u8"名前", &obj->name);
 
+		static int ID = 0;
 		bool removed = true;
 		while (removed)
 		{
 			bool removed_comp = false;
 			for (shared_ptr<Component> c : obj->Component_List)
 			{
+				ImGui::PushID(ID);
 				if (!c->Draw_ImGui())
 				{
 					removed_comp = true;
+					ImGui::PopID();
 					break;
 				}
+				ImGui::PopID();
+				++ID;
 			}
 			removed = removed_comp;
 		}
+		ID = 0;
 		ImGui::Separator();
 		All_Component_List::Add(obj);
 	}
@@ -464,6 +470,22 @@ void Debug_UI::SceneView_Render()
 	static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
 	static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
 
+	if (ImGui::IsWindowHovered())
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		float mouse_wheel = io.MouseWheel;
+		if (mouse_wheel != 0.0f)
+		{
+			Vector3 move = Debug_Camera_Transform->Get_forward() * mouse_wheel * 30;
+			Debug_Camera_Transform->Set_position(Debug_Camera_Transform->Get_position() + move);
+		}
+
+		if (ImGui::IsMouseDown(1))
+		{
+			ImGui::SetWindowFocus();
+		}
+	}
+
 	if (ImGui::IsWindowFocused())
 	{
 		Debug_Camera_Update();
@@ -487,6 +509,40 @@ void Debug_UI::SceneView_Render()
 					mCurrentGizmoMode = ImGuizmo::LOCAL;
 				}
 			}
+		}
+	}
+
+	//カメラ行列計算
+	{
+		// プロジェクション行列を作成
+		// 画面サイズ取得のためビューポートを取得
+		{
+			// 角度をラジアン(θ)に変換
+			fov_y = XMConvertToRadians(30);	// 画角
+			aspect = (float)Engine::view_scene->screen_x / (float)Engine::view_scene->screen_y;	// 画面比率
+			near_z = 0.1f;
+			far_z = 100000.0f;
+
+			XMStoreFloat4x4(&Debug_Camera_P, XMMatrixPerspectiveFovLH(fov_y, aspect, near_z, far_z));
+
+			//XMStoreFloat4x4(&Debug_Camera_P, XMMatrixOrthographicLH((float)Engine::view_scene->screen_x, (float)Engine::view_scene->screen_y, 0.1f, 1000.0f));
+		}
+		// ビュー行列を作成
+		// カメラの設定
+		{
+			Vector3 pos = Debug_Camera_Transform->Get_position();
+			Vector4 eye = { pos.x,pos.y,pos.z ,0 };
+			XMVECTOR eye_v = XMLoadFloat4(&eye);
+
+			XMVECTOR focus_v = eye_v + XMLoadFloat3(&Debug_Camera_Transform->Get_forward());
+
+			XMVECTOR camForward = XMVector3Normalize(focus_v - eye_v);    // Get forward vector based on target
+			camForward = XMVectorSetY(camForward, 0.0f);    // set forwards y component to 0 so it lays only on
+			camForward = XMVector3Normalize(camForward);
+			XMVECTOR camRight = XMVectorSet(-XMVectorGetZ(camForward), 0.0f, XMVectorGetX(camForward), 0.0f);
+
+			XMVECTOR up_v = Debug_Camera_Transform->Get_up();
+			XMStoreFloat4x4(&Debug_Camera_V, XMMatrixLookAtLH(eye_v, focus_v, up_v));
 		}
 	}
 
@@ -664,18 +720,38 @@ void Debug_UI::GameObject_List_Render(const unique_ptr<Scene>& scene)
 	{
 		static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 		static int selecting = -1;
-		bool DragMenu_Active = false;
+		bool Item_Clicked = false;
 
 		for (size_t i = 0; i < scene->gameObject_List.size();++i)
 		{
 			if (scene->gameObject_List[i]->transform->parent.expired())
 			{
-				GameObject_Tree_Render(ID, scene->gameObject_List[i], selecting, base_flags);
+				GameObject_Tree_Render(ID, scene->gameObject_List[i], selecting, base_flags, Item_Clicked);
 			}
+		}
+
+		if (!Item_Clicked && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0))
+		{
+			Active_Object.reset();
+			Active_Object_Old.reset();
+			selecting = -1;
 		}
 
 		if (ImGui::BeginPopupContextWindow(u8"ヒエラルキーサブ"))
 		{
+			if (ImGui::Selectable(u8"新規オブジェクトを追加"))
+			{
+				GameObject::Instantiate(u8"GameObject");
+			}
+			if (ImGui::Selectable(u8"プレハブを読み込む"))
+			{
+				string path = System_Function::Get_Open_File_Name();
+				if (path != "")
+				{
+					Resources::Load_Prefab(path);
+				}
+			}
+			ImGui::Separator();
 			if (!Active_Object.expired())
 			{
 				if (ImGui::Selectable(u8"オブジェクトを削除"))
@@ -712,26 +788,6 @@ void Debug_UI::GameObject_List_Render(const unique_ptr<Scene>& scene)
 							Active_Object.lock()->transform->Set_parent(nullptr);
 						}
 					}
-					ImGui::Separator();
-					if (ImGui::Selectable(u8"選択解除"))
-					{
-						Active_Object.reset();
-						Active_Object_Old.reset();
-						selecting = -1;
-					}
-				}
-			}
-			ImGui::Separator();
-			if (ImGui::Selectable(u8"新規オブジェクトを追加"))
-			{
-				GameObject::Instantiate(u8"GameObject");
-			}
-			if (ImGui::Selectable(u8"プレハブを読み込む"))
-			{
-				string path = System_Function::Get_Open_File_Name();
-				if (path != "")
-				{
-					Resources::Load_Prefab(path);
 				}
 			}
 			ImGui::EndPopup();
@@ -765,7 +821,7 @@ void Debug_UI::GameObject_List_Render(const unique_ptr<Scene>& scene)
 }
 
 //オブジェクトツリー描画
-void Debug_UI::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj, int& selecting, int flag)
+void Debug_UI::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj, int& selecting, int flag, bool& Item_Clicked)
 {
 	ImGui::PushID(ID);
 	const ImGuiTreeNodeFlags in_flag = flag;
@@ -787,6 +843,10 @@ void Debug_UI::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj
 			selecting = ID;
 			Active_Object = obj;
 		}
+		if (ImGui::IsItemClicked())
+		{
+			Item_Clicked = true;
+		}
 
 		GameObject_DragMenu_Render(obj);
 
@@ -795,7 +855,7 @@ void Debug_UI::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj
 			for (size_t i = 0; i < obj->transform->children.size();++i)
 			{
 				++ID;
-				GameObject_Tree_Render(ID, obj->transform->children[i].lock()->gameObject, selecting, in_flag);
+				GameObject_Tree_Render(ID, obj->transform->children[i].lock()->gameObject, selecting, in_flag, Item_Clicked);
 			}
 			ImGui::TreePop();
 		}
@@ -980,10 +1040,12 @@ void Debug_UI::ShortCut_Check()
 //シーンビューのカメラ操作
 void Debug_UI::Debug_Camera_Update()
 {
+	ImGuiIO& io = ImGui::GetIO();
 	//入力
 	{
 		static ImVec2 mouse_old_pos = { 0,0 };
 		static ImVec2 mouse_pos = { 0,0 };
+		Vector3 move = { 0,0,0 };
 		if (ImGui::IsMouseDown(1))
 		{
 			mouse_pos = ImGui::GetMousePos();
@@ -1005,8 +1067,16 @@ void Debug_UI::Debug_Camera_Update()
 				mouse_old_pos = mouse_pos;
 			}
 
-			Vector3 move = { 0,0,0 };
-			const float speed = 50;
+			static float speed = 50;
+			float mouse_wheel = io.MouseWheel;
+			if (mouse_wheel != 0.0f)
+			{
+				speed += mouse_wheel * 5;
+				if (speed < 5)
+				{
+					speed = 5;
+				}
+			}
 			if (ImGui::IsKeyDown(87))
 			{
 				move += Debug_Camera_Transform->Get_forward() * Time::deltaTime * speed;
@@ -1028,39 +1098,6 @@ void Debug_UI::Debug_Camera_Update()
 		else
 		{
 			mouse_old_pos = { -1,-1 };
-		}
-	}
-	//カメラ行列計算
-	{
-		// プロジェクション行列を作成
-		// 画面サイズ取得のためビューポートを取得
-		{
-			// 角度をラジアン(θ)に変換
-			fov_y = XMConvertToRadians(30);	// 画角
-			aspect = (float)Engine::view_scene->screen_x / (float)Engine::view_scene->screen_y;	// 画面比率
-			near_z = 0.1f;
-			far_z = 100000.0f;
-
-			XMStoreFloat4x4(&Debug_Camera_P, XMMatrixPerspectiveFovLH(fov_y, aspect, near_z, far_z));
-
-			//XMStoreFloat4x4(&Debug_Camera_P, XMMatrixOrthographicLH((float)Engine::view_scene->screen_x, (float)Engine::view_scene->screen_y, 0.1f, 1000.0f));
-		}
-		// ビュー行列を作成
-		// カメラの設定
-		{
-			Vector3 pos = Debug_Camera_Transform->Get_position();
-			Vector4 eye = { pos.x,pos.y,pos.z ,0 };
-			XMVECTOR eye_v = XMLoadFloat4(&eye);
-
-			XMVECTOR focus_v = eye_v + XMLoadFloat3(&Debug_Camera_Transform->Get_forward());
-
-			XMVECTOR camForward = XMVector3Normalize(focus_v - eye_v);    // Get forward vector based on target
-			camForward = XMVectorSetY(camForward, 0.0f);    // set forwards y component to 0 so it lays only on
-			camForward = XMVector3Normalize(camForward);
-			XMVECTOR camRight = XMVectorSet(-XMVectorGetZ(camForward), 0.0f, XMVectorGetX(camForward), 0.0f);
-
-			XMVECTOR up_v = Debug_Camera_Transform->Get_up();
-			XMStoreFloat4x4(&Debug_Camera_V, XMMatrixLookAtLH(eye_v, focus_v, up_v));
 		}
 	}
 }

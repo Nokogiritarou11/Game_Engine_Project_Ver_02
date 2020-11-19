@@ -28,7 +28,7 @@ private:
 		const char* name;
 		Node* parent;
 		Vector3	scale;
-		Vector4	rotation;
+		Quaternion rotation;
 		Vector3	euler;
 		Vector3	position;
 		Matrix	localTransform;

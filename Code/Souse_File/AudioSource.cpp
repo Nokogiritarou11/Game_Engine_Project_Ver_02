@@ -162,8 +162,16 @@ void AudioSource::Set_Pitch(float pitch)
 bool AudioSource::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	if (ImGui::CollapsingHeader("AudioSource"))
+	if (ImGui::CollapsingHeader("AudioSource", ImGuiTreeNodeFlags_AllowItemOverlap))
 	{
+		ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
+		static bool enable;
+		enable = enableSelf();
+		if (ImGui::Checkbox("##enable", &enable))
+		{
+			SetEnabled(enable);
+		}
+
 		bool removed = true;
 		if (ImGui::BeginPopupContextItem("AudioSource_sub"))
 		{
