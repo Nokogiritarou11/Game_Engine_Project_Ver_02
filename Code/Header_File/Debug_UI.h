@@ -46,7 +46,7 @@ private:
 	void MenuBar_Render();
 	void Scene_File_Menu_Render();
 	void GameObject_List_Render(const std::unique_ptr<Scene>& scene);
-	void GameObject_Tree_Render(int& ID, const std::shared_ptr<GameObject>& obj, int& selecting, int flag);
+	void GameObject_Tree_Render(int& ID, const std::shared_ptr<GameObject>& obj, int& selecting, int flag, bool& Item_Clicked);
 	void GameObject_DragMenu_Render(const std::shared_ptr<GameObject>& obj);
 
 	void ShortCut_Check();

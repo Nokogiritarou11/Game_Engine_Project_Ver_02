@@ -17,6 +17,8 @@
 class Renderer : public Component
 {
 public:
+	Renderer();
+
 	void SetEnabled(bool value); //表示するか
 	bool enableSelf();			 //現在アクティブか
 

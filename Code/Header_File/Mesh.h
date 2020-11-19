@@ -24,7 +24,7 @@ public:
 		std::string			name;
 		int					parentIndex;
 		Vector3	scale;
-		Vector4	rotation;
+		Quaternion	rotation;
 		Vector3	position;
 
 		template<class Archive>
@@ -87,7 +87,7 @@ public:
 	struct NodeKeyData
 	{
 		Vector3	scale;
-		Vector4	rotation;
+		Quaternion rotation;
 		Vector3	position;
 
 		template<class Archive>
