@@ -165,23 +165,25 @@ void Particle::Stop()
 bool Particle::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	if (ImGui::CollapsingHeader("Particle"))
-	{
-		bool removed = true;
-		if (ImGui::BeginPopupContextItem("Particle_sub"))
-		{
-			if (ImGui::Selectable(u8"コンポーネントを削除"))
-			{
-				Object::Destroy(dynamic_pointer_cast<Particle>(shared_from_this()));
-				removed = false;
-			}
-			ImGui::EndPopup();
-		}
-		if (!removed)
-		{
-			return false;
-		}
+	bool open = ImGui::CollapsingHeader("Particle");
 
+	bool removed = true;
+	if (ImGui::BeginPopupContextItem("Particle_sub"))
+	{
+		if (ImGui::Selectable(u8"コンポーネントを削除"))
+		{
+			Object::Destroy(dynamic_pointer_cast<Particle>(shared_from_this()));
+			removed = false;
+		}
+		ImGui::EndPopup();
+	}
+	if (!removed)
+	{
+		return false;
+	}
+
+	if (open)
+	{
 		ImGui::Text(u8"現在のパーティクル::");
 		ImGui::SameLine();
 		ImGui::Text(file_name.c_str());
