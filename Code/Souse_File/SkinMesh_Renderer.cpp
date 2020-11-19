@@ -155,15 +155,15 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 					{
 						for (size_t i = 0; i < mesh.nodeIndices.size(); ++i)
 						{
-							Matrix world_transform = nodes.at(mesh.nodeIndices.at(i)).worldTransform;
+							Matrix world_transform = nodes.at(mesh.nodeIndices.at(i)).worldTransform * CorrectionMatrix;
 							Matrix inverse_transform = mesh.inverseTransforms.at(i);
-							Matrix bone_transform = world_transform;
+							Matrix bone_transform = inverse_transform * world_transform;
 							cbMesh.bone_transforms[i] = bone_transform;
 						}
 					}
 					else
 					{
-						cbMesh.bone_transforms[0] = nodes.at(mesh.nodeIndex).worldTransform;
+						cbMesh.bone_transforms[0] = CorrectionMatrix * transform->Get_world_matrix();
 					}
 				}
 				else
@@ -216,7 +216,7 @@ void SkinMesh_Renderer::Render_Shadow(Matrix V, Matrix P)
 					{
 						for (size_t i = 0; i < mesh.nodeIndices.size(); ++i)
 						{
-							Matrix world_transform = nodes.at(mesh.nodeIndices.at(i)).worldTransform;
+							Matrix world_transform = nodes.at(mesh.nodeIndices.at(i)).worldTransform * CorrectionMatrix;
 							Matrix inverse_transform = mesh.inverseTransforms.at(i);
 							Matrix bone_transform = inverse_transform * world_transform;
 							cbMesh.bone_transforms[i] = bone_transform;
@@ -224,7 +224,7 @@ void SkinMesh_Renderer::Render_Shadow(Matrix V, Matrix P)
 					}
 					else
 					{
-						cbMesh.bone_transforms[0] = nodes.at(mesh.nodeIndex).worldTransform;
+						cbMesh.bone_transforms[0] = CorrectionMatrix * transform->Get_world_matrix();
 					}
 				}
 				else
@@ -291,8 +291,16 @@ void SkinMesh_Renderer::Reset()
 bool SkinMesh_Renderer::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	if (ImGui::CollapsingHeader("SkinMesh_Renderer"))
+	if (ImGui::CollapsingHeader("SkinMesh_Renderer", ImGuiTreeNodeFlags_AllowItemOverlap))
 	{
+		ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
+		static bool enable;
+		enable = enableSelf();
+		if (ImGui::Checkbox("##enable", &enable))
+		{
+			SetEnabled(enable);
+		}
+
 		bool removed = true;
 		if (ImGui::BeginPopupContextItem("SkinMesh_Renderer_sub"))
 		{
@@ -346,6 +354,7 @@ bool SkinMesh_Renderer::Draw_ImGui()
 					if (ImGui::TreeNode(node.name))
 					{
 						ImGui::DragFloat3(u8"Position", &node.position.x, 0.05f, -FLT_MAX, FLT_MAX);
+						//node.euler = node.rotation.To_Euler();
 						if (ImGui::DragFloat3(u8"Rotation", &node.euler.x, 0.05f, -FLT_MAX, FLT_MAX))
 						{
 							node.rotation = Quaternion::Euler(node.euler);

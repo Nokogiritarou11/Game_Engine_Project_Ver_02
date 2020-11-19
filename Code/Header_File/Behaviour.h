@@ -4,6 +4,7 @@
 class Behaviour : public Component
 {
 public:
+	Behaviour();
 
 	void SetEnabled(bool value);
 	bool enableSelf();

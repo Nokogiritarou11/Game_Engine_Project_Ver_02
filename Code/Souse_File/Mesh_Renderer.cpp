@@ -131,7 +131,7 @@ void Mesh_Renderer::Render(Matrix V, Matrix P)
 				// メッシュ用定数バッファ更新
 				CbMesh cbMesh;
 				::memset(&cbMesh, 0, sizeof(cbMesh));
-				cbMesh.world = transform->Get_world_matrix();
+				cbMesh.world = CorrectionMatrix * transform->Get_world_matrix();
 				DxSystem::DeviceContext->VSSetConstantBuffers(1, 1, ConstantBuffer_CbMesh.GetAddressOf());
 				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbMesh.Get(), 0, 0, &cbMesh, 0, 0);
 
@@ -169,7 +169,7 @@ void Mesh_Renderer::Render_Shadow(Matrix V, Matrix P)
 				// メッシュ用定数バッファ更新
 				CbMesh cbMesh;
 				::memset(&cbMesh, 0, sizeof(cbMesh));
-				cbMesh.world = transform->Get_world_matrix();
+				cbMesh.world = CorrectionMatrix * transform->Get_world_matrix();
 				DxSystem::DeviceContext->VSSetConstantBuffers(1, 1, ConstantBuffer_CbMesh.GetAddressOf());
 				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbMesh.Get(), 0, 0, &cbMesh, 0, 0);
 
@@ -197,8 +197,16 @@ void Mesh_Renderer::Reset()
 bool Mesh_Renderer::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	if (ImGui::CollapsingHeader("Mesh_Renderer"))
+	if (ImGui::CollapsingHeader("Mesh_Renderer", ImGuiTreeNodeFlags_AllowItemOverlap))
 	{
+		ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
+		static bool enable;
+		enable = enableSelf();
+		if (ImGui::Checkbox("##enable", &enable))
+		{
+			SetEnabled(enable);
+		}
+
 		bool removed = true;
 		if (ImGui::BeginPopupContextItem("Mesh_Renderer_sub"))
 		{

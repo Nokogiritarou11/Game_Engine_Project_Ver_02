@@ -122,8 +122,16 @@ void Animator::Pause()
 bool Animator::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	if (ImGui::CollapsingHeader("Animator"))
+	if (ImGui::CollapsingHeader("Animator", ImGuiTreeNodeFlags_AllowItemOverlap))
 	{
+		ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
+		static bool enable;
+		enable = enableSelf();
+		if (ImGui::Checkbox("##enable", &enable))
+		{
+			SetEnabled(enable);
+		}
+
 		bool removed = true;
 		if (ImGui::BeginPopupContextItem("Animator_sub"))
 		{

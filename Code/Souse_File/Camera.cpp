@@ -19,8 +19,16 @@ void Camera::Initialize(std::shared_ptr<GameObject> obj)
 bool Camera::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	if (ImGui::CollapsingHeader("Camera"))
+	if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_AllowItemOverlap))
 	{
+		ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
+		static bool enable;
+		enable = enableSelf();
+		if (ImGui::Checkbox("##enable", &enable))
+		{
+			SetEnabled(enable);
+		}
+
 		bool removed = true;
 		if (ImGui::BeginPopupContextItem("Camera_sub"))
 		{
