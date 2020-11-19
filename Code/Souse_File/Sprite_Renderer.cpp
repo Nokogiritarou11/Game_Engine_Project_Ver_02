@@ -213,31 +213,33 @@ void Sprite_Renderer::Render(Matrix V, Matrix P)
 bool Sprite_Renderer::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	if (ImGui::CollapsingHeader("Sprite_Renderer", ImGuiTreeNodeFlags_AllowItemOverlap))
+	bool open = ImGui::CollapsingHeader("Sprite_Renderer", ImGuiTreeNodeFlags_AllowItemOverlap);
+
+	bool removed = true;
+	if (ImGui::BeginPopupContextItem("Sprite_Renderer_sub"))
 	{
-		ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
-		static bool enable;
-		enable = enableSelf();
-		if (ImGui::Checkbox("##enable", &enable))
+		if (ImGui::Selectable(u8"コンポーネントを削除"))
 		{
-			SetEnabled(enable);
+			Object::Destroy(dynamic_pointer_cast<Sprite_Renderer>(shared_from_this()));
+			removed = false;
 		}
+		ImGui::EndPopup();
+	}
+	if (!removed)
+	{
+		return false;
+	}
 
-		bool removed = true;
-		if (ImGui::BeginPopupContextItem("Sprite_Renderer_sub"))
-		{
-			if (ImGui::Selectable(u8"コンポーネントを削除"))
-			{
-				Object::Destroy(dynamic_pointer_cast<Sprite_Renderer>(shared_from_this()));
-				removed = false;
-			}
-			ImGui::EndPopup();
-		}
-		if (!removed)
-		{
-			return false;
-		}
+	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
+	static bool enable;
+	enable = enableSelf();
+	if (ImGui::Checkbox("##enable", &enable))
+	{
+		SetEnabled(enable);
+	}
 
+	if (open)
+	{
 		ImGui::Text(u8"現在のテクスチャ::");
 		ImGui::SameLine();
 		ImGui::Text(file_name.c_str());

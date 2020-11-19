@@ -34,6 +34,7 @@ void GameObject::Release()
 		c->transform.reset();
 		c.reset();
 	}
+	transform.reset();
 	Component_List.clear();
 }
 

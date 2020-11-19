@@ -19,31 +19,34 @@ void Camera::Initialize(std::shared_ptr<GameObject> obj)
 bool Camera::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_AllowItemOverlap))
+	bool open = ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_AllowItemOverlap);
+
+	bool removed = true;
+	if (ImGui::BeginPopupContextItem("Camera_sub"))
 	{
-		ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
-		static bool enable;
-		enable = enableSelf();
-		if (ImGui::Checkbox("##enable", &enable))
+		if (ImGui::Selectable(u8"コンポーネントを削除"))
 		{
-			SetEnabled(enable);
+			Object::Destroy(dynamic_pointer_cast<Camera>(shared_from_this()));
+			removed = false;
 		}
-
-		bool removed = true;
-		if (ImGui::BeginPopupContextItem("Camera_sub"))
+		ImGui::EndPopup();
+		if (!removed)
 		{
-			if (ImGui::Selectable(u8"コンポーネントを削除"))
-			{
-				Object::Destroy(dynamic_pointer_cast<Camera>(shared_from_this()));
-				removed = false;
-			}
-			ImGui::EndPopup();
-			if (!removed)
-			{
-				return false;
-			}
+			return false;
 		}
+	}
 
+	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
+	static bool enable;
+	enable = enableSelf();
+	if (ImGui::Checkbox("##enable", &enable))
+	{
+		SetEnabled(enable);
+	}
+
+
+	if (open)
+	{
 		ImGui::DragFloat("FOV", &FOV, 0.1f, 0.01f, FLT_MAX);
 		ImGui::DragFloat(u8"最短描画距離", &near_z, 0.1f, -FLT_MAX, FLT_MAX);
 		ImGui::DragFloat(u8"最長描画距離", &far_z, 0.1f, -FLT_MAX, FLT_MAX);
