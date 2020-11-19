@@ -163,7 +163,7 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 					}
 					else
 					{
-						cbMesh.bone_transforms[0] = CorrectionMatrix * transform->Get_world_matrix();
+						cbMesh.bone_transforms[0] = transform->Get_world_matrix();
 					}
 				}
 				else
@@ -224,7 +224,7 @@ void SkinMesh_Renderer::Render_Shadow(Matrix V, Matrix P)
 					}
 					else
 					{
-						cbMesh.bone_transforms[0] = CorrectionMatrix * transform->Get_world_matrix();
+						cbMesh.bone_transforms[0] = transform->Get_world_matrix();
 					}
 				}
 				else
@@ -291,31 +291,33 @@ void SkinMesh_Renderer::Reset()
 bool SkinMesh_Renderer::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	if (ImGui::CollapsingHeader("SkinMesh_Renderer", ImGuiTreeNodeFlags_AllowItemOverlap))
+	bool open = ImGui::CollapsingHeader("SkinMesh_Renderer", ImGuiTreeNodeFlags_AllowItemOverlap);
+
+	bool removed = true;
+	if (ImGui::BeginPopupContextItem("SkinMesh_Renderer_sub"))
 	{
-		ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
-		static bool enable;
-		enable = enableSelf();
-		if (ImGui::Checkbox("##enable", &enable))
+		if (ImGui::Selectable(u8"コンポーネントを削除"))
 		{
-			SetEnabled(enable);
+			Object::Destroy(dynamic_pointer_cast<SkinMesh_Renderer>(shared_from_this()));
+			removed = false;
 		}
+		ImGui::EndPopup();
+	}
+	if (!removed)
+	{
+		return false;
+	}
 
-		bool removed = true;
-		if (ImGui::BeginPopupContextItem("SkinMesh_Renderer_sub"))
-		{
-			if (ImGui::Selectable(u8"コンポーネントを削除"))
-			{
-				Object::Destroy(dynamic_pointer_cast<SkinMesh_Renderer>(shared_from_this()));
-				removed = false;
-			}
-			ImGui::EndPopup();
-		}
-		if (!removed)
-		{
-			return false;
-		}
+	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
+	static bool enable;
+	enable = enableSelf();
+	if (ImGui::Checkbox("##enable", &enable))
+	{
+		SetEnabled(enable);
+	}
 
+	if (open)
+	{
 		ImGui::Text(u8"現在のメッシュ::");
 		ImGui::SameLine();
 		ImGui::Text(file_name.c_str());

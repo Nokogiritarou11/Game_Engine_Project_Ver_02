@@ -122,30 +122,33 @@ void Animator::Pause()
 bool Animator::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	if (ImGui::CollapsingHeader("Animator", ImGuiTreeNodeFlags_AllowItemOverlap))
-	{
-		ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
-		static bool enable;
-		enable = enableSelf();
-		if (ImGui::Checkbox("##enable", &enable))
-		{
-			SetEnabled(enable);
-		}
+	bool open = ImGui::CollapsingHeader("Animator", ImGuiTreeNodeFlags_AllowItemOverlap);
 
-		bool removed = true;
-		if (ImGui::BeginPopupContextItem("Animator_sub"))
+	bool removed = true;
+	if (ImGui::BeginPopupContextItem("Animator_sub"))
+	{
+		if (ImGui::Selectable(u8"コンポーネントを削除"))
 		{
-			if (ImGui::Selectable(u8"コンポーネントを削除"))
-			{
-				Object::Destroy(dynamic_pointer_cast<Animator>(shared_from_this()));
-				removed = false;
-			}
-			ImGui::EndPopup();
-			if (!removed)
-			{
-				return false;
-			}
+			Object::Destroy(dynamic_pointer_cast<Animator>(shared_from_this()));
+			removed = false;
 		}
+		ImGui::EndPopup();
+		if (!removed)
+		{
+			return false;
+		}
+	}
+
+	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
+	static bool enable;
+	enable = enableSelf();
+	if (ImGui::Checkbox("##enable", &enable))
+	{
+		SetEnabled(enable);
+	}
+
+	if (open)
+	{
 		if (skin_renderer.expired())
 		{
 			mesh_data = nullptr;

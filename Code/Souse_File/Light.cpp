@@ -133,31 +133,33 @@ void Light::Set(shared_ptr<Transform> trans)
 bool Light::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	if (ImGui::CollapsingHeader("Light", ImGuiTreeNodeFlags_AllowItemOverlap))
+	bool open = ImGui::CollapsingHeader("Light", ImGuiTreeNodeFlags_AllowItemOverlap);
+
+	bool removed = true;
+	if (ImGui::BeginPopupContextItem("Light_sub"))
 	{
-		ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
-		static bool enable;
-		enable = enableSelf();
-		if (ImGui::Checkbox("##enable", &enable))
+		if (ImGui::Selectable(u8"コンポーネントを削除"))
 		{
-			SetEnabled(enable);
+			Object::Destroy(dynamic_pointer_cast<SkinMesh_Renderer>(shared_from_this()));
+			removed = false;
 		}
+		ImGui::EndPopup();
+	}
+	if (!removed)
+	{
+		return false;
+	}
 
-		bool removed = true;
-		if (ImGui::BeginPopupContextItem("Light_sub"))
-		{
-			if (ImGui::Selectable(u8"コンポーネントを削除"))
-			{
-				Object::Destroy(dynamic_pointer_cast<SkinMesh_Renderer>(shared_from_this()));
-				removed = false;
-			}
-			ImGui::EndPopup();
-		}
-		if (!removed)
-		{
-			return false;
-		}
+	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
+	static bool enable;
+	enable = enableSelf();
+	if (ImGui::Checkbox("##enable", &enable))
+	{
+		SetEnabled(enable);
+	}
 
+	if (open)
+	{
 		float out_color[4] = { Color.x,Color.y,Color.z,Color.w };
 		ImGui::ColorEdit3("Color", out_color);
 		Color = { out_color[0],out_color[1] ,out_color[2] ,out_color[3] };

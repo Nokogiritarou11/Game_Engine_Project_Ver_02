@@ -198,10 +198,18 @@ void Scene::Reset()
 	MonoBehaviour_Start_list.clear();
 	MonoBehaviour_Start_Next_list.clear();
 
+	vector<shared_ptr<GameObject>> no_parent_list;
 	for (shared_ptr<GameObject> g : gameObject_List)
 	{
-		g->Release();
-		g->transform.reset();
+		if (g->transform->Get_parent().expired())
+		{
+			no_parent_list.emplace_back(g);
+		}
 	}
+	for (shared_ptr<GameObject> g : no_parent_list)
+	{
+		g->Release();
+	}
+	no_parent_list.clear();
 	gameObject_List.clear();
 }

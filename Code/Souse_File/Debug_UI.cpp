@@ -472,17 +472,19 @@ void Debug_UI::SceneView_Render()
 
 	if (ImGui::IsWindowHovered())
 	{
-		ImGuiIO& io = ImGui::GetIO();
-		float mouse_wheel = io.MouseWheel;
-		if (mouse_wheel != 0.0f)
-		{
-			Vector3 move = Debug_Camera_Transform->Get_forward() * mouse_wheel * 30;
-			Debug_Camera_Transform->Set_position(Debug_Camera_Transform->Get_position() + move);
-		}
-
 		if (ImGui::IsMouseDown(1))
 		{
 			ImGui::SetWindowFocus();
+		}
+		else
+		{
+			ImGuiIO& io = ImGui::GetIO();
+			float mouse_wheel = io.MouseWheel;
+			if (mouse_wheel != 0.0f)
+			{
+				Vector3 move = Debug_Camera_Transform->Get_forward() * mouse_wheel * 30;
+				Debug_Camera_Transform->Set_position(Debug_Camera_Transform->Get_position() + move);
+			}
 		}
 	}
 
