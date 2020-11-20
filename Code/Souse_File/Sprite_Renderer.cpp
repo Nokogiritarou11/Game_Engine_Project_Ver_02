@@ -19,8 +19,6 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 	gameObject = obj;
 	transform = obj->transform;
 
-	SetEnabled(enableSelf());
-
 	VERTEX v[] = {
 		XMFLOAT3(-0.5f, 0.5f,0),  XMFLOAT2(0,0), XMFLOAT4(1,1,1,1), //ç∂è„
 		XMFLOAT3(0.5f, 0.5f,0),  XMFLOAT2(1,0), XMFLOAT4(1,1,1,1), //âEè„
@@ -57,6 +55,8 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 	{
 		texture->Load("Default_Resource\\Image\\Default_Texture.png");
 	}
+
+	SetActive(enableSelf());
 }
 
 void Sprite_Renderer::SetActive(bool value)
