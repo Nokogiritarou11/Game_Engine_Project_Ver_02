@@ -44,7 +44,7 @@ void Animator::Update()
 	const std::vector<Mesh::Keyframe>& keyframes = animation.keyframes;
 
 	shared_ptr<SkinMesh_Renderer> skin = skin_renderer.lock();
-	vector<SkinMesh_Renderer::Node>& nodes = skin->nodes;
+	vector<weak_ptr<Transform>>& nodes = skin->bones;
 
 	int keyCount = static_cast<int>(keyframes.size());
 	for (int keyIndex = 0; keyIndex < keyCount - 1; ++keyIndex)
@@ -65,11 +65,11 @@ void Animator::Update()
 				const Mesh::NodeKeyData& key0 = keyframe0.nodeKeys.at(nodeIndex);
 				const Mesh::NodeKeyData& key1 = keyframe1.nodeKeys.at(nodeIndex);
 
-				SkinMesh_Renderer::Node& node = nodes[nodeIndex];
+				shared_ptr<Transform> bone = nodes[nodeIndex].lock();
 
-				node.scale = DirectX::XMVectorLerp(key0.scale, key1.scale, rate);
-				node.rotation = DirectX::XMQuaternionSlerp(key0.rotation, key1.rotation, rate);
-				node.position = DirectX::XMVectorLerp(key0.position, key1.position, rate);
+				bone->Set_localScale(DirectX::XMVectorLerp(key0.scale, key1.scale, rate));
+				bone->Set_localRotation(DirectX::XMQuaternionSlerp(key0.rotation, key1.rotation, rate));
+				bone->Set_localPosition(DirectX::XMVectorLerp(key0.position, key1.position, rate));
 			}
 			break;
 		}

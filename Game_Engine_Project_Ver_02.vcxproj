@@ -209,6 +209,7 @@
     <ClCompile Include="Code\Souse_File\Debug_UI.cpp" />
     <ClCompile Include="Code\Souse_File\DxSystem.cpp" />
     <ClCompile Include="Code\Souse_File\Engine.cpp" />
+    <ClCompile Include="Code\Souse_File\FBX_Converter.cpp" />
     <ClCompile Include="Code\Souse_File\GameObject.cpp" />
     <ClCompile Include="Code\Souse_File\Input_Manager.cpp" />
     <ClCompile Include="Code\Souse_File\Light.cpp" />
@@ -290,6 +291,7 @@
     <ClInclude Include="Code\Header_File\Debug_UI.h" />
     <ClInclude Include="Code\Header_File\DxSystem.h" />
     <ClInclude Include="Code\Header_File\Engine.h" />
+    <ClInclude Include="Code\Header_File\FBX_Converter.h" />
     <ClInclude Include="Code\Header_File\GameObject.h" />
     <ClInclude Include="Code\Header_File\Include_ImGui.h" />
     <ClInclude Include="Code\Header_File\Input_Manager.h" />

@@ -7,6 +7,7 @@
 #include "Particle_Manager.h"
 #include "View_Scene.h"
 #include "View_Game.h"
+#include "FBX_Converter.h"
 #include "All_Component_List.h"
 #include "Resources.h"
 #include "Include_ImGui.h"
@@ -131,6 +132,9 @@ void Debug_UI::Update(const unique_ptr<Scene>& scene)
 
 		//シーン再生UI
 		ScenePlayer_Render();
+
+		//アセットマネージャー
+		FileResource_Render();
 
 		//描画
 		{
@@ -313,7 +317,111 @@ void Debug_UI::Hierarchy_Render(const unique_ptr<Scene>& scene)
 
 	ImGui::Begin(u8"ヒエラルキー", NULL, window_flags);
 
-	GameObject_List_Render(scene);
+	static int ID = 0;
+
+	ImGui::SetNextItemOpen(true, ImGuiCond_Always);
+	if (ImGui::TreeNode(scene->name.c_str()))
+	{
+		static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+		static int selecting = -1;
+		bool Item_Clicked = false;
+
+		for (size_t i = 0; i < scene->gameObject_List.size();++i)
+		{
+			if (scene->gameObject_List[i]->transform->parent.expired())
+			{
+				GameObject_Tree_Render(ID, scene->gameObject_List[i], selecting, base_flags, Item_Clicked);
+			}
+		}
+
+		if (!Item_Clicked && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0))
+		{
+			Active_Object.reset();
+			Active_Object_Old.reset();
+			selecting = -1;
+		}
+
+		if (ImGui::BeginPopupContextWindow(u8"ヒエラルキーサブ"))
+		{
+			if (ImGui::Selectable(u8"新規オブジェクトを追加"))
+			{
+				GameObject::Instantiate(u8"GameObject");
+			}
+			if (ImGui::Selectable(u8"プレハブを読み込む"))
+			{
+				string path = System_Function::Get_Open_File_Name();
+				if (path != "")
+				{
+					Resources::Load_Prefab(path);
+				}
+			}
+			ImGui::Separator();
+			if (!Active_Object.expired())
+			{
+				if (ImGui::Selectable(u8"オブジェクトを削除"))
+				{
+					GameObject::Destroy(Active_Object.lock());
+					Active_Object.reset();
+					Active_Object_Old.reset();
+					selecting = -1;
+				}
+
+				if (!Active_Object.expired())
+				{
+					if (ImGui::Selectable(u8"オブジェクトを複製"))
+					{
+						{
+							ofstream ss("Default_Resource\\System\\copy.prefab", ios::binary);
+							{
+								cereal::BinaryOutputArchive o_archive(ss);
+								o_archive(Active_Object.lock());
+							}
+						}
+						Resources::Load_Prefab("Default_Resource\\System\\copy.prefab");
+					}
+
+					if (ImGui::Selectable(u8"オブジェクトをプレハブ化"))
+					{
+						Resources::Create_Prefab(Active_Object.lock());
+					}
+
+					if (!Active_Object.lock()->transform->parent.expired())
+					{
+						if (ImGui::Selectable(u8"オブジェクトの親子関係を解除"))
+						{
+							Active_Object.lock()->transform->Set_parent(nullptr);
+						}
+					}
+				}
+			}
+			ImGui::EndPopup();
+		}
+		ImGui::TreePop();
+
+		if (ImGui::IsWindowFocused() && !Active_Object.expired())
+		{
+			if (ImGui::IsKeyDown(17) && ImGui::IsKeyPressed(68)) //Ctrl + D
+			{
+				{
+					ofstream ss("Default_Resource\\System\\copy.prefab", ios::binary);
+					{
+						cereal::BinaryOutputArchive o_archive(ss);
+						o_archive(Active_Object.lock());
+					}
+				}
+				Resources::Load_Prefab("Default_Resource\\System\\copy.prefab");
+			}
+
+			if (ImGui::IsKeyPressed(46)) //Delete
+			{
+				GameObject::Destroy(Active_Object.lock());
+				Active_Object.reset();
+				Active_Object_Old.reset();
+				selecting = -1;
+			}
+		}
+	}
+	ID = 0;
 
 	ImGui::End();
 }
@@ -593,6 +701,36 @@ void Debug_UI::GameView_Render()
 	ImGui::End();
 }
 
+void Debug_UI::FileResource_Render()
+{
+	ImGuiWindowFlags window_flags = 0;
+	window_flags |= ImGuiWindowFlags_NoCollapse;
+	ImGui::Begin(u8"アセット(仮)", NULL, window_flags);
+
+	if (ImGui::Button(u8"FBX読み込み"))
+	{
+		string path = System_Function::Get_Open_File_Name();
+		if (path != "")
+		{
+			int path_i = path.find_last_of("\\") + 1;//7
+			int ext_i = path.find_last_of(".");//10
+			string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
+			string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
+			string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+			if (extname == ".fbx" || extname == ".mesh")
+			{
+				FBX_Converter::Convert_From_FBX(pathname.c_str(), filename.c_str());
+			}
+			else
+			{
+				Debug::Log("ファイル形式が対応していません");
+			}
+		}
+	}
+
+	ImGui::End();
+}
+
 //メニューバー描画
 void Debug_UI::MenuBar_Render()
 {
@@ -710,116 +848,6 @@ void Debug_UI::Scene_File_Menu_Render()
 		}
 		ImGui::EndMenu();
 	}
-}
-
-//ヒエラルキー内のオブジェクトツリー描画
-void Debug_UI::GameObject_List_Render(const unique_ptr<Scene>& scene)
-{
-	static int ID = 0;
-
-	ImGui::SetNextItemOpen(true, ImGuiCond_Always);
-	if (ImGui::TreeNode(scene->name.c_str()))
-	{
-		static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
-		static int selecting = -1;
-		bool Item_Clicked = false;
-
-		for (size_t i = 0; i < scene->gameObject_List.size();++i)
-		{
-			if (scene->gameObject_List[i]->transform->parent.expired())
-			{
-				GameObject_Tree_Render(ID, scene->gameObject_List[i], selecting, base_flags, Item_Clicked);
-			}
-		}
-
-		if (!Item_Clicked && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0))
-		{
-			Active_Object.reset();
-			Active_Object_Old.reset();
-			selecting = -1;
-		}
-
-		if (ImGui::BeginPopupContextWindow(u8"ヒエラルキーサブ"))
-		{
-			if (ImGui::Selectable(u8"新規オブジェクトを追加"))
-			{
-				GameObject::Instantiate(u8"GameObject");
-			}
-			if (ImGui::Selectable(u8"プレハブを読み込む"))
-			{
-				string path = System_Function::Get_Open_File_Name();
-				if (path != "")
-				{
-					Resources::Load_Prefab(path);
-				}
-			}
-			ImGui::Separator();
-			if (!Active_Object.expired())
-			{
-				if (ImGui::Selectable(u8"オブジェクトを削除"))
-				{
-					GameObject::Destroy(Active_Object.lock());
-					Active_Object.reset();
-					Active_Object_Old.reset();
-					selecting = -1;
-				}
-
-				if (!Active_Object.expired())
-				{
-					if (ImGui::Selectable(u8"オブジェクトを複製"))
-					{
-						{
-							ofstream ss("Default_Resource\\System\\copy.prefab", ios::binary);
-							{
-								cereal::BinaryOutputArchive o_archive(ss);
-								o_archive(Active_Object.lock());
-							}
-						}
-						Resources::Load_Prefab("Default_Resource\\System\\copy.prefab");
-					}
-
-					if (ImGui::Selectable(u8"オブジェクトをプレハブ化"))
-					{
-						Resources::Create_Prefab(Active_Object.lock());
-					}
-
-					if (!Active_Object.lock()->transform->parent.expired())
-					{
-						if (ImGui::Selectable(u8"オブジェクトの親子関係を解除"))
-						{
-							Active_Object.lock()->transform->Set_parent(nullptr);
-						}
-					}
-				}
-			}
-			ImGui::EndPopup();
-		}
-		ImGui::TreePop();
-
-		if (ImGui::IsWindowFocused() && !Active_Object.expired())
-		{
-			if (ImGui::IsKeyDown(17) && ImGui::IsKeyPressed(68)) //Ctrl + D
-			{
-				{
-					ofstream ss("Default_Resource\\System\\copy.prefab", ios::binary);
-					{
-						cereal::BinaryOutputArchive o_archive(ss);
-						o_archive(Active_Object.lock());
-					}
-				}
-				Resources::Load_Prefab("Default_Resource\\System\\copy.prefab");
-			}
-
-			if (ImGui::IsKeyPressed(46)) //Delete
-			{
-				GameObject::Destroy(Active_Object.lock());
-				Active_Object.reset();
-				Active_Object_Old.reset();
-				selecting = -1;
-			}
-		}
-	}
-	ID = 0;
 }
 
 //オブジェクトツリー描画

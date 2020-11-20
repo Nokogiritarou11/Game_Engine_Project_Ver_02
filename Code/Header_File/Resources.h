@@ -8,5 +8,5 @@ public:
 	static std::shared_ptr<GameObject> Load_Prefab(std::string file_path);
 
 private:
-
+	static void Instance_child(std::shared_ptr<GameObject> gameobject);
 };
