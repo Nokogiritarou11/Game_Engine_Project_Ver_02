@@ -88,7 +88,10 @@ void Scene_Manager::CreateScene_Default(string file_path, string file_name)
 	unique_ptr<Scene> New_Scene = make_unique<Scene>();
 	New_Scene->name = file_name;
 
-	Active_Scene->Reset();
+	if (Active_Scene)
+	{
+		Active_Scene->Reset();
+	}
 	Active_Scene = move(New_Scene);
 
 	shared_ptr<GameObject> directional_light = GameObject::Instantiate(u8"Directional_Light");
