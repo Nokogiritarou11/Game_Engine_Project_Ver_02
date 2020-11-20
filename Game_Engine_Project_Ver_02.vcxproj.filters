@@ -95,6 +95,7 @@
     <ClCompile Include="Code\Souse_File\AudioSource.cpp" />
     <ClCompile Include="Code\Souse_File\Resources.cpp" />
     <ClCompile Include="Code\Souse_File\Line_Renderer.cpp" />
+    <ClCompile Include="Code\Souse_File\FBX_Converter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Audio_Manager.h">
@@ -274,6 +275,7 @@
     <ClInclude Include="Code\Header_File\AudioSource.h" />
     <ClInclude Include="Code\Header_File\Resources.h" />
     <ClInclude Include="Code\Header_File\Line_Renderer.h" />
+    <ClInclude Include="Code\Header_File\FBX_Converter.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Sources">

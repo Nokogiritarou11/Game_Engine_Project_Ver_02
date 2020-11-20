@@ -38,6 +38,7 @@ private:
 	static std::unique_ptr<Shader> shadow_shader;
 	static std::unique_ptr<Shader> vertex_shader;
 
+	friend class FBX_Converter;
 	friend class cereal::access;
 	template<class Archive>
 	void serialize(Archive& archive)
