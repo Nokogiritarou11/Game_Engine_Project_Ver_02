@@ -63,6 +63,7 @@ void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 	{
 		Set_Mesh(Mesh::Load_Mesh(file_path.c_str(), file_name.c_str()));
 	}
+
 	SetActive(enableSelf());
 }
 
@@ -110,6 +111,7 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 				material.push_back(Mat);
 			}
 		}
+		/*
 		// ノード
 		const std::vector<Mesh::Node>& res_nodes = mesh_data->nodes;
 
@@ -125,13 +127,14 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 			dst.rotation = src.rotation;
 			dst.position = src.position;
 		}
+		*/
 		SetActive(enableSelf());
 	}
 }
 void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 {
-	CalculateLocalTransform();
-	CalculateWorldTransform(transform->Get_world_matrix());
+	//CalculateLocalTransform();
+	//CalculateWorldTransform(transform->Get_world_matrix());
 
 	if (mesh_data)
 	{
@@ -149,13 +152,14 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 				// メッシュ用定数バッファ更新
 				CbMesh cbMesh;
 				::memset(&cbMesh, 0, sizeof(cbMesh));
-				if (!nodes.empty())
+				//if (!nodes.empty())
+				if (!bones.empty())
 				{
 					if (mesh.nodeIndices.size() > 0)
 					{
 						for (size_t i = 0; i < mesh.nodeIndices.size(); ++i)
 						{
-							Matrix world_transform = nodes.at(mesh.nodeIndices.at(i)).worldTransform * CorrectionMatrix;
+							Matrix world_transform = bones.at(mesh.nodeIndices.at(i)).lock()->Get_world_matrix();
 							Matrix inverse_transform = mesh.inverseTransforms.at(i);
 							Matrix bone_transform = inverse_transform * world_transform;
 							cbMesh.bone_transforms[i] = bone_transform;
@@ -191,8 +195,8 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 }
 void SkinMesh_Renderer::Render_Shadow(Matrix V, Matrix P)
 {
-	CalculateLocalTransform();
-	CalculateWorldTransform(transform->Get_world_matrix());
+	//CalculateLocalTransform();
+	//CalculateWorldTransform(transform->Get_world_matrix());
 
 	if (mesh_data)
 	{
@@ -210,13 +214,14 @@ void SkinMesh_Renderer::Render_Shadow(Matrix V, Matrix P)
 				// メッシュ用定数バッファ更新
 				CbMesh cbMesh;
 				::memset(&cbMesh, 0, sizeof(cbMesh));
-				if (!nodes.empty())
+				//if (!nodes.empty())
+				if (!bones.empty())
 				{
 					if (mesh.nodeIndices.size() > 0)
 					{
 						for (size_t i = 0; i < mesh.nodeIndices.size(); ++i)
 						{
-							Matrix world_transform = nodes.at(mesh.nodeIndices.at(i)).worldTransform * CorrectionMatrix;
+							Matrix world_transform = bones.at(mesh.nodeIndices.at(i)).lock()->Get_world_matrix();
 							Matrix inverse_transform = mesh.inverseTransforms.at(i);
 							Matrix bone_transform = inverse_transform * world_transform;
 							cbMesh.bone_transforms[i] = bone_transform;
@@ -248,7 +253,7 @@ void SkinMesh_Renderer::Render_Shadow(Matrix V, Matrix P)
 		}
 	}
 }
-
+/*
 // ローカル変換行列計算
 void SkinMesh_Renderer::CalculateLocalTransform()
 {
@@ -280,11 +285,12 @@ void SkinMesh_Renderer::CalculateWorldTransform(const Matrix& world_transform)
 		}
 	}
 }
-
+*/
 void SkinMesh_Renderer::Reset()
 {
 	mesh_data = nullptr;
-	nodes.clear();
+	//nodes.clear();
+	bones.clear();
 	material.clear();
 }
 
@@ -318,6 +324,7 @@ bool SkinMesh_Renderer::Draw_ImGui()
 
 	if (open)
 	{
+		/*
 		ImGui::Text(u8"現在のメッシュ::");
 		ImGui::SameLine();
 		ImGui::Text(file_name.c_str());
@@ -373,6 +380,8 @@ bool SkinMesh_Renderer::Draw_ImGui()
 		ID_bone = 0;
 
 		for (int i = 0; i < 5; ++i) ImGui::Spacing();
+		*/
+
 		static int ID_mat = 0;
 		if (mesh_data)
 		{

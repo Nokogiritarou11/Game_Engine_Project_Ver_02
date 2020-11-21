@@ -50,7 +50,7 @@ shared_ptr<GameObject> Resources::Load_Prefab(string file_path)
 		cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
 		binaryInputArchive(obj);
 
-		Engine::scene_manager->Get_Active_Scene()->gameObject_List.emplace_back(obj);
+		Instance_child(obj);
 		obj->Initialize();
 		return obj;
 	}
@@ -60,4 +60,13 @@ shared_ptr<GameObject> Resources::Load_Prefab(string file_path)
 	}
 
 	return nullptr;
+}
+
+void Resources::Instance_child(shared_ptr<GameObject> gameobject)
+{
+	Engine::scene_manager->Get_Active_Scene()->gameObject_List.emplace_back(gameobject);
+	for (int i = 0; i < gameobject->transform->childCount(); ++i)
+	{
+		Instance_child(gameobject->transform->GetChild(i).lock()->gameObject);
+	}
 }

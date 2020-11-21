@@ -4,7 +4,7 @@
 #include "GameObject.h"
 #include "Camera.h"
 #include "Mesh_Renderer.h"
-#include "SkinMesh_Renderer.h"
+//#include "SkinMesh_Renderer.h"
 #include "Sprite_Renderer.h"
 #include "Animator.h"
 #include "Particle.h"
@@ -48,6 +48,7 @@ void All_Component_List::Add(shared_ptr<GameObject> obj)
 			ImGui::CloseCurrentPopup();
 		}
 
+		/*
 		if (ImGui::Button("SkinMesh_Renderer", ImVec2(-FLT_MIN, 0.0f)))
 		{
 			if (!obj->AddComponent<SkinMesh_Renderer>())
@@ -56,6 +57,7 @@ void All_Component_List::Add(shared_ptr<GameObject> obj)
 			}
 			ImGui::CloseCurrentPopup();
 		}
+		*/
 
 		if (ImGui::Button("Sprite_Renderer", ImVec2(-FLT_MIN, 0.0f)))
 		{
