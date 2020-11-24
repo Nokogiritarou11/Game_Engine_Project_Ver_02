@@ -2,6 +2,8 @@
 #include "DxSystem.h"
 #include <memory>
 
+class Input;
+class Cursor;
 class Scene_Manager;
 class Audio_Manager;
 class Render_Manager;
@@ -21,7 +23,8 @@ public:
 	void Update();
 
 	static std::unique_ptr<Scene_Manager> scene_manager;
-	static std::unique_ptr<Input_Manager> input_manager;
+	static std::unique_ptr<Input> input_manager;
+	static std::unique_ptr<Cursor> cursor_manager;
 	static std::unique_ptr<Audio_Manager> audio_manager;
 	static std::unique_ptr<Render_Manager> render_manager;
 	static std::unique_ptr<Animator_Manager> animator_manager;

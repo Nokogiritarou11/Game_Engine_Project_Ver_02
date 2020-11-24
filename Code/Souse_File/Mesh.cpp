@@ -360,15 +360,15 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh, bool isRight_Hand)
 		shared_ptr<Material> mat = Material::Create(file_path, material_name, L"Shader/Standard_Shader_PS.hlsl");
 
 		//Main(Diffuse)Texture
-		GetTexture(surface_material, FbxSurfaceMaterial::sDiffuse, mat, Texture::Main);
+		GetTexture(surface_material, FbxSurfaceMaterial::sDiffuse, mat, Texture::Texture_Type::Main);
 		//SpecularTexture
-		GetTexture(surface_material, FbxSurfaceMaterial::sSpecular, mat, Texture::Specular);
+		GetTexture(surface_material, FbxSurfaceMaterial::sSpecular, mat, Texture::Texture_Type::Specular);
 		//NormalTexture
-		GetTexture(surface_material, FbxSurfaceMaterial::sNormalMap, mat, Texture::Normal);
+		GetTexture(surface_material, FbxSurfaceMaterial::sNormalMap, mat, Texture::Texture_Type::Normal);
 		//HeightTexture
-		GetTexture(surface_material, FbxSurfaceMaterial::sBump, mat, Texture::Height);
+		GetTexture(surface_material, FbxSurfaceMaterial::sBump, mat, Texture::Texture_Type::Height);
 		//EmissionTexture
-		GetTexture(surface_material, FbxSurfaceMaterial::sEmissive, mat, Texture::Emission);
+		GetTexture(surface_material, FbxSurfaceMaterial::sEmissive, mat, Texture::Texture_Type::Emission);
 
 		subset.material_ID = Default_Material_Passes.size();
 
@@ -865,7 +865,7 @@ int Mesh::FindNodeIndex(const char* name)
 	return -1;
 }
 
-void Mesh::GetTexture(const FbxSurfaceMaterial* fbx_mat, const char* fbx_tex_type, shared_ptr<Material> mat, int tex_type)
+void Mesh::GetTexture(const FbxSurfaceMaterial* fbx_mat, const char* fbx_tex_type, shared_ptr<Material> mat, Texture::Texture_Type tex_type)
 {
 	const FbxProperty property = fbx_mat->FindProperty(fbx_tex_type);
 	if (property.IsValid())
@@ -883,11 +883,11 @@ void Mesh::GetTexture(const FbxSurfaceMaterial* fbx_mat, const char* fbx_tex_typ
 		}
 		else
 		{
-			if (tex_type == Texture::Main)
+			if (tex_type == Texture::Texture_Type::Main)
 			{
 				mat->Set_Texture(tex_type, "Default_Resource\\Image\\", "Default_Texture.png");
 			}
-			else if (tex_type == Texture::Normal)
+			else if (tex_type == Texture::Texture_Type::Normal)
 			{
 				mat->Set_Texture(tex_type, "Default_Resource\\Image\\", "Default_NormalMap.png");
 			}

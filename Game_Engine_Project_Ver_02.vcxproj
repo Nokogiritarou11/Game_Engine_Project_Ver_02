@@ -205,13 +205,14 @@
     <ClCompile Include="Code\Souse_File\Behaviour.cpp" />
     <ClCompile Include="Code\Souse_File\Camera.cpp" />
     <ClCompile Include="Code\Souse_File\Component.cpp" />
+    <ClCompile Include="Code\Souse_File\Cursor.cpp" />
     <ClCompile Include="Code\Souse_File\Debug.cpp" />
     <ClCompile Include="Code\Souse_File\Debug_UI.cpp" />
     <ClCompile Include="Code\Souse_File\DxSystem.cpp" />
     <ClCompile Include="Code\Souse_File\Engine.cpp" />
     <ClCompile Include="Code\Souse_File\FBX_Converter.cpp" />
     <ClCompile Include="Code\Souse_File\GameObject.cpp" />
-    <ClCompile Include="Code\Souse_File\Input_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\Input.cpp" />
     <ClCompile Include="Code\Souse_File\Light.cpp" />
     <ClCompile Include="Code\Souse_File\Light_Manager.cpp" />
     <ClCompile Include="Code\Souse_File\Line_Renderer.cpp" />
@@ -230,6 +231,7 @@
     <ClCompile Include="Code\Souse_File\Resources.cpp" />
     <ClCompile Include="Code\Souse_File\Scene.cpp" />
     <ClCompile Include="Code\Souse_File\Scene_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\Screen.cpp" />
     <ClCompile Include="Code\Souse_File\Shader.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
@@ -287,6 +289,7 @@
     <ClInclude Include="Code\Header_File\Behaviour.h" />
     <ClInclude Include="Code\Header_File\Camera.h" />
     <ClInclude Include="Code\Header_File\Component.h" />
+    <ClInclude Include="Code\Header_File\Cursor.h" />
     <ClInclude Include="Code\Header_File\Debug.h" />
     <ClInclude Include="Code\Header_File\Debug_UI.h" />
     <ClInclude Include="Code\Header_File\DxSystem.h" />
@@ -294,7 +297,7 @@
     <ClInclude Include="Code\Header_File\FBX_Converter.h" />
     <ClInclude Include="Code\Header_File\GameObject.h" />
     <ClInclude Include="Code\Header_File\Include_ImGui.h" />
-    <ClInclude Include="Code\Header_File\Input_Manager.h" />
+    <ClInclude Include="Code\Header_File\Input.h" />
     <ClInclude Include="Code\Header_File\Light.h" />
     <ClInclude Include="Code\Header_File\Light_Manager.h" />
     <ClInclude Include="Code\Header_File\Line_Renderer.h" />
@@ -314,6 +317,7 @@
     <ClInclude Include="Code\Header_File\Resources.h" />
     <ClInclude Include="Code\Header_File\Scene.h" />
     <ClInclude Include="Code\Header_File\Scene_Manager.h" />
+    <ClInclude Include="Code\Header_File\Screen.h" />
     <ClInclude Include="Code\Header_File\Shader.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>

@@ -45,7 +45,7 @@ void SkyBox::Render(Vector3 pos)
 {
 	DxSystem::DeviceContext->IASetInputLayout(material->shader->VertexLayout.Get());
 	//シェーダーリソースのバインド
-	material->texture[Texture::Main]->Set(1); //PSSetSamplar PSSetShaderResources
+	material->texture[static_cast<int>(Texture::Texture_Type::Main)]->Set(1); //PSSetSamplar PSSetShaderResources
 
 	vertex_shader->Activate_VS();
 	material->shader->Activate_PS(); //PS,VSSetShader
@@ -60,7 +60,7 @@ void SkyBox::Render(Vector3 pos)
 	//float alpha = std::min<float>(1, std::max<float>(bias, amplitude * -cosf(angle * 0.01745f)));
 	float alpha = 1;
 	float blue_intensity = 1.0f;
-	XMFLOAT4 color(1, 1, 1 * blue_intensity, alpha);
+	Vector4 color(1, 1, 1 * blue_intensity, alpha);
 
 	cbSkyBox.color = color;
 

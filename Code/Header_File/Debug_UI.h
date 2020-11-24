@@ -5,31 +5,34 @@
 class Debug_UI
 {
 public:
-
 	Debug_UI();
 	~Debug_UI();
 
 	void Update(const std::unique_ptr<Scene>& scene);
 	void Render();
 
-	bool Draw_Debug_UI = true;
 	void Print_Log(std::string log);
-private:
 
+	Vector2 Game_View_Size;
+	Vector2 Game_View_Pos;
+	Vector2 Game_View_CenterPos;
+	bool Render_Cursor = true;
+
+private:
 	char* Font_Name = "Default_Resource/Font/mplus-1p-medium.ttf";
 	float Font_Size_Pixels = 30.0f;
 	float Font_Size = 0.6f;
 	float UI_Size = 0.6f;
-	vector<string> Debug_Log = {};
+	std::vector<std::string> Debug_Log = {};
 	bool Debug_Log_Changed = false;
-	weak_ptr<GameObject> Active_Object;
-	weak_ptr<GameObject> Active_Object_Old;
+	std::weak_ptr<GameObject> Active_Object;
+	std::weak_ptr<GameObject> Active_Object_Old;
 
-	weak_ptr<GameObject> Drag_Object;
+	std::weak_ptr<GameObject> Drag_Object;
 
 	Matrix Debug_Camera_V;
 	Matrix Debug_Camera_P;
-	shared_ptr<Transform> Debug_Camera_Transform;
+	std::shared_ptr<Transform> Debug_Camera_Transform;
 	float fov_y;
 	float aspect;
 	float near_z;

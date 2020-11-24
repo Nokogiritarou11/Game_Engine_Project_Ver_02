@@ -36,7 +36,7 @@ private:
 	};
 	std::vector<Node>	  nodes;
 	*/
-	std::vector<weak_ptr<Transform>> bones;
+	std::vector<std::weak_ptr<Transform>> bones;
 
 	void Initialize(std::shared_ptr<GameObject> obj);
 	void Render(Matrix V, Matrix P) override;
