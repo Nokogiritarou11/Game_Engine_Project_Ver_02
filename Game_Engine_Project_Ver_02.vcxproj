@@ -275,6 +275,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Script\Souse\All_Component_List.cpp" />
+    <ClCompile Include="Script\Souse\balet.cpp" />
+    <ClCompile Include="Script\Souse\Bomb.cpp" />
+    <ClCompile Include="Script\Souse\muzzule.cpp" />
     <ClCompile Include="Script\Souse\Player.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -761,6 +764,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Code\Header_File\All_Component_List.h" />
+    <ClInclude Include="Script\Header\balet.h" />
+    <ClInclude Include="Script\Header\Bomb.h" />
+    <ClInclude Include="Script\Header\muzzle.h" />
     <ClInclude Include="Script\Header\Player.h" />
   </ItemGroup>
   <ItemGroup>

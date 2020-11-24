@@ -13,6 +13,9 @@
 /////////////////////////////////////////////////////////////////
 //使いたいクラス(コンポーネント)をインクルード
 #include "Player.h"
+#include"balet.h"
+#include"muzzle.h"
+#include"Bomb.h"
 /////////////////////////////////////////////////////////////////
 
 using namespace std;
@@ -103,6 +106,21 @@ void All_Component_List::Add(shared_ptr<GameObject> obj)
 		if (ImGui::Button("Player", ImVec2(-FLT_MIN, 0.0f)))
 		{
 			obj->AddComponent<Player>();
+			ImGui::CloseCurrentPopup();
+		}
+		if (ImGui::Button("Balet", ImVec2(-FLT_MIN, 0.0f)))
+		{
+			obj->AddComponent<Balet>();
+			ImGui::CloseCurrentPopup();
+		}
+		if (ImGui::Button("muzzle", ImVec2(-FLT_MIN, 0.0f)))
+		{
+			obj->AddComponent<Muzzle>();
+			ImGui::CloseCurrentPopup();
+		}
+		if (ImGui::Button("Bomb", ImVec2(-FLT_MIN, 0.0f)))
+		{
+			obj->AddComponent<Bomb>();
 			ImGui::CloseCurrentPopup();
 		}
 

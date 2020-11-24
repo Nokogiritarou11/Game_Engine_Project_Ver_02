@@ -96,6 +96,9 @@
     <ClCompile Include="Code\Souse_File\Resources.cpp" />
     <ClCompile Include="Code\Souse_File\Line_Renderer.cpp" />
     <ClCompile Include="Code\Souse_File\FBX_Converter.cpp" />
+    <ClCompile Include="Script\Souse\balet.cpp" />
+    <ClCompile Include="Script\Souse\muzzule.cpp" />
+    <ClCompile Include="Script\Souse\Bomb.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Audio_Manager.h">
@@ -276,6 +279,9 @@
     <ClInclude Include="Code\Header_File\Resources.h" />
     <ClInclude Include="Code\Header_File\Line_Renderer.h" />
     <ClInclude Include="Code\Header_File\FBX_Converter.h" />
+    <ClInclude Include="Script\Header\balet.h" />
+    <ClInclude Include="Script\Header\muzzle.h" />
+    <ClInclude Include="Script\Header\Bomb.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Sources">
