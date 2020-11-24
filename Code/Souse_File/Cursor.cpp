@@ -11,7 +11,7 @@
 using namespace std;
 
 bool Cursor::visible = true;
-Cursor::CursorLockMode Cursor::lockState = Cursor::CursorLockMode::None;
+CursorLockMode Cursor::lockState = CursorLockMode::None;
 
 void Cursor::Update()
 {

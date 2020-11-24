@@ -1,13 +1,14 @@
 #pragma once
 
+enum class CursorLockMode
+{
+	None,
+	Locked
+};
+
 class Cursor
 {
 public:
-	enum class CursorLockMode
-	{
-		None,
-		Locked
-	};
 
 	static bool visible;
 	static CursorLockMode lockState;
