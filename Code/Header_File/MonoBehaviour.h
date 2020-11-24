@@ -2,7 +2,9 @@
 #include <stdio.h>
 #include "Behaviour.h"
 #include "Debug.h"
-#include "Input_Manager.h"
+#include "Input.h"
+#include "Cursor.h"
+#include "Screen.h"
 #include "Audio_Manager.h"
 #include "Scene_Manager.h"
 #include "Animator.h"

@@ -22,9 +22,9 @@ public:
 
 	Vector4 color = { 1,1,1,1 };
 
-	int BlendState = DxSystem::BS_NONE;
-	int RasterizerState = DxSystem::RS_CULL_NONE;
-	int DepthStencilState = DxSystem::DS_TRUE;
+	DxSystem::BS_State BlendState = DxSystem::BS_State::BS_NONE;
+	DxSystem::RS_State RasterizerState = DxSystem::RS_State::RS_CULL_NONE;
+	DxSystem::DS_State DepthStencilState = DxSystem::DS_State::DS_TRUE;
 
 	struct Shader_Info
 	{
@@ -38,7 +38,7 @@ public:
 		}
 	};
 	Shader_Info shader_info[5];
-	enum Shader_Type { VS, PS, GS, HS, DS };
+	enum class Shader_Type { VS, PS, GS, HS, DS };
 
 	struct Texture_Info
 	{
@@ -55,7 +55,7 @@ public:
 
 	static std::shared_ptr<Material> Create(const std::string& Material_Pass, const std::string& Material_Name, WCHAR* PS_Name);
 	void Save(const std::string& path = "");
-	void Set_Texture(int texture_type, const std::string& filepath, const std::string& filename);
+	void Set_Texture(Texture::Texture_Type texture_type, const std::string& filepath, const std::string& filename);
 
 private:
 	static std::unordered_map<std::string, std::shared_ptr<Material>> mat_cache;

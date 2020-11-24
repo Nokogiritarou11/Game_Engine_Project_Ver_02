@@ -30,7 +30,7 @@ public:
 
 	bool Texture_Have = false;														//テクスチャデータを保持しているか
 
-	enum Texture_Type
+	enum class Texture_Type
 	{
 		Main,
 		Specular,

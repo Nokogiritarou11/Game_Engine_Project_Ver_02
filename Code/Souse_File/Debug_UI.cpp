@@ -10,6 +10,7 @@
 #include "FBX_Converter.h"
 #include "All_Component_List.h"
 #include "Resources.h"
+#include "Cursor.h"
 #include "Include_ImGui.h"
 #include <ImGuizmo.h>
 #include "System_Function.h"
@@ -26,7 +27,7 @@ Debug_UI::Debug_UI()
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-	//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
 	//テーマの変更
 	ImGui::StyleColorsDark();
@@ -112,58 +113,53 @@ Debug_UI::~Debug_UI()
 
 void Debug_UI::Update(const unique_ptr<Scene>& scene)
 {
-	if (Draw_Debug_UI)
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	ImGuizmo::SetOrthographic(false);
+	ImGuizmo::BeginFrame();
+
+	Main_Window_Render();
+	//ゲームオブジェクト関連
 	{
-		ImGui_ImplDX11_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
-
-		ImGuizmo::SetOrthographic(false);
-		ImGuizmo::BeginFrame();
-
-		Main_Window_Render();
-		//ゲームオブジェクト関連
-		{
-			//ヒエラルキー
-			Hierarchy_Render(scene);
-			//インスペクタ
-			Inspector_Render();
-		}
-
-		//シーン再生UI
-		ScenePlayer_Render();
-
-		//アセットマネージャー
-		FileResource_Render();
-
-		//描画
-		{
-			GameView_Render();
-			SceneView_Render();
-		}
-		//デバッグログ
-		Debug_Log_Render();
-
-		//ショートカットキーチェック
-		ShortCut_Check();
+		//ヒエラルキー
+		Hierarchy_Render(scene);
+		//インスペクタ
+		Inspector_Render();
 	}
+
+	//シーン再生UI
+	ScenePlayer_Render();
+
+	//アセットマネージャー
+	FileResource_Render();
+
+	//描画
+	{
+		GameView_Render();
+		SceneView_Render();
+	}
+	//デバッグログ
+	Debug_Log_Render();
+
+	//ショートカットキーチェック
+	ShortCut_Check();
 }
 
 void Debug_UI::Render()
 {
-	if (Draw_Debug_UI)
-	{
-		Engine::particle_manager->Update(Debug_Camera_Transform, fov_y, near_z, far_z, aspect);
-		Engine::view_scene->Render(Debug_Camera_V, Debug_Camera_P, Debug_Camera_Transform);
+	Engine::particle_manager->Update(Debug_Camera_Transform, fov_y, near_z, far_z, aspect);
+	Engine::view_scene->Render(Debug_Camera_V, Debug_Camera_P, Debug_Camera_Transform);
 
-		// レンダーターゲットビュー設定
-		DxSystem::SetDefaultView();
-		DxSystem::SetViewPort(DxSystem::GetScreenWidth(), DxSystem::GetScreenHeight());
-		ImGui::Render();
-		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-		//ImGui::UpdatePlatformWindows();
-		//ImGui::RenderPlatformWindowsDefault();
-	}
+	// レンダーターゲットビュー設定
+	DxSystem::SetDefaultView();
+	DxSystem::SetViewPort(DxSystem::GetScreenWidth(), DxSystem::GetScreenHeight());
+	ImGui::Render();
+	DxSystem::Clear();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	ImGui::UpdatePlatformWindows();
+	ImGui::RenderPlatformWindowsDefault();
 }
 
 //ドッキング用親ウィンドウ描画
@@ -487,10 +483,8 @@ void Debug_UI::Inspector_Render()
 //シーン再生UI描画
 void Debug_UI::ScenePlayer_Render()
 {
-	ImGui::SetNextWindowPos(ImVec2(895, 0), ImGuiCond_Appearing);
-	ImGui::SetNextWindowSize(ImVec2(105, 28), ImGuiCond_Appearing);
 	ImGuiWindowFlags window_flags = 0;
-	window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
+	window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
 	ImGui::Begin(u8"シーン再生", NULL, window_flags);
 
 	bool Running = Engine::scene_manager->Run;
@@ -501,12 +495,16 @@ void Debug_UI::ScenePlayer_Render()
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.0f, 0.7f, 0.85f));
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.0f, 0.6f, 1.0f));
 	}
+	ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.5f - 50);
 	if (ImGui::Button(ICON_FA_PLAY, ImVec2(30, 0)))
 	{
 		if (!Running)
 		{
 			if (!Engine::scene_manager->Pause)
 			{
+				Cursor::lockState = Cursor::CursorLockMode::None;
+				Cursor::visible = true;
+				ImGui::SetWindowFocus(u8"ゲーム");
 				Active_Object.reset();
 				Active_Object_Old.reset();
 				Engine::scene_manager->Start_DebugScene();
@@ -515,6 +513,7 @@ void Debug_UI::ScenePlayer_Render()
 			{
 				Engine::audio_manager->Resume();
 			}
+			Render_Cursor = false;
 			Engine::scene_manager->Run = true;
 			Engine::scene_manager->Pause = false;
 		}
@@ -536,6 +535,7 @@ void Debug_UI::ScenePlayer_Render()
 	{
 		if (Running)
 		{
+			Render_Cursor = true;
 			Engine::scene_manager->Run = false;
 			Engine::scene_manager->Pause = true;
 			Engine::audio_manager->Suspend();
@@ -551,8 +551,12 @@ void Debug_UI::ScenePlayer_Render()
 	{
 		if (Running || Pausing)
 		{
+			ImGui::SetWindowFocus(u8"シーン");
+			Cursor::lockState = Cursor::CursorLockMode::None;
+			Cursor::visible = true;
 			Active_Object.reset();
 			Active_Object_Old.reset();
+			Render_Cursor = true;
 			Engine::scene_manager->Run = false;
 			Engine::scene_manager->Pause = false;
 			Engine::scene_manager->End_DebugScene();
@@ -693,10 +697,30 @@ void Debug_UI::GameView_Render()
 	window_flags |= ImGuiWindowFlags_NoCollapse;
 
 	ImGui::Begin(u8"ゲーム", NULL, window_flags);
-	const float window_width = ImGui::GetCurrentWindow()->InnerRect.GetWidth() - 8;
-	const float window_height = ImGui::GetCurrentWindow()->InnerRect.GetHeight() - 8;
-	Engine::view_game->Set_Screen_Size((int)window_width, (int)window_height);
-	ImGui::Image((void*)Engine::view_game->ShaderResourceView_Render.Get(), ImVec2(window_width, window_height));
+
+
+	ImGuiWindow* p_win = ImGui::GetCurrentWindow();
+	Game_View_Size = { p_win->InnerRect.GetWidth() - 8, p_win->InnerRect.GetHeight() };
+
+	const ImVec2 pos = ImGui::GetCursorScreenPos();
+	Game_View_Pos = { pos.x,pos.y + Game_View_Size.y };
+
+	Engine::view_game->Set_Screen_Size(static_cast<int>(Game_View_Size.x), static_cast<int>(Game_View_Size.y));
+	ImGui::Image((void*)Engine::view_game->ShaderResourceView_Render.Get(), ImVec2(Game_View_Size.x, Game_View_Size.y));
+
+	Game_View_CenterPos = { pos.x + Game_View_Size.x / 2 ,pos.y + Game_View_Size.y / 2 };
+
+	if (ImGui::IsWindowFocused())
+	{
+		if (ImGui::IsKeyPressed(27) && !Render_Cursor) //ESC
+		{
+			Render_Cursor = true;
+		}
+	}
+	if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0))
+	{
+		Render_Cursor = false;
+	}
 
 	ImGui::End();
 }
@@ -1032,6 +1056,7 @@ void Debug_UI::ShortCut_Check()
 			{
 				if (Engine::scene_manager->Run)
 				{
+					Render_Cursor = true;
 					Engine::scene_manager->Run = false;
 					Engine::scene_manager->Pause = true;
 					Engine::audio_manager->Suspend();
@@ -1041,6 +1066,9 @@ void Debug_UI::ShortCut_Check()
 			{
 				if (Engine::scene_manager->Run)
 				{
+					Cursor::lockState = Cursor::CursorLockMode::None;
+					Cursor::visible = true;
+					Render_Cursor = true;
 					Active_Object.reset();
 					Active_Object_Old.reset();
 					Engine::scene_manager->Run = false;
@@ -1051,6 +1079,9 @@ void Debug_UI::ShortCut_Check()
 				{
 					if (!Engine::scene_manager->Pause)
 					{
+						Cursor::lockState = Cursor::CursorLockMode::None;
+						Cursor::visible = true;
+						ImGui::SetWindowFocus(u8"ゲーム");
 						Active_Object.reset();
 						Active_Object_Old.reset();
 						Engine::scene_manager->Start_DebugScene();
@@ -1059,6 +1090,7 @@ void Debug_UI::ShortCut_Check()
 					{
 						Engine::audio_manager->Resume();
 					}
+					Render_Cursor = false;
 					Engine::scene_manager->Run = true;
 					Engine::scene_manager->Pause = false;
 				}

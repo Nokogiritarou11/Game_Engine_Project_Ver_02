@@ -1,4 +1,6 @@
 #include "Engine.h"
+#include "Input.h"
+#include "Cursor.h"
 #include "Scene_Manager.h"
 #include "Audio_Manager.h"
 #include "Render_Manager.h"
@@ -16,7 +18,8 @@
 using namespace std;
 
 unique_ptr<Scene_Manager>	 Engine::scene_manager;
-unique_ptr<Input_Manager>	 Engine::input_manager;
+unique_ptr<Input>			 Engine::input_manager;
+unique_ptr<Cursor>			 Engine::cursor_manager;
 unique_ptr<Audio_Manager>	 Engine::audio_manager;
 unique_ptr<Render_Manager>	 Engine::render_manager;
 unique_ptr<Animator_Manager> Engine::animator_manager;
@@ -29,7 +32,8 @@ unique_ptr<View_Scene>		 Engine::view_scene;
 Engine::Engine()
 {
 	audio_manager	 = make_unique<Audio_Manager>();
-	input_manager    = make_unique<Input_Manager>();
+	input_manager    = make_unique<Input>();
+	cursor_manager	 = make_unique<Cursor>();
 	scene_manager    = make_unique<Scene_Manager>();
 	render_manager   = make_unique<Render_Manager>();
 	animator_manager = make_unique<Animator_Manager>();
@@ -111,6 +115,7 @@ void Engine::Update()
 	DxSystem::Clear();
 
 	input_manager->Update();
+	cursor_manager->Update();
 	audio_manager->Update();
 	scene_manager->Update();
 

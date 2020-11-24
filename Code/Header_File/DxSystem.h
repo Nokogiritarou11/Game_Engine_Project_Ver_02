@@ -1,5 +1,4 @@
 #pragma once
-#include "Input_Manager.h"
 #include <InitGUID.h>
 #include <dxgidebug.h>
 #include <d3d11.h>
@@ -50,6 +49,13 @@ private:
 
 public:
 
+	//DepthStencilState
+	enum class DS_State { DS_FALSE, DS_TRUE, DS_SKY };
+	//RasterizerState
+	enum class RS_State { RS_STANDARD, RS_CULL_BACK, RS_WIRE, RS_CULL_FRONT, RS_CULL_NONE, RS_CULL_SKY };
+	//BlendState
+	enum class BS_State { BS_NONE, BS_ALPHA, BS_ALPHA_TEST, BS_TRANSPARENT, BS_ADD, BS_SUBTRACT, BS_REPLACE, BS_MULTIPLY, BS_LIGHTEN, BS_DARKEN, BS_SCREEN };
+
 	static ComPtr<ID3D11Device>			Device;
 	static ComPtr<ID3D11DeviceContext>	DeviceContext;
 	static HWND hwnd;
@@ -67,15 +73,9 @@ public:
 	static int GetScreenHeight() { return ScreenHeight; }
 	static ID3D11DepthStencilView* GetDepthStencilView() { return DepthStencilView.Get(); }
 	static ID3D11RenderTargetView* GetRenderTargetView() { return RenderTargetView.Get(); }
-	static ID3D11DepthStencilState* GetDephtStencilState(int state) { return DepthStencilState[state].Get(); }
-	static ID3D11RasterizerState* GetRasterizerState(int state) { return RasterizerState[state].Get(); }
-	static ID3D11BlendState* GetBlendState(int state) { return BlendState[state].Get(); }
+	static ID3D11DepthStencilState* GetDephtStencilState(DS_State state) { return DepthStencilState[static_cast<int>(state)].Get(); }
+	static ID3D11RasterizerState* GetRasterizerState(RS_State state) { return RasterizerState[static_cast<int>(state)].Get(); }
+	static ID3D11BlendState* GetBlendState(BS_State state) { return BlendState[static_cast<int>(state)].Get(); }
 	static void SetViewPort(int width, int height, int Num = 1);
 	static void SetDefaultView();
-	//DepthStencilState
-	enum { DS_FALSE, DS_TRUE, DS_SKY };
-	//RasterizerState
-	enum { RS_STANDARD, RS_CULL_BACK, RS_WIRE, RS_CULL_FRONT, RS_CULL_NONE,RS_CULL_SKY };
-	//BlendState
-	enum { BS_NONE, BS_ALPHA, BS_ALPHA_TEST, BS_TRANSPARENT, BS_ADD, BS_SUBTRACT, BS_REPLACE, BS_MULTIPLY, BS_LIGHTEN, BS_DARKEN, BS_SCREEN };
 };
