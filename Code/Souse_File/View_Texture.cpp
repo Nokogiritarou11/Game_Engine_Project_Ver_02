@@ -170,26 +170,26 @@ bool View_Texture::CreateRenderTartgetView(int x, int y)
 void View_Texture::Render_Sky(std::shared_ptr<Transform> trans)
 {
 	//ブレンドステート設定
-	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_NONE), nullptr, 0xFFFFFFFF);
+	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_State::BS_NONE), nullptr, 0xFFFFFFFF);
 	//ラスタライザ―設定
-	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_CULL_SKY));
+	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_State::RS_CULL_SKY));
 	//トポロジー設定
 	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//デプスステンシルステート設定
-	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_SKY), 1);
+	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_State::DS_SKY), 1);
 	skybox->Render(trans->Get_position());
 }
 
 void View_Texture::Render_3D(Matrix V, Matrix P, bool Is_Shadow)
 {
 	//ブレンドステート設定
-	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_NONE), nullptr, 0xFFFFFFFF);
+	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_State::BS_NONE), nullptr, 0xFFFFFFFF);
 	//ラスタライザ―設定
-	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_CULL_BACK));
+	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_State::RS_CULL_BACK));
 	//トポロジー設定
 	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//デプスステンシルステート設定
-	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_TRUE), 1);
+	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_State::DS_TRUE), 1);
 
 	shared_ptr<Renderer> p_rend = nullptr;
 	bool expired = false;
@@ -239,13 +239,13 @@ void View_Texture::Render_3D(Matrix V, Matrix P, bool Is_Shadow)
 void View_Texture::Render_2D(Matrix V, Matrix P)
 {
 	//ブレンドステート設定
-	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_ALPHA), nullptr, 0xFFFFFFFF);
+	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_State::BS_ALPHA), nullptr, 0xFFFFFFFF);
 	//ラスタライザ―設定
-	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_CULL_NONE));
+	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_State::RS_CULL_NONE));
 	//トポロジー設定
 	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	//デプスステンシルステート設定
-	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_FALSE), 1);
+	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_State::DS_FALSE), 1);
 	shared_ptr<Renderer> p_rend = nullptr;
 	bool expired = false;
 	bool disabled = false;

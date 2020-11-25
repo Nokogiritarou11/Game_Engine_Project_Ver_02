@@ -7,6 +7,7 @@
 #define _WIN32_WINNT 0x0A00
 #include <SDKDDKVer.h>
 #include "Engine.h"
+#include "Input.h"
 #include "Include_ImGui.h"
 #include "Time.h"
 #include <sstream>
@@ -22,8 +23,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_ACTIVATEAPP:
-		Keyboard::ProcessMessage(message, wParam, lParam);
-		Mouse::ProcessMessage(message, wParam, lParam);
 		break;
 	case WM_PAINT:
 	{
@@ -36,33 +35,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
+	/*
 	case WM_CREATE:
 		break;
 	case WM_KEYDOWN:
-		//if (wParam == VK_ESCAPE) PostMessage(hWnd, WM_CLOSE, 0, 0);
-		Keyboard::ProcessMessage(message, wParam, lParam);
 		break;
 	case WM_KEYUP:
-		Keyboard::ProcessMessage(message, wParam, lParam);
 		break;
 	case WM_INPUT:
-		Mouse::ProcessMessage(message, wParam, lParam);
+		Input::ProcessMessage(message, wParam, lParam);
 		break;
 	case WM_MOUSEMOVE:
-		Mouse::ProcessMessage(message, wParam, lParam);
 		break;
 	case WM_LBUTTONDOWN:
-		Mouse::ProcessMessage(message, wParam, lParam);
 		break;
 	case WM_LBUTTONUP:
-		Mouse::ProcessMessage(message, wParam, lParam);
 		break;
 	case WM_RBUTTONDOWN:
-		Mouse::ProcessMessage(message, wParam, lParam);
 		break;
 	case WM_RBUTTONUP:
-		Mouse::ProcessMessage(message, wParam, lParam);
 		break;
+	*/
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -100,7 +93,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 	ShowWindow(hWnd, nCmdShow);
 
 	Microsoft::WRL::Wrappers::RoInitializeWrapper initialize(RO_INIT_MULTITHREADED);
-	
+
 		// デバイス初期化
 	if (FAILED((HRESULT)DxSystem::Initialize(hWnd, DxSystem::GetScreenWidth(), DxSystem::GetScreenHeight())))
 	{
@@ -109,7 +102,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 
 	Engine* engine = new Engine();
 	Time::timeScale = 1.0f;
-	Input_Manager::mouse->SetWindow(hWnd);
 
 	//メインループ
 	MSG hMsg = { 0 };

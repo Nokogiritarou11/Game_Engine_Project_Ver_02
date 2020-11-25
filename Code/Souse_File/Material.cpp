@@ -37,10 +37,10 @@ shared_ptr<Material> Material::Create(const string& Material_Pass, const string&
 			str_pass = char_pass;
 			int path_i = str_pass.find_last_of("\\") + 1;//7
 			int ext_i = str_pass.find_last_of(".");//10
-			mat->shader_info[PS].Shader_FullPass = str_pass;
-			mat->shader_info[PS].Shader_Pass = str_pass.substr(0, path_i); //ファイルまでのディレクトリ
+			mat->shader_info[static_cast<int>(Shader_Type::PS)].Shader_FullPass = str_pass;
+			mat->shader_info[static_cast<int>(Shader_Type::PS)].Shader_Pass = str_pass.substr(0, path_i); //ファイルまでのディレクトリ
 			string filename = str_pass.substr(path_i, ext_i - path_i); //ファイル名
-			mat->shader_info[PS].Shader_Name = filename;
+			mat->shader_info[static_cast<int>(Shader_Type::PS)].Shader_Name = filename;
 		}
 		mat->Self_Save_Pass = Material_Pass + Material_Name + ".mat";
 		return mat;
@@ -65,7 +65,7 @@ void Material::Initialize(shared_ptr<Material>& mat, string Material_FullPass)
 		setlocale(LC_ALL, "japanese");
 		wchar_t ps[MAX_PATH] = { 0 };
 		size_t ret = 0;
-		mbstowcs_s(&ret, ps, MAX_PATH, mat->shader_info[PS].Shader_FullPass.c_str(), _TRUNCATE);
+		mbstowcs_s(&ret, ps, MAX_PATH, mat->shader_info[static_cast<int>(Shader_Type::PS)].Shader_FullPass.c_str(), _TRUNCATE);
 		mat->shader->Create_PS(ps, "PSMain");
 
 		mat->Self_Save_Pass = Material_FullPass;
@@ -73,12 +73,12 @@ void Material::Initialize(shared_ptr<Material>& mat, string Material_FullPass)
 	}
 }
 
-void Material::Set_Texture(int texture_type, const std::string& filepath, const string& filename)
+void Material::Set_Texture(Texture::Texture_Type texture_type, const std::string& filepath, const string& filename)
 {
-	texture_info[texture_type].Texture_Name = filename;
-	texture_info[texture_type].Texture_Pass = filepath;
-	texture_info[texture_type].Texture_FullPass = filepath + filename;
-	texture[texture_type]->Load(texture_info[texture_type].Texture_FullPass);
+	texture_info[static_cast<int>(texture_type)].Texture_Name = filename;
+	texture_info[static_cast<int>(texture_type)].Texture_Pass = filepath;
+	texture_info[static_cast<int>(texture_type)].Texture_FullPass = filepath + filename;
+	texture[static_cast<int>(texture_type)]->Load(texture_info[static_cast<int>(texture_type)].Texture_FullPass);
 }
 
 void Material::Set_Texture_All()

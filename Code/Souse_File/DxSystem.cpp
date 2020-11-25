@@ -281,7 +281,7 @@ bool DxSystem::CreateDepthStencil()
 
 	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
 	depth_stencil_desc.DepthEnable = FALSE;
-	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[DS_FALSE].GetAddressOf());
+	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[static_cast<int>(DS_State::DS_FALSE)].GetAddressOf());
 	//assert(FAILED(hr));
 	if (FAILED(hr))
 	{
@@ -292,7 +292,7 @@ bool DxSystem::CreateDepthStencil()
 	depth_stencil_desc.DepthEnable = TRUE;
 	depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	depth_stencil_desc.DepthFunc = D3D11_COMPARISON_LESS;
-	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[DS_TRUE].GetAddressOf());
+	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[static_cast<int>(DS_State::DS_TRUE)].GetAddressOf());
 	//assert(FAILED(hr));
 	if (FAILED(hr))
 	{
@@ -303,7 +303,7 @@ bool DxSystem::CreateDepthStencil()
 	depth_stencil_desc.DepthEnable = TRUE;
 	depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	depth_stencil_desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[DS_SKY].GetAddressOf());
+	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[static_cast<int>(DS_State::DS_SKY)].GetAddressOf());
 	//assert(FAILED(hr));
 	if (FAILED(hr))
 	{
@@ -336,11 +336,11 @@ bool DxSystem::CreateDepthStencil()
 bool DxSystem::CreateRasterizerState()
 {
 	D3D11_RASTERIZER_DESC rd;
-	for (int state = 0; state < RASTERIZE_TYPE; state++)
+	for (int state = 0; state < RASTERIZE_TYPE; ++state)
 	{
 		switch (state)
 		{
-			case RS_STANDARD:
+			case static_cast<int>(RS_State::RS_STANDARD):
 				ZeroMemory(&rd, sizeof(rd));
 				rd.FillMode = D3D11_FILL_SOLID;	// “h‚è‚Â‚Ô‚µ
 				rd.CullMode = D3D11_CULL_BACK;	// ƒJƒŠƒ“ƒO
@@ -355,7 +355,7 @@ bool DxSystem::CreateRasterizerState()
 
 				break;
 
-			case RS_CULL_BACK:
+			case static_cast<int>(RS_State::RS_CULL_BACK):
 				ZeroMemory(&rd, sizeof(rd));
 				rd.FillMode = D3D11_FILL_SOLID;
 				rd.CullMode = D3D11_CULL_BACK;
@@ -370,7 +370,7 @@ bool DxSystem::CreateRasterizerState()
 
 				break;
 
-			case RS_WIRE:
+			case static_cast<int>(RS_State::RS_WIRE):
 				ZeroMemory(&rd, sizeof(rd));
 				rd.FillMode = D3D11_FILL_WIREFRAME;
 				rd.CullMode = D3D11_CULL_BACK;
@@ -384,7 +384,7 @@ bool DxSystem::CreateRasterizerState()
 				rd.AntialiasedLineEnable = TRUE;
 				break;
 
-			case RS_CULL_FRONT:
+			case static_cast<int>(RS_State::RS_CULL_FRONT):
 				ZeroMemory(&rd, sizeof(rd));
 				rd.FillMode = D3D11_FILL_SOLID;
 				rd.CullMode = D3D11_CULL_FRONT;
@@ -399,7 +399,7 @@ bool DxSystem::CreateRasterizerState()
 
 				break;
 
-			case RS_CULL_NONE:
+			case static_cast<int>(RS_State::RS_CULL_NONE):
 				ZeroMemory(&rd, sizeof(rd));
 				rd.FillMode = D3D11_FILL_SOLID;
 				rd.CullMode = D3D11_CULL_NONE;
@@ -414,7 +414,7 @@ bool DxSystem::CreateRasterizerState()
 
 				break;
 
-			case RS_CULL_SKY:
+			case static_cast<int>(RS_State::RS_CULL_SKY):
 				ZeroMemory(&rd, sizeof(rd));
 				rd.FillMode = D3D11_FILL_SOLID;
 				rd.CullMode = D3D11_CULL_NONE;
@@ -450,7 +450,7 @@ bool DxSystem::CreateBlendState()
 	{
 		switch (state)
 		{
-			case BS_NONE:
+			case static_cast<int>(BS_State::BS_NONE):
 				ZeroMemory(&bd, sizeof(bd));
 				bd.IndependentBlendEnable = false;
 				bd.AlphaToCoverageEnable = false;
@@ -466,7 +466,7 @@ bool DxSystem::CreateBlendState()
 
 				break;
 
-			case BS_ALPHA:
+			case static_cast<int>(BS_State::BS_ALPHA):
 				ZeroMemory(&bd, sizeof(bd));
 				bd.IndependentBlendEnable = false;
 				bd.AlphaToCoverageEnable = false;
@@ -482,7 +482,7 @@ bool DxSystem::CreateBlendState()
 
 				break;
 
-			case BS_ALPHA_TEST:
+			case static_cast<int>(BS_State::BS_ALPHA_TEST):
 				ZeroMemory(&bd, sizeof(bd));
 				bd.IndependentBlendEnable = false;
 				bd.AlphaToCoverageEnable = true;
@@ -499,7 +499,7 @@ bool DxSystem::CreateBlendState()
 
 				break;
 
-			case BS_TRANSPARENT:
+			case static_cast<int>(BS_State::BS_TRANSPARENT):
 				ZeroMemory(&bd, sizeof(bd));
 				bd.IndependentBlendEnable = false;
 				bd.AlphaToCoverageEnable = false;
@@ -515,7 +515,7 @@ bool DxSystem::CreateBlendState()
 
 				break;
 
-			case BS_ADD:
+			case static_cast<int>(BS_State::BS_ADD):
 				ZeroMemory(&bd, sizeof(bd));
 				bd.IndependentBlendEnable = false;
 				bd.AlphaToCoverageEnable = false;
@@ -531,7 +531,7 @@ bool DxSystem::CreateBlendState()
 
 				break;
 
-			case BS_SUBTRACT:
+			case static_cast<int>(BS_State::BS_SUBTRACT):
 				ZeroMemory(&bd, sizeof(bd));
 				bd.IndependentBlendEnable = false;
 				bd.AlphaToCoverageEnable = false;
@@ -547,7 +547,7 @@ bool DxSystem::CreateBlendState()
 
 				break;
 
-			case BS_REPLACE:
+			case static_cast<int>(BS_State::BS_REPLACE):
 				ZeroMemory(&bd, sizeof(bd));
 				bd.IndependentBlendEnable = false;
 				bd.AlphaToCoverageEnable = false;
@@ -562,7 +562,7 @@ bool DxSystem::CreateBlendState()
 				bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
 				break;
-			case BS_MULTIPLY:
+			case static_cast<int>(BS_State::BS_MULTIPLY):
 				ZeroMemory(&bd, sizeof(bd));
 				bd.IndependentBlendEnable = false;
 				bd.AlphaToCoverageEnable = false;
@@ -577,7 +577,7 @@ bool DxSystem::CreateBlendState()
 				bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
 				break;
-			case BS_LIGHTEN:
+			case static_cast<int>(BS_State::BS_LIGHTEN):
 				ZeroMemory(&bd, sizeof(bd));
 				bd.IndependentBlendEnable = false;
 				bd.AlphaToCoverageEnable = false;
@@ -593,7 +593,7 @@ bool DxSystem::CreateBlendState()
 
 				break;
 
-			case BS_DARKEN:
+			case static_cast<int>(BS_State::BS_DARKEN):
 				ZeroMemory(&bd, sizeof(bd));
 				bd.IndependentBlendEnable = false;
 				bd.AlphaToCoverageEnable = false;
@@ -608,7 +608,7 @@ bool DxSystem::CreateBlendState()
 				bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
 				break;
-			case BS_SCREEN:
+			case static_cast<int>(BS_State::BS_SCREEN):
 				ZeroMemory(&bd, sizeof(bd));
 				bd.IndependentBlendEnable = false;
 				bd.AlphaToCoverageEnable = false;
@@ -653,7 +653,7 @@ void DxSystem::Clear(DWORD color)
 	*/
 	DeviceContext->ClearRenderTargetView(RenderTargetView.Get(), clearColor);
 	DeviceContext->ClearDepthStencilView(DepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	DeviceContext->OMSetDepthStencilState(DepthStencilState[DS_TRUE].Get(), 1);
+	DeviceContext->OMSetDepthStencilState(DepthStencilState[static_cast<int>(DS_State::DS_TRUE)].Get(), 1);
 }
 
 //------------------------------------------------

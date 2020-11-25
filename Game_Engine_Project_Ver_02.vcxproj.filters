@@ -23,9 +23,6 @@
     <ClCompile Include="Code\Souse_File\DxSystem.cpp">
       <Filter>Sources\Reaources</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Souse_File\Input_Manager.cpp">
-      <Filter>Sources\Reaources</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Souse_File\main.cpp">
       <Filter>Sources\Reaources</Filter>
     </ClCompile>
@@ -96,18 +93,23 @@
     <ClCompile Include="Code\Souse_File\Resources.cpp" />
     <ClCompile Include="Code\Souse_File\Line_Renderer.cpp" />
     <ClCompile Include="Code\Souse_File\FBX_Converter.cpp" />
+<<<<<<< HEAD
     <ClCompile Include="Script\Souse\balet.cpp" />
     <ClCompile Include="Script\Souse\muzzule.cpp" />
     <ClCompile Include="Script\Souse\Bomb.cpp" />
+=======
+    <ClCompile Include="Code\Souse_File\Cursor.cpp" />
+    <ClCompile Include="Code\Souse_File\Input.cpp">
+      <Filter>Sources\Reaources</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Souse_File\Screen.cpp" />
+>>>>>>> 52aebd97b6c30f7dee7b855bb14dcd0cd330d03c
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Audio_Manager.h">
       <Filter>Sources\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Code\Header_File\DxSystem.h">
-      <Filter>Sources\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Header_File\Input_Manager.h">
       <Filter>Sources\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Code\Header_File\misc.h">
@@ -279,9 +281,17 @@
     <ClInclude Include="Code\Header_File\Resources.h" />
     <ClInclude Include="Code\Header_File\Line_Renderer.h" />
     <ClInclude Include="Code\Header_File\FBX_Converter.h" />
+<<<<<<< HEAD
     <ClInclude Include="Script\Header\balet.h" />
     <ClInclude Include="Script\Header\muzzle.h" />
     <ClInclude Include="Script\Header\Bomb.h" />
+=======
+    <ClInclude Include="Code\Header_File\Cursor.h" />
+    <ClInclude Include="Code\Header_File\Input.h">
+      <Filter>Sources\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Header_File\Screen.h" />
+>>>>>>> 52aebd97b6c30f7dee7b855bb14dcd0cd330d03c
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Sources">

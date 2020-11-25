@@ -89,11 +89,11 @@ void Light::Set(shared_ptr<Transform> trans)
 	DxSystem::DeviceContext->OMSetRenderTargets(0, NULL, DepthStencilView.Get());
 	DxSystem::DeviceContext->ClearDepthStencilView(DepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_CULL_BACK));
+	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_State::RS_CULL_BACK));
 	//ブレンドステート設定
-	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_NONE), nullptr, 0xFFFFFFFF);
+	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_State::BS_NONE), nullptr, 0xFFFFFFFF);
 	//デプスステンシルステート設定
-	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_TRUE), 1);
+	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_State::DS_TRUE), 1);
 	// ビューポートの設定
 	DxSystem::SetViewPort(Shadow_Map_Texture_Size, Shadow_Map_Texture_Size);
 
