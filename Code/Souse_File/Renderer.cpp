@@ -1,8 +1,8 @@
 #include "Renderer.h"
 
-DxSystem::BS_State Renderer::Set_BlendState = DxSystem::BS_State::BS_NONE;
-DxSystem::RS_State Renderer::Set_RasterizerState = DxSystem::RS_State::RS_CULL_NONE;
-DxSystem::DS_State Renderer::Set_DepthStencilState = DxSystem::DS_State::DS_TRUE;
+BS_State Renderer::Set_BlendState = BS_State::Off;
+RS_State Renderer::Set_RasterizerState = RS_State::Cull_None;
+DS_State Renderer::Set_DepthStencilState = DS_State::LEqual;
 const Matrix Renderer::CorrectionMatrix = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1 };
 
 Renderer::Renderer()

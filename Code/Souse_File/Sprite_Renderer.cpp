@@ -349,8 +349,8 @@ Sprite_Renderer_batch::Sprite_Renderer_batch(ID3D11Device* device, const wchar_t
 	delete[] instances;
 
 	D3D11_RASTERIZER_DESC rasterizer_desc = {};
-	rasterizer_desc.FillMode = D3D11_FILL_SOLID; //D3D11_FILL_WIREFRAME, D3D11_FILL_SOLID
-	rasterizer_desc.CullMode = D3D11_CULL_NONE; //D3D11_CULL_NONE, D3D11_CULL_FRONT, D3D11_CULL_BACK
+	rasterizer_desc.FillMode = D3D11_FILL_SOLID; //D3D11_FILL_WireFRAME, D3D11_FILL_SOLID
+	rasterizer_desc.CullMode = D3D11_Cull_None; //D3D11_Cull_None, D3D11_Cull_Front, D3D11_Cull_Back
 	rasterizer_desc.FrontCounterClockwise = FALSE;
 	rasterizer_desc.DepthBias = 0;
 	rasterizer_desc.DepthBiasClamp = 0;

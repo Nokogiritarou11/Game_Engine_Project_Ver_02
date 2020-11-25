@@ -502,7 +502,7 @@ void Debug_UI::ScenePlayer_Render()
 		{
 			if (!Engine::scene_manager->Pause)
 			{
-				Cursor::lockState = Cursor::CursorLockMode::None;
+				Cursor::lockState = CursorLockMode::None;
 				Cursor::visible = true;
 				ImGui::SetWindowFocus(u8"ゲーム");
 				Active_Object.reset();
@@ -552,7 +552,7 @@ void Debug_UI::ScenePlayer_Render()
 		if (Running || Pausing)
 		{
 			ImGui::SetWindowFocus(u8"シーン");
-			Cursor::lockState = Cursor::CursorLockMode::None;
+			Cursor::lockState = CursorLockMode::None;
 			Cursor::visible = true;
 			Active_Object.reset();
 			Active_Object_Old.reset();
@@ -1066,7 +1066,7 @@ void Debug_UI::ShortCut_Check()
 			{
 				if (Engine::scene_manager->Run)
 				{
-					Cursor::lockState = Cursor::CursorLockMode::None;
+					Cursor::lockState = CursorLockMode::None;
 					Cursor::visible = true;
 					Render_Cursor = true;
 					Active_Object.reset();
@@ -1079,7 +1079,7 @@ void Debug_UI::ShortCut_Check()
 				{
 					if (!Engine::scene_manager->Pause)
 					{
-						Cursor::lockState = Cursor::CursorLockMode::None;
+						Cursor::lockState = CursorLockMode::None;
 						Cursor::visible = true;
 						ImGui::SetWindowFocus(u8"ゲーム");
 						Active_Object.reset();

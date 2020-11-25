@@ -119,7 +119,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_path, const char* fbx_filename
 					InitData.SysMemPitch = 0;
 					InitData.SysMemSlicePitch = 0;
 					HRESULT hr = DxSystem::Device->CreateBuffer(&bd, &InitData, mesh_ptr->meshes[i].vertex_buffer.GetAddressOf());
-					assert(SUCCEEDED(hr));
+					_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 				}
 
 				// インデックスバッファの生成
@@ -137,7 +137,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_path, const char* fbx_filename
 					InitData.SysMemPitch = 0;
 					InitData.SysMemSlicePitch = 0;
 					HRESULT hr = DxSystem::Device->CreateBuffer(&bd, &InitData, mesh_ptr->meshes[i].index_buffer.GetAddressOf());
-					assert(SUCCEEDED(hr));
+					_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 				}
 
 				//使わないので開放
@@ -715,7 +715,7 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh, bool isRight_Hand)
 		subresourceData.SysMemSlicePitch = 0;
 
 		HRESULT hr = DxSystem::Device->CreateBuffer(&bufferDesc, &subresourceData, mesh.vertex_buffer.GetAddressOf());
-		assert(SUCCEEDED(hr));
+		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
 
 	// インデックスバッファ
@@ -734,7 +734,7 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh, bool isRight_Hand)
 		subresourceData.SysMemPitch = 0; //Not use for index buffers.
 		subresourceData.SysMemSlicePitch = 0; //Not use for index buffers.
 		HRESULT hr = DxSystem::Device->CreateBuffer(&bufferDesc, &subresourceData, mesh.index_buffer.GetAddressOf());
-		assert(SUCCEEDED(hr));
+		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
 
 }

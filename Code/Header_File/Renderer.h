@@ -29,6 +29,11 @@ protected:
 	friend class Render_Manager;
 	bool IsCalled = false;
 	bool Disable_flg = false;
+
+	static BS_State Set_BlendState;
+	static RS_State Set_RasterizerState;
+	static DS_State Set_DepthStencilState;
+
 	static const Matrix CorrectionMatrix;
 
 private:
@@ -36,10 +41,6 @@ private:
 
 	bool enabled = true;
 	bool enabled_old = false;
-
-	static DxSystem::BS_State Set_BlendState;
-	static DxSystem::RS_State Set_RasterizerState;
-	static DxSystem::DS_State Set_DepthStencilState;
 
 	friend class View_Texture;
 	virtual void Render(Matrix V, Matrix P) {};
