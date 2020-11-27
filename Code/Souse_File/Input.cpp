@@ -14,7 +14,14 @@ Vector2 Input::mousePosition_old = { 0,0 };
 
 void Input::Update()
 {
-	mousePosition_old = mousePosition;
+	if (Cursor::lockState == CursorLockMode::Locked)
+	{
+		mousePosition_old = { Cursor::Lock_Pos.x - Engine::debug_ui->Game_View_Pos.x,Engine::debug_ui->Game_View_Pos.y - Cursor::Lock_Pos.y };
+	}
+	else
+	{
+		mousePosition_old = mousePosition;
+	}
 	POINT mouse_p;
 	GetCursorPos(&mouse_p);
 #if _DEBUG

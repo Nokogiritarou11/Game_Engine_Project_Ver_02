@@ -6,6 +6,8 @@ class Player : public MonoBehaviour
 public:
 
 private:
+	float move_speed;
+	float aim_speed;
 	float gravity;
 	float jump_power;
 	float jump_speed;
@@ -22,7 +24,7 @@ private:
 	template<class Archive>
 	void serialize(Archive& archive, std::uint32_t const version)
 	{
-		archive(cereal::base_class<MonoBehaviour>(this), gravity, jump_power);
+		archive(cereal::base_class<MonoBehaviour>(this), move_speed, aim_speed, gravity, jump_power);
 	}
 };
 

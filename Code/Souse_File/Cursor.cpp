@@ -11,6 +11,7 @@
 using namespace std;
 
 bool Cursor::visible = true;
+Vector2 Cursor::Lock_Pos = { 0,0 };
 CursorLockMode Cursor::lockState = CursorLockMode::None;
 
 void Cursor::Update()
@@ -21,7 +22,8 @@ void Cursor::Update()
 		if (!Engine::debug_ui->Render_Cursor)
 		{
 			Set_Cursor_Visible(false);
-			SetCursorPos(static_cast<int>(Engine::debug_ui->Game_View_CenterPos.x), static_cast<int>(Engine::debug_ui->Game_View_CenterPos.y));
+			Lock_Pos = { Engine::debug_ui->Game_View_CenterPos.x,Engine::debug_ui->Game_View_CenterPos.y };
+			SetCursorPos(static_cast<int>(Lock_Pos.x), static_cast<int>(Lock_Pos.y));
 		}
 		else
 		{
@@ -39,7 +41,8 @@ void Cursor::Update()
 		}
 		RECT rect;
 		GetWindowRect(DxSystem::hwnd, &rect);
-		SetCursorPos(static_cast<int>(rect.left) + Screen::Get_Width() / 2, static_cast<int>(rect.top) + Screen::Get_Height() / 2);
+		Lock_Pos = { static_cast<int>(rect.left) + Screen::Get_Width() / 2, static_cast<int>(rect.top) + Screen::Get_Height() / 2 };
+		SetCursorPos(static_cast<int>(Lock_Pos.x), static_cast<int>(Lock_Pos.y));
 #endif
 	}
 	else
