@@ -6,6 +6,13 @@ class Player : public MonoBehaviour
 public:
 
 private:
+	float gravity;
+	float jump_power;
+	float jump_speed;
+	bool jump_flg;
+
+	void Move();
+
 	void Awake() override;
 	void Start() override;
 	void Update() override;

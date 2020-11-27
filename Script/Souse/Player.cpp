@@ -7,7 +7,6 @@ void Player::Awake()
 void Player::Start()
 {
 	Cursor::lockState = CursorLockMode::Locked;
-	stage = GameObject::Find("Stage");
 }
 
 void Player::Update()
@@ -24,12 +23,11 @@ void Player::Update()
 	if (jump_flg)
 	{
 		jump_speed -= gravity;
+		transform->Set_position(transform->Get_position() + Vector3(0, jump_speed, 0));
 	}
-	float feet = stage.lock()->transform->Get_localPosition().y;
-	transform->Set_position(transform->Get_position() + Vector3(0, jump_speed, 0));
-	if (transform->Get_localPosition().y <= feet)
+	if (transform->Get_localPosition().y <= 0)
 	{
-		transform->Set_localPosition(Vector3(transform->Get_localPosition().x, feet, transform->Get_localPosition().z));
+		transform->Set_localPosition(Vector3(transform->Get_localPosition().x, 0, transform->Get_localPosition().z));
 		jump_speed = 0;
 		jump_flg = false;
 	}
