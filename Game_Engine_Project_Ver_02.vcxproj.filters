@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <FxCompile Include="Code\Shader\2D.fx">
-      <Filter>Sources\Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="Code\Shader\Default_Mesh.fx" />
     <FxCompile Include="Code\Shader\Default_SkinMesh.fx" />
     <FxCompile Include="Shader\Standard_Shader_PS.hlsl" />
@@ -15,23 +12,9 @@
     <FxCompile Include="Shader\Mesh_Shader_VS.hlsl" />
     <FxCompile Include="Shader\SkinMesh_ShadowMap_Shader_VS.hlsl" />
     <FxCompile Include="Shader\Mesh_ShadowMap_Shader_VS.hlsl" />
+    <FxCompile Include="Code\Shader\2D.fx" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Code\Souse_File\Audio_Manager.cpp">
-      <Filter>Sources\Reaources</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Souse_File\DxSystem.cpp">
-      <Filter>Sources\Reaources</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Souse_File\main.cpp">
-      <Filter>Sources\Reaources</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Souse_File\Shader.cpp">
-      <Filter>Sources\Reaources</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Souse_File\Texture.cpp">
-      <Filter>Sources\Reaources</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Souse_File\Object.cpp" />
     <ClCompile Include="Code\Souse_File\GameObject.cpp" />
     <ClCompile Include="Code\Souse_File\Component.cpp" />
@@ -39,25 +22,16 @@
     <ClCompile Include="Code\Souse_File\MonoBehaviour.cpp" />
     <ClCompile Include="Code\Souse_File\Transform.cpp" />
     <ClCompile Include="Code\Souse_File\Material.cpp" />
-    <ClCompile Include="Code\Souse_File\Scene_Manager.cpp">
-      <Filter>Sources\Reaources</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Souse_File\Scene.cpp" />
     <ClCompile Include="Code\Souse_File\Engine.cpp" />
     <ClCompile Include="Code\Souse_File\Time.cpp" />
     <ClCompile Include="Code\Souse_File\Renderer.cpp" />
-    <ClCompile Include="Code\Souse_File\Camera.cpp">
-      <Filter>Sources\Reaources</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Souse_File\Mesh_Renderer.cpp" />
     <ClCompile Include="Code\Souse_File\Mesh.cpp" />
     <ClCompile Include="Code\Souse_File\Render_Manager.cpp" />
     <ClCompile Include="Code\Souse_File\SkinMesh_Renderer.cpp" />
     <ClCompile Include="Code\Souse_File\Animator.cpp" />
     <ClCompile Include="Code\Souse_File\Animator_Manager.cpp" />
-    <ClCompile Include="Code\Souse_File\Sprite_Renderer.cpp">
-      <Filter>Sources\Reaources</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Souse_File\Rect_Transform.cpp" />
     <ClCompile Include="Code\Souse_File\Debug_UI.cpp" />
     <ClCompile Include="Code\Souse_File\Original_Math.cpp" />
@@ -94,33 +68,21 @@
     <ClCompile Include="Code\Souse_File\Line_Renderer.cpp" />
     <ClCompile Include="Code\Souse_File\FBX_Converter.cpp" />
     <ClCompile Include="Code\Souse_File\Cursor.cpp" />
-    <ClCompile Include="Code\Souse_File\Input.cpp">
-      <Filter>Sources\Reaources</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Souse_File\Screen.cpp" />
+    <ClCompile Include="Code\Souse_File\Audio_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\Camera.cpp" />
+    <ClCompile Include="Code\Souse_File\DxSystem.cpp" />
+    <ClCompile Include="Code\Souse_File\Input.cpp" />
+    <ClCompile Include="Code\Souse_File\main.cpp" />
+    <ClCompile Include="Code\Souse_File\Scene_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\Shader.cpp" />
+    <ClCompile Include="Code\Souse_File\Sprite_Renderer.cpp" />
+    <ClCompile Include="Code\Souse_File\Texture.cpp" />
+    <ClCompile Include="Script\Souse\Bomb.cpp" />
+    <ClCompile Include="Script\Souse\Muzzle.cpp" />
+    <ClCompile Include="Script\Souse\Bullet.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Code\Header_File\Audio_Manager.h">
-      <Filter>Sources\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Header_File\DxSystem.h">
-      <Filter>Sources\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Header_File\misc.h">
-      <Filter>Sources\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Header_File\Original_Math.h">
-      <Filter>Sources\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Header_File\Scene.h">
-      <Filter>Sources\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Header_File\Shader.h">
-      <Filter>Sources\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Header_File\Texture.h">
-      <Filter>Sources\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Code\Header_File\Object.h" />
     <ClInclude Include="Code\Header_File\GameObject.h" />
     <ClInclude Include="Code\Header_File\Component.h" />
@@ -132,18 +94,12 @@
     <ClInclude Include="Code\Header_File\Engine.h" />
     <ClInclude Include="Code\Header_File\Time.h" />
     <ClInclude Include="Code\Header_File\Renderer.h" />
-    <ClInclude Include="Code\Header_File\Camera.h">
-      <Filter>Sources\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Code\Header_File\Mesh_Renderer.h" />
     <ClInclude Include="Code\Header_File\Mesh.h" />
     <ClInclude Include="Code\Header_File\Render_Manager.h" />
     <ClInclude Include="Code\Header_File\SkinMesh_Renderer.h" />
     <ClInclude Include="Code\Header_File\Animator.h" />
     <ClInclude Include="Code\Header_File\Animator_Manager.h" />
-    <ClInclude Include="Code\Header_File\Sprite_Renderer.h">
-      <Filter>Sources\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Code\Header_File\RectTransform.h" />
     <ClInclude Include="Code\Header_File\Mathf.h" />
     <ClInclude Include="Code\Header_File\Debug_UI.h" />
@@ -269,8 +225,46 @@
     <ClInclude Include="Librarys\ImGui\imstb_textedit.h" />
     <ClInclude Include="Librarys\ImGui\imstb_truetype.h" />
     <ClInclude Include="Code\Header_File\All_Component_List.h" />
-    <ClInclude Include="Script\Header\Bomb.h" />
     <ClInclude Include="Script\Header\Player.h" />
+    <ClInclude Include="Code\Header_File\AudioSource.h" />
+    <ClInclude Include="Code\Header_File\Audio_Manager.h" />
+    <ClInclude Include="Code\Header_File\Camera.h" />
+    <ClInclude Include="Code\Header_File\Cursor.h" />
+    <ClInclude Include="Code\Header_File\DxSystem.h" />
+    <ClInclude Include="Code\Header_File\FBX_Converter.h" />
+    <ClInclude Include="Code\Header_File\Include_ImGui.h" />
+    <ClInclude Include="Code\Header_File\Input.h" />
+    <ClInclude Include="Code\Header_File\Light.h" />
+    <ClInclude Include="Code\Header_File\Light_Manager.h" />
+    <ClInclude Include="Code\Header_File\Line_Renderer.h" />
+    <ClInclude Include="Code\Header_File\misc.h" />
+    <ClInclude Include="Code\Header_File\Original_Math.h" />
+    <ClInclude Include="Code\Header_File\Particle.h" />
+    <ClInclude Include="Code\Header_File\Particle_Manager.h" />
+    <ClInclude Include="Code\Header_File\Resources.h" />
+    <ClInclude Include="Code\Header_File\Scene.h" />
+    <ClInclude Include="Code\Header_File\Screen.h" />
+    <ClInclude Include="Code\Header_File\Shader.h" />
+    <ClInclude Include="Code\Header_File\SkyBox.h" />
+    <ClInclude Include="Code\Header_File\Sprite_Renderer.h" />
+    <ClInclude Include="Code\Header_File\System_Function.h" />
+    <ClInclude Include="Code\Header_File\Texture.h" />
+    <ClInclude Include="Code\Header_File\View_Game.h" />
+    <ClInclude Include="Code\Header_File\View_Scene.h" />
+    <ClInclude Include="Code\Header_File\View_Texture.h" />
+    <ClInclude Include="Code\Libraries\cereal\access.hpp" />
+    <ClInclude Include="Code\Libraries\cereal\cereal.hpp" />
+    <ClInclude Include="Code\Libraries\cereal\details\util.hpp" />
+    <ClInclude Include="Code\Libraries\cereal\external\base64.hpp" />
+    <ClInclude Include="Code\Libraries\cereal\external\rapidjson\allocators.h" />
+    <ClInclude Include="Code\Libraries\cereal\external\rapidjson\cursorstreamwrapper.h" />
+    <ClInclude Include="Code\Libraries\cereal\external\rapidjson\document.h" />
+    <ClInclude Include="Code\Libraries\cereal\external\rapidjson\encodedstream.h" />
+    <ClInclude Include="Code\Libraries\cereal\external\rapidjson\encodings.h" />
+    <ClInclude Include="Code\Libraries\cereal\external\rapidjson\filereadstream.h" />
+    <ClInclude Include="Code\Libraries\cereal\external\rapidjson\filewritestream.h" />
+    <ClInclude Include="Code\Libraries\cereal\external\rapidjson\fwd.h" />
+    <ClInclude Include="Script\Header\Bomb.h" />
     <ClInclude Include="Script\Header\Bullet.h" />
     <ClInclude Include="Script\Header\Muzzle.h" />
   </ItemGroup>
