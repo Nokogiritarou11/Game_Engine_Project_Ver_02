@@ -654,7 +654,7 @@ void Transform::Set_parent(shared_ptr<Transform> P)
 			*/
 			Matrix m;
 			P->Get_world_matrix().Invert(m);
-			local_matrix = m * Get_world_matrix();
+			local_matrix = Get_world_matrix() * m;
 
 			local_matrix.Decompose(localScale, localRotation, localPosition);
 
@@ -717,7 +717,7 @@ void Transform::Set_parent(shared_ptr<Transform> P, int index_insert)
 			*/
 			Matrix m;
 			P->Get_world_matrix().Invert(m);
-			local_matrix = m * Get_world_matrix();
+			local_matrix = Get_world_matrix() * m;
 
 			local_matrix.Decompose(localScale, localRotation, localPosition);
 
@@ -986,15 +986,14 @@ void Transform::Set_world_matrix(Matrix matrix)
 
 	if (shared_ptr<Transform> p = parent.lock())
 	{
-		localPosition = { (position.x - p->position.x) * p->localScale.x, (position.y - p->position.y) * p->localScale.y, (position.z - p->position.z) * p->localScale.z };
-		localTranslation_matrix = Matrix::CreateTranslation(localPosition);
-		Quaternion q;
-		p->rotation.Inverse(q);
-		localRotation = rotation * q;
-		localRotation_matrix = Matrix::CreateFromQuaternion(localRotation);
-		localScale = { scale.x / p->scale.x, scale.y / p->scale.y, scale.z / p->scale.z };
-		localScale_matrix = Matrix::CreateScale(localScale);
+		Matrix m;
+		p->Get_world_matrix().Invert(m);
+		local_matrix = world_matrix * m;
 
+		local_matrix.Decompose(localScale, localRotation, localPosition);
+		localTranslation_matrix = Matrix::CreateTranslation(localPosition);
+		localRotation_matrix = Matrix::CreateFromQuaternion(localRotation);
+		localScale_matrix = Matrix::CreateScale(localScale);
 		local_matrix = localScale_matrix * localRotation_matrix * localTranslation_matrix;
 	}
 	else

@@ -1,9 +1,11 @@
 #pragma once
 #include "MonoBehaviour.h"
 
-class Player : public MonoBehaviour
+class Muzzle : public MonoBehaviour
 {
 public:
+	std::weak_ptr<GameObject> shotpoint;
+	std::weak_ptr<Particle> muzzleflash;
 
 private:
 	void Awake() override;
@@ -15,10 +17,10 @@ private:
 	template<class Archive>
 	void serialize(Archive& archive, std::uint32_t const version)
 	{
-		archive(cereal::base_class<MonoBehaviour>(this), gravity, jump_power);
+		archive(cereal::base_class<MonoBehaviour>(this));
 	}
 };
 
-CEREAL_REGISTER_TYPE(Player)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(MonoBehaviour, Player)
-CEREAL_CLASS_VERSION(Player, 1);
+CEREAL_REGISTER_TYPE(Muzzle)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(MonoBehaviour, Muzzle)
+CEREAL_CLASS_VERSION(Muzzle, 1);
