@@ -169,8 +169,8 @@ void View_Texture::Render_3D(Matrix V, Matrix P, bool Is_Shadow)
 		DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(BS_State::Off), nullptr, 0xFFFFFFFF);
 		Renderer::Set_BlendState = BS_State::Off;
 		//ラスタライザ―設定
-		DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(RS_State::Cull_Front));
-		Renderer::Set_RasterizerState = RS_State::Cull_Front;
+		DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(RS_State::Cull_Back));
+		Renderer::Set_RasterizerState = RS_State::Cull_Back;
 		//デプスステンシルステート設定
 		DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DS_State::LEqual), 1);
 		Renderer::Set_DepthStencilState = DS_State::LEqual;

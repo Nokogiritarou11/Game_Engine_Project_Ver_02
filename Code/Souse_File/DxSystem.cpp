@@ -426,7 +426,7 @@ bool DxSystem::CreateRasterizerState()
 				ZeroMemory(&rd, sizeof(rd));
 				rd.FillMode = D3D11_FILL_SOLID;
 				rd.CullMode = D3D11_CULL_FRONT;
-				rd.FrontCounterClockwise = FALSE;
+				rd.FrontCounterClockwise = TRUE;
 				rd.DepthBias = 0;
 				rd.DepthBiasClamp = 0;
 				rd.SlopeScaledDepthBias = 0;
