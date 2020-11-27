@@ -7,7 +7,7 @@ void Bomb::Awake()
 
 void Bomb::Start()
 {
-	muzzle = GameObject::Find("muzzle");
+	muzzle=GameObject::Find("muzzle");
 
 	//Vector3 angle=;
 	timer = 0;

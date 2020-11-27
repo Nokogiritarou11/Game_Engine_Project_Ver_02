@@ -5,8 +5,7 @@
 class Balet : public MonoBehaviour
 {
 public:
-	weak_ptr<GameObject>muzzle;
-	weak_ptr<Particle> shot;
+	std::weak_ptr<GameObject> muzzle;
 
 	int timer;
 private:

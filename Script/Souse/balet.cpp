@@ -7,7 +7,7 @@ void Balet::Awake()
 
 void Balet::Start()
 {
-	muzzle = GameObject::Find("muzzle");
+	muzzle=GameObject::Find("muzzle");
 
 	//Vector3 angle=;
 	timer = 0;

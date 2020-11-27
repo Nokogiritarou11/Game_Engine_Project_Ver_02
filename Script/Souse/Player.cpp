@@ -6,7 +6,7 @@ void Player::Awake()
 
 void Player::Start()
 {
-	//PLcamera = GameObject::Find("Main_Camera").lock()->GetComponent<Camera>();
+	Cursor::lockState = CursorLockMode::Locked;
 	jumppower = 5.0f;
 	gravity = 0.01f;
 	stage = GameObject::Find("Stage");
@@ -61,7 +61,7 @@ void Player::Update()
 		transform->Set_position(transform->Get_position() + Vector3(-side.x, 0, -side.z));
 	}
 
-	if (Input_Manager::key_tracker.IsKeyPressed(Keyboard::Space))
+	if (Input::GetKeyDown(KeyCode::Space))
 	{
 		if (!jumpflug)
 		{
@@ -80,13 +80,14 @@ void Player::Update()
 		jumpspeed = 0;
 		jumpflug = false;
 	}
-	if (Input_Manager::mouse_tracker.leftButton == Input_Manager::mouse_tracker.PRESSED)
+	if (Input::GetMouseButtonDown(0))
 	{
 		//ショット
 		Resources::Load_Prefab("Resouces/Prefab/bullet.prefab");
 		// shared_ptr<GameObject> bullet = Instantiate("bullet.prefab", transform->Get_localPosition(), transform->Get_rotation());
 	}
-	if (Input_Manager::mouse_tracker.rightButton == Input_Manager::mouse_tracker.PRESSED)
+	if (Input::GetMouseButtonDown(1))
+
 	{
 		//ショット
 		Resources::Load_Prefab("Resouces/Prefab/bomb.prefab");

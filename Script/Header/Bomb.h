@@ -5,8 +5,8 @@
 class Bomb : public MonoBehaviour
 {
 public:
-	weak_ptr<GameObject>muzzle;
-	weak_ptr<Particle> shot;
+	std::weak_ptr<GameObject> muzzle;
+	std::weak_ptr<Particle> shot;
 	float power;
 	int timer;
 private:

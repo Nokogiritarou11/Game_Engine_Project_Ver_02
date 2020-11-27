@@ -10,7 +10,7 @@ public:
 	float jumppower;
 	bool jumpflug;
 	float jumpspeed;
-	weak_ptr<GameObject> stage;
+	std::weak_ptr<GameObject> stage;
 private:
 	void Awake() override;
 	void Start() override;

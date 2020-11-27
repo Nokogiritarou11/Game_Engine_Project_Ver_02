@@ -7,18 +7,18 @@ void Muzzle::Awake()
 
 void Muzzle::Start()
 {
-	shotpoint = GameObject::Find("shotpoint");
-	shot=transform->GetComponent<Particle>();
-
+	shotpoint=GameObject::Find("shotpoint");
+	muzzleflash =gameObject->GetComponent<Particle>();
 }
 
 void Muzzle::Update()
 {
 	transform->Set_rotation(transform->LookAt(shotpoint.lock()->transform->Get_position()));
-	if (Input_Manager::mouse_tracker.rightButton == Input_Manager::mouse_tracker.PRESSED)
+	if (Input::GetMouseButtonDown(0))
+
 	{
 
-		shot.lock()->Play();
+		muzzleflash.lock()->Play();
 	}
 }
 
