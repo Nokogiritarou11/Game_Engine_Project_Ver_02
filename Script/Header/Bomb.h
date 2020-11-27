@@ -4,14 +4,12 @@
 class Bomb : public MonoBehaviour
 {
 public:
-	std::weak_ptr<Particle> shot;
 private:
-
+	float speed;
 	float power;
 	float timer;
 
-	void Awake() override;
-	void Start() override;
+	void OnEnable() override;
 	void Update() override;
 	bool Draw_ImGui() override;
 
@@ -19,7 +17,7 @@ private:
 	template<class Archive>
 	void serialize(Archive& archive, std::uint32_t const version)
 	{
-		archive(cereal::base_class<MonoBehaviour>(this));
+		archive(cereal::base_class<MonoBehaviour>(this), speed);
 	}
 };
 

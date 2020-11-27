@@ -1,12 +1,8 @@
 #include "Bomb.h"
 using namespace std;
-void Bomb::Awake()
-{
-}
 
-void Bomb::Start()
+void Bomb::OnEnable()
 {
-	//Vector3 angle=;
 	timer = 0;
 	power = 0;
 }
@@ -25,22 +21,26 @@ void Bomb::Update()
 bool Bomb::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	if (ImGui::CollapsingHeader("Bomb"))
+	bool open = ImGui::CollapsingHeader("Bomb");
+
+	bool removed = true;
+	if (ImGui::BeginPopupContextItem("Bomb_sub"))
 	{
-		bool removed = true;
-		if (ImGui::BeginPopupContextItem("Bomb_sub"))
+		if (ImGui::Selectable(u8"コンポーネントを削除"))
 		{
-			if (ImGui::Selectable(u8"コンポーネントを削除"))
-			{
-				Object::Destroy(dynamic_pointer_cast<Bomb>(shared_from_this()));
-				removed = false;
-			}
-			ImGui::EndPopup();
-			if (!removed)
-			{
-				return false;
-			}
+			Object::Destroy(dynamic_pointer_cast<Bomb>(shared_from_this()));
+			removed = false;
 		}
+		ImGui::EndPopup();
+	}
+	if (!removed)
+	{
+		return false;
+	}
+
+	if (open)
+	{
+		ImGui::DragFloat("speed", &speed, 0.1f, 0.0f, FLT_MAX);
 	}
 	return true;
 }

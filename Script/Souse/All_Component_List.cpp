@@ -113,7 +113,7 @@ void All_Component_List::Add(shared_ptr<GameObject> obj)
 			obj->AddComponent<Bullet>();
 			ImGui::CloseCurrentPopup();
 		}
-		if (ImGui::Button("muzzle", ImVec2(-FLT_MIN, 0.0f)))
+		if (ImGui::Button("Muzzle", ImVec2(-FLT_MIN, 0.0f)))
 		{
 			obj->AddComponent<Muzzle>();
 			ImGui::CloseCurrentPopup();

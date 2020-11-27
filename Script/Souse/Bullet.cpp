@@ -1,17 +1,9 @@
 #include "Bullet.h"
 using namespace std;
-void Bullet::Awake()
-{
-}
 
-void Bullet::Start()
+void Bullet::OnEnable()
 {
-	muzzle = GameObject::Find("muzzle");
-
-	//Vector3 angle=;
 	timer = 0;
-	transform->Set_localRotation(muzzle.lock()->transform->Get_rotation());
-	transform->Set_localPosition(muzzle.lock()->transform->Get_position());
 }
 
 void Bullet::Update()
@@ -27,22 +19,27 @@ void Bullet::Update()
 bool Bullet::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	if (ImGui::CollapsingHeader("Bullet"))
+	bool open = ImGui::CollapsingHeader("Bullet");
+
+	bool removed = true;
+	if (ImGui::BeginPopupContextItem("Bullet_sub"))
 	{
-		bool removed = true;
-		if (ImGui::BeginPopupContextItem("Bullet_sub"))
+		if (ImGui::Selectable(u8"コンポーネントを削除"))
 		{
-			if (ImGui::Selectable(u8"コンポーネントを削除"))
-			{
-				Object::Destroy(dynamic_pointer_cast<Bullet>(shared_from_this()));
-				removed = false;
-			}
-			ImGui::EndPopup();
-			if (!removed)
-			{
-				return false;
-			}
+			Object::Destroy(dynamic_pointer_cast<Bullet>(shared_from_this()));
+			removed = false;
 		}
+		ImGui::EndPopup();
 	}
+	if (!removed)
+	{
+		return false;
+	}
+
+	if (open)
+	{
+		ImGui::DragFloat("speed", &speed, 0.1f, 0.0f, FLT_MAX);
+	}
+
 	return true;
 }

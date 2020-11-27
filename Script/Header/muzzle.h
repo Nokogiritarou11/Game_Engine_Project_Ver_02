@@ -4,8 +4,8 @@
 class Muzzle : public MonoBehaviour
 {
 public:
-	std::weak_ptr<GameObject> shotpoint;
-	std::weak_ptr<Particle> muzzleflash;
+	std::weak_ptr<GameObject> shot_point;
+	std::weak_ptr<Particle> muzzle_flash;
 
 private:
 	void Awake() override;
