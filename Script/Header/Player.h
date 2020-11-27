@@ -6,6 +6,7 @@ class Player : public MonoBehaviour
 public:
 
 private:
+	std::weak_ptr<Transform> muzzle_trans;
 	float move_speed;
 	float aim_speed;
 	float gravity;

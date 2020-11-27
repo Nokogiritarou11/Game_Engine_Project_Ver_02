@@ -7,6 +7,7 @@ void Player::Awake()
 void Player::Start()
 {
 	Cursor::lockState = CursorLockMode::Locked;
+	muzzle_trans = GameObject::Find("Muzzle").lock()->transform;
 }
 
 void Player::Update()
@@ -36,12 +37,16 @@ void Player::Update()
 	if (Input::GetMouseButtonDown(0))
 	{
 		//ショット
-		//shared_ptr<GameObject> bullet = Resources::Load_Prefab("Resouces/Prefab/bullet.prefab");;
+		shared_ptr<GameObject> bullet = Resources::Load_Prefab("Resouces/Prefab/Bullet.prefab");
+		bullet->transform->Set_position(muzzle_trans.lock()->Get_position());
+		bullet->transform->Set_rotation(muzzle_trans.lock()->Get_rotation());
 	}
 	if (Input::GetMouseButtonDown(1))
 	{
 		//ショット
-		//shared_ptr<GameObject> bullet = Resources::Load_Prefab("Resouces/Prefab/bomb.prefab");;
+		shared_ptr<GameObject> bullet = Resources::Load_Prefab("Resouces/Prefab/Bomb.prefab");
+		bullet->transform->Set_position(muzzle_trans.lock()->Get_position());
+		bullet->transform->Set_rotation(muzzle_trans.lock()->Get_rotation());
 	}
 }
 
@@ -50,7 +55,6 @@ void Player::Move()
 	//入力
 	static Vector2 mouse_pos = { 0,0 };
 	mouse_pos = Input::GetMouseRelativePosition();
-	Debug::Log(mouse_pos);
 	Vector3 rot = transform->Get_eulerAngles();
 	rot.y += mouse_pos.x * aim_speed * Time::deltaTime;
 	rot.x += mouse_pos.y * aim_speed * Time::deltaTime;
