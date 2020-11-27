@@ -53,9 +53,9 @@ private:
 	friend class View_Scene;
 	friend class cereal::access;
 	template<class Archive>
-	void serialize(Archive& archive)
+	void serialize(Archive& archive, std::uint32_t const version)
 	{
-		archive(cereal::base_class<Component>(this), Color, Distance, Intensity, Bias, Shadow_Map_Texture_Size);
+		archive(cereal::base_class<Component>(this), Color, Distance, Intensity, Bias, Shadow_Map_Texture_Size, Light_View_Size);
 	}
 };
 
