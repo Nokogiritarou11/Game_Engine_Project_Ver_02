@@ -81,6 +81,7 @@
     <ClCompile Include="Script\Souse\Bomb.cpp" />
     <ClCompile Include="Script\Souse\Muzzle.cpp" />
     <ClCompile Include="Script\Souse\Bullet.cpp" />
+    <ClCompile Include="Script\Souse\Object_Pool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -267,6 +268,7 @@
     <ClInclude Include="Script\Header\Bomb.h" />
     <ClInclude Include="Script\Header\Bullet.h" />
     <ClInclude Include="Script\Header\Muzzle.h" />
+    <ClInclude Include="Script\Header\Object_Pool.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

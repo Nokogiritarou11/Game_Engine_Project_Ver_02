@@ -16,6 +16,7 @@
 #include "Bullet.h"
 #include "Muzzle.h"
 #include "Bomb.h"
+#include "Object_Pool.h"
 /////////////////////////////////////////////////////////////////
 
 using namespace std;
@@ -121,6 +122,11 @@ void All_Component_List::Add(shared_ptr<GameObject> obj)
 		if (ImGui::Button("Bomb", ImVec2(-FLT_MIN, 0.0f)))
 		{
 			obj->AddComponent<Bomb>();
+			ImGui::CloseCurrentPopup();
+		}
+		if (ImGui::Button("Object_Pool", ImVec2(-FLT_MIN, 0.0f)))
+		{
+			obj->AddComponent<Object_Pool>();
 			ImGui::CloseCurrentPopup();
 		}
 

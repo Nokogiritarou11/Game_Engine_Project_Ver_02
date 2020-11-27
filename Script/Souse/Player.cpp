@@ -1,12 +1,15 @@
 #include "Player.h"
+#include "Object_Pool.h"
 using namespace std;
+
 void Player::Awake()
 {
+	Cursor::lockState = CursorLockMode::Locked;
 }
 
 void Player::Start()
 {
-	Cursor::lockState = CursorLockMode::Locked;
+	obj_pool = GameObject::Find("Object_Pool").lock()->GetComponent<Object_Pool>();
 	muzzle_trans = GameObject::Find("Muzzle").lock()->transform;
 }
 
@@ -37,14 +40,14 @@ void Player::Update()
 	if (Input::GetMouseButtonDown(0))
 	{
 		//ショット
-		shared_ptr<GameObject> bullet = Resources::Load_Prefab("Resouces/Prefab/Bullet.prefab");
+		shared_ptr<GameObject> bullet = obj_pool.lock()->Instance_Bullet().lock();
 		bullet->transform->Set_position(muzzle_trans.lock()->Get_position());
 		bullet->transform->Set_rotation(muzzle_trans.lock()->Get_rotation());
 	}
 	if (Input::GetMouseButtonDown(1))
 	{
 		//ショット
-		shared_ptr<GameObject> bullet = Resources::Load_Prefab("Resouces/Prefab/Bomb.prefab");
+		shared_ptr<GameObject> bullet = obj_pool.lock()->Instance_Bomb().lock();
 		bullet->transform->Set_position(muzzle_trans.lock()->Get_position());
 		bullet->transform->Set_rotation(muzzle_trans.lock()->Get_rotation());
 	}

@@ -11,10 +11,10 @@ void Bomb::Update()
 {
 	transform->Set_position(transform->Get_position() + transform->Get_forward() + Vector3(0, power, 0));
 	timer += Time::deltaTime;
-	power -= 1.0f * Time::deltaTime;
-	if (timer > 10)
+	power -= 30.0f * Time::deltaTime;
+	if (timer > 3)
 	{
-		Destroy(gameObject);
+		gameObject->SetActive(false);
 	}
 }
 

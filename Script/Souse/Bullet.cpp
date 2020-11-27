@@ -10,9 +10,9 @@ void Bullet::Update()
 {
 	transform->Set_position(transform->Get_position() + transform->Get_forward() * speed * Time::deltaTime);
 	timer += Time::deltaTime;
-	if (timer > 10)
+	if (timer > 3)
 	{
-		Destroy(gameObject);
+		gameObject->SetActive(false);
 	}
 }
 

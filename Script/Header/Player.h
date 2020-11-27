@@ -1,11 +1,14 @@
 #pragma once
 #include "MonoBehaviour.h"
 
+class Object_Pool;
+
 class Player : public MonoBehaviour
 {
 public:
 
 private:
+	std::weak_ptr<Object_Pool> obj_pool;
 	std::weak_ptr<Transform> muzzle_trans;
 	float move_speed;
 	float aim_speed;
