@@ -24,7 +24,7 @@ View_Texture::View_Texture()
 		bd.MiscFlags = 0;
 		bd.StructureByteStride = 0;
 		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer_CbScene.GetAddressOf());
-		assert(SUCCEEDED(hr));
+		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
 
 	skybox = make_unique<SkyBox>();
@@ -59,7 +59,7 @@ bool View_Texture::CreateDepthStencil(int x, int y)
 	td.Height = y;
 	td.MipLevels = 1;
 	td.ArraySize = 1;
-	td.Format = DXGI_FORMAT_R24G8_TYPELESS;
+	td.Format = DXGI_FORMAT_R32G8X24_TYPELESS;
 	td.SampleDesc = DxSystem::MSAA;
 	//td.SampleDesc.Count = 1;
 	//td.SampleDesc.Quality = 0;
@@ -70,45 +70,30 @@ bool View_Texture::CreateDepthStencil(int x, int y)
 
 	// 深度ステンシルテクスチャ生成
 	HRESULT hr = DxSystem::Device->CreateTexture2D(&td, NULL, Texture_DepthStencil.GetAddressOf());
-	//assert(FAILED(hr));
-
-	if (FAILED(hr))
-	{
-		return false;
-	}
+	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	// 深度ステンシルビュー設定
 	D3D11_DEPTH_STENCIL_VIEW_DESC dsvd;
 	ZeroMemory(&dsvd, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
-	dsvd.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	dsvd.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
 	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
 	dsvd.Texture2D.MipSlice = 0;
 
 	// 深度ステンシルビュー生成
 	hr = DxSystem::Device->CreateDepthStencilView(Texture_DepthStencil.Get(), &dsvd, DepthStencilView.GetAddressOf());
-	//assert(FAILED(hr));
-
-	if (FAILED(hr))
-	{
-		return false;
-	}
+	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	// シェーダリソースビュー設定
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
 	ZeroMemory(&srvd, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
-	srvd.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+	srvd.Format = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
 	srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
 	srvd.Texture2D.MostDetailedMip = 0;
 	srvd.Texture2D.MipLevels = 1;
 
 	// シェーダリソースビュー生成
 	hr = DxSystem::Device->CreateShaderResourceView(Texture_DepthStencil.Get(), &srvd, ShaderResourceView_Depth.GetAddressOf());
-	//assert(FAILED(hr));
-
-	if (FAILED(hr))
-	{
-		return false;
-	}
+	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	return true;
 }
@@ -130,10 +115,6 @@ bool View_Texture::CreateRenderTartgetView(int x, int y)
 	//texDesc.SampleDesc.Count = 1;
 	// 2次元テクスチャの生成
 	HRESULT hr = DxSystem::Device->CreateTexture2D(&texDesc, NULL, Texture_RenderTarget.GetAddressOf());
-	if (FAILED(hr))
-	{
-		return false;
-	}
 
 	// レンダーターゲットビューの設定
 	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
@@ -144,10 +125,6 @@ bool View_Texture::CreateRenderTartgetView(int x, int y)
 
 	// レンダーターゲットビューの生成
 	hr = DxSystem::Device->CreateRenderTargetView(Texture_RenderTarget.Get(), &rtvDesc, RenderTargetView.GetAddressOf());
-	if (FAILED(hr))
-	{
-		return false;
-	}
 
 	// シェーダリソースビューの設定
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
@@ -155,41 +132,49 @@ bool View_Texture::CreateRenderTartgetView(int x, int y)
 	srvDesc.Format = texDesc.Format;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
 	srvDesc.Texture2D.MipLevels = 1;
-	srvDesc.Texture2D.MostDetailedMip = 0;;
+	srvDesc.Texture2D.MostDetailedMip = 0;
 
 	// シェーダリソースビューの生成
 	hr = DxSystem::Device->CreateShaderResourceView(Texture_RenderTarget.Get(), &srvDesc, ShaderResourceView_Render.GetAddressOf());
-	if (FAILED(hr))
-	{
-		return false;
-	}
 
 	return true;
 }
 
-void View_Texture::Render_Sky(std::shared_ptr<Transform> trans)
+void View_Texture::Render_Sky(Vector3 pos)
 {
-	//ブレンドステート設定
-	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_State::BS_NONE), nullptr, 0xFFFFFFFF);
-	//ラスタライザ―設定
-	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_State::RS_CULL_SKY));
 	//トポロジー設定
 	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//ブレンドステート設定
+	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(BS_State::Off), nullptr, 0xFFFFFFFF);
+	Renderer::Set_BlendState = BS_State::Off;
+	//ラスタライザ―設定
+	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(RS_State::Cull_None));
+	Renderer::Set_RasterizerState = RS_State::Cull_None;
 	//デプスステンシルステート設定
-	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_State::DS_SKY), 1);
-	skybox->Render(trans->Get_position());
+	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DS_State::None_No_Write), 1);
+	Renderer::Set_DepthStencilState = DS_State::None_No_Write;
+
+	skybox->Render(pos);
 }
 
 void View_Texture::Render_3D(Matrix V, Matrix P, bool Is_Shadow)
 {
-	//ブレンドステート設定
-	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_State::BS_NONE), nullptr, 0xFFFFFFFF);
-	//ラスタライザ―設定
-	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_State::RS_CULL_BACK));
 	//トポロジー設定
 	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//デプスステンシルステート設定
-	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_State::DS_TRUE), 1);
+
+	if (Is_Shadow)
+	{
+		//ブレンドステート設定
+		DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(BS_State::Off), nullptr, 0xFFFFFFFF);
+		Renderer::Set_BlendState = BS_State::Off;
+		//ラスタライザ―設定
+		DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(RS_State::Cull_Front));
+		Renderer::Set_RasterizerState = RS_State::Cull_Front;
+		//デプスステンシルステート設定
+		DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DS_State::LEqual), 1);
+		Renderer::Set_DepthStencilState = DS_State::LEqual;
+	}
 
 	shared_ptr<Renderer> p_rend = nullptr;
 	bool expired = false;
@@ -238,14 +223,18 @@ void View_Texture::Render_3D(Matrix V, Matrix P, bool Is_Shadow)
 
 void View_Texture::Render_2D(Matrix V, Matrix P)
 {
-	//ブレンドステート設定
-	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(DxSystem::BS_State::BS_ALPHA), nullptr, 0xFFFFFFFF);
-	//ラスタライザ―設定
-	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(DxSystem::RS_State::RS_CULL_NONE));
 	//トポロジー設定
 	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+	//ブレンドステート設定
+	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(BS_State::Alpha), nullptr, 0xFFFFFFFF);
+	Renderer::Set_BlendState = BS_State::Alpha;
+	//ラスタライザ―設定
+	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(RS_State::Cull_None));
+	Renderer::Set_RasterizerState = RS_State::Cull_None;
 	//デプスステンシルステート設定
-	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DxSystem::DS_State::DS_FALSE), 1);
+	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DS_State::None_No_Write), 1);
+	Renderer::Set_DepthStencilState = DS_State::None_No_Write;
 	shared_ptr<Renderer> p_rend = nullptr;
 	bool expired = false;
 	bool disabled = false;

@@ -32,7 +32,7 @@ void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 		bd.MiscFlags = 0;
 		bd.StructureByteStride = 0;
 		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer_CbMesh.GetAddressOf());
-		assert(SUCCEEDED(hr));
+		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
 	if (!ConstantBuffer_CbColor)
 	{
@@ -44,7 +44,7 @@ void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 		bd.MiscFlags = 0;
 		bd.StructureByteStride = 0;
 		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer_CbColor.GetAddressOf());
-		assert(SUCCEEDED(hr));
+		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
 
 	if (!shadow_shader)
@@ -133,9 +133,6 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 }
 void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 {
-	//CalculateLocalTransform();
-	//CalculateWorldTransform(transform->Get_world_matrix());
-
 	if (mesh_data)
 	{
 		for (auto& mesh : mesh_data->meshes)
@@ -187,6 +184,26 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 				//シェーダーリソースのバインド
 				vertex_shader->Activate_VS(); //VSsetShader
 				material[subset.material_ID]->shader->Activate_PS(); //PSSetShader
+
+				//ブレンドステート設定
+				if (Set_BlendState != material[subset.material_ID]->BlendState)
+				{
+					DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(material[subset.material_ID]->BlendState), nullptr, 0xFFFFFFFF);
+					Set_BlendState = material[subset.material_ID]->BlendState;
+				}
+				//ラスタライザ―設定
+				if (Set_RasterizerState != material[subset.material_ID]->RasterizerState)
+				{
+					DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(material[subset.material_ID]->RasterizerState));
+					Set_RasterizerState = material[subset.material_ID]->RasterizerState;
+				}
+				//デプスステンシルステート設定
+				if (Set_DepthStencilState != material[subset.material_ID]->DepthStencilState)
+				{
+					DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(material[subset.material_ID]->DepthStencilState), 1);
+					Set_DepthStencilState = material[subset.material_ID]->DepthStencilState;
+				}
+
 				// ↑で設定したリソースを利用してポリゴンを描画する。
 				DxSystem::DeviceContext->DrawIndexed(subset.index_count, subset.index_start, 0);
 			}
@@ -195,9 +212,6 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 }
 void SkinMesh_Renderer::Render_Shadow(Matrix V, Matrix P)
 {
-	//CalculateLocalTransform();
-	//CalculateWorldTransform(transform->Get_world_matrix());
-
 	if (mesh_data)
 	{
 		for (auto& mesh : mesh_data->meshes)

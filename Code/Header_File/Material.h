@@ -22,10 +22,6 @@ public:
 
 	Vector4 color = { 1,1,1,1 };
 
-	DxSystem::BS_State BlendState = DxSystem::BS_State::BS_NONE;
-	DxSystem::RS_State RasterizerState = DxSystem::RS_State::RS_CULL_NONE;
-	DxSystem::DS_State DepthStencilState = DxSystem::DS_State::DS_TRUE;
-
 	struct Shader_Info
 	{
 		std::string Shader_Pass;
@@ -62,6 +58,10 @@ private:
 
 	std::string Self_Save_Pass;
 
+	BS_State BlendState = BS_State::Off;
+	RS_State RasterizerState = RS_State::Cull_Back;
+	DS_State DepthStencilState = DS_State::LEqual;
+
 	static void Initialize(std::shared_ptr<Material>& mat, std::string Material_FullPass);
 	void Set_Texture_All();
 	void Active_Texture(bool Use_Material = true);
@@ -75,6 +75,6 @@ private:
 	template<class Archive>
 	void serialize(Archive& archive)
 	{
-		archive(name, color, shader_info, texture_info);
+		archive(name, color, shader_info, texture_info, BlendState, RasterizerState, DepthStencilState);
 	}
 };
