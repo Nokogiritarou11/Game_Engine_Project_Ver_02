@@ -4,7 +4,6 @@
 class Bomb : public MonoBehaviour
 {
 public:
-	std::weak_ptr<GameObject> muzzle;
 	std::weak_ptr<Particle> shot;
 private:
 

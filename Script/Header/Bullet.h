@@ -8,6 +8,7 @@ public:
 
 private:
 	float timer;
+	float speed;
 
 	void Awake() override;
 	void Start() override;
@@ -18,7 +19,7 @@ private:
 	template<class Archive>
 	void serialize(Archive& archive, std::uint32_t const version)
 	{
-		archive(cereal::base_class<MonoBehaviour>(this));
+		archive(cereal::base_class<MonoBehaviour>(this) ,speed);
 	}
 };
 

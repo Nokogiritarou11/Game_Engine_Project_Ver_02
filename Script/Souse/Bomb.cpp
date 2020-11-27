@@ -6,21 +6,17 @@ void Bomb::Awake()
 
 void Bomb::Start()
 {
-	muzzle = GameObject::Find("muzzle");
-
 	//Vector3 angle=;
 	timer = 0;
 	power = 0;
-	transform->Set_localRotation(muzzle.lock()->transform->Get_rotation());
-	transform->Set_localPosition(muzzle.lock()->transform->Get_position());
 }
 
 void Bomb::Update()
 {
 	transform->Set_position(transform->Get_position() + transform->Get_forward() + Vector3(0, power, 0));
 	timer += Time::deltaTime;
-	power -= 0.001f;
-	if (timer > 120)
+	power -= 1.0f * Time::deltaTime;
+	if (timer > 10)
 	{
 		Destroy(gameObject);
 	}

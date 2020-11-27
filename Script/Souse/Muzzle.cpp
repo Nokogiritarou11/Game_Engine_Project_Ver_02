@@ -14,7 +14,6 @@ void Muzzle::Update()
 {
 	transform->Set_rotation(transform->LookAt(shotpoint.lock()->transform->Get_position()));
 	if (Input::GetMouseButtonDown(0))
-
 	{
 		muzzleflash.lock()->Play();
 	}

@@ -16,9 +16,9 @@ void Bullet::Start()
 
 void Bullet::Update()
 {
-	transform->Set_position(transform->Get_position() + transform->Get_forward());
+	transform->Set_position(transform->Get_position() + transform->Get_forward() * speed * Time::deltaTime);
 	timer += Time::deltaTime;
-	if (timer > 120)
+	if (timer > 10)
 	{
 		Destroy(gameObject);
 	}

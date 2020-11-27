@@ -11,6 +11,7 @@ void Player::Start()
 
 void Player::Update()
 {
+	Move();
 
 	if (Input::GetKeyDown(KeyCode::Space))
 	{
@@ -31,25 +32,17 @@ void Player::Update()
 		jump_speed = 0;
 		jump_flg = false;
 	}
+
 	if (Input::GetMouseButtonDown(0))
 	{
 		//ショット
-		Resources::Load_Prefab("Resouces/Prefab/bullet.prefab");
-		// shared_ptr<GameObject> bullet = Instantiate("bullet.prefab", transform->Get_localPosition(), transform->Get_rotation());
+		//shared_ptr<GameObject> bullet = Resources::Load_Prefab("Resouces/Prefab/bullet.prefab");;
 	}
 	if (Input::GetMouseButtonDown(1))
-
 	{
 		//ショット
-		Resources::Load_Prefab("Resouces/Prefab/bomb.prefab");
-
-		// shared_ptr<GameObject> bullet = Instantiate("bullet.prefab", transform->Get_localPosition(), transform->Get_rotation());
+		//shared_ptr<GameObject> bullet = Resources::Load_Prefab("Resouces/Prefab/bomb.prefab");;
 	}
-
-	//if (Input_Manager::keyboard->Enter)
-	//{
-	//	GetComponent<AudioSource>()->PlayOneShot();
-	//}
 }
 
 void Player::Move()
@@ -57,10 +50,10 @@ void Player::Move()
 	//入力
 	static Vector2 mouse_pos = { 0,0 };
 	mouse_pos = Input::GetMouseRelativePosition();
-
+	Debug::Log(mouse_pos);
 	Vector3 rot = transform->Get_eulerAngles();
 	rot.y += mouse_pos.x;
-	rot.x += mouse_pos.x;
+	rot.x += mouse_pos.y;
 	rot.z = 0;
 	transform->Set_eulerAngles(rot);
 
