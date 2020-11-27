@@ -22,42 +22,48 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	switch (message)
 	{
-	case WM_ACTIVATEAPP:
-		break;
-	case WM_PAINT:
-	{
-		PAINTSTRUCT ps;
-		HDC hdc;
-		hdc = BeginPaint(hWnd, &ps);
-		EndPaint(hWnd, &ps);
-		break;
-	}
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-	/*
-	case WM_CREATE:
-		break;
-	case WM_KEYDOWN:
-		break;
-	case WM_KEYUP:
-		break;
-	case WM_INPUT:
-		Input::ProcessMessage(message, wParam, lParam);
-		break;
-	case WM_MOUSEMOVE:
-		break;
-	case WM_LBUTTONDOWN:
-		break;
-	case WM_LBUTTONUP:
-		break;
-	case WM_RBUTTONDOWN:
-		break;
-	case WM_RBUTTONUP:
-		break;
-	*/
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
+		case WM_ACTIVATEAPP:
+			break;
+		case WM_PAINT:
+		{
+			PAINTSTRUCT ps;
+			HDC hdc;
+			hdc = BeginPaint(hWnd, &ps);
+			EndPaint(hWnd, &ps);
+			break;
+		}
+		case WM_DESTROY:
+			PostQuitMessage(0);
+			break;
+		case WM_SETFOCUS:
+			Engine::GetHundle(message, wParam, lParam);
+			break;
+		case WM_KILLFOCUS:
+			Engine::GetHundle(message, wParam, lParam);
+			break;
+			/*
+			case WM_CREATE:
+				break;
+			case WM_KEYDOWN:
+				break;
+			case WM_KEYUP:
+				break;
+			case WM_INPUT:
+				Input::ProcessMessage(message, wParam, lParam);
+				break;
+			case WM_MOUSEMOVE:
+				break;
+			case WM_LBUTTONDOWN:
+				break;
+			case WM_LBUTTONUP:
+				break;
+			case WM_RBUTTONDOWN:
+				break;
+			case WM_RBUTTONUP:
+				break;
+			*/
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 
 	return(DefWindowProc(hWnd, message, wParam, lParam));
@@ -68,15 +74,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 	// ウィンドウ生成
 	TCHAR szWindowClass[] = TEXT("Game_Engine");
 	WNDCLASS wcex;
-	wcex.style         = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc   = WndProc;
-	wcex.cbClsExtra    = 0;
-	wcex.cbWndExtra    = 0;
-	wcex.hInstance     = hInstance;
-	wcex.hIcon         = NULL;
-	wcex.hCursor       = LoadCursor(NULL, IDC_ARROW);
+	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc = WndProc;
+	wcex.cbClsExtra = 0;
+	wcex.cbWndExtra = 0;
+	wcex.hInstance = hInstance;
+	wcex.hIcon = NULL;
+	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW);
-	wcex.lpszMenuName  = NULL;
+	wcex.lpszMenuName = NULL;
 	wcex.lpszClassName = szWindowClass;
 	RegisterClass(&wcex);
 
@@ -94,7 +100,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 
 	Microsoft::WRL::Wrappers::RoInitializeWrapper initialize(RO_INIT_MULTITHREADED);
 
-		// デバイス初期化
+	// デバイス初期化
 	if (FAILED((HRESULT)DxSystem::Initialize(hWnd, DxSystem::GetScreenWidth(), DxSystem::GetScreenHeight())))
 	{
 		return 0;
@@ -126,7 +132,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 
 			Interval -= Time::deltaTime;
 			fps++;
-			if (Interval < 0) {
+			if (Interval < 0)
+			{
 				std::ostringstream outs;
 				outs.precision(6);
 				outs << "Game_Engine    " << "FPS : " << fps << " / " << "Frame Time : " << mspf << " (ms)";

@@ -1,4 +1,6 @@
 #include "Input.h"
+#include "Cursor.h"
+#include "DxSystem.h"
 
 #if _DEBUG
 #include "Engine.h"
@@ -14,21 +16,31 @@ Vector2 Input::mousePosition_old = { 0,0 };
 
 void Input::Update()
 {
+
+#if _DEBUG
+#else
+	RECT rect;
+	GetWindowRect(DxSystem::hwnd, &rect);
+#endif
+
 	if (Cursor::lockState == CursorLockMode::Locked)
 	{
+#if _DEBUG
 		mousePosition_old = { Cursor::Lock_Pos.x - Engine::debug_ui->Game_View_Pos.x,Engine::debug_ui->Game_View_Pos.y - Cursor::Lock_Pos.y };
+#else
+		mousePosition_old = { Cursor::Lock_Pos.x - static_cast<float>(rect.left) ,static_cast<float>(rect.bottom) - Cursor::Lock_Pos.y };
+#endif
 	}
 	else
 	{
 		mousePosition_old = mousePosition;
 	}
+
 	POINT mouse_p;
 	GetCursorPos(&mouse_p);
 #if _DEBUG
 	mousePosition = { static_cast<float>(mouse_p.x) - Engine::debug_ui->Game_View_Pos.x, Engine::debug_ui->Game_View_Pos.y - static_cast<float>(mouse_p.y) };
 #else
-	RECT rect;
-	GetWindowRect(DxSystem::hwnd, &rect);
 	mousePosition = { static_cast<float>(mouse_p.x) - static_cast<float>(rect.left),static_cast<float>(rect.bottom) - static_cast<float>(mouse_p.y) };
 #endif
 

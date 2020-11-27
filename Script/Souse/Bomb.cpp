@@ -9,7 +9,7 @@ void Bomb::OnEnable()
 
 void Bomb::Update()
 {
-	transform->Set_position(transform->Get_position() + transform->Get_forward() + Vector3(0, power, 0));
+	transform->Set_position(transform->Get_position() + transform->Get_forward() * speed * Time::deltaTime + Vector3(0, power * Time::deltaTime, 0));
 	timer += Time::deltaTime;
 	power -= 30.0f * Time::deltaTime;
 	if (timer > 3)

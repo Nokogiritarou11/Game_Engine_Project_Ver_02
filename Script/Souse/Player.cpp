@@ -27,14 +27,14 @@ void Player::Update()
 	}
 	if (jump_flg)
 	{
-		jump_speed -= gravity;
-		transform->Set_position(transform->Get_position() + Vector3(0, jump_speed, 0));
-	}
-	if (transform->Get_localPosition().y <= 0)
-	{
-		transform->Set_localPosition(Vector3(transform->Get_localPosition().x, 0, transform->Get_localPosition().z));
-		jump_speed = 0;
-		jump_flg = false;
+		jump_speed -= gravity * Time::deltaTime;
+		transform->Set_position(transform->Get_position() + Vector3(0, jump_speed * Time::deltaTime, 0));
+		if (transform->Get_localPosition().y < 0)
+		{
+			transform->Set_localPosition(Vector3(transform->Get_localPosition().x, 0, transform->Get_localPosition().z));
+			jump_speed = 0;
+			jump_flg = false;
+		}
 	}
 
 	if (Input::GetMouseButtonDown(0))
@@ -125,15 +125,10 @@ bool Player::Draw_ImGui()
 
 	if (open)
 	{
-		if (ImGui::TreeNode("Jump"))
-		{
-			ImGui::DragFloat("move_speed", &move_speed, 0.1f, 0.0f, FLT_MAX);
-			ImGui::DragFloat("aim_speed", &aim_speed, 0.1f, 0.0f, FLT_MAX);
-			ImGui::DragFloat("jump_power", &jump_power, 0.1f, 0.0f, FLT_MAX);
-			ImGui::DragFloat("gravity", &gravity, 0.1f, 0.0f, FLT_MAX);
-
-			ImGui::TreePop();
-		}
+		ImGui::DragFloat("move_speed", &move_speed, 0.1f, 0.0f, FLT_MAX);
+		ImGui::DragFloat("aim_speed", &aim_speed, 0.1f, 0.0f, FLT_MAX);
+		ImGui::DragFloat("jump_power", &jump_power, 0.1f, 0.0f, FLT_MAX);
+		ImGui::DragFloat("gravity", &gravity, 0.1f, 0.0f, FLT_MAX);
 	}
 	return true;
 }

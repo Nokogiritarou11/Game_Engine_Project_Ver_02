@@ -19,6 +19,8 @@ private:
 	friend class Input;
 
 	bool Is_Visible = true;
+
+	static bool Window_Focus;
 	static Vector2 Lock_Pos;
 
 	void Update();

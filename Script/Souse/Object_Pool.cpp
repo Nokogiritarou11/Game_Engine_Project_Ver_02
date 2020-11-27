@@ -14,7 +14,7 @@ void Object_Pool::Start()
 	{
 		shared_ptr<GameObject> obj = Resources::Load_Prefab("Resouces/Prefab/Bomb.prefab");
 		obj->SetActive(false);
-		Bullet_List.emplace_back(obj);
+		Bomb_List.emplace_back(obj);
 	}
 }
 
