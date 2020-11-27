@@ -700,7 +700,7 @@ void Debug_UI::GameView_Render()
 
 
 	ImGuiWindow* p_win = ImGui::GetCurrentWindow();
-	Game_View_Size = { p_win->InnerRect.GetWidth() - 8, p_win->InnerRect.GetHeight() };
+	Game_View_Size = { p_win->InnerRect.GetWidth() - 8, p_win->InnerRect.GetHeight() - 8 };
 
 	const ImVec2 pos = ImGui::GetCursorScreenPos();
 	Game_View_Pos = { pos.x,pos.y + Game_View_Size.y };
