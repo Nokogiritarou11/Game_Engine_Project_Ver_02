@@ -238,7 +238,6 @@ void Transform::Set_position(Vector3 V)
 		localTranslation_matrix = Matrix::CreateTranslation(localPosition);
 		localRotation_matrix = Matrix::CreateFromQuaternion(localRotation);
 		localScale_matrix = Matrix::CreateScale(localScale);
-		local_matrix = localScale_matrix * localRotation_matrix * localTranslation_matrix;
 	}
 	else
 	{
@@ -268,7 +267,6 @@ void Transform::Set_position(float f1, float f2, float f3)
 		localTranslation_matrix = Matrix::CreateTranslation(localPosition);
 		localRotation_matrix = Matrix::CreateFromQuaternion(localRotation);
 		localScale_matrix = Matrix::CreateScale(localScale);
-		local_matrix = localScale_matrix * localRotation_matrix * localTranslation_matrix;
 	}
 	else
 	{
@@ -303,7 +301,6 @@ void Transform::Set_rotation(Quaternion Q)
 		localTranslation_matrix = Matrix::CreateTranslation(localPosition);
 		localRotation_matrix = Matrix::CreateFromQuaternion(localRotation);
 		localScale_matrix = Matrix::CreateScale(localScale);
-		local_matrix = localScale_matrix * localRotation_matrix * localTranslation_matrix;
 	}
 	else
 	{
@@ -341,7 +338,6 @@ void Transform::Set_rotation(float f1, float f2, float f3, float f4)
 		localTranslation_matrix = Matrix::CreateTranslation(localPosition);
 		localRotation_matrix = Matrix::CreateFromQuaternion(localRotation);
 		localScale_matrix = Matrix::CreateScale(localScale);
-		local_matrix = localScale_matrix * localRotation_matrix * localTranslation_matrix;
 	}
 	else
 	{
@@ -385,7 +381,6 @@ void Transform::Set_scale(Vector3 V)
 		localTranslation_matrix = Matrix::CreateTranslation(localPosition);
 		localRotation_matrix = Matrix::CreateFromQuaternion(localRotation);
 		localScale_matrix = Matrix::CreateScale(localScale);
-		local_matrix = localScale_matrix * localRotation_matrix * localTranslation_matrix;
 	}
 	else
 	{
@@ -413,7 +408,6 @@ void Transform::Set_scale(float f1, float f2, float f3)
 		localTranslation_matrix = Matrix::CreateTranslation(localPosition);
 		localRotation_matrix = Matrix::CreateFromQuaternion(localRotation);
 		localScale_matrix = Matrix::CreateScale(localScale);
-		local_matrix = localScale_matrix * localRotation_matrix * localTranslation_matrix;
 	}
 	else
 	{
