@@ -277,6 +277,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Script\Souse\All_Component_List.cpp" />
+    <ClCompile Include="Script\Souse\Player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Animator.h" />
@@ -764,6 +765,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Code\Header_File\All_Component_List.h" />
+    <ClInclude Include="Script\Header\Player.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Code\Shader\2D.fx">
