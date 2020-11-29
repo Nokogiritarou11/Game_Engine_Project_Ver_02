@@ -1,4 +1,5 @@
 #pragma once
+#include "Original_Math.h"
 
 enum class CursorLockMode
 {
@@ -15,8 +16,13 @@ public:
 
 private:
 	friend class Engine;
+	friend class Input;
+
+	bool Is_Visible = true;
+
+	static bool Window_Focus;
+	static Vector2 Lock_Pos;
 
 	void Update();
-	bool Is_Visible = true;
 	void Set_Cursor_Visible(bool value);
 };

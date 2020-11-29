@@ -502,7 +502,7 @@ void Debug_UI::ScenePlayer_Render()
 		{
 			if (!Engine::scene_manager->Pause)
 			{
-				Cursor::lockState = Cursor::CursorLockMode::None;
+				Cursor::lockState = CursorLockMode::None;
 				Cursor::visible = true;
 				ImGui::SetWindowFocus(u8"ゲーム");
 				Active_Object.reset();
@@ -552,7 +552,7 @@ void Debug_UI::ScenePlayer_Render()
 		if (Running || Pausing)
 		{
 			ImGui::SetWindowFocus(u8"シーン");
-			Cursor::lockState = Cursor::CursorLockMode::None;
+			Cursor::lockState = CursorLockMode::None;
 			Cursor::visible = true;
 			Active_Object.reset();
 			Active_Object_Old.reset();
@@ -700,7 +700,7 @@ void Debug_UI::GameView_Render()
 
 
 	ImGuiWindow* p_win = ImGui::GetCurrentWindow();
-	Game_View_Size = { p_win->InnerRect.GetWidth() - 8, p_win->InnerRect.GetHeight() };
+	Game_View_Size = { p_win->InnerRect.GetWidth() - 8, p_win->InnerRect.GetHeight() - 8 };
 
 	const ImVec2 pos = ImGui::GetCursorScreenPos();
 	Game_View_Pos = { pos.x,pos.y + Game_View_Size.y };
@@ -1066,7 +1066,7 @@ void Debug_UI::ShortCut_Check()
 			{
 				if (Engine::scene_manager->Run)
 				{
-					Cursor::lockState = Cursor::CursorLockMode::None;
+					Cursor::lockState = CursorLockMode::None;
 					Cursor::visible = true;
 					Render_Cursor = true;
 					Active_Object.reset();
@@ -1079,7 +1079,7 @@ void Debug_UI::ShortCut_Check()
 				{
 					if (!Engine::scene_manager->Pause)
 					{
-						Cursor::lockState = Cursor::CursorLockMode::None;
+						Cursor::lockState = CursorLockMode::None;
 						Cursor::visible = true;
 						ImGui::SetWindowFocus(u8"ゲーム");
 						Active_Object.reset();

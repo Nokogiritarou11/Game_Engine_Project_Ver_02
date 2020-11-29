@@ -22,6 +22,8 @@ public:
 
 	void Update();
 
+	static void GetHundle(UINT msg, WPARAM wParam, LPARAM lParam);
+
 	static std::unique_ptr<Scene_Manager> scene_manager;
 	static std::unique_ptr<Input> input_manager;
 	static std::unique_ptr<Cursor> cursor_manager;

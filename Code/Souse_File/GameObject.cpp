@@ -23,7 +23,7 @@ void GameObject::Release()
 		{
 			if (shared_ptr<Transform> child = transform->GetChild(i).lock())
 			{
-				GameObject::Destroy(child->gameObject);
+				child->gameObject->Release();
 			}
 		}
 	}

@@ -132,3 +132,16 @@ void Engine::Update()
 
 	DxSystem::Flip(0);
 }
+
+void Engine::GetHundle(UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (msg)
+	{
+		case WM_SETFOCUS:
+			Cursor::Window_Focus = true;
+			break;
+		case WM_KILLFOCUS:
+			Cursor::Window_Focus = false;
+			break;
+	}
+}

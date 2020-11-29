@@ -7,6 +7,7 @@
 #include <Windows.h>
 #include <string.h>
 #include <DirectXMath.h>
+#include "misc.h"
 using Microsoft::WRL::ComPtr;
 
 #include <assert.h>
@@ -21,6 +22,13 @@ using Microsoft::WRL::ComPtr;
 		OutputDebugString(buffer); \
       }
 
+//DepthStencilState
+enum class DS_State { None, Less, Greater, LEqual, GEqual, Equal, NotEqual, Always, None_No_Write, Less_No_Write, Greater_No_Write, LEqual_No_Write, GEqual_No_Write, Equal_No_Write, NotEqual_No_Write, Always_No_Write };
+//RasterizerState
+enum class RS_State { Cull_Back, Cull_Front, Cull_None, Standard, Wire };
+//BlendState
+enum class BS_State { Off, Alpha, Alpha_Test, Transparent, Add, Subtract, Replace, Multiply };
+
 class DxSystem
 {
 private:
@@ -31,7 +39,7 @@ private:
 	static ComPtr<ID3D11Texture2D>			DepthStencilTexture;
 	static ComPtr<ID3D11DepthStencilView>	DepthStencilView;
 	static ComPtr<ID3D11ShaderResourceView>	ShaderResourceView;
-	static ComPtr<ID3D11DepthStencilState>	DepthStencilState[3];
+	static ComPtr<ID3D11DepthStencilState>	DepthStencilState[16];
 
 	static ComPtr<IDXGIDebug>               DXGIDebug;
 
@@ -39,23 +47,15 @@ private:
 	static bool CreateDepthStencil();
 	static bool InitializeRenderTarget();
 
-	static const int RASTERIZE_TYPE = 6;
+	static const int RASTERIZE_TYPE = 5;
 	static ComPtr<ID3D11RasterizerState> RasterizerState[RASTERIZE_TYPE];
 	static bool CreateRasterizerState();
 
-	static const int BLEND_TYPE = 11;
+	static const int BLEND_TYPE = 8;
 	static ComPtr<ID3D11BlendState>		BlendState[BLEND_TYPE];
 	static bool CreateBlendState();
 
 public:
-
-	//DepthStencilState
-	enum class DS_State { DS_FALSE, DS_TRUE, DS_SKY };
-	//RasterizerState
-	enum class RS_State { RS_STANDARD, RS_CULL_BACK, RS_WIRE, RS_CULL_FRONT, RS_CULL_NONE, RS_CULL_SKY };
-	//BlendState
-	enum class BS_State { BS_NONE, BS_ALPHA, BS_ALPHA_TEST, BS_TRANSPARENT, BS_ADD, BS_SUBTRACT, BS_REPLACE, BS_MULTIPLY, BS_LIGHTEN, BS_DARKEN, BS_SCREEN };
-
 	static ComPtr<ID3D11Device>			Device;
 	static ComPtr<ID3D11DeviceContext>	DeviceContext;
 	static HWND hwnd;
