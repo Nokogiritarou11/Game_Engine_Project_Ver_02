@@ -30,12 +30,12 @@ void Scene::Initialize()
 
 void Scene::Destroy_GameObject(shared_ptr<GameObject> gameObject)
 {
+	gameObject->Release();
 	vector<shared_ptr<GameObject>>::iterator itr_end = gameObject_List.end();
 	for (vector<shared_ptr<GameObject>>::iterator itr = gameObject_List.begin(); itr != itr_end; ++itr)
 	{
 		if ((*itr) == gameObject)
 		{
-			(*itr)->Release();
 			gameObject_List.erase(itr);
 			return;
 		}
