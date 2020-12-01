@@ -36,7 +36,7 @@ float4 PSMain(VS_OUT pin) : SV_TARGET
 
 	float3 L = normalize(-lightDirection.xyz);
 
-	float diffuse_factor = max(0, dot(L, N)) * 0.5f + 0.5f;
+	float diffuse_factor = saturate(dot(N, L));
 	diffuse_factor = diffuse_factor * diffuse_factor;
 
 	//float diffuse_factor = max(dot(L, N), 0);
@@ -56,10 +56,10 @@ float4 PSMain(VS_OUT pin) : SV_TARGET
 	shadowThreshold = shadowMap.SampleCmpLevelZero(ShadowMapSamplerState, shadowCoord.xy, shadowCoord.z - shadowBias);
 	shadowColor = lerp(shadowColor, float3(1.0f, 1.0f, 1.0f), shadowThreshold);
 
-	//float3 Ka = mapdiff.rgb * (1 - diffuse_factor);
-	//float3 Kd = mapdiff.rgb * diffuse_factor;
-	//outcolor.rgb = (Ka + Kd) * shadowColor;
-	outcolor.rgb = ((mapdiff.rgb * 0.6f) + (diffuse_factor * 0.4f)) * shadowColor;
+	float3 Ka = mapdiff.rgb * (1 - diffuse_factor) * 0.8;
+	float3 Kd = mapdiff.rgb * diffuse_factor * 1.5f;
+	outcolor.rgb = (Ka + Kd) * shadowColor;
+	//outcolor.rgb = ((mapdiff.rgb * 0.7f) + (diffuse_factor * 0.3f)) * shadowColor;
 	outcolor.a = mapdiff.a;
 
 	return outcolor;

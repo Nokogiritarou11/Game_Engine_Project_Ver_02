@@ -22,8 +22,8 @@ VS_OUT VSMain(
 
     vout.position = mul(pos, mul(world, viewProjection));
 
-    vout.normal = normalize(mul(nor, mul(world, viewProjection)));
-    vout.tangent = normalize(mul(tan, mul(world, viewProjection)));
+    vout.normal = normalize(mul(nor, world));
+    vout.tangent = normalize(mul(tan, world));
     vout.texcoord = texcoord;
 
     vout.sdwcoord = mul(mul(pos, world), shadowMatrix);
