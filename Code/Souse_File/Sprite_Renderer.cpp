@@ -2,6 +2,7 @@
 #include "DxSystem.h"
 #include "GameObject.h"
 #include "Engine.h"
+#include "Screen.h"
 #include "Render_Manager.h"
 #include "Include_ImGui.h"
 #include "Debug.h"
@@ -156,8 +157,8 @@ void Sprite_Renderer::Render(Matrix V, Matrix P)
 		// 正規化デバイス座標系
 		for (int i = 0; i < 4; i++)
 		{
-			data[i].Pos.x = 2.0f * data[i].Pos.x / DxSystem::GetScreenWidth() - 1.0f;
-			data[i].Pos.y = 1.0f - 2.0f * data[i].Pos.y / DxSystem::GetScreenHeight();
+			data[i].Pos.x = 2.0f * data[i].Pos.x / Screen::Get_Width() - 1.0f;
+			data[i].Pos.y = 1.0f - 2.0f * data[i].Pos.y / Screen::Get_Height();
 			data[i].Pos.z = 0.0f;
 		}
 

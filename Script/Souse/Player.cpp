@@ -91,7 +91,9 @@ void Player::Move()
 		move_input.x -= 1;
 	}
 
-	transform->Set_localPosition(transform->Get_localPosition() + front * move_input.y * move_speed * Time::deltaTime + side * move_input.x * move_speed * Time::deltaTime);
+	Vector3 set = front * move_input.y * move_speed * Time::deltaTime + side * move_input.x * move_speed * Time::deltaTime;
+	set.y = 0;
+	transform->Set_localPosition(transform->Get_localPosition() + set);
 
 }
 
@@ -125,6 +127,7 @@ bool Player::Draw_ImGui()
 
 	if (open)
 	{
+		ImGui::Checkbox("jump", &jump_flg);
 		ImGui::DragFloat("move_speed", &move_speed, 0.1f, 0.0f, FLT_MAX);
 		ImGui::DragFloat("aim_speed", &aim_speed, 0.1f, 0.0f, FLT_MAX);
 		ImGui::DragFloat("jump_power", &jump_power, 0.1f, 0.0f, FLT_MAX);
