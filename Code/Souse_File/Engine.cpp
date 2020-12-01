@@ -130,7 +130,7 @@ void Engine::Update()
 	render_manager->Render();
 #endif
 
-	DxSystem::Flip(0);
+	DxSystem::Flip(1);
 }
 
 void Engine::GetHundle(UINT msg, WPARAM wParam, LPARAM lParam)
