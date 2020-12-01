@@ -782,6 +782,7 @@
     <ClInclude Include="Script\Header\Bomb.h" />
     <ClInclude Include="Script\Header\Bullet.h" />
     <ClInclude Include="Script\Header\Doragon.h" />
+    <ClInclude Include="Script\Header\ExecJudgment.h" />
     <ClInclude Include="Script\Header\Muzzle.h" />
     <ClInclude Include="Script\Header\Node.h" />
     <ClInclude Include="Script\Header\Object_Pool.h" />

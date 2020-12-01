@@ -282,6 +282,7 @@
     <ClInclude Include="Script\Header\BehaviorTree.h" />
     <ClInclude Include="Script\Header\Node.h" />
     <ClInclude Include="Script\Header\Doragon.h" />
+    <ClInclude Include="Script\Header\ExecJudgment.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />
