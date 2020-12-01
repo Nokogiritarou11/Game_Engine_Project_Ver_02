@@ -7,7 +7,7 @@ bool AttackJudgment::judgment()
 							player->transform->Get_position().z - doragon->transform->Get_position().z };
 	doragon->length = std::sqrtf(v1.x * v1.x + v1.y * v1.y);
 
-	if (doragon->length > 5000)
+	if (doragon->length > 500)
 	{
 		return false;
 	}
@@ -49,7 +49,7 @@ bool HowlingJudgment::judgment()
 
 bool MaulJudgment::judgment()
 {
-	if (doragon->length > 1500.0f)
+	if (doragon->length > 100.0f)
 	{
 		return false;
 	}

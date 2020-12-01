@@ -38,6 +38,8 @@ ActionSTATE MaulAction::run()
 	}
 	if (!doragon->anime.lock()->IsPlayAnimation())
 	{
+		is_anime = false;
+
 		return ActionSTATE::END;
 
 	}
@@ -60,6 +62,8 @@ ActionSTATE FireballAction::run()
 	if (!doragon->anime.lock()->IsPlayAnimation())
 	{
 		is_anime = false;
+
+		return ActionSTATE::END;
 	}
 	else
 	{
@@ -81,6 +85,8 @@ ActionSTATE BlessAction::run()
 	}
 	if (!doragon->anime.lock()->IsPlayAnimation())
 	{
+		is_anime = false;
+
 		return ActionSTATE::END;
 	}
 	else
@@ -103,6 +109,8 @@ ActionSTATE WalkAction::run()
 	if (!doragon->anime.lock()->IsPlayAnimation())
 	{
 		is_anime = false;
+
+		return ActionSTATE::END;
 	}
 	else
 	{
