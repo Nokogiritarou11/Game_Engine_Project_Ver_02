@@ -276,10 +276,16 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Script\Souse\Actions.cpp" />
     <ClCompile Include="Script\Souse\All_Component_List.cpp" />
+    <ClCompile Include="Script\Souse\BehaviorData.cpp" />
+    <ClCompile Include="Script\Souse\BehaviorTree.cpp" />
     <ClCompile Include="Script\Souse\Bomb.cpp" />
     <ClCompile Include="Script\Souse\Bullet.cpp" />
+    <ClCompile Include="Script\Souse\Doragon.cpp" />
+    <ClCompile Include="Script\Souse\ExecJudgment.cpp" />
     <ClCompile Include="Script\Souse\Muzzle.cpp" />
+    <ClCompile Include="Script\Souse\Node.cpp" />
     <ClCompile Include="Script\Souse\Object_Pool.cpp" />
     <ClCompile Include="Script\Souse\Player.cpp" />
     <ClCompile Include="Script\Souse\UI_Manager.cpp" />
@@ -770,9 +776,14 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Code\Header_File\All_Component_List.h" />
+    <ClInclude Include="Script\Header\Actions.h" />
+    <ClInclude Include="Script\Header\BehaviorData.h" />
+    <ClInclude Include="Script\Header\BehaviorTree.h" />
     <ClInclude Include="Script\Header\Bomb.h" />
     <ClInclude Include="Script\Header\Bullet.h" />
+    <ClInclude Include="Script\Header\Doragon.h" />
     <ClInclude Include="Script\Header\Muzzle.h" />
+    <ClInclude Include="Script\Header\Node.h" />
     <ClInclude Include="Script\Header\Object_Pool.h" />
     <ClInclude Include="Script\Header\Player.h" />
     <ClInclude Include="Script\Header\UI_Manager.h" />
