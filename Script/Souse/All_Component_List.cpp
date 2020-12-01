@@ -18,6 +18,7 @@
 #include "Bomb.h"
 #include "Object_Pool.h"
 #include "UI_Manager.h"
+#include "Doragon.h"
 /////////////////////////////////////////////////////////////////
 
 using namespace std;
@@ -135,7 +136,11 @@ void All_Component_List::Add(shared_ptr<GameObject> obj)
 			obj->AddComponent<UI_Manager>();
 			ImGui::CloseCurrentPopup();
 		}
-
+		if (ImGui::Button("Doragon", ImVec2(-FLT_MIN, 0.0f)))
+		{
+			obj->AddComponent<Doragon>();
+			ImGui::CloseCurrentPopup();
+		}
 		////////////////////////////////////////////////////////
 		ImGui::PopStyleVar();
 		ImGui::EndPopup();

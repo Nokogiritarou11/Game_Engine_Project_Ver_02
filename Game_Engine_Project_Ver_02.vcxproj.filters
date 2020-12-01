@@ -83,6 +83,12 @@
     <ClCompile Include="Script\Souse\Bullet.cpp" />
     <ClCompile Include="Script\Souse\Object_Pool.cpp" />
     <ClCompile Include="Script\Souse\UI_Manager.cpp" />
+    <ClCompile Include="Script\Souse\Actions.cpp" />
+    <ClCompile Include="Script\Souse\BehaviorData.cpp" />
+    <ClCompile Include="Script\Souse\BehaviorTree.cpp" />
+    <ClCompile Include="Script\Souse\Doragon.cpp" />
+    <ClCompile Include="Script\Souse\ExecJudgment.cpp" />
+    <ClCompile Include="Script\Souse\Node.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -271,6 +277,11 @@
     <ClInclude Include="Script\Header\Muzzle.h" />
     <ClInclude Include="Script\Header\Object_Pool.h" />
     <ClInclude Include="Script\Header\UI_Manager.h" />
+    <ClInclude Include="Script\Header\Actions.h" />
+    <ClInclude Include="Script\Header\BehaviorData.h" />
+    <ClInclude Include="Script\Header\BehaviorTree.h" />
+    <ClInclude Include="Script\Header\Node.h" />
+    <ClInclude Include="Script\Header\Doragon.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />
