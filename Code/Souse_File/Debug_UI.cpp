@@ -877,7 +877,7 @@ void Debug_UI::Scene_File_Menu_Render()
 //オブジェクトツリー描画
 void Debug_UI::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj, int& selecting, int flag, bool& Item_Clicked)
 {
-	ImGui::PushID(ID);
+	++ID;
 	const ImGuiTreeNodeFlags in_flag = flag;
 	if (selecting == ID) flag |= ImGuiTreeNodeFlags_Selected;
 
@@ -889,7 +889,7 @@ void Debug_UI::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj
 		ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 		bool open = false;
 		if (!active) { ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(0.f, 0.f, 0.4f)); }
-		open = ImGui::TreeNodeEx((void*)(intptr_t)ID, flag, obj->name.c_str());
+		open = ImGui::TreeNodeEx((void*)(intptr_t)obj.get(), flag, obj->name.c_str());
 		if (!active) { ImGui::PopStyleColor(); }
 
 		if (ImGui::IsItemClicked() || ImGui::IsItemClicked(1))
@@ -908,14 +908,9 @@ void Debug_UI::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj
 		{
 			for (size_t i = 0; i < obj->transform->children.size();++i)
 			{
-				++ID;
 				GameObject_Tree_Render(ID, obj->transform->children[i].lock()->gameObject, selecting, in_flag, Item_Clicked);
 			}
 			ImGui::TreePop();
-		}
-		else
-		{
-			++ID;
 		}
 	}
 	else
@@ -923,7 +918,7 @@ void Debug_UI::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj
 		flag |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen; // ImGuiTreeNodeFlags_Bullet
 
 		if (!active) { ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(0.f, 0.f, 0.4f)); }
-		ImGui::TreeNodeEx((void*)(intptr_t)ID, flag, obj->name.c_str());
+		ImGui::TreeNodeEx((void*)(intptr_t)obj.get(), flag, obj->name.c_str());
 		if (!active) { ImGui::PopStyleColor(); }
 
 		if (ImGui::IsItemClicked() || ImGui::IsItemClicked(1))
@@ -933,10 +928,7 @@ void Debug_UI::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj
 		}
 
 		GameObject_DragMenu_Render(obj);
-
-		++ID;
 	}
-	ImGui::PopID();
 }
 
 //ヒエラルキーでのオブジェクトドラッグ
@@ -949,19 +941,21 @@ void Debug_UI::GameObject_DragMenu_Render(const std::shared_ptr<GameObject>& obj
 		ImGui::SetDragDropPayload("DragDrop_Object", &a, sizeof(int));
 		ImGui::EndDragDropSource();
 	}
+	string Menu_Label = "Drag_Object_Menu_";
+	Menu_Label += obj->name;
 	if (ImGui::BeginDragDropTarget())
 	{
 		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DragDrop_Object"))
 		{
 			if (!Drag_Object.expired() && Drag_Object.lock() != obj)
 			{
-				ImGui::OpenPopup("Drag_Object_Menu");
+				ImGui::OpenPopup(Menu_Label.c_str());
 			}
 		}
 		ImGui::EndDragDropTarget();
 	}
 
-	if (ImGui::BeginPopup("Drag_Object_Menu"))
+	if (ImGui::BeginPopup(Menu_Label.c_str()))
 	{
 		string obj_name = obj->name;
 

@@ -17,6 +17,7 @@
 #include "Muzzle.h"
 #include "Bomb.h"
 #include "Object_Pool.h"
+#include "UI_Manager.h"
 /////////////////////////////////////////////////////////////////
 
 using namespace std;
@@ -127,6 +128,11 @@ void All_Component_List::Add(shared_ptr<GameObject> obj)
 		if (ImGui::Button("Object_Pool", ImVec2(-FLT_MIN, 0.0f)))
 		{
 			obj->AddComponent<Object_Pool>();
+			ImGui::CloseCurrentPopup();
+		}
+		if (ImGui::Button("UI_Manager", ImVec2(-FLT_MIN, 0.0f)))
+		{
+			obj->AddComponent<UI_Manager>();
 			ImGui::CloseCurrentPopup();
 		}
 

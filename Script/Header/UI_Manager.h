@@ -6,6 +6,8 @@ class UI_Manager : public MonoBehaviour
 public:
 
 private:
+	std::weak_ptr<Sprite_Renderer> UI_Cursor;
+
 	void Start() override;
 	void Update() override;
 	bool Draw_ImGui() override;

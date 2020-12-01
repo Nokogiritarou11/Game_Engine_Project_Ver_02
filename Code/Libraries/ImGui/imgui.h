@@ -61,7 +61,7 @@ Index of this file:
 // Version
 // (Integer encoded as XYYZZ for use in #if preprocessor conditionals. Work in progress versions typically starts at XYY99 then bounce up to XYY00, XYY01 etc. when release tagging happens)
 #define IMGUI_VERSION               "1.80 WIP"
-#define IMGUI_VERSION_NUM           17905
+#define IMGUI_VERSION_NUM           17906
 #define IMGUI_CHECKVERSION()        ImGui::DebugCheckVersionAndDataLayout(IMGUI_VERSION, sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert), sizeof(ImDrawIdx))
 #define IMGUI_HAS_VIEWPORT          1 // Viewport WIP branch
 #define IMGUI_HAS_DOCK              1 // Docking WIP branch
@@ -81,19 +81,22 @@ Index of this file:
 #include <assert.h>
 #define IM_ASSERT(_EXPR)            assert(_EXPR)                               // You can override the default assert handler by editing imconfig.h
 #endif
-#if !defined(IMGUI_USE_STB_SPRINTF) && (defined(__clang__) || defined(__GNUC__))
-#define IM_FMTARGS(FMT)             __attribute__((format(printf, FMT, FMT+1))) // To apply printf-style warnings to our functions.
-#define IM_FMTLIST(FMT)             __attribute__((format(printf, FMT, 0)))
-#else
-#define IM_FMTARGS(FMT)
-#define IM_FMTLIST(FMT)
-#endif
 #define IM_ARRAYSIZE(_ARR)          ((int)(sizeof(_ARR) / sizeof(*(_ARR))))     // Size of a static C-style array. Don't use on pointers!
 #define IM_UNUSED(_VAR)             ((void)(_VAR))                              // Used to silence "unused variable warnings". Often useful as asserts may be stripped out from final builds.
 #if (__cplusplus >= 201100)
 #define IM_OFFSETOF(_TYPE,_MEMBER)  offsetof(_TYPE, _MEMBER)                    // Offset of _MEMBER within _TYPE. Standardized as offsetof() in C++11
 #else
 #define IM_OFFSETOF(_TYPE,_MEMBER)  ((size_t)&(((_TYPE*)0)->_MEMBER))           // Offset of _MEMBER within _TYPE. Old style macro.
+#endif
+#if !defined(IMGUI_USE_STB_SPRINTF) && defined(__clang__)
+#define IM_FMTARGS(FMT)             __attribute__((format(printf, FMT, FMT+1)))     // Apply printf-style warnings to our formatting functions.
+#define IM_FMTLIST(FMT)             __attribute__((format(printf, FMT, 0)))
+#elif !defined(IMGUI_USE_STB_SPRINTF) && defined(__GNUC__) && defined(__MINGW32__)
+#define IM_FMTARGS(FMT)             __attribute__((format(gnu_printf, FMT, FMT+1))) // Apply printf-style warnings to our formatting functions.
+#define IM_FMTLIST(FMT)             __attribute__((format(gnu_printf, FMT, 0)))
+#else
+#define IM_FMTARGS(FMT)
+#define IM_FMTLIST(FMT)
 #endif
 
 // Warnings
@@ -266,7 +269,7 @@ namespace ImGui
     // Demo, Debug, Information
     IMGUI_API void          ShowDemoWindow(bool* p_open = NULL);        // create Demo window (previously called ShowTestWindow). demonstrate most ImGui features. call this to learn about the library! try to make it always available in your application!
     IMGUI_API void          ShowAboutWindow(bool* p_open = NULL);       // create About window. display Dear ImGui version, credits and build/system information.
-    IMGUI_API void          ShowMetricsWindow(bool* p_open = NULL);     // create Debug/Metrics window. display Dear ImGui internals: draw commands (with individual draw calls and vertices), window list, basic internal state, etc.
+    IMGUI_API void          ShowMetricsWindow(bool* p_open = NULL);     // create Metrics/Debugger window. display Dear ImGui internals: windows, draw commands, various internal state, etc.
     IMGUI_API void          ShowStyleEditor(ImGuiStyle* ref = NULL);    // add style editor block (not a window). you can pass in a reference ImGuiStyle structure to compare to, revert to and save to (else it uses the default style)
     IMGUI_API bool          ShowStyleSelector(const char* label);       // add style selector block (not a window), essentially a combo listing the default styles.
     IMGUI_API void          ShowFontSelector(const char* label);        // add font selector block (not a window), essentially a combo listing the loaded fonts.
@@ -297,7 +300,10 @@ namespace ImGui
     // - Use child windows to begin into a self-contained independent scrolling/clipping regions within a host window. Child windows can embed their own child.
     // - For each independent axis of 'size': ==0.0f: use remaining host window size / >0.0f: fixed size / <0.0f: use remaining window size minus abs(size) / Each axis can use a different mode, e.g. ImVec2(0,400).
     // - BeginChild() returns false to indicate the window is collapsed or fully clipped, so you may early out and omit submitting anything to the window.
-    //   Always call a matching EndChild() for each BeginChild() call, regardless of its return value [as with Begin: this is due to legacy reason and inconsistent with most BeginXXX functions apart from the regular Begin() which behaves like BeginChild().]
+    //   Always call a matching EndChild() for each BeginChild() call, regardless of its return value.
+    //   [Important: due to legacy reason, this is inconsistent with most other functions such as BeginMenu/EndMenu,
+    //    BeginPopup/EndPopup, etc. where the EndXXX call should only be called if the corresponding BeginXXX function
+    //    returned true. Begin and BeginChild are the only odd ones out. Will be fixed in a future update.]
     IMGUI_API bool          BeginChild(const char* str_id, const ImVec2& size = ImVec2(0, 0), bool border = false, ImGuiWindowFlags flags = 0);
     IMGUI_API bool          BeginChild(ImGuiID id, const ImVec2& size = ImVec2(0, 0), bool border = false, ImGuiWindowFlags flags = 0);
     IMGUI_API void          EndChild();
@@ -364,6 +370,10 @@ namespace ImGui
     IMGUI_API void          PushStyleVar(ImGuiStyleVar idx, float val);
     IMGUI_API void          PushStyleVar(ImGuiStyleVar idx, const ImVec2& val);
     IMGUI_API void          PopStyleVar(int count = 1);
+    IMGUI_API void          PushAllowKeyboardFocus(bool allow_keyboard_focus);              // allow focusing using TAB/Shift-TAB, enabled by default but you can disable it for certain widgets
+    IMGUI_API void          PopAllowKeyboardFocus();
+    IMGUI_API void          PushButtonRepeat(bool repeat);                                  // in 'repeat' mode, Button*() functions return repeated true in a typematic manner (using io.KeyRepeatDelay/io.KeyRepeatRate setting). Note that you can call IsItemActive() after any Button() to tell if the button is held in the current frame.
+    IMGUI_API void          PopButtonRepeat();
     IMGUI_API const ImVec4& GetStyleColorVec4(ImGuiCol idx);                                // retrieve style color as stored in ImGuiStyle structure. use to feed back into PushStyleColor(), otherwise use GetColorU32() to get style color with style alpha baked in.
     IMGUI_API ImFont*       GetFont();                                                      // get current font
     IMGUI_API float         GetFontSize();                                                  // get current font size (= height in pixels) of current font with current scale applied
@@ -379,10 +389,6 @@ namespace ImGui
     IMGUI_API float         CalcItemWidth();                                                // width of item given pushed settings and current cursor position. NOT necessarily the width of last item unlike most 'Item' functions.
     IMGUI_API void          PushTextWrapPos(float wrap_local_pos_x = 0.0f);                 // push word-wrapping position for Text*() commands. < 0.0f: no wrapping; 0.0f: wrap to end of window (or column); > 0.0f: wrap at 'wrap_pos_x' position in window local space
     IMGUI_API void          PopTextWrapPos();
-    IMGUI_API void          PushAllowKeyboardFocus(bool allow_keyboard_focus);              // allow focusing using TAB/Shift-TAB, enabled by default but you can disable it for certain widgets
-    IMGUI_API void          PopAllowKeyboardFocus();
-    IMGUI_API void          PushButtonRepeat(bool repeat);                                  // in 'repeat' mode, Button*() functions return repeated true in a typematic manner (using io.KeyRepeatDelay/io.KeyRepeatRate setting). Note that you can call IsItemActive() after any Button() to tell if the button is held in the current frame.
-    IMGUI_API void          PopButtonRepeat();
 
     // Cursor / Layout
     // - By "cursor" we mean the current output position.
@@ -396,8 +402,8 @@ namespace ImGui
     IMGUI_API void          NewLine();                                                      // undo a SameLine() or force a new line when in an horizontal-layout context.
     IMGUI_API void          Spacing();                                                      // add vertical spacing.
     IMGUI_API void          Dummy(const ImVec2& size);                                      // add a dummy item of given size. unlike InvisibleButton(), Dummy() won't take the mouse click or be navigable into.
-    IMGUI_API void          Indent(float indent_w = 0.0f);                                  // move content position toward the right, by style.IndentSpacing or indent_w if != 0
-    IMGUI_API void          Unindent(float indent_w = 0.0f);                                // move content position back to the left, by style.IndentSpacing or indent_w if != 0
+    IMGUI_API void          Indent(float indent_w = 0.0f);                                  // move content position toward the right, by indent_w, or style.IndentSpacing if indent_w <= 0
+    IMGUI_API void          Unindent(float indent_w = 0.0f);                                // move content position back to the left, by indent_w, or style.IndentSpacing if indent_w <= 0
     IMGUI_API void          BeginGroup();                                                   // lock horizontal starting position
     IMGUI_API void          EndGroup();                                                     // unlock horizontal starting position + capture the whole group bounding box into one "item" (so you can use IsItemHovered() or layout primitives such as SameLine() on whole group, etc.)
     IMGUI_API ImVec2        GetCursorPos();                                                 // cursor position in window coordinates (relative to window position)
@@ -456,6 +462,7 @@ namespace ImGui
     IMGUI_API void          Image(ImTextureID user_texture_id, const ImVec2& size, const ImVec2& uv0 = ImVec2(0, 0), const ImVec2& uv1 = ImVec2(1,1), const ImVec4& tint_col = ImVec4(1,1,1,1), const ImVec4& border_col = ImVec4(0,0,0,0));
     IMGUI_API bool          ImageButton(ImTextureID user_texture_id, const ImVec2& size, const ImVec2& uv0 = ImVec2(0, 0),  const ImVec2& uv1 = ImVec2(1,1), int frame_padding = -1, const ImVec4& bg_col = ImVec4(0,0,0,0), const ImVec4& tint_col = ImVec4(1,1,1,1));    // <0 frame_padding uses default frame padding settings. 0 for no padding
     IMGUI_API bool          Checkbox(const char* label, bool* v);
+    IMGUI_API bool          CheckboxFlags(const char* label, int* flags, int flags_value);
     IMGUI_API bool          CheckboxFlags(const char* label, unsigned int* flags, unsigned int flags_value);
     IMGUI_API bool          RadioButton(const char* label, bool active);                    // use with e.g. if (RadioButton("one", my_value==1)) { my_value = 1; }
     IMGUI_API bool          RadioButton(const char* label, int* v, int v_button);           // shortcut to handle the above pattern when value is an integer
@@ -1602,7 +1609,7 @@ struct ImGuiIO
     // Viewport options (when ImGuiConfigFlags_ViewportsEnable is set)
     bool        ConfigViewportsNoAutoMerge;     // = false;         // Set to make all floating imgui windows always create their own viewport. Otherwise, they are merged into the main host viewports when overlapping it. May also set ImGuiViewportFlags_NoAutoMerge on individual viewport.
     bool        ConfigViewportsNoTaskBarIcon;   // = false          // Disable default OS task bar icon flag for secondary viewports. When a viewport doesn't want a task bar icon, ImGuiViewportFlags_NoTaskBarIcon will be set on it.
-    bool        ConfigViewportsNoDecoration;    // = true           // [BETA] Disable default OS window decoration flag for secondary viewports. When a viewport doesn't want window decorations, ImGuiViewportFlags_NoDecoration will be set on it. Enabling decoration can create subsequent issues at OS levels (e.g. minimum window size).
+    bool        ConfigViewportsNoDecoration;    // = true           // Disable default OS window decoration flag for secondary viewports. When a viewport doesn't want window decorations, ImGuiViewportFlags_NoDecoration will be set on it. Enabling decoration can create subsequent issues at OS levels (e.g. minimum window size).
     bool        ConfigViewportsNoDefaultParent; // = false          // Disable default OS parenting to main viewport for secondary viewports. By default, viewports are marked with ParentViewportId = <main_viewport>, expecting the platform backend to setup a parent/child relationship between the OS windows (some backend may ignore this). Set to true if you want the default to be 0, then all viewports will be top-level OS windows.
 
     // Miscellaneous options
@@ -1611,7 +1618,7 @@ struct ImGuiIO
     bool        ConfigInputTextCursorBlink;     // = true           // Set to false to disable blinking cursor, for users who consider it distracting. (was called: io.OptCursorBlink prior to 1.63)
     bool        ConfigWindowsResizeFromEdges;   // = true           // Enable resizing of windows from their edges and from the lower-left corner. This requires (io.BackendFlags & ImGuiBackendFlags_HasMouseCursors) because it needs mouse cursor feedback. (This used to be a per-window ImGuiWindowFlags_ResizeFromAnySide flag)
     bool        ConfigWindowsMoveFromTitleBarOnly; // = false       // [BETA] Set to true to only allow moving windows when clicked+dragged from the title bar. Windows without a title bar are not affected.
-    float       ConfigWindowsMemoryCompactTimer;// = 60.0f          // [BETA] Compact window memory usage when unused. Set to -1.0f to disable.
+    float       ConfigMemoryCompactTimer;       // = 60.0f          // [BETA] Free transient windows/tables memory buffers when unused for given amount of time. Set to -1.0f to disable.
 
     //------------------------------------------------------------------
     // Platform Functions
@@ -2110,7 +2117,15 @@ struct ImDrawVert
 IMGUI_OVERRIDE_DRAWVERT_STRUCT_LAYOUT;
 #endif
 
-// For use by ImDrawListSplitter.
+// [Internal] For use by ImDrawList
+struct ImDrawCmdHeader
+{
+    ImVec4          ClipRect;
+    ImTextureID     TextureId;
+    unsigned int    VtxOffset;
+};
+
+// [Internal] For use by ImDrawListSplitter
 struct ImDrawChannel
 {
     ImVector<ImDrawCmd>         _CmdBuffer;
@@ -2125,7 +2140,7 @@ struct ImDrawListSplitter
     int                         _Count;      // Number of active channels (1+)
     ImVector<ImDrawChannel>     _Channels;   // Draw channels (not resized down so _Count might be < Channels.Size)
 
-    inline ImDrawListSplitter()  { Clear(); }
+    inline ImDrawListSplitter()  { memset(this, 0, sizeof(*this)); }
     inline ~ImDrawListSplitter() { ClearFreeMemory(); }
     inline void                 Clear() { _Current = 0; _Count = 1; } // Do not clear Channels[] so our allocations are reused next frame
     IMGUI_API void              ClearFreeMemory();
@@ -2176,19 +2191,19 @@ struct ImDrawList
     ImDrawListFlags         Flags;              // Flags, you may poke into these to adjust anti-aliasing settings per-primitive.
 
     // [Internal, used while building lists]
+    unsigned int            _VtxCurrentIdx;     // [Internal] generally == VtxBuffer.Size unless we are past 64K vertices, in which case this gets reset to 0.
     const ImDrawListSharedData* _Data;          // Pointer to shared draw data (you can use ImGui::GetDrawListSharedData() to get the one from current ImGui context)
     const char*             _OwnerName;         // Pointer to owner window's name for debugging
-    unsigned int            _VtxCurrentIdx;     // [Internal] Generally == VtxBuffer.Size unless we are past 64K vertices, in which case this gets reset to 0.
     ImDrawVert*             _VtxWritePtr;       // [Internal] point within VtxBuffer.Data after each add command (to avoid using the ImVector<> operators too much)
     ImDrawIdx*              _IdxWritePtr;       // [Internal] point within IdxBuffer.Data after each add command (to avoid using the ImVector<> operators too much)
     ImVector<ImVec4>        _ClipRectStack;     // [Internal]
     ImVector<ImTextureID>   _TextureIdStack;    // [Internal]
     ImVector<ImVec2>        _Path;              // [Internal] current path building
-    ImDrawCmd               _CmdHeader;         // [Internal] Template of active commands. Fields should match those of CmdBuffer.back().
+    ImDrawCmdHeader         _CmdHeader;         // [Internal] template of active commands. Fields should match those of CmdBuffer.back().
     ImDrawListSplitter      _Splitter;          // [Internal] for channels api (note: prefer using your own persistent instance of ImDrawListSplitter!)
 
     // If you want to create ImDrawList instances, pass them ImGui::GetDrawListSharedData() or create and use your own ImDrawListSharedData (so you can use ImDrawList without ImGui)
-    ImDrawList(const ImDrawListSharedData* shared_data) { _Data = shared_data; Flags = ImDrawListFlags_None; _VtxCurrentIdx = 0; _VtxWritePtr = NULL; _IdxWritePtr = NULL; _OwnerName = NULL; }
+    ImDrawList(const ImDrawListSharedData* shared_data) { memset(this, 0, sizeof(*this)); _Data = shared_data; }
 
     ~ImDrawList() { _ClearFreeMemory(); }
     IMGUI_API void  PushClipRect(ImVec2 clip_rect_min, ImVec2 clip_rect_max, bool intersect_with_current_clip_rect = false);  // Render-level scissoring. This is passed down to your render function but not used for CPU-side coarse clipping. Prefer using higher-level ImGui::PushClipRect() to affect logic (hit-testing and widget culling)

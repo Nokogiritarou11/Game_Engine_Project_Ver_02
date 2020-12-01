@@ -3,7 +3,11 @@ using namespace std;
 
 void UI_Manager::Start()
 {
-
+	UI_Cursor = GameObject::Find("Cursor").lock()->GetComponent<Sprite_Renderer>();
+	shared_ptr<Sprite_Renderer> ui_cursor = UI_Cursor.lock();
+	ui_cursor->transform->Set_position(static_cast<float>(Screen::Get_Width()) / 2 - ui_cursor->Size.x / 2, static_cast<float>(Screen::Get_Height()) / 2 - ui_cursor->Size.y / 2, 0);
+	Debug::Log(static_cast<float>(Screen::Get_Width()));
+	Debug::Log(static_cast<float>(Screen::Get_Height()));
 }
 
 void UI_Manager::Update()
