@@ -59,18 +59,18 @@ bool Texture::Load(string filename, int sampler_state)
 		if (L".png" == extension || L".jpeg" == extension || L".jpg" == extension || L".jpe" == extension || L".gif" == extension || L".tiff" == extension || L".tif" == extension || L".bmp" == extension)
 		{
 			hr = LoadFromWICFile(FileName, WIC_FLAGS::WIC_FLAGS_NONE, &metadata, image);
-			assert(SUCCEEDED(hr));
+			_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 		}
 		else if (L".dds" == extension)
 		{
 			hr = LoadFromDDSFile(FileName, DDS_FLAGS::DDS_FLAGS_NONE, &metadata, image);
 			texture_flg = D3D11_RESOURCE_MISC_TEXTURECUBE;
-			assert(SUCCEEDED(hr));
+			_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 		}
 		else if (L".tga" == extension || L".vda" == extension || L".icb" == extension || L".vst" == extension)
 		{
 			hr = LoadFromTGAFile(FileName, &metadata, image);
-			assert(SUCCEEDED(hr));
+			_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 		}
 		else
 		{
@@ -101,7 +101,7 @@ bool Texture::Load(string filename, int sampler_state)
 				texture_flg,
 				false/*force_srgb*/,
 				ShaderResourceView.GetAddressOf());
-			assert(SUCCEEDED(hr));
+			_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 		}
 
 		ShaderResourceView->GetResource(resource.GetAddressOf());
@@ -138,14 +138,14 @@ bool Texture::Load(string filename, int sampler_state)
 		sd.BorderColor[3] = 1.0f;
 		sd.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 		sd.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
-		sd.MaxAnisotropy = 1;
+		sd.MaxAnisotropy = 16;
 		sd.MipLODBias = 0;
 		sd.MinLOD = -FLT_MAX;
 		sd.MaxLOD = +FLT_MAX;
 	}
 	hr = DxSystem::Device->CreateSamplerState(
 		&sd, sampler.GetAddressOf());
-	assert(SUCCEEDED(hr));
+	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	Texture_Have = true;
 	return true;

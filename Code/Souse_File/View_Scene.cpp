@@ -1,8 +1,8 @@
 #include "View_Scene.h"
 #include "DxSystem.h"
 #include "Engine.h"
-#include "Particle_Manager.h"
 #include "GameObject.h"
+#include "Particle_Manager.h"
 using namespace std;
 using namespace DirectX;
 
@@ -60,7 +60,7 @@ void View_Scene::Render(Matrix V, Matrix P, std::shared_ptr<Transform> trans)
 					DxSystem::DeviceContext->PSSetConstantBuffers(0, 1, ConstantBuffer_CbScene.GetAddressOf());
 					DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbScene.Get(), 0, 0, &cbScene, 0, 0);
 
-					Render_Sky(trans);
+					Render_Sky(trans->Get_position());
 					DxSystem::DeviceContext->PSSetSamplers(0, 1, m_light->sampler.GetAddressOf());
 					DxSystem::DeviceContext->PSSetShaderResources(0, 1, m_light->ShaderResourceView.GetAddressOf());
 					Render_3D(V, P, false);

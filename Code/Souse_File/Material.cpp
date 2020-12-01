@@ -133,6 +133,39 @@ void Material::Draw_ImGui()
 		float out_color[4] = { color.x,color.y,color.z,color.w };
 		ImGui::ColorEdit4("Color", out_color);
 		color = { out_color[0],out_color[1] ,out_color[2] ,out_color[3] };
+
+		for (int i = 0; i < 3; ++i) ImGui::Spacing();
+
+		static const char* depth[] = { "None", "Less", "Greater", "LEqual", "GEqual", "Equal", "NotEqual", "Always", "None_No_Write", "Less_No_Write", "Greater_No_Write", "LEqual_No_Write", "GEqual_No_Write", "Equal_No_Write", "NotEqual_No_Write", "Always_No_Write" };
+		static int depth_current = 0;
+		depth_current = static_cast<int>(DepthStencilState);
+		if (ImGui::Combo("DepthMode", &depth_current, depth, IM_ARRAYSIZE(depth)))
+		{
+			DepthStencilState = DS_State(depth_current);
+		}
+
+		for (int i = 0; i < 3; ++i) ImGui::Spacing();
+
+		static const char* cull[] = { "Back", "Front", "None" };
+		static int cull_current = 0;
+		cull_current = static_cast<int>(RasterizerState);
+		if (ImGui::Combo("Culling", &cull_current, cull, IM_ARRAYSIZE(cull)))
+		{
+			RasterizerState = RS_State(cull_current);
+		}
+
+		for (int i = 0; i < 3; ++i) ImGui::Spacing();
+
+		static const char* blends[] = { "Off", "Alpha", "Alpha_Test", "Transparent", "Add", "Subtract", "Replace", "Multiply" };
+		static int blend_current = 0;
+		blend_current = static_cast<int>(BlendState);
+		if (ImGui::Combo("BlendMode", &blend_current, blends, IM_ARRAYSIZE(blends)))
+		{
+			BlendState = BS_State(blend_current);
+		}
+
+		for (int i = 0; i < 3; ++i) ImGui::Spacing();
+
 		if (ImGui::Button(u8"•Û‘¶"))
 		{
 			Save();

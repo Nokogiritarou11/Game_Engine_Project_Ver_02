@@ -17,6 +17,21 @@ SkyBox::SkyBox()
 		binaryInputArchive(material);
 		Material::Initialize(material, "Default_Resource\\Model\\sphere\\SkyBoxes\\envmap_miramar\\envmap_miramar.mat");
 	}
+	else
+	{
+		shared_ptr<Material> mat = Material::Create("Default_Resource\\Model\\sphere\\SkyBoxes\\envmap_miramar\\", "envmap_miramar", L"Shader/SkyBox_Shader_PS.hlsl");
+		mat->Set_Texture(Texture::Texture_Type::Main, "Default_Resource\\Model\\sphere\\skyboxes\\envmap_miramar\\", "envmap_miramar.dds");
+		mat->Save();
+		ifstream bin("Default_Resource\\Model\\sphere\\SkyBoxes\\envmap_miramar\\envmap_miramar.mat", ios::binary);
+		if (bin.is_open())
+		{
+			stringstream bin_s_stream;
+			bin_s_stream << bin.rdbuf();
+			cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
+			binaryInputArchive(material);
+			Material::Initialize(material, "Default_Resource\\Model\\sphere\\SkyBoxes\\envmap_miramar\\envmap_miramar.mat");
+		}
+	}
 
 	mesh_data = Mesh::Load_Mesh("Default_Resource\\Model\\sphere\\", "sphere");
 
@@ -31,7 +46,7 @@ SkyBox::SkyBox()
 		bd.MiscFlags = 0;
 		bd.StructureByteStride = 0;
 		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer_CbSkyBox.GetAddressOf());
-		assert(SUCCEEDED(hr));
+		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
 
 	if (!vertex_shader)
