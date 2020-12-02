@@ -2,6 +2,92 @@
 #include "GameObject.h"
 // TODO ˆÚ“®ˆ—
 bool Action::is_anime = false;
+
+bool judg(Doragon* doragon,GameObject* player)
+{
+	Vector2 v1 = { player->transform->Get_position().x - doragon->transform->Get_position().x,
+									player->transform->Get_position().z - doragon->transform->Get_position().z };
+	doragon->length = std::sqrtf(v1.x * v1.x + v1.y * v1.y);
+
+	if (doragon->length > 500)
+	{
+		return false;
+	}
+	float angle = doragon->transform->Get_eulerAngles().y + 90.0f;
+
+	float rad = DirectX::XMConvertToRadians(-angle);
+	Vector2 arc_dir = { 1.0f,0.0 };
+	Vector2 rotate_arc_dir = {
+		((arc_dir.x * cosf(rad)) + (arc_dir.y * -sinf(rad))),
+		((arc_dir.x * sinf(rad)) + (arc_dir.y * cosf(rad)))
+	};
+	Vector2 normal = {
+		v1.x / doragon->length,
+		v1.y / doragon->length
+	};
+
+	float dot = normal.x * rotate_arc_dir.x + normal.y * rotate_arc_dir.y;
+
+
+	float rangeCos = cosf(DirectX::XMConvertToRadians(15.0f / 2.0f));
+
+	if (rangeCos > dot)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool LRjudg(Doragon* doragon, GameObject* player)
+{
+	Vector2 v1 = { player->transform->Get_position().x - doragon->transform->Get_position().x,
+									player->transform->Get_position().z - doragon->transform->Get_position().z };
+	doragon->length = std::sqrtf(v1.x * v1.x + v1.y * v1.y);
+
+	float angle = doragon->transform->Get_eulerAngles().y + 157.5f;
+
+	float rad = DirectX::XMConvertToRadians(-angle);
+	Vector2 arc_dir = { 1.0f,0.0 };
+	Vector2 rotate_arc_dir = {
+		((arc_dir.x * cosf(rad)) + (arc_dir.y * -sinf(rad))),
+		((arc_dir.x * sinf(rad)) + (arc_dir.y * cosf(rad)))
+	};
+	Vector2 normal = {
+		v1.x / doragon->length,
+		v1.y / doragon->length
+	};
+
+	float dot = normal.x * rotate_arc_dir.x + normal.y * rotate_arc_dir.y;
+
+
+	float rangeCos = cosf(DirectX::XMConvertToRadians(135.0f / 2.0f));
+
+	if (rangeCos > dot)
+	{
+		float angle = doragon->transform->Get_eulerAngles().y + 22.5f;
+
+		float rad = DirectX::XMConvertToRadians(-angle);
+		Vector2 arc_dir = { 1.0f,0.0 };
+		Vector2 rotate_arc_dir = {
+			((arc_dir.x * cosf(rad)) + (arc_dir.y * -sinf(rad))),
+			((arc_dir.x * sinf(rad)) + (arc_dir.y * cosf(rad)))
+		};
+		Vector2 normal = {
+			v1.x / doragon->length,
+			v1.y / doragon->length
+		};
+
+		float dot = normal.x * rotate_arc_dir.x + normal.y * rotate_arc_dir.y;
+
+
+		float rangeCos = cosf(DirectX::XMConvertToRadians(135.0f / 2.0f));
+		return false;
+	}
+
+	return true;
+}
+
 ActionSTATE HowlingAction::run()
 {
 
@@ -101,12 +187,36 @@ ActionSTATE BlessAction::run()
 ActionSTATE WalkAction::run()
 {
 	static bool is_anime = false;
-	if (!is_anime)
+	float step = 0.5 * Time::deltaTime;
+
+	static float angle; 
+	if (!doragon->anime.lock()->IsPlayAnimation() && !is_anime)
 	{
-		is_anime = true;
-		doragon->anime.lock()->Play(1);
+		if (LRjudg(doragon, player.lock().get()))
+		{
+			doragon->anime.lock()->Play(6);
+			angle = doragon->transform->Get_eulerAngles().y + 135.5f;
+		}
+		else
+		{
+			doragon->anime.lock()->Play(7);
+			angle = doragon->transform->Get_eulerAngles().y - 135.5;
+		}
+		if (angle < -180.0f)
+		{
+			angle += 360.0f;
+		}
+		else if (angle > 180.0f)
+		{
+			angle -= 360.0f;
+		}
 	}
-	if (!doragon->anime.lock()->IsPlayAnimation())
+	Vector3 q = { 0,angle,0 };
+	doragon->transform->Set_rotation(Quaternion::Slerp(doragon->transform->Get_rotation(),
+		Quaternion::Euler(q) , step));
+
+
+	if (judg(doragon ,player.lock().get()))
 	{
 		is_anime = false;
 
@@ -117,6 +227,6 @@ ActionSTATE WalkAction::run()
 		return ActionSTATE::SUCCESS;
 	}
 
-	return ActionSTATE::END;
+		return ActionSTATE::SUCCESS;
 
 }

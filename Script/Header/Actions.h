@@ -14,9 +14,8 @@ class Action
 public:
 	static bool is_anime;
 
-
 	Doragon* doragon;
-	std::shared_ptr<GameObject> player;
+	std::weak_ptr<GameObject> player;
 
 	virtual ActionSTATE run() = 0;
 };

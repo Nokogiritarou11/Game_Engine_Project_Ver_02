@@ -33,10 +33,9 @@ void Doragon::Start()
 void Doragon::Update()
 {
 
-	if (activeNode == NULL)
+	if (activeNode == NULL&& !this->anime.lock()->IsPlayAnimation())
 	{
 		activeNode = aiTree->activeNodeInference(aiData.get());
-
 	}
 	if (activeNode != NULL)
 	{

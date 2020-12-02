@@ -9,7 +9,7 @@ class ExecJudgment
 {
 public:
 	Doragon* doragon;
-	std::shared_ptr<GameObject> player;
+	std::weak_ptr<GameObject> player;
 
 	virtual bool judgment() = 0;
 };
