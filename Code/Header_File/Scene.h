@@ -45,4 +45,5 @@ private:
 	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Start_list;
 	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Start_Next_list;
 	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Update_list;
+	std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Update_Next_list;
 };

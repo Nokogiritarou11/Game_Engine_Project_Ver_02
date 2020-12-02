@@ -143,6 +143,12 @@ void Scene::Processing_Start()
 
 void Scene::Processing_Update(int state)
 {
+	if (!MonoBehaviour_Update_Next_list.empty())
+	{
+		copy(MonoBehaviour_Update_Next_list.begin(), MonoBehaviour_Update_Next_list.end(), std::back_inserter(MonoBehaviour_Update_list));
+		MonoBehaviour_Update_Next_list.clear();
+	}
+
 	bool expired = false;
 	bool disabled = false;
 	for (weak_ptr<MonoBehaviour> m : MonoBehaviour_Update_list)

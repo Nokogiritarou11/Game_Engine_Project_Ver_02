@@ -10,6 +10,7 @@ public:
 private:
 	std::weak_ptr<Object_Pool> obj_pool;
 	std::weak_ptr<Transform> muzzle_trans;
+	std::weak_ptr<Particle> muzzle_flash;
 	float move_speed;
 	float aim_speed;
 	float gravity;

@@ -11,6 +11,7 @@ void Player::Start()
 {
 	obj_pool = GameObject::Find("Object_Pool").lock()->GetComponent<Object_Pool>();
 	muzzle_trans = GameObject::Find("Muzzle").lock()->transform;
+	muzzle_flash = GameObject::Find("Muzzle_Flash").lock()->GetComponent<Particle>();
 }
 
 void Player::Update()
@@ -37,19 +38,32 @@ void Player::Update()
 		}
 	}
 
-	if (Input::GetMouseButtonDown(0))
+	static float shot_timer = 0;
+	shot_timer += Time::deltaTime;
+
+	if (shot_timer >= 0.15f && Input::GetMouseButton(0))
 	{
 		//ショット
-		shared_ptr<GameObject> bullet = obj_pool.lock()->Instance_Bullet().lock();
-		bullet->transform->Set_position(muzzle_trans.lock()->Get_position());
-		bullet->transform->Set_rotation(muzzle_trans.lock()->Get_rotation());
+		muzzle_flash.lock()->Play();
+		shared_ptr<GameObject> bullet = obj_pool.lock()->Instance_Bullet();
+		if (bullet)
+		{
+			bullet->transform->Set_position(muzzle_trans.lock()->Get_position());
+			bullet->transform->Set_rotation(muzzle_trans.lock()->Get_rotation());
+		}
+		shot_timer = 0;
 	}
 	if (Input::GetMouseButtonDown(1))
 	{
-		//ショット
-		shared_ptr<GameObject> bullet = obj_pool.lock()->Instance_Bomb().lock();
-		bullet->transform->Set_position(muzzle_trans.lock()->Get_position());
-		bullet->transform->Set_rotation(muzzle_trans.lock()->Get_rotation());
+		//ボム
+		muzzle_flash.lock()->Play();
+		shared_ptr<GameObject> bullet = obj_pool.lock()->Instance_Bomb();
+		if (bullet)
+		{
+			bullet->transform->Set_position(muzzle_trans.lock()->Get_position());
+			Vector3 e = muzzle_trans.lock()->Get_eulerAngles();
+			bullet->transform->Set_eulerAngles(e.x - 5.0f, e.y, e.z);
+		}
 	}
 }
 

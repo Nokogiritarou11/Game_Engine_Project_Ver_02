@@ -10,7 +10,7 @@ void Object_Pool::Start()
 		Bullet_List.emplace_back(obj);
 	}
 
-	for (int i = 0; i < 10; ++i)
+	for (int i = 0; i < 50; ++i)
 	{
 		shared_ptr<GameObject> obj = Resources::Load_Prefab("Resouces/Prefab/Bomb.prefab");
 		obj->SetActive(false);
@@ -23,34 +23,34 @@ void Object_Pool::Update()
 
 }
 
-weak_ptr<GameObject> Object_Pool::Instance_Bullet()
+shared_ptr<GameObject> Object_Pool::Instance_Bullet()
 {
-	weak_ptr<GameObject> obj;
+	shared_ptr<GameObject> obj;
 	for (size_t i = 0; i < Bullet_List.size(); ++i)
 	{
 		if (!Bullet_List[i].lock()->activeSelf())
 		{
-			obj = Bullet_List[i];
-			obj.lock()->SetActive(true);
-			break;
+			obj = Bullet_List[i].lock();
+			obj->SetActive(true);
+			return obj;
 		}
 	}
-	return obj;
+	return nullptr;
 }
 
-weak_ptr<GameObject> Object_Pool::Instance_Bomb()
+shared_ptr<GameObject> Object_Pool::Instance_Bomb()
 {
-	weak_ptr<GameObject> obj;
+	shared_ptr<GameObject> obj;
 	for (size_t i = 0; i < Bomb_List.size(); ++i)
 	{
 		if (!Bomb_List[i].lock()->activeSelf())
 		{
-			obj = Bomb_List[i];
-			obj.lock()->SetActive(true);
-			break;
+			obj = Bomb_List[i].lock();
+			obj->SetActive(true);
+			return obj;
 		}
 	}
-	return obj;
+	return nullptr;
 }
 
 bool Object_Pool::Draw_ImGui()

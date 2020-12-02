@@ -10,7 +10,7 @@ void Bullet::Update()
 {
 	transform->Set_position(transform->Get_position() + transform->Get_forward() * speed * Time::deltaTime);
 	timer += Time::deltaTime;
-	if (timer > 3)
+	if (timer > 2.0f)
 	{
 		gameObject->SetActive(false);
 	}

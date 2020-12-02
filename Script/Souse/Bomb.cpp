@@ -9,10 +9,12 @@ void Bomb::OnEnable()
 
 void Bomb::Update()
 {
-	transform->Set_position(transform->Get_position() + transform->Get_forward() * speed * Time::deltaTime + Vector3(0, power * Time::deltaTime, 0));
+	transform->Set_position(transform->Get_position() + transform->Get_forward() * speed * Time::deltaTime);
 	timer += Time::deltaTime;
-	power -= 30.0f * Time::deltaTime;
-	if (timer > 3)
+	power -= 1.0f * Time::deltaTime;
+	Vector3 e = transform->Get_eulerAngles();
+	transform->Set_eulerAngles(e.x - power, e.y, e.z);
+	if (timer > 2.0f)
 	{
 		gameObject->SetActive(false);
 	}

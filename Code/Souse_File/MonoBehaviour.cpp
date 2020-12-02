@@ -59,7 +59,7 @@ void  MonoBehaviour::Add()
 						{
 							if (!IsCalled_Update)
 							{
-								Scene_Manager::Get_Active_Scene()->MonoBehaviour_Update_list.emplace_back(static_pointer_cast<MonoBehaviour>(shared_from_this()));
+								Scene_Manager::Get_Active_Scene()->MonoBehaviour_Update_Next_list.emplace_back(static_pointer_cast<MonoBehaviour>(shared_from_this()));
 								IsCalled_Update = true;
 							}
 							Disable_flg = false;

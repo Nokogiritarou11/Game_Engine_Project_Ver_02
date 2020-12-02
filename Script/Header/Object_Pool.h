@@ -4,8 +4,8 @@
 class Object_Pool : public MonoBehaviour
 {
 public:
-	std::weak_ptr<GameObject> Instance_Bullet();
-	std::weak_ptr<GameObject> Instance_Bomb();
+	std::shared_ptr<GameObject> Instance_Bullet();
+	std::shared_ptr<GameObject> Instance_Bomb();
 
 private:
 	std::vector<std::weak_ptr<GameObject>> Bullet_List;

@@ -886,7 +886,6 @@ void Debug_UI::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj
 
 	if (obj->transform->childCount())
 	{
-		ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 		bool open = false;
 		if (!active) { ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(0.f, 0.f, 0.4f)); }
 		open = ImGui::TreeNodeEx((void*)(intptr_t)obj.get(), flag, obj->name.c_str());
