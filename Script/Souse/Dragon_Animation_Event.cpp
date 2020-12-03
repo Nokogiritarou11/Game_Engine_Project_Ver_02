@@ -45,6 +45,7 @@ void Dragon_Animation_Event::Update()
 			if (playing_time >= 1.0f)
 			{
 				shared_ptr<GameObject> obj = obj_pool.lock()->Instance_Breath();
+				obj->transform->Set_position(breath_round.lock()->transform->Get_position());
 				obj->transform->Set_rotation(obj->transform->LookAt(player.lock()->Get_position()));
 				trigger = true;
 			}
