@@ -56,7 +56,7 @@ bool HowlingJudgment::judgment()
 
 bool MaulJudgment::judgment()
 {
-	if (doragon->length < 100.0f &&doragon->length > 200.0f)
+	if (doragon->length > 150.0f)
 	{
 		return false;
 	}
@@ -69,7 +69,7 @@ bool MaulJudgment::judgment()
 bool FireballJudgment::judgment()
 {
 	
-	if (doragon->count_Bless > 10)
+	if (doragon->count_Bless > 6)
 	{
 		return false;
 	}
@@ -80,7 +80,7 @@ bool FireballJudgment::judgment()
 
 bool BlessJudgment::judgment()
 {
-	if (doragon->count_Bless < 10)
+	if (doragon->count_Bless < 6)
 	{
 		return false;
 	}

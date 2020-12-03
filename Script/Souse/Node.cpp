@@ -91,7 +91,7 @@ Node* Node::childNodeInference(BehaviorData* data)
 			return result;
 		}
 		else {
-			// 行動データが無い。
+			// 行動データが無い。.
 			// つまり中間ノードなので次のノードを調べる
 			result = result->childNodeInference(data);
 		}
