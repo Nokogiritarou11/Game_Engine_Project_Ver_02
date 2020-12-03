@@ -6,6 +6,7 @@ using namespace std;
 
 void Doragon::Awake()
 {
+
 }
 
 void Doragon::Start()
@@ -21,23 +22,22 @@ void Doragon::Start()
 		// 上から順に条件の確認
 		aiTree->addNode("root", "Attack", 1, SELECT_RULE::RANDOM, AttackJudgment::getInstance(this), NULL);
 		{	// Attackノードの子
-			aiTree->addNode("Attack", "HowlingAction", 0, SELECT_RULE::NON,
+			aiTree->addNode("Attack", "HowlingAction", 0, SELECT_RULE::NONE,
 				HowlingJudgment::getInstance(this), HowlingAction::getInstance(this));
 
 			aiTree->addNode("Attack", "Physics", 1, SELECT_RULE::PRIORITY, PhysicsJudgment::getInstance(this), nullptr);
 			{
-				aiTree->addNode("Physics", "MaulAction", 3, SELECT_RULE::NON, MaulJudgment::getInstance(this), MaulAction::getInstance(this));
-				aiTree->addNode("Physics", "StompAction", 2, SELECT_RULE::NON, StompJudgment::getInstance(this), StompAction::getInstance(this));
+				aiTree->addNode("Physics", "MaulAction", 2, SELECT_RULE::NONE, MaulJudgment::getInstance(this), MaulAction::getInstance(this));
+				aiTree->addNode("Physics", "StompAction", 1, SELECT_RULE::NONE, StompJudgment::getInstance(this), StompAction::getInstance(this));
 			}
 			aiTree->addNode("Attack", "Magic", 1, SELECT_RULE::PRIORITY, MagicJudgment::getInstance(this), nullptr);
 			{
-				aiTree->addNode("Magic", "FireballAction", 1, SELECT_RULE::NON, FireballJudgment::getInstance(this), FireballAction::getInstance(this));
-				aiTree->addNode("Magic", "BlessAction", 2, SELECT_RULE::NON, BlessJudgment::getInstance(this), BlessAction::getInstance(this));
+				aiTree->addNode("Magic", "FireballAction", 1, SELECT_RULE::NONE, FireballJudgment::getInstance(this), FireballAction::getInstance(this));
+				aiTree->addNode("Magic", "BlessAction", 2, SELECT_RULE::NONE, BlessJudgment::getInstance(this), BlessAction::getInstance(this));
 			}
 		}
-		aiTree->addNode("root", "Walk", 2, SELECT_RULE::NON, WalkJudgment::getInstance(this), WalkAction::getInstance(this));
+		aiTree->addNode("root", "Walk", 2, SELECT_RULE::NONE, WalkJudgment::getInstance(this), WalkAction::getInstance(this));
 	}
-
 }
 
 void Doragon::Update()
@@ -47,6 +47,7 @@ void Doragon::Update()
 	{
 		activeNode = aiTree->activeNodeInference(aiData.get());
 	}
+
 	if (activeNode != NULL)
 	{
 		activeNode = aiTree->run(activeNode, aiData.get());

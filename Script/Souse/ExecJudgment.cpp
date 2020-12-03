@@ -4,7 +4,10 @@
 bool AttackJudgment::judgment()
 {
 	{
-		
+		if (doragon->count_Stomp >= 5)
+		{
+			return true;
+		}
 		Vector2 v1 = { player.lock()->transform->Get_position().x - doragon->transform->Get_position().x,
 								player.lock()->transform->Get_position().z - doragon->transform->Get_position().z };
 		doragon->length = std::sqrtf(v1.x * v1.x + v1.y * v1.y);
@@ -48,6 +51,10 @@ bool PhysicsJudgment::judgment()
 
 bool MagicJudgment::judgment()
 {
+	if (doragon->count_Stomp >= 5)
+	{
+		return false;
+	}
 	return true;
 }
 
@@ -101,6 +108,11 @@ bool BlessJudgment::judgment()
 
 bool StompJudgment::judgment()
 {
+	if (doragon->count_Stomp >= 5)
+	{
+		doragon->count_Stomp = 0;
+		return true;
+	}
 	if(doragon->length < 100)
 	{
 		return true;
@@ -112,6 +124,7 @@ bool StompJudgment::judgment()
 
 bool WalkJudgment::judgment()
 {
+	doragon->count_Stomp++;
 	return true;
 
 }

@@ -12,7 +12,7 @@ class BehaviorData;
 class Action;
 enum SELECT_RULE
 {
-	NON = 0,				// ƒ‹[ƒ‹–³‚µ
+	NONE = 0,				// ƒ‹[ƒ‹–³‚µ
 	PRIORITY,			// —Dæ‡ˆÊ
 	RANDOM,				// ƒ‰ƒ“ƒ_ƒ€
 };
