@@ -278,6 +278,7 @@
     </ClCompile>
     <ClCompile Include="Script\Souse\Actions.cpp" />
     <ClCompile Include="Script\Souse\All_Component_List.cpp" />
+    <ClCompile Include="Script\Souse\Auto_Disable.cpp" />
     <ClCompile Include="Script\Souse\BehaviorData.cpp" />
     <ClCompile Include="Script\Souse\BehaviorTree.cpp" />
     <ClCompile Include="Script\Souse\Bomb.cpp" />
@@ -779,6 +780,7 @@
     </ClInclude>
     <ClInclude Include="Code\Header_File\All_Component_List.h" />
     <ClInclude Include="Script\Header\Actions.h" />
+    <ClInclude Include="Script\Header\Auto_Disable.h" />
     <ClInclude Include="Script\Header\BehaviorData.h" />
     <ClInclude Include="Script\Header\BehaviorTree.h" />
     <ClInclude Include="Script\Header\Bomb.h" />

@@ -7,9 +7,7 @@ public:
 
 private:
 	float speed;
-	float timer;
 
-	void OnEnable() override;
 	void Update() override;
 	bool Draw_ImGui() override;
 
