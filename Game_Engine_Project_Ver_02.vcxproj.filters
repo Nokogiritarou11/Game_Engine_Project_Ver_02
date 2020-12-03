@@ -91,6 +91,7 @@
     <ClCompile Include="Script\Souse\Node.cpp" />
     <ClCompile Include="Script\Souse\Breath_Sphere.cpp" />
     <ClCompile Include="Script\Souse\Dragon_Animation_Event.cpp" />
+    <ClCompile Include="Script\Souse\Auto_Disable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -287,6 +288,7 @@
     <ClInclude Include="Script\Header\ExecJudgment.h" />
     <ClInclude Include="Script\Header\Breath_Sphere.h" />
     <ClInclude Include="Script\Header\Dragon_Animation_Event.h" />
+    <ClInclude Include="Script\Header\Auto_Disable.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

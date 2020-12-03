@@ -21,6 +21,7 @@
 #include "Doragon.h"
 #include "Dragon_Animation_Event.h"
 #include "Breath_Sphere.h"
+#include "Auto_Disable.h"
 /////////////////////////////////////////////////////////////////
 
 using namespace std;
@@ -153,6 +154,12 @@ void All_Component_List::Add(shared_ptr<GameObject> obj)
 			obj->AddComponent<Breath_Sphere>();
 			ImGui::CloseCurrentPopup();
 		}
+		if (ImGui::Button("Auto_Disable", ImVec2(-FLT_MIN, 0.0f)))
+		{
+			obj->AddComponent<Auto_Disable>();
+			ImGui::CloseCurrentPopup();
+		}
+
 		////////////////////////////////////////////////////////
 		ImGui::PopStyleVar();
 		ImGui::EndPopup();

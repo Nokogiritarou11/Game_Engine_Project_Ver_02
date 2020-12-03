@@ -6,10 +6,7 @@ class Bomb : public MonoBehaviour
 public:
 private:
 	float speed;
-	float power;
-	float timer;
 
-	void OnEnable() override;
 	void Update() override;
 	bool Draw_ImGui() override;
 
