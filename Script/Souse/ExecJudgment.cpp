@@ -29,7 +29,7 @@ bool AttackJudgment::judgment()
 		float dot = normal.x * rotate_arc_dir.x + normal.y * rotate_arc_dir.y;
 
 
-		float rangeCos = cosf(DirectX::XMConvertToRadians(90.0f / 2.0f));
+		float rangeCos = cosf(DirectX::XMConvertToRadians(30.0f / 2.0f));
 
 		if (rangeCos > dot)
 		{
@@ -43,28 +43,33 @@ bool AttackJudgment::judgment()
 
 bool HowlingJudgment::judgment()
 {
+
 	if (!doragon->is_Howling)
 	{
 		return true;
 	}
 	
+
 	return false;
 
 }
 
 bool MaulJudgment::judgment()
 {
-	if (doragon->length > 200.0f)
+	if (doragon->length < 100.0f &&doragon->length > 200.0f)
 	{
 		return false;
 	}
+
+	
 	return true;
 
 }
 
 bool FireballJudgment::judgment()
 {
-	if (!doragon->is_Bless)
+	
+	if (doragon->count_Bless > 10)
 	{
 		return false;
 	}
@@ -75,12 +80,23 @@ bool FireballJudgment::judgment()
 
 bool BlessJudgment::judgment()
 {
-	if (doragon->is_Bless)
+	if (doragon->count_Bless < 10)
 	{
 		return false;
 	}
 
 	return true;
+
+}
+
+bool StompJudgment::judgment()
+{
+	if(doragon->length < 100)
+	{
+		return true;
+		
+	}
+	return false;
 
 }
 
