@@ -19,6 +19,8 @@
 #include "Object_Pool.h"
 #include "UI_Manager.h"
 #include "Doragon.h"
+#include "Dragon_Animation_Event.h"
+#include "Breath_Sphere.h"
 /////////////////////////////////////////////////////////////////
 
 using namespace std;
@@ -139,6 +141,16 @@ void All_Component_List::Add(shared_ptr<GameObject> obj)
 		if (ImGui::Button("Doragon", ImVec2(-FLT_MIN, 0.0f)))
 		{
 			obj->AddComponent<Doragon>();
+			ImGui::CloseCurrentPopup();
+		}
+		if (ImGui::Button("Dragon_Animation_Event", ImVec2(-FLT_MIN, 0.0f)))
+		{
+			obj->AddComponent<Dragon_Animation_Event>();
+			ImGui::CloseCurrentPopup();
+		}
+		if (ImGui::Button("Breath_Sphere", ImVec2(-FLT_MIN, 0.0f)))
+		{
+			obj->AddComponent<Breath_Sphere>();
 			ImGui::CloseCurrentPopup();
 		}
 		////////////////////////////////////////////////////////
