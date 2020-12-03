@@ -8,6 +8,7 @@ void Dragon_Animation_Event::Start()
 	animator = GetComponent<Animator>();
 	player = GameObject::Find("Player").lock()->GetComponent<Transform>();
 	breath_round = GameObject::Find("Breath_Round").lock()->GetComponent<Particle>();
+	se_breath_round = GameObject::Find("Breath_Round").lock()->GetComponent<AudioSource>();
 }
 
 void Dragon_Animation_Event::Update()
@@ -54,6 +55,11 @@ void Dragon_Animation_Event::Update()
 		//•úŽËƒuƒŒƒX
 		if (playing_anim == 4)
 		{
+			if (playing_time >= 2.1f)
+			{
+				se_breath_round.lock()->Play();
+				trigger = true;
+			}
 		}
 
 		//’@‚«‚Â‚¯
