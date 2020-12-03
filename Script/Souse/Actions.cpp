@@ -234,7 +234,7 @@ ActionSTATE StompAction::run()
 
 ActionSTATE WalkAction::run()
 {
-	float step = 0.5 * Time::deltaTime;
+	float step = 1 * Time::deltaTime;
 
 	static float angle;
 	if (!doragon->anime.lock()->IsPlayAnimation())
@@ -242,11 +242,13 @@ ActionSTATE WalkAction::run()
 		if (LRjudg(doragon, player.lock().get()))
 		{
 			doragon->anime.lock()->Play(7);
+			doragon->anime.lock()->animation_speed = 2.0f;
 			angle = doragon->transform->Get_eulerAngles().y + 135.5f;
 		}
 		else
 		{
 			doragon->anime.lock()->Play(6);
+			doragon->anime.lock()->animation_speed = 2.0f;
 			angle = doragon->transform->Get_eulerAngles().y - 135.5;
 		}
 		if (angle < -180.0f)
@@ -268,6 +270,7 @@ ActionSTATE WalkAction::run()
 	if (judg(doragon ,player.lock().get()))
 	{
 		count = 0;
+		doragon->anime.lock()->animation_speed = 1.0f;
 		return ActionSTATE::END;
 	}
 	else

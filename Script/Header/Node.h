@@ -3,12 +3,20 @@
 #include <string>
 #include <memory>
 
+#include "BehaviorTree.h"
 #include "Actions.h"
 #include "ExecJudgment.h"
 
 class ExecJudgment;
 class BehaviorData;
 class Action;
+enum SELECT_RULE
+{
+	NON = 0,				// ルール無し
+	PRIORITY,			// 優先順位
+	RANDOM,				// ランダム
+};
+
 
 class Node
 {
@@ -19,17 +27,20 @@ protected:
 	Node* parent;  // 親ノード　
 	std::vector<std::shared_ptr<Node>> child;// 子ノード
 	int hierarchyNo; // 階層番号
+	SELECT_RULE select_Rule;
 
 public:
 
 	Node(std::string name,
 		Node* parent,
 		int priority,
+		SELECT_RULE _select_Rule,
 		ExecJudgment* execJudgment,
 		Action* action, int hierarchyNo) :
 		name(name),
 		parent(parent),
 		priority(priority),
+		select_Rule(_select_Rule),
 		execJudgment(execJudgment),
 		action(action),
 		hierarchyNo(hierarchyNo),
@@ -74,6 +85,8 @@ public:
 
 	// 優先順位選択
 	Node* selectPriority(std::vector<Node*>* list);
+
+	Node* selectRandom(std::vector<Node*>* list);
 
 	// ノード検索
 	Node* searchNode(std::string searchName);

@@ -1,7 +1,7 @@
 #pragma once
 #include <unordered_map>
-#include "ExecJudgment.h"
 
+#include "ExecJudgment.h"
 #include "Node.h"
 #include "BehaviorData.h"
 
@@ -9,11 +9,14 @@ class Action;
 class ExecJudgment;
 class Node;
 class BehaviorData;
+enum SELECT_RULE;
 
 
 class BehaviorTree
 {
 public:
+
+
 	BehaviorTree() :root(nullptr)
 	{
 	}
@@ -24,7 +27,7 @@ public:
 	Node* sequenceBack(Node* sequence_node, BehaviorData* data);
 
 
-	void addNode(std::string parentName, std::string entryName, int priority, ExecJudgment* judgment, Action* action);
+	void addNode(std::string parentName, std::string entryName, int priority,SELECT_RULE _select_Rule, ExecJudgment* judgment, Action* action);
 	
 
 	Node* run(Node* actionNode, BehaviorData* data);

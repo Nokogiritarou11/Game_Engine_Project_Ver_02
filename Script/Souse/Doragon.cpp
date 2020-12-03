@@ -1,6 +1,7 @@
 #include "Doragon.h"
 #include "ExecJudgment.h"
 #include "Actions.h"
+#include "BehaviorTree.h"
 using namespace std;
 
 void Doragon::Awake()
@@ -15,19 +16,26 @@ void Doragon::Start()
 	aiTree = std::make_shared<BehaviorTree>();
 	aiData = std::make_shared<BehaviorData>();
 
-	aiTree->addNode("", "root", 0, NULL, NULL);
+	aiTree->addNode("", "root", 0, SELECT_RULE::PRIORITY, NULL, NULL);
 	{	// rootノードの子
 		// 上から順に条件の確認
-		aiTree->addNode("root", "Attack", 1, AttackJudgment::getInstance(this), NULL);
+		aiTree->addNode("root", "Attack", 1, SELECT_RULE::RANDOM, AttackJudgment::getInstance(this), NULL);
 		{	// Attackノードの子
-			aiTree->addNode("Attack", "HowlingAction", 1, HowlingJudgment::getInstance(this), HowlingAction::getInstance(this));
-			aiTree->addNode("Attack", "MaulAction", 3, MaulJudgment::getInstance(this), MaulAction::getInstance(this));
-			aiTree->addNode("Attack", "FireballAction", 4, FireballJudgment::getInstance(this), FireballAction::getInstance(this));
-			aiTree->addNode("Attack", "BlessAction", 5, BlessJudgment::getInstance(this), BlessAction::getInstance(this));
-			aiTree->addNode("Attack", "StompAction", 2, StompJudgment::getInstance(this), StompAction::getInstance(this));
+			aiTree->addNode("Attack", "HowlingAction", 0, SELECT_RULE::NON,
+				HowlingJudgment::getInstance(this), HowlingAction::getInstance(this));
 
+			aiTree->addNode("Attack", "Physics", 1, SELECT_RULE::PRIORITY, PhysicsJudgment::getInstance(this), nullptr);
+			{
+				aiTree->addNode("Physics", "MaulAction", 3, SELECT_RULE::NON, MaulJudgment::getInstance(this), MaulAction::getInstance(this));
+				aiTree->addNode("Physics", "StompAction", 2, SELECT_RULE::NON, StompJudgment::getInstance(this), StompAction::getInstance(this));
+			}
+			aiTree->addNode("Attack", "Magic", 1, SELECT_RULE::PRIORITY, MagicJudgment::getInstance(this), nullptr);
+			{
+				aiTree->addNode("Magic", "FireballAction", 1, SELECT_RULE::NON, FireballJudgment::getInstance(this), FireballAction::getInstance(this));
+				aiTree->addNode("Magic", "BlessAction", 2, SELECT_RULE::NON, BlessJudgment::getInstance(this), BlessAction::getInstance(this));
+			}
 		}
-		aiTree->addNode("root", "Walk", 2, WalkJudgment::getInstance(this), WalkAction::getInstance(this));
+		aiTree->addNode("root", "Walk", 2, SELECT_RULE::NON, WalkJudgment::getInstance(this), WalkAction::getInstance(this));
 	}
 
 }

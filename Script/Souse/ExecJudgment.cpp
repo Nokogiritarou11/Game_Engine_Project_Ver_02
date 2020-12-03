@@ -41,6 +41,16 @@ bool AttackJudgment::judgment()
 
 }
 
+bool PhysicsJudgment::judgment()
+{
+	return true;
+}
+
+bool MagicJudgment::judgment()
+{
+	return true;
+}
+
 bool HowlingJudgment::judgment()
 {
 
@@ -56,7 +66,7 @@ bool HowlingJudgment::judgment()
 
 bool MaulJudgment::judgment()
 {
-	if (doragon->length > 150.0f)
+	if (doragon->length > 185.0f)
 	{
 		return false;
 	}

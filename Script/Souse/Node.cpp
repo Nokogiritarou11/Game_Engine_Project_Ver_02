@@ -32,6 +32,17 @@ Node* Node::selectPriority(std::vector<Node*>* list)
 	return selectNode;
 }
 
+Node* Node::selectRandom(std::vector<Node*>* list)
+{
+	std::random_device rnd;     
+	std::mt19937 mt(rnd());     
+	std::uniform_int_distribution<> rand100(0, list->size()-1); 
+	int select_no = rand100(mt);
+
+
+	return (*list)[select_no];
+}
+
 Node* Node::searchNode(std::string searchName)
 {
 	// –¼‘O‚ªˆê’v
@@ -77,11 +88,17 @@ Node* Node::childNodeInference(BehaviorData* data)
 		}
 	}
 
-
-	// —Dæ‡ˆÊ
-	result = selectPriority(&list);
-
-
+	switch (select_Rule)
+	{
+	case SELECT_RULE::PRIORITY:
+		result = selectPriority(&list);
+		break;
+	case SELECT_RULE::RANDOM:
+		result = selectRandom(&list);
+		break;
+	default:
+		break;
+	}
 
 	if (result != NULL)
 	{

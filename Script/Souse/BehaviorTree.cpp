@@ -1,3 +1,4 @@
+#include "Node.h"
 #include "BehaviorTree.h"
 
 Node* BehaviorTree::activeNodeInference(BehaviorData* data)
@@ -7,7 +8,7 @@ Node* BehaviorTree::activeNodeInference(BehaviorData* data)
 	return root->childNodeInference(data);
 }
 
-void BehaviorTree::addNode(std::string parentName, std::string entryName, int priority, ExecJudgment* judgment, Action* action)
+void BehaviorTree::addNode(std::string parentName, std::string entryName, int priority,SELECT_RULE _select_Rule, ExecJudgment* judgment, Action* action)
 {
 	// ルートノードが空でない場合
 	if (parentName != "")
@@ -17,7 +18,7 @@ void BehaviorTree::addNode(std::string parentName, std::string entryName, int pr
 		if (search_node != NULL)
 		{
 			// 追加したいノード作成
-			std::shared_ptr<Node> add_node = std::make_shared<Node>(entryName, search_node, priority, judgment, action, search_node->getHirerchyNo() + 1);
+			std::shared_ptr<Node> add_node = std::make_shared<Node>(entryName, search_node, priority,_select_Rule, judgment, action, search_node->getHirerchyNo() + 1);
 			// ノード登録
 			search_node->addChild(add_node);
 		}
@@ -27,9 +28,9 @@ void BehaviorTree::addNode(std::string parentName, std::string entryName, int pr
 		if (root == NULL)
 		{
 			// ルートノードにエントリーノードを登録
-			root = std::make_unique<Node>(entryName, nullptr, priority, judgment, action, 1);
+			root = std::make_unique<Node>(entryName, nullptr, priority, _select_Rule, judgment, action, 1);
 		}
-	}
+	} 
 }
 // シーケンスノードからの推論開始
 Node* BehaviorTree::sequenceBack(Node* sequence_node, BehaviorData* data)

@@ -107,3 +107,29 @@ public:
 	}
 	bool judgment();
 };
+
+class MagicJudgment : public ExecJudgment
+{
+public:
+	static MagicJudgment* getInstance(Doragon* doragon)
+	{
+		static MagicJudgment instance;
+		instance.player = GameObject::Find("Player").lock();
+		instance.doragon = doragon;
+		return &instance;
+	}
+	bool judgment();
+};
+
+class PhysicsJudgment : public ExecJudgment
+{
+public:
+	static PhysicsJudgment* getInstance(Doragon* doragon)
+	{
+		static PhysicsJudgment instance;
+		instance.player = GameObject::Find("Player").lock();
+		instance.doragon = doragon;
+		return &instance;
+	}
+	bool judgment();
+};
