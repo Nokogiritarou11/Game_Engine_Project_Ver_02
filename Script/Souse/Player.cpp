@@ -5,6 +5,7 @@ using namespace std;
 void Player::Awake()
 {
 	Cursor::lockState = CursorLockMode::Locked;
+	Bomb_Count = 10;
 }
 
 void Player::Start()
@@ -12,6 +13,7 @@ void Player::Start()
 	obj_pool = GameObject::Find("Object_Pool").lock()->GetComponent<Object_Pool>();
 	muzzle_trans = GameObject::Find("Muzzle").lock()->transform;
 	muzzle_flash = GameObject::Find("Muzzle_Flash").lock()->GetComponent<Particle>();
+	se_shot = GameObject::Find("Muzzle_Flash").lock()->GetComponent<AudioSource>();
 }
 
 void Player::Update()
@@ -40,29 +42,35 @@ void Player::Update()
 
 	static float shot_timer = 0;
 	shot_timer += Time::deltaTime;
-
 	if (shot_timer >= 0.15f && Input::GetMouseButton(0))
 	{
 		//ショット
-		muzzle_flash.lock()->Play();
 		shared_ptr<GameObject> bullet = obj_pool.lock()->Instance_Bullet();
 		if (bullet)
 		{
+			muzzle_flash.lock()->Play();
+			se_shot.lock()->PlayOneShot();
 			bullet->transform->Set_position(muzzle_trans.lock()->Get_position());
 			bullet->transform->Set_rotation(muzzle_trans.lock()->Get_rotation());
+			shot_timer = 0;
 		}
-		shot_timer = 0;
 	}
-	if (Input::GetMouseButtonDown(1))
+
+	static float bomb_timer = 0;
+	bomb_timer += Time::deltaTime;
+	if (bomb_timer >= 2.0f && Bomb_Count > 0 && Input::GetMouseButtonDown(1))
 	{
 		//ボム
-		muzzle_flash.lock()->Play();
 		shared_ptr<GameObject> bullet = obj_pool.lock()->Instance_Bomb();
 		if (bullet)
 		{
+			muzzle_flash.lock()->Play();
+			se_shot.lock()->PlayOneShot();
 			bullet->transform->Set_position(muzzle_trans.lock()->Get_position());
 			Vector3 e = muzzle_trans.lock()->Get_eulerAngles();
 			bullet->transform->Set_eulerAngles(e.x - 5.0f, e.y, e.z);
+			--Bomb_Count;
+			bomb_timer = 0;
 		}
 	}
 }

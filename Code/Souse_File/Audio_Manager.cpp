@@ -6,9 +6,10 @@ using namespace DirectX;
 
 Audio_Manager::Audio_Manager()
 {
-	AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
+	CoInitializeEx(nullptr,COINIT_MULTITHREADED);
+	AUDIO_ENGINE_FLAGS eflags = AudioEngine_EnvironmentalReverb | AudioEngine_ReverbUseFilters | AudioEngine_UseMasteringLimiter;
 #ifdef _DEBUG
-	eflags |= AudioEngine_Debug;
+	eflags = eflags | AudioEngine_Debug;
 #endif
 	Engine = make_unique<AudioEngine>(eflags);
 }

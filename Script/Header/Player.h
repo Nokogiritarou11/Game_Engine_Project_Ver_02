@@ -11,12 +11,15 @@ private:
 	std::weak_ptr<Object_Pool> obj_pool;
 	std::weak_ptr<Transform> muzzle_trans;
 	std::weak_ptr<Particle> muzzle_flash;
+	std::weak_ptr<AudioSource> se_shot;
 	float move_speed;
 	float aim_speed;
 	float gravity;
 	float jump_power;
 	float jump_speed;
 	bool jump_flg;
+
+	int Bomb_Count;
 
 	void Move();
 
