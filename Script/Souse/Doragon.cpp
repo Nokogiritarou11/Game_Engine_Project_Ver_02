@@ -1,4 +1,4 @@
-#include "doragon.h"
+#include "Doragon.h"
 #include "ExecJudgment.h"
 #include "Actions.h"
 using namespace std;
@@ -21,9 +21,11 @@ void Doragon::Start()
 		aiTree->addNode("root", "Attack", 1, AttackJudgment::getInstance(this), NULL);
 		{	// Attackƒm[ƒh‚ÌŽq
 			aiTree->addNode("Attack", "HowlingAction", 1, HowlingJudgment::getInstance(this), HowlingAction::getInstance(this));
-			aiTree->addNode("Attack", "MaulAction", 2, MaulJudgment::getInstance(this), MaulAction::getInstance(this));
-			aiTree->addNode("Attack", "FireballAction", 3, FireballJudgment::getInstance(this), FireballAction::getInstance(this));
-			aiTree->addNode("Attack", "BlessAction", 4, BlessJudgment::getInstance(this), BlessAction::getInstance(this));
+			aiTree->addNode("Attack", "MaulAction", 3, MaulJudgment::getInstance(this), MaulAction::getInstance(this));
+			aiTree->addNode("Attack", "FireballAction", 4, FireballJudgment::getInstance(this), FireballAction::getInstance(this));
+			aiTree->addNode("Attack", "BlessAction", 5, BlessJudgment::getInstance(this), BlessAction::getInstance(this));
+			aiTree->addNode("Attack", "StompAction", 2, StompJudgment::getInstance(this), StompAction::getInstance(this));
+
 		}
 		aiTree->addNode("root", "Walk", 2, WalkJudgment::getInstance(this), WalkAction::getInstance(this));
 	}

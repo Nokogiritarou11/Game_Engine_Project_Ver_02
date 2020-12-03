@@ -38,6 +38,8 @@ public:
 class WalkAction : public Action
 {
 public:
+	float count = 0.0;
+
 	static WalkAction* getInstance(Doragon* doragon)
 	{
 		static WalkAction instance;
@@ -93,4 +95,20 @@ public:
 		return &instance;
 	}
 	ActionSTATE run() ;
+};
+
+
+class StompAction : public Action
+{
+public:
+	static StompAction* getInstance(Doragon* doragon)
+	{
+		static StompAction instance;
+		instance.player = GameObject::Find("Player").lock();
+		instance.doragon = doragon;
+		is_anime = false;
+
+		return &instance;
+	}
+	ActionSTATE run();
 };

@@ -82,6 +82,19 @@ public:
 	bool judgment();
 };
 
+class StompJudgment : public ExecJudgment
+{
+public:
+	static StompJudgment* getInstance(Doragon* doragon)
+	{
+		static StompJudgment instance;
+		instance.player = GameObject::Find("Player").lock();
+		instance.doragon = doragon;
+		return &instance;
+	}
+	bool judgment();
+};
+
 class WalkJudgment : public ExecJudgment
 {
 public:

@@ -12,7 +12,8 @@ class Doragon : public MonoBehaviour
 {
 public:
 	bool is_Howling = false;
-	bool is_Bless = false;
+	int count_Bless = 0;
+	int count_Stomp = 0;
 	float length;
 	std::weak_ptr<Animator> anime;
 
