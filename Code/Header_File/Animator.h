@@ -6,6 +6,8 @@ class Animator : public Behaviour
 public:
 
 	bool IsPlayAnimation() const { return currentAnimation >= 0; } //Ä¶’†‚©
+	int  GetPlayingAnimation() const { return currentAnimation; }
+	float  GetPlayingSeconds() const { return currentSeconds; }
 	void Play(int animationIndex);                                 //Ä¶
 	void Stop();                                                   //’â~
 	void Pause();                                                  //ˆê’â~
