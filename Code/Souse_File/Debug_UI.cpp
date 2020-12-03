@@ -149,7 +149,7 @@ void Debug_UI::Update(const unique_ptr<Scene>& scene)
 
 void Debug_UI::Render()
 {
-	Engine::particle_manager->Update(Debug_Camera_Transform, fov_y, near_z, far_z, aspect);
+	Engine::particle_manager->Camera_Update(Debug_Camera_Transform, fov_y, near_z, far_z, aspect);
 	Engine::view_scene->Render(Debug_Camera_V, Debug_Camera_P, Debug_Camera_Transform);
 
 	// レンダーターゲットビュー設定

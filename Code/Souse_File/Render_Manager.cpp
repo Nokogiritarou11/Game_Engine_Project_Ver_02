@@ -89,7 +89,7 @@ void Render_Manager::Render()
 					XMStoreFloat4x4(&camera->V, XMMatrixLookAtLH(eye_v, focus_v, up_v));
 					//}
 
-					Engine::particle_manager->Update(camera->transform, fov_y, camera->near_z, camera->far_z, aspect);
+					Engine::particle_manager->Camera_Update(camera->transform, fov_y, camera->near_z, camera->far_z, aspect);
 					Engine::view_game->Render(camera->V, camera->P, camera->transform);
 				}
 			}

@@ -284,6 +284,7 @@
     <ClCompile Include="Script\Souse\Bomb.cpp" />
     <ClCompile Include="Script\Souse\Breath_Sphere.cpp" />
     <ClCompile Include="Script\Souse\Bullet.cpp" />
+    <ClCompile Include="Script\Souse\Collider_Manager.cpp" />
     <ClCompile Include="Script\Souse\Doragon.cpp" />
     <ClCompile Include="Script\Souse\Dragon_Animation_Event.cpp" />
     <ClCompile Include="Script\Souse\ExecJudgment.cpp" />
@@ -786,6 +787,7 @@
     <ClInclude Include="Script\Header\Bomb.h" />
     <ClInclude Include="Script\Header\Breath_Sphere.h" />
     <ClInclude Include="Script\Header\Bullet.h" />
+    <ClInclude Include="Script\Header\Collider_Manager.h" />
     <ClInclude Include="Script\Header\Doragon.h" />
     <ClInclude Include="Script\Header\Dragon_Animation_Event.h" />
     <ClInclude Include="Script\Header\ExecJudgment.h" />

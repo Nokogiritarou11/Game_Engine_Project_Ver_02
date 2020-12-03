@@ -54,7 +54,7 @@ void Particle_Manager::Add(weak_ptr<Particle> particle)
 	Particle_List.emplace_back(particle);
 }
 
-void Particle_Manager::Update(std::shared_ptr<Transform>& camera_trans, float FOV, float near_z, float far_z, float aspect)
+void Particle_Manager::Camera_Update(std::shared_ptr<Transform>& camera_trans, float FOV, float near_z, float far_z, float aspect)
 {
 	Vector3 pos = camera_trans->Get_position();
 
@@ -75,6 +75,10 @@ void Particle_Manager::Update(std::shared_ptr<Transform>& camera_trans, float FO
 	renderer->SetCameraMatrix(
 		::Effekseer::Matrix44().LookAtLH(g_position, g_focus, g_up));
 
+}
+
+void Particle_Manager::Update()
+{
 	shared_ptr<Particle> p_eff = nullptr;
 	bool expired = false;
 	bool disabled = false;
@@ -123,12 +127,12 @@ void Particle_Manager::Update(std::shared_ptr<Transform>& camera_trans, float FO
 		auto removeIt = remove_if(Particle_List.begin(), Particle_List.end(), [](weak_ptr<Particle> r) { shared_ptr<Particle> p = r.lock(); p->IsCalled = false; return p->Disable_flg; });
 		Particle_List.erase(removeIt, Particle_List.end());
 	}
+
+	manager->Update(60.0f / (1 / Time::deltaTime));
 }
 
 void Particle_Manager::Render()
 {
-	// エフェクトの更新処理
-	manager->Update(60.0f / (1 / Time::deltaTime));
 	// エフェクトの描画開始処理
 	renderer->BeginRendering();
 

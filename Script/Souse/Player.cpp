@@ -115,8 +115,15 @@ void Player::Move()
 
 	Vector3 set = front * move_input.y * move_speed * Time::deltaTime + side * move_input.x * move_speed * Time::deltaTime;
 	set.y = 0;
-	transform->Set_localPosition(transform->Get_localPosition() + set);
+	set += transform->Get_localPosition();
+	transform->Set_localPosition(set);
 
+	if (Vector2::Distance(Vector2(set.x, set.z), Vector2::Zero) >= 320.0f)
+	{
+		Vector3 to = Vector3::Zero - set;
+		to.Normalize();
+		transform->Set_position(set + to);
+	}
 }
 
 bool Player::Draw_ImGui()

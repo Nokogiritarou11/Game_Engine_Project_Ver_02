@@ -17,7 +17,8 @@ public:
 	~Particle_Manager();
 
 	void Add(std::weak_ptr<Particle> particle);
-	void Update(std::shared_ptr<Transform>& camera_trans, float FOV, float near_z, float far_z, float aspect);
+	void Camera_Update(std::shared_ptr<Transform>& camera_trans, float FOV, float near_z, float far_z, float aspect);
+	void Update();
 	void Render();
 	void Reset();
 
