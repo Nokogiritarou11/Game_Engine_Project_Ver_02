@@ -2,6 +2,7 @@
 #include "ExecJudgment.h"
 #include "Actions.h"
 #include "BehaviorTree.h"
+#include "Dragon_HP.h"
 using namespace std;
 
 void Doragon::Awake()
@@ -11,6 +12,7 @@ void Doragon::Awake()
 
 void Doragon::Start()
 {
+	timer = 0.0f;
 	anime = gameObject->GetComponent<Animator>();
 	state = 0;
 	is_Howling = false;
@@ -47,16 +49,24 @@ void Doragon::Start()
 
 void Doragon::Update()
 {
-
-	if (activeNode == NULL&& !this->anime.lock()->IsPlayAnimation())
+	HP = GetComponent<Dragon_HP>()->HP;
+	
+	if (timer >= 60)
 	{
-		anime.lock()->Stop();
-		activeNode = aiTree->activeNodeInference(aiData.get());
+		if (activeNode == NULL && !this->anime.lock()->IsPlayAnimation())
+		{
+			anime.lock()->Stop();
+			activeNode = aiTree->activeNodeInference(aiData.get());
+		}
+
+		if (activeNode != NULL)
+		{
+			activeNode = aiTree->run(activeNode, aiData.get());
+		}
 	}
-
-	if (activeNode != NULL)
+	else
 	{
-		activeNode = aiTree->run(activeNode, aiData.get());
+		timer += 1;
 	}
 
 

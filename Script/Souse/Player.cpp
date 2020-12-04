@@ -5,7 +5,6 @@ using namespace std;
 void Player::Awake()
 {
 	Cursor::lockState = CursorLockMode::Locked;
-	Bomb_Count = 5;
 	HP = 100;
 }
 
@@ -126,7 +125,7 @@ void Player::Shot()
 
 	static float bomb_timer = 0;
 	bomb_timer += Time::deltaTime;
-	if (bomb_timer >= 2.0f && Bomb_Count > 0 && Input::GetMouseButtonDown(1))
+	if (bomb_timer >= 2.0f && Input::GetMouseButtonDown(1))
 	{
 		//ƒ{ƒ€
 		shared_ptr<GameObject> bullet = obj_pool.lock()->Instance_Bomb();
@@ -137,7 +136,6 @@ void Player::Shot()
 			bullet->transform->Set_position(muzzle_trans.lock()->Get_position());
 			Vector3 e = muzzle_trans.lock()->Get_eulerAngles();
 			bullet->transform->Set_eulerAngles(e.x - 5.0f, e.y, e.z);
-			--Bomb_Count;
 			bomb_timer = 0;
 		}
 	}

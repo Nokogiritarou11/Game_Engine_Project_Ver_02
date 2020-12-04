@@ -13,7 +13,7 @@ class Action
 {
 public:
 	static bool is_anime;
-
+	static float speed;
 	Doragon* doragon;
 	std::weak_ptr<GameObject> player;
 

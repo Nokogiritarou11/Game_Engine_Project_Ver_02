@@ -31,7 +31,7 @@ void Bomb::Update()
 		col = c.lock();
 		if (Vector3::Distance(transform->Get_position(), col->transform->Get_position()) <= col->Size)
 		{
-			dragon->Damage(static_cast<int>(col->Damage_Magnification * 50.0f));
+			dragon->Damage(static_cast<int>(col->Damage_Magnification * 25.0f));
 			gameObject->SetActive(false);
 			break;
 		}

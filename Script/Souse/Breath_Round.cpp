@@ -1,5 +1,6 @@
 #include "Breath_Round.h"
 #include "ToPlayer_Collider.h"
+#include "Actions.h"
 using namespace std;
 
 void Breath_Round::OnEnable()
@@ -17,7 +18,7 @@ void Breath_Round::Start()
 
 void Breath_Round::Update()
 {
-	transform->Set_position(transform->Get_position() - transform->Get_forward() * 1000.0f * Time::deltaTime);
+	transform->Set_position(transform->Get_position() - transform->Get_forward() * 1000.0f * Time::deltaTime );
 	col.lock()->Size += 600.0f * Time::deltaTime;
 }
 

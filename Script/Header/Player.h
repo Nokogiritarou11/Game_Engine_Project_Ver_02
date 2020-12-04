@@ -21,7 +21,6 @@ private:
 	float jump_power;
 	float jump_speed;
 
-	int Bomb_Count;
 
 	void Move();
 	void Jump();
