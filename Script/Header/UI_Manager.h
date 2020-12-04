@@ -1,12 +1,26 @@
 #pragma once
 #include "MonoBehaviour.h"
 
+class Player;
+class Dragon_HP;
+
 class UI_Manager : public MonoBehaviour
 {
 public:
 
 private:
 	std::weak_ptr<Sprite_Renderer> UI_Cursor;
+	std::weak_ptr<Sprite_Renderer> UI_HP_Player;
+	std::weak_ptr<Sprite_Renderer> UI_HP_Dragon;
+
+	std::weak_ptr<Player> player;
+	std::weak_ptr<Dragon_HP> dragon;
+
+	int player_hp_max;
+	int dragon_hp_max;
+
+	float player_UI_max;
+	float dragon_UI_max;
 
 	void Start() override;
 	void Update() override;

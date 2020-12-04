@@ -9,6 +9,8 @@ void Breath_Sphere::Start()
 
 void Breath_Sphere::Update()
 {
+	transform->Set_position(transform->Get_position() + transform->Get_forward() * 175 * Time::deltaTime);
+
 	if (transform->Get_position().y <= 0)
 	{
 		if (shared_ptr<GameObject> obj = obj_pool.lock()->Instance_Breath_Explosion())

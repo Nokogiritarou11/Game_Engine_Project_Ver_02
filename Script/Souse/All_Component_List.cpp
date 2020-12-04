@@ -22,6 +22,10 @@
 #include "Dragon_Animation_Event.h"
 #include "Breath_Sphere.h"
 #include "Auto_Disable.h"
+#include "Enemy_Collider.h"
+#include "Dragon_HP.h"
+#include "ToPlayer_Collider.h"
+#include "Breath_Round.h"
 /////////////////////////////////////////////////////////////////
 
 using namespace std;
@@ -157,6 +161,26 @@ void All_Component_List::Add(shared_ptr<GameObject> obj)
 		if (ImGui::Button("Auto_Disable", ImVec2(-FLT_MIN, 0.0f)))
 		{
 			obj->AddComponent<Auto_Disable>();
+			ImGui::CloseCurrentPopup();
+		}
+		if (ImGui::Button("Enemy_Collider", ImVec2(-FLT_MIN, 0.0f)))
+		{
+			obj->AddComponent<Enemy_Collider>();
+			ImGui::CloseCurrentPopup();
+		}
+		if (ImGui::Button("Dragon_HP", ImVec2(-FLT_MIN, 0.0f)))
+		{
+			obj->AddComponent<Dragon_HP>();
+			ImGui::CloseCurrentPopup();
+		}
+		if (ImGui::Button("ToPlayer_Collider", ImVec2(-FLT_MIN, 0.0f)))
+		{
+			obj->AddComponent<ToPlayer_Collider>();
+			ImGui::CloseCurrentPopup();
+		}
+		if (ImGui::Button("Breath_Round", ImVec2(-FLT_MIN, 0.0f)))
+		{
+			obj->AddComponent<Breath_Round>();
 			ImGui::CloseCurrentPopup();
 		}
 

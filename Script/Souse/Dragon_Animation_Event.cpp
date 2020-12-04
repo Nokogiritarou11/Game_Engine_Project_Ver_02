@@ -1,12 +1,13 @@
 #include "Dragon_Animation_Event.h"
 #include "Object_Pool.h"
+#include "Player.h"
 using namespace std;
 
 void Dragon_Animation_Event::Start()
 {
 	obj_pool = GameObject::Find("Object_Pool").lock()->GetComponent<Object_Pool>();
 	animator = GetComponent<Animator>();
-	player = GameObject::Find("Player").lock()->GetComponent<Transform>();
+	player = GameObject::Find("Player").lock()->GetComponent<Player>();
 	breath_round = GameObject::Find("Breath_Round").lock()->GetComponent<Particle>();
 	se_breath_round = GameObject::Find("Breath_Round").lock()->GetComponent<AudioSource>();
 }
@@ -18,6 +19,8 @@ void Dragon_Animation_Event::Update()
 	static int playing_anim_old = -1;
 	static float playing_time = 0;
 	static bool trigger = false;
+	static float breath_timer = 0;
+	static int breath_count = 0;
 	playing_anim = anim->GetPlayingAnimation();
 	playing_time = anim->GetPlayingSeconds();
 
@@ -47,7 +50,7 @@ void Dragon_Animation_Event::Update()
 			{
 				shared_ptr<GameObject> obj = obj_pool.lock()->Instance_Breath();
 				obj->transform->Set_position(breath_round.lock()->transform->Get_position());
-				obj->transform->Set_rotation(obj->transform->LookAt(player.lock()->Get_position()));
+				obj->transform->Set_rotation(obj->transform->LookAt(player.lock()->transform->Get_position()));
 				trigger = true;
 			}
 		}
@@ -57,6 +60,8 @@ void Dragon_Animation_Event::Update()
 		{
 			if (playing_time >= 2.1f)
 			{
+				breath_count = 0;
+				breath_timer = 0;
 				se_breath_round.lock()->Play();
 				trigger = true;
 			}
@@ -65,6 +70,23 @@ void Dragon_Animation_Event::Update()
 		//’@‚«‚Â‚¯
 		if (playing_anim == 5)
 		{
+		}
+	}
+	else
+	{
+		//•úŽËƒuƒŒƒX
+		if (playing_anim == 4)
+		{
+			breath_timer += Time::deltaTime;
+			if (breath_count < 10 && breath_timer >= 0.2f)
+			{
+				shared_ptr<GameObject> obj = obj_pool.lock()->Instance_Breath_Round();
+				obj->transform->Set_position(breath_round.lock()->transform->Get_position());
+				Vector3 ang = breath_round.lock()->transform->Get_eulerAngles();
+				obj->transform->Set_eulerAngles(0, ang.y, ang.z);
+				breath_timer = 0;
+				++breath_count;
+			}
 		}
 	}
 }
