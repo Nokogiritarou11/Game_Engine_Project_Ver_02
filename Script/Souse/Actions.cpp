@@ -1,5 +1,7 @@
 #include "Actions.h"
 #include "GameObject.h"
+#include "AudioSource.h"
+class AudioSource;
 // TODO ˆÚ“®ˆ—
 bool Action::is_anime = false;
 float Action::speed = 1.2;
@@ -13,7 +15,10 @@ bool judg(Doragon* doragon,GameObject* player)
 	{
 		Action::speed = 2.2f;
 		doragon->is_Howling = false;
+		doragon->is_Howl = false;
+
 	}
+
 	if (doragon->length > 500)
 	{
 		return false;
@@ -103,6 +108,7 @@ ActionSTATE HowlingAction::run()
 	{
 		is_anime = true;
 		doragon->anime.lock()->Play(0);
+		
 	}
 
 
