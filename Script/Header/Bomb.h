@@ -1,12 +1,16 @@
 #pragma once
 #include "MonoBehaviour.h"
 
+class Dragon_HP;
+
 class Bomb : public MonoBehaviour
 {
 public:
 private:
+	std::weak_ptr<Dragon_HP> dragon_hp;
 	float speed;
 
+	void Start() override;
 	void Update() override;
 	bool Draw_ImGui() override;
 

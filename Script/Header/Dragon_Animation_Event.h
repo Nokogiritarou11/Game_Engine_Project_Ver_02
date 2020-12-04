@@ -2,6 +2,7 @@
 #include "MonoBehaviour.h"
 
 class Object_Pool;
+class Player;
 
 class Dragon_Animation_Event : public MonoBehaviour
 {
@@ -10,7 +11,7 @@ public:
 private:
 	std::weak_ptr<Object_Pool> obj_pool;
 	std::weak_ptr<Animator> animator;
-	std::weak_ptr<Transform> player;
+	std::weak_ptr<Player> player;
 	std::weak_ptr<Particle> breath_round;
 	std::weak_ptr<AudioSource> se_breath_round;
 

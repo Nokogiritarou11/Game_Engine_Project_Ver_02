@@ -3,18 +3,25 @@ using namespace std;
 
 void Object_Pool::Start()
 {
-	for (int i = 0; i < 30; ++i)
+	for (int i = 0; i < 20; ++i)
 	{
 		shared_ptr<GameObject> obj = Resources::Load_Prefab("Resouces/Prefab/Bullet.prefab");
 		obj->SetActive(false);
 		Bullet_List.emplace_back(obj);
 	}
 
-	for (int i = 0; i < 5; ++i)
+	for (int i = 0; i < 3; ++i)
 	{
 		shared_ptr<GameObject> obj = Resources::Load_Prefab("Resouces/Prefab/Bomb.prefab");
 		obj->SetActive(false);
 		Bomb_List.emplace_back(obj);
+	}
+
+	for (int i = 0; i < 20; ++i)
+	{
+		shared_ptr<GameObject> obj = Resources::Load_Prefab("Resouces/Prefab/Hit.prefab");
+		obj->SetActive(false);
+		Hit_List.emplace_back(obj);
 	}
 
 	for (int i = 0; i < 3; ++i)
@@ -28,6 +35,12 @@ void Object_Pool::Start()
 		shared_ptr<GameObject> obj = Resources::Load_Prefab("Resouces/Prefab/Breath_Explosion.prefab");
 		obj->SetActive(false);
 		Breath_Explosion_List.emplace_back(obj);
+	}
+	for (int i = 0; i < 20; ++i)
+	{
+		shared_ptr<GameObject> obj = Resources::Load_Prefab("Resouces/Prefab/Breath_Round_Collision.prefab");
+		obj->SetActive(false);
+		Breath_Round_List.emplace_back(obj);
 	}
 }
 
@@ -61,6 +74,21 @@ shared_ptr<GameObject> Object_Pool::Instance_Bomb()
 	return nullptr;
 }
 
+shared_ptr<GameObject> Object_Pool::Instance_Hit()
+{
+	shared_ptr<GameObject> obj;
+	for (size_t i = 0; i < Hit_List.size(); ++i)
+	{
+		if (!Hit_List[i].lock()->activeSelf())
+		{
+			obj = Hit_List[i].lock();
+			obj->SetActive(true);
+			return obj;
+		}
+	}
+	return nullptr;
+}
+
 shared_ptr<GameObject> Object_Pool::Instance_Breath()
 {
 	shared_ptr<GameObject> obj;
@@ -84,6 +112,21 @@ shared_ptr<GameObject> Object_Pool::Instance_Breath_Explosion()
 		if (!Breath_Explosion_List[i].lock()->activeSelf())
 		{
 			obj = Breath_Explosion_List[i].lock();
+			obj->SetActive(true);
+			return obj;
+		}
+	}
+	return nullptr;
+}
+
+shared_ptr<GameObject> Object_Pool::Instance_Breath_Round()
+{
+	shared_ptr<GameObject> obj;
+	for (size_t i = 0; i < Breath_Round_List.size(); ++i)
+	{
+		if (!Breath_Round_List[i].lock()->activeSelf())
+		{
+			obj = Breath_Round_List[i].lock();
 			obj->SetActive(true);
 			return obj;
 		}

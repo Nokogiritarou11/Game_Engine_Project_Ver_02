@@ -5,7 +5,8 @@ using namespace std;
 void Player::Awake()
 {
 	Cursor::lockState = CursorLockMode::Locked;
-	Bomb_Count = 10;
+	Bomb_Count = 5;
+	HP = 100;
 }
 
 void Player::Start()
@@ -18,61 +19,17 @@ void Player::Start()
 
 void Player::Update()
 {
-	Move();
-
-	if (Input::GetKeyDown(KeyCode::Space))
+	if (HP > 0)
 	{
-		if (!jump_flg)
-		{
-			jump_flg = true;
-			jump_speed = jump_power;
-		}
+		Move();
+		Jump();
+		Shot();
 	}
-	if (jump_flg)
+	else
 	{
-		jump_speed -= gravity * Time::deltaTime;
-		transform->Set_position(transform->Get_position() + Vector3(0, jump_speed * Time::deltaTime, 0));
-		if (transform->Get_localPosition().y < 0)
-		{
-			transform->Set_localPosition(Vector3(transform->Get_localPosition().x, 0, transform->Get_localPosition().z));
-			jump_speed = 0;
-			jump_flg = false;
-		}
+
 	}
 
-	static float shot_timer = 0;
-	shot_timer += Time::deltaTime;
-	if (shot_timer >= 0.15f && Input::GetMouseButton(0))
-	{
-		//ショット
-		shared_ptr<GameObject> bullet = obj_pool.lock()->Instance_Bullet();
-		if (bullet)
-		{
-			muzzle_flash.lock()->Play();
-			se_shot.lock()->PlayOneShot();
-			bullet->transform->Set_position(muzzle_trans.lock()->Get_position());
-			bullet->transform->Set_rotation(muzzle_trans.lock()->Get_rotation());
-			shot_timer = 0;
-		}
-	}
-
-	static float bomb_timer = 0;
-	bomb_timer += Time::deltaTime;
-	if (bomb_timer >= 2.0f && Bomb_Count > 0 && Input::GetMouseButtonDown(1))
-	{
-		//ボム
-		shared_ptr<GameObject> bullet = obj_pool.lock()->Instance_Bomb();
-		if (bullet)
-		{
-			muzzle_flash.lock()->Play();
-			se_shot.lock()->PlayOneShot();
-			bullet->transform->Set_position(muzzle_trans.lock()->Get_position());
-			Vector3 e = muzzle_trans.lock()->Get_eulerAngles();
-			bullet->transform->Set_eulerAngles(e.x - 5.0f, e.y, e.z);
-			--Bomb_Count;
-			bomb_timer = 0;
-		}
-	}
 }
 
 void Player::Move()
@@ -126,6 +83,71 @@ void Player::Move()
 	}
 }
 
+void Player::Jump()
+{
+	if (Input::GetKeyDown(KeyCode::Space))
+	{
+		if (!jump_flg)
+		{
+			jump_flg = true;
+			jump_speed = jump_power;
+		}
+	}
+	if (jump_flg)
+	{
+		jump_speed -= gravity * Time::deltaTime;
+		transform->Set_position(transform->Get_position() + Vector3(0, jump_speed * Time::deltaTime, 0));
+		if (transform->Get_localPosition().y < 0)
+		{
+			transform->Set_localPosition(Vector3(transform->Get_localPosition().x, 0, transform->Get_localPosition().z));
+			jump_speed = 0;
+			jump_flg = false;
+		}
+	}
+}
+
+void Player::Shot()
+{
+	static float shot_timer = 0;
+	shot_timer += Time::deltaTime;
+	if (shot_timer >= 0.15f && Input::GetMouseButton(0))
+	{
+		//ショット
+		shared_ptr<GameObject> bullet = obj_pool.lock()->Instance_Bullet();
+		if (bullet)
+		{
+			muzzle_flash.lock()->Play();
+			se_shot.lock()->PlayOneShot();
+			bullet->transform->Set_position(muzzle_trans.lock()->Get_position());
+			bullet->transform->Set_rotation(muzzle_trans.lock()->Get_rotation());
+			shot_timer = 0;
+		}
+	}
+
+	static float bomb_timer = 0;
+	bomb_timer += Time::deltaTime;
+	if (bomb_timer >= 2.0f && Bomb_Count > 0 && Input::GetMouseButtonDown(1))
+	{
+		//ボム
+		shared_ptr<GameObject> bullet = obj_pool.lock()->Instance_Bomb();
+		if (bullet)
+		{
+			muzzle_flash.lock()->Play();
+			se_shot.lock()->PlayOneShot();
+			bullet->transform->Set_position(muzzle_trans.lock()->Get_position());
+			Vector3 e = muzzle_trans.lock()->Get_eulerAngles();
+			bullet->transform->Set_eulerAngles(e.x - 5.0f, e.y, e.z);
+			--Bomb_Count;
+			bomb_timer = 0;
+		}
+	}
+}
+
+void Player::Damage(int damage)
+{
+	HP -= damage;
+}
+
 bool Player::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
@@ -156,7 +178,6 @@ bool Player::Draw_ImGui()
 
 	if (open)
 	{
-		ImGui::Checkbox("jump", &jump_flg);
 		ImGui::DragFloat("move_speed", &move_speed, 0.1f, 0.0f, FLT_MAX);
 		ImGui::DragFloat("aim_speed", &aim_speed, 0.1f, 0.0f, FLT_MAX);
 		ImGui::DragFloat("jump_power", &jump_power, 0.1f, 0.0f, FLT_MAX);

@@ -13,6 +13,11 @@ void Resources::Create_Prefab(shared_ptr<GameObject> gameobject)
 {
 	string path = "Resouces\\Prefab\\" + gameobject->name + ".prefab";
 
+	weak_ptr<Transform> parent = gameobject->transform->Get_parent();
+	if (!parent.expired())
+	{
+		gameobject->transform->Set_parent(nullptr);
+	}
 	{
 		ifstream in_bin(path, ios::binary);
 		if (in_bin.is_open())
@@ -36,6 +41,12 @@ void Resources::Create_Prefab(shared_ptr<GameObject> gameobject)
 			o_archive(gameobject);
 		}
 	}
+
+	if (!parent.expired())
+	{
+		gameobject->transform->Set_parent(parent.lock());
+	}
+
 	Debug::Log(u8"Resouces\\Prefab\\ˆÈ‰º‚É" + gameobject->name + u8"‚ðƒvƒŒƒnƒu‰»‚µ‚Ü‚µ‚½");
 }
 

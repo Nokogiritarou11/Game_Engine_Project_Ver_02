@@ -6,6 +6,8 @@ class Object_Pool;
 class Player : public MonoBehaviour
 {
 public:
+	void Damage(int damage);
+	int HP;
 
 private:
 	std::weak_ptr<Object_Pool> obj_pool;
@@ -22,6 +24,8 @@ private:
 	int Bomb_Count;
 
 	void Move();
+	void Jump();
+	void Shot();
 
 	void Awake() override;
 	void Start() override;

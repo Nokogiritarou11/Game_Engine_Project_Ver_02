@@ -110,6 +110,7 @@ void Animator::Play(int animationIndex)
 
 void Animator::Stop()
 {
+	currentAnimation = -1;
 	currentSeconds = 0;
 	Playing = false;
 }

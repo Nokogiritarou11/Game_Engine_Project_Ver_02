@@ -366,14 +366,30 @@ void Debug_UI::Hierarchy_Render(const unique_ptr<Scene>& scene)
 				{
 					if (ImGui::Selectable(u8"オブジェクトを複製"))
 					{
+						shared_ptr<GameObject> obj = Active_Object.lock();
+						weak_ptr<Transform> parent = obj->transform->Get_parent();
+						if (!parent.expired())
+						{
+							obj->transform->Set_parent(nullptr);
+						}
+
 						{
 							ofstream ss("Default_Resource\\System\\copy.prefab", ios::binary);
 							{
 								cereal::BinaryOutputArchive o_archive(ss);
-								o_archive(Active_Object.lock());
+								o_archive(obj);
 							}
 						}
-						Resources::Load_Prefab("Default_Resource\\System\\copy.prefab");
+
+						if (!parent.expired())
+						{
+							obj->transform->Set_parent(parent.lock());
+							Resources::Load_Prefab("Default_Resource\\System\\copy.prefab")->transform->Set_parent(parent.lock());
+						}
+						else
+						{
+							Resources::Load_Prefab("Default_Resource\\System\\copy.prefab");
+						}
 					}
 
 					if (ImGui::Selectable(u8"オブジェクトをプレハブ化"))
@@ -398,14 +414,30 @@ void Debug_UI::Hierarchy_Render(const unique_ptr<Scene>& scene)
 		{
 			if (ImGui::IsKeyDown(17) && ImGui::IsKeyPressed(68)) //Ctrl + D
 			{
+				shared_ptr<GameObject> obj = Active_Object.lock();
+				weak_ptr<Transform> parent = obj->transform->Get_parent();
+				if (!parent.expired())
+				{
+					obj->transform->Set_parent(nullptr);
+				}
+
 				{
 					ofstream ss("Default_Resource\\System\\copy.prefab", ios::binary);
 					{
 						cereal::BinaryOutputArchive o_archive(ss);
-						o_archive(Active_Object.lock());
+						o_archive(obj);
 					}
 				}
-				Resources::Load_Prefab("Default_Resource\\System\\copy.prefab");
+
+				if (!parent.expired())
+				{
+					obj->transform->Set_parent(parent.lock());
+					Resources::Load_Prefab("Default_Resource\\System\\copy.prefab")->transform->Set_parent(parent.lock());
+				}
+				else
+				{
+					Resources::Load_Prefab("Default_Resource\\System\\copy.prefab");
+				}
 			}
 
 			if (ImGui::IsKeyPressed(46)) //Delete

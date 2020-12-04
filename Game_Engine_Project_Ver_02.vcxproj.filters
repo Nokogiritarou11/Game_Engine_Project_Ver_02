@@ -92,7 +92,10 @@
     <ClCompile Include="Script\Souse\Breath_Sphere.cpp" />
     <ClCompile Include="Script\Souse\Dragon_Animation_Event.cpp" />
     <ClCompile Include="Script\Souse\Auto_Disable.cpp" />
-    <ClCompile Include="Script\Souse\Collider_Manager.cpp" />
+    <ClCompile Include="Script\Souse\ToPlayer_Collider.cpp" />
+    <ClCompile Include="Script\Souse\Enemy_Collider.cpp" />
+    <ClCompile Include="Script\Souse\Dragon_HP.cpp" />
+    <ClCompile Include="Script\Souse\Breath_Round.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -290,7 +293,10 @@
     <ClInclude Include="Script\Header\Breath_Sphere.h" />
     <ClInclude Include="Script\Header\Dragon_Animation_Event.h" />
     <ClInclude Include="Script\Header\Auto_Disable.h" />
-    <ClInclude Include="Script\Header\Collider_Manager.h" />
+    <ClInclude Include="Script\Header\ToPlayer_Collider.h" />
+    <ClInclude Include="Script\Header\Enemy_Collider.h" />
+    <ClInclude Include="Script\Header\Dragon_HP.h" />
+    <ClInclude Include="Script\Header\Breath_Round.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

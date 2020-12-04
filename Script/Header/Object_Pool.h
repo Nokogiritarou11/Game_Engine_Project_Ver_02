@@ -6,14 +6,18 @@ class Object_Pool : public MonoBehaviour
 public:
 	std::shared_ptr<GameObject> Instance_Bullet();
 	std::shared_ptr<GameObject> Instance_Bomb();
+	std::shared_ptr<GameObject> Instance_Hit();
 	std::shared_ptr<GameObject> Instance_Breath();
 	std::shared_ptr<GameObject> Instance_Breath_Explosion();
+	std::shared_ptr<GameObject> Instance_Breath_Round();
 
 private:
 	std::vector<std::weak_ptr<GameObject>> Bullet_List;
 	std::vector<std::weak_ptr<GameObject>> Bomb_List;
+	std::vector<std::weak_ptr<GameObject>> Hit_List;
 	std::vector<std::weak_ptr<GameObject>> Breath_List;
 	std::vector<std::weak_ptr<GameObject>> Breath_Explosion_List;
+	std::vector<std::weak_ptr<GameObject>> Breath_Round_List;
 
 	void Start() override;
 	bool Draw_ImGui() override;
