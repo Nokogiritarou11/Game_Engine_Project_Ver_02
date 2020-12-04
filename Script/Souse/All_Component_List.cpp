@@ -26,6 +26,8 @@
 #include "Dragon_HP.h"
 #include "ToPlayer_Collider.h"
 #include "Breath_Round.h"
+#include "Title.h"
+#include "Sprite_Fade.h"
 /////////////////////////////////////////////////////////////////
 
 using namespace std;
@@ -181,6 +183,16 @@ void All_Component_List::Add(shared_ptr<GameObject> obj)
 		if (ImGui::Button("Breath_Round", ImVec2(-FLT_MIN, 0.0f)))
 		{
 			obj->AddComponent<Breath_Round>();
+			ImGui::CloseCurrentPopup();
+		}
+		if (ImGui::Button("Title", ImVec2(-FLT_MIN, 0.0f)))
+		{
+			obj->AddComponent<Title>();
+			ImGui::CloseCurrentPopup();
+		}
+		if (ImGui::Button("Sprite_Fade", ImVec2(-FLT_MIN, 0.0f)))
+		{
+			obj->AddComponent<Sprite_Fade>();
 			ImGui::CloseCurrentPopup();
 		}
 

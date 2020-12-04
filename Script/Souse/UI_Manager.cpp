@@ -45,7 +45,7 @@ void UI_Manager::Update()
 		scene_timer += Time::deltaTime;
 		if (scene_timer >= 7)
 		{
-			Scene_Manager::LoadScene("Resouces\\Scene\\Main_Scene.bin");
+			Scene_Manager::LoadScene("Resouces\\Scene\\Title.bin");
 		}
 	}
 
@@ -59,7 +59,7 @@ void UI_Manager::Update()
 		scene_timer += Time::deltaTime;
 		if (scene_timer >= 5)
 		{
-			Scene_Manager::LoadScene("Resouces\\Scene\\Main_Scene.bin");
+			Scene_Manager::LoadScene("Resouces\\Scene\\Title.bin");
 		}
 	}
 	else

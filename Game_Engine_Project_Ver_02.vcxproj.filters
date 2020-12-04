@@ -96,6 +96,8 @@
     <ClCompile Include="Script\Souse\Enemy_Collider.cpp" />
     <ClCompile Include="Script\Souse\Dragon_HP.cpp" />
     <ClCompile Include="Script\Souse\Breath_Round.cpp" />
+    <ClCompile Include="Script\Souse\Title.cpp" />
+    <ClCompile Include="Script\Souse\Sprite_Fade.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -297,6 +299,8 @@
     <ClInclude Include="Script\Header\Enemy_Collider.h" />
     <ClInclude Include="Script\Header\Dragon_HP.h" />
     <ClInclude Include="Script\Header\Breath_Round.h" />
+    <ClInclude Include="Script\Header\Title.h" />
+    <ClInclude Include="Script\Header\Sprite_Fade.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

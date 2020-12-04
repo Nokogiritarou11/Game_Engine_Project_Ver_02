@@ -251,6 +251,8 @@ bool AudioSource::Draw_ImGui()
 
 		for (int i = 0; i < 5; ++i) ImGui::Spacing();
 		ImGui::Checkbox(u8"アクティブ時の自動再生", &Play_On_Awake);
+		for (int i = 0; i < 5; ++i) ImGui::Spacing();
+		ImGui::Checkbox(u8"ループ再生", &Loop);
 
 		for (int i = 0; i < 5; ++i) ImGui::Spacing();
 		if (Effect_Instance)
