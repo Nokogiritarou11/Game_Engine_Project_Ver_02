@@ -1,5 +1,6 @@
 #include "Breath_Sphere.h"
 #include "Object_Pool.h"
+#include "Actions.h"
 using namespace std;
 
 void Breath_Sphere::Start()
@@ -9,7 +10,7 @@ void Breath_Sphere::Start()
 
 void Breath_Sphere::Update()
 {
-	transform->Set_position(transform->Get_position() + transform->Get_forward() * 175 * Time::deltaTime);
+	transform->Set_position(transform->Get_position() + transform->Get_forward() * 175 *Action::speed * Time::deltaTime);
 
 	if (transform->Get_position().y <= 0)
 	{

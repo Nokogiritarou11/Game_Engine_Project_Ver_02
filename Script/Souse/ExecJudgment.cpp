@@ -32,7 +32,7 @@ bool AttackJudgment::judgment()
 		float dot = normal.x * rotate_arc_dir.x + normal.y * rotate_arc_dir.y;
 
 
-		float rangeCos = cosf(DirectX::XMConvertToRadians(30.0f / 2.0f));
+		float rangeCos = cosf(DirectX::XMConvertToRadians(90.0f / 2.0f));
 
 		if (rangeCos > dot)
 		{
@@ -84,7 +84,7 @@ bool HowlingJudgment::judgment()
 
 bool MaulJudgment::judgment()
 {
-	if (doragon->length > 185.0f)
+	if (doragon->length > 200.0f)
 	{
 		return false;
 	}
@@ -145,6 +145,7 @@ bool StompJudgment::judgment()
 bool WalkJudgment::judgment()
 {
 	doragon->count_Stomp++;
+	
 	return true;
 
 }
