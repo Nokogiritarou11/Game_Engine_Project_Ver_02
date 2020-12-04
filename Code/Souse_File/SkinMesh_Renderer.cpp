@@ -19,6 +19,8 @@ unique_ptr<Shader> SkinMesh_Renderer::vertex_shader;
 
 void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 {
+	enabled_old = enabled;
+
 	gameObject = obj;
 	transform = obj->transform;
 	// 定数バッファの生成

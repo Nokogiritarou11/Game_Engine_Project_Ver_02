@@ -14,7 +14,8 @@ private:
 	std::weak_ptr<Player> player;
 	std::weak_ptr<Particle> breath_round;
 	std::weak_ptr<AudioSource> se_breath_round;
-	std::weak_ptr<Particle> wave;
+	std::weak_ptr<GameObject> wave;
+	std::weak_ptr<GameObject> lefthand_col;
 
 	void Start() override;
 	void Update() override;

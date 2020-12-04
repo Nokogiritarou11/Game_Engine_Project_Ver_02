@@ -18,6 +18,13 @@ void UI_Manager::Start()
 	player_hp_max = player.lock()->HP;
 	dragon = GameObject::Find("Dragon").lock()->GetComponent<Dragon_HP>();
 	dragon_hp_max = dragon.lock()->HP;
+
+	UI_GameClear = GameObject::Find("Clear").lock()->GetComponent<Sprite_Renderer>();
+	UI_GameOver = GameObject::Find("Over").lock()->GetComponent<Sprite_Renderer>();
+
+	UI_Damage = GameObject::Find("Damage").lock()->GetComponent<Sprite_Renderer>();
+
+	scene_timer = 0;
 }
 
 void UI_Manager::Update()
@@ -28,6 +35,44 @@ void UI_Manager::Update()
 	UI_HP_Player.lock()->Size.x = player_UI_max * (static_cast<float>(p->HP) / static_cast<float>(player_hp_max));
 	UI_HP_Player.lock()->UV_Size.x = player_UI_max * (static_cast<float>(p->HP) / static_cast<float>(player_hp_max));
 	UI_HP_Dragon.lock()->Size.x = dragon_UI_max * (static_cast<float>(d->HP) / static_cast<float>(dragon_hp_max));
+
+	if (d->HP == 0)
+	{
+		if (scene_timer == 0)
+		{
+			UI_GameClear.lock()->SetEnabled(true);
+		}
+		scene_timer += Time::deltaTime;
+		if (scene_timer >= 7)
+		{
+			Scene_Manager::LoadScene("Resouces\\Scene\\Main_Scene.bin");
+		}
+	}
+
+	if (p->HP <= 0)
+	{
+		if (scene_timer == 0)
+		{
+			UI_Damage.lock()->Color.w = 1;
+			UI_GameOver.lock()->SetEnabled(true);
+		}
+		scene_timer += Time::deltaTime;
+		if (scene_timer >= 5)
+		{
+			Scene_Manager::LoadScene("Resouces\\Scene\\Main_Scene.bin");
+		}
+	}
+	else
+	{
+		if (p->Damage_Effect)
+		{
+			UI_Damage.lock()->Color.w = 1;
+		}
+		else
+		{
+			UI_Damage.lock()->Color.w = 0;
+		}
+	}
 }
 
 bool UI_Manager::Draw_ImGui()

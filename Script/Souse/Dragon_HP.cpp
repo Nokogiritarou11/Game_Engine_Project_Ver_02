@@ -5,7 +5,7 @@ using namespace std;
 
 void Dragon_HP::Awake()
 {
-	HP = 1000;
+	HP = 4000;
 }
 
 void Dragon_HP::Update()
@@ -26,6 +26,7 @@ void Dragon_HP::Damage(int damage)
 		GetComponent<Animator>()->Stop();
 		GetComponent<Animator>()->animation_speed = 1.0f;
 		GetComponent<Animator>()->Play(8);
+		GetComponent<AudioSource>()->Play();
 	}
 }
 
