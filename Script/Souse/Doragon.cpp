@@ -12,10 +12,12 @@ void Doragon::Awake()
 
 void Doragon::Start()
 {
+	Action::speed = 1.2f;
 	timer = 0.0f;
 	anime = gameObject->GetComponent<Animator>();
 	state = 0;
 	is_Howling = false;
+	is_Howl = false;
 	count_Bless = 0;
 	count_Stomp = 0;
 	length = 0.0f;
@@ -56,12 +58,14 @@ void Doragon::Update()
 		if (activeNode == NULL && !this->anime.lock()->IsPlayAnimation())
 		{
 			anime.lock()->Stop();
+			Action::is_anime = false;
 			activeNode = aiTree->activeNodeInference(aiData.get());
 		}
 
 		if (activeNode != NULL)
 		{
 			activeNode = aiTree->run(activeNode, aiData.get());
+			
 		}
 	}
 	else
@@ -69,7 +73,11 @@ void Doragon::Update()
 		timer += 1;
 	}
 
-
+	if (anime.lock()->GetPlayingAnimation() == 0 && !is_Howl)
+	{
+		GetComponent<AudioSource>()->Play();
+		is_Howl = true;
+	}
 }
 
 bool Doragon::Draw_ImGui()
