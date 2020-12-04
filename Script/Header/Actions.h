@@ -1,5 +1,5 @@
 #pragma once
-#include "doragon.h"
+#include "Doragon.h"
 #include "GameObject.h"
 #include "Player.h"
 class Doragon;
@@ -65,6 +65,21 @@ public:
 		return &instance;
 	}
 	ActionSTATE run() ;
+};
+
+class WalkMaulAction : public Action
+{
+public:
+	static WalkMaulAction* getInstance(Doragon* doragon)
+	{
+		static WalkMaulAction instance;
+		instance.player = GameObject::Find("Player").lock();
+		instance.doragon = doragon;
+		is_anime = false;
+
+		return &instance;
+	}
+	ActionSTATE run();
 };
 
 class FireballAction : public Action

@@ -46,11 +46,22 @@ bool AttackJudgment::judgment()
 
 bool PhysicsJudgment::judgment()
 {
+	if (!doragon->is_Howling)
+	{
+		return false;
+	}
+
 	return true;
 }
 
 bool MagicJudgment::judgment()
 {
+	if (!doragon->is_Howling)
+	{
+		return false;
+	}
+
+
 	if (doragon->count_Stomp >= 5)
 	{
 		return false;
@@ -81,6 +92,15 @@ bool MaulJudgment::judgment()
 	
 	return true;
 
+}
+
+bool WalkMaulJudgment::judgment()
+{
+	if (doragon->length < 185.0f && doragon->length > 300.0f )
+	{
+		return false;
+	}
+	return true;
 }
 
 bool FireballJudgment::judgment()

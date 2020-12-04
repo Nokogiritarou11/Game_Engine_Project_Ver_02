@@ -8,6 +8,7 @@ class Player : public MonoBehaviour
 public:
 	void Damage(int damage);
 	int HP;
+	bool jump_flg;
 
 private:
 	std::weak_ptr<Object_Pool> obj_pool;
@@ -19,7 +20,6 @@ private:
 	float gravity;
 	float jump_power;
 	float jump_speed;
-	bool jump_flg;
 
 	int Bomb_Count;
 

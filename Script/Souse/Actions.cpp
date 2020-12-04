@@ -147,6 +147,83 @@ ActionSTATE MaulAction::run()
 
 }
 
+ActionSTATE WalkMaulAction::run()
+{
+	static Vector3 v;
+	static float angle;
+	float step = 1 * Time::deltaTime;
+
+	Vector2 v2 = { player.lock()->transform->Get_position().x - doragon->transform->Get_position().x,
+			   player.lock()->transform->Get_position().z - doragon->transform->Get_position().z };
+	doragon->length = std::sqrtf(v2.x * v2.x + v2.y * v2.y);
+
+	if (doragon->length > 300.0f && !doragon->anime.lock()->IsPlayAnimation())
+	{
+		doragon->anime.lock()->Stop();
+		doragon->anime.lock()->animation_speed = 1.0f;
+		is_anime = false;
+		return ActionSTATE::END;
+	}
+	if (doragon->length > 300.0f)
+	{
+		doragon->anime.lock()->loopAnimation = false;
+	}
+
+	if (doragon->anime.lock()->GetPlayingAnimation() != 2 && !is_anime && doragon->length > 185)
+	{
+		is_anime = true;
+		v = doragon->transform->Get_forward() * -30;
+		doragon->anime.lock()->animation_speed = 3.0f;
+		doragon->anime.lock()->Play(1);
+		doragon->anime.lock()->loopAnimation = true;
+
+		/*if (LRjudg(doragon, player.lock().get()))
+		{
+			angle = doragon->transform->Get_eulerAngles().y + 35.5f;
+		}
+		else
+		{
+			angle = doragon->transform->Get_eulerAngles().y - 35.5;
+		}
+		if (angle < -180.0f)
+		{
+			angle += 360.0f;
+		}
+		else if (angle > 180.0f)
+		{
+			angle -= 360.0f;
+		}*/
+	} 
+	if (doragon->anime.lock()->GetPlayingAnimation() == 1 &&doragon->length > 185)
+	{
+		Vector3 v1 = doragon->transform->Get_position();
+		v1 += v * Time::deltaTime;
+		doragon->transform->Set_position(v1);
+		
+		/*Vector3 q = { 0,angle,0 };
+		doragon->transform->Set_rotation(Quaternion::Slerp(doragon->transform->Get_rotation(),
+		Quaternion::Euler(q), step));*/
+	}
+
+	if (doragon->anime.lock()->GetPlayingAnimation() == 1 && doragon->length <= 185)
+	{
+		doragon->anime.lock()->Stop();
+		doragon->anime.lock()->loopAnimation = false;
+		doragon->anime.lock()->animation_speed = 1.0f;
+		doragon->anime.lock()->Play(2);
+		is_anime = true;
+	}else if (!doragon->anime.lock()->IsPlayAnimation() && doragon->length <= 185)
+	{
+		is_anime = false;
+		return ActionSTATE::END;
+	}
+
+	
+
+	return ActionSTATE::SUCCESS;
+
+}
+
 ActionSTATE FireballAction::run()
 {
 
@@ -249,7 +326,7 @@ ActionSTATE WalkAction::run()
 		{
 			doragon->anime.lock()->Play(6);
 			doragon->anime.lock()->animation_speed = 2.0f;
-			angle = doragon->transform->Get_eulerAngles().y - 135.5;
+			angle = doragon->transform->Get_eulerAngles().y - 135.5f;
 		}
 		if (angle < -180.0f)
 		{

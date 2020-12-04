@@ -10,6 +10,8 @@ void Dragon_Animation_Event::Start()
 	player = GameObject::Find("Player").lock()->GetComponent<Player>();
 	breath_round = GameObject::Find("Breath_Round").lock()->GetComponent<Particle>();
 	se_breath_round = GameObject::Find("Breath_Round").lock()->GetComponent<AudioSource>();
+	wave = GameObject::Find("Wave").lock()->GetComponent<Particle>();
+
 }
 
 void Dragon_Animation_Event::Update()
@@ -70,6 +72,15 @@ void Dragon_Animation_Event::Update()
 		//’@‚«‚Â‚¯
 		if (playing_anim == 5)
 		{
+			if (playing_time >= 2.1f && !player.lock()->jump_flg)
+			{
+				player.lock()->Damage(10);
+			}
+			if (playing_time >= 2.1f)
+			{
+				wave.lock()->Play();
+				trigger = true;
+			}
 		}
 	}
 	else

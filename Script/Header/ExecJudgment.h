@@ -1,5 +1,5 @@
 #pragma once
-#include "doragon.h"
+#include "Doragon.h"
 #include "GameObject.h"
 #include "Player.h"
 
@@ -55,6 +55,18 @@ public:
 	bool judgment();
 };
 
+class WalkMaulJudgment : public ExecJudgment
+{
+public:
+	static WalkMaulJudgment* getInstance(Doragon* doragon)
+	{
+		static WalkMaulJudgment instance;
+		instance.player = GameObject::Find("Player").lock();
+		instance.doragon = doragon;
+		return &instance;
+	}
+	bool judgment();
+};
 
 class FireballJudgment : public ExecJudgment
 {

@@ -13,6 +13,10 @@ void Doragon::Start()
 {
 	anime = gameObject->GetComponent<Animator>();
 	state = 0;
+	is_Howling = false;
+	count_Bless = 0;
+	count_Stomp = 0;
+	length = 0.0f;
 
 	aiTree = std::make_shared<BehaviorTree>();
 	aiData = std::make_shared<BehaviorData>();
@@ -29,6 +33,7 @@ void Doragon::Start()
 			{
 				aiTree->addNode("Physics", "MaulAction", 2, SELECT_RULE::NONE, MaulJudgment::getInstance(this), MaulAction::getInstance(this));
 				aiTree->addNode("Physics", "StompAction", 1, SELECT_RULE::NONE, StompJudgment::getInstance(this), StompAction::getInstance(this));
+				//aiTree->addNode("Physics", "WalkMaulAction", 3, SELECT_RULE::NONE, WalkMaulJudgment::getInstance(this), WalkMaulAction::getInstance(this));
 			}
 			aiTree->addNode("Attack", "Magic", 1, SELECT_RULE::PRIORITY, MagicJudgment::getInstance(this), nullptr);
 			{
@@ -45,6 +50,7 @@ void Doragon::Update()
 
 	if (activeNode == NULL&& !this->anime.lock()->IsPlayAnimation())
 	{
+		anime.lock()->Stop();
 		activeNode = aiTree->activeNodeInference(aiData.get());
 	}
 
