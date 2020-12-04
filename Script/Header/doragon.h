@@ -11,15 +11,16 @@ class BehaviorData;
 class Doragon : public MonoBehaviour
 {
 public:
+	int HP;
 	bool is_Howling = false;
 	int count_Bless = 0;
 	int count_Stomp = 0;
 	float length;
 	std::weak_ptr<Animator> anime;
-
 private:
 	int state;
-	
+	float timer;
+
 	Node* activeNode;
 	std::shared_ptr<BehaviorTree> aiTree;
 	std::shared_ptr<BehaviorData> aiData;

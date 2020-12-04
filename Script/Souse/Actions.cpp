@@ -2,13 +2,18 @@
 #include "GameObject.h"
 // TODO ˆÚ“®ˆ—
 bool Action::is_anime = false;
-
+float Action::speed = 1.2;
 bool judg(Doragon* doragon,GameObject* player)
 {
 	Vector2 v1 = { player->transform->Get_position().x - doragon->transform->Get_position().x,
 									player->transform->Get_position().z - doragon->transform->Get_position().z };
 	doragon->length = std::sqrtf(v1.x * v1.x + v1.y * v1.y);
-
+	
+	if (doragon->HP < 1500 && Action::speed != 2.2f)
+	{
+		Action::speed = 2.2f;
+		doragon->is_Howling = false;
+	}
 	if (doragon->length > 500)
 	{
 		return false;
@@ -121,8 +126,9 @@ ActionSTATE MaulAction::run()
 	if (!is_anime)
 	{
 		is_anime = true;
-		v = doragon->transform->Get_forward() * -3;
+		v = doragon->transform->Get_forward() * (-3 * speed);
 		doragon->anime.lock()->Play(2);
+		doragon->anime.lock()->animation_speed = speed;
 		doragon->count_Stomp++;
 	}
 	
@@ -160,7 +166,7 @@ ActionSTATE WalkMaulAction::run()
 	if (doragon->length > 300.0f && !doragon->anime.lock()->IsPlayAnimation())
 	{
 		doragon->anime.lock()->Stop();
-		doragon->anime.lock()->animation_speed = 1.0f;
+		doragon->anime.lock()->animation_speed = speed;
 		is_anime = false;
 		return ActionSTATE::END;
 	}
@@ -231,6 +237,9 @@ ActionSTATE FireballAction::run()
 	{
 		is_anime = true;
 		doragon->anime.lock()->Play(3);
+		doragon->anime.lock()->animation_speed = speed;
+		doragon->count_Bless++;
+
 	}
 
 
@@ -238,11 +247,10 @@ ActionSTATE FireballAction::run()
 	{
 		is_anime = false;
 		Vector3 v = doragon->transform->Get_forward();
-		v *= 50;
+		v *= 50 * speed;
 		Vector3 v1 = doragon->transform->Get_position();
 		v1 += v * Time::deltaTime;
 		doragon->transform->Set_position(v1);
-		doragon->count_Bless++;
 		return ActionSTATE::END;
 	}
 	else
@@ -262,6 +270,8 @@ ActionSTATE BlessAction::run()
 		is_anime = true;
 		doragon->count_Bless = 0;
 		doragon->anime.lock()->Play(4);
+		doragon->anime.lock()->animation_speed = 1.0f;
+
 	}	
 
 
@@ -292,6 +302,8 @@ ActionSTATE StompAction::run()
 	{
 		is_anime = true;
 		doragon->anime.lock()->Play(5);
+		doragon->anime.lock()->animation_speed = speed;
+
 	}
 	if (!doragon->anime.lock()->IsPlayAnimation())
 	{
