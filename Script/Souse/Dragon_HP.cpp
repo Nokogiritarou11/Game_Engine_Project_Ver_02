@@ -5,7 +5,7 @@ using namespace std;
 
 void Dragon_HP::Awake()
 {
-	HP = 1000;
+	HP = 3500;
 }
 
 void Dragon_HP::Update()
