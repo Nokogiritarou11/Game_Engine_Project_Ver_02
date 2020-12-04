@@ -11,8 +11,8 @@ void Dragon_Animation_Event::Start()
 	player = GameObject::Find("Player").lock()->GetComponent<Player>();
 	breath_round = GameObject::Find("Breath_Round").lock()->GetComponent<Particle>();
 	se_breath_round = GameObject::Find("Breath_Round").lock()->GetComponent<AudioSource>();
-	wave = GameObject::Find("Wave").lock()->GetComponent<Particle>();
-
+	wave = GameObject::Find("Wave");
+	lefthand_col = GameObject::Find("LeftHand_Attack");
 }
 
 void Dragon_Animation_Event::Update()
@@ -44,6 +44,11 @@ void Dragon_Animation_Event::Update()
 		//‚Ð‚Á‚©‚«
 		if (playing_anim == 2)
 		{
+			if (playing_time >= 1.5f)
+			{
+				lefthand_col.lock()->SetActive(true);
+				trigger = true;
+			}
 		}
 
 		//’P”­ƒuƒŒƒX
@@ -73,13 +78,13 @@ void Dragon_Animation_Event::Update()
 		//’@‚«‚Â‚¯
 		if (playing_anim == 5)
 		{
-			if (playing_time >= 2.1f && !player.lock()->jump_flg)
-			{
-				player.lock()->Damage(10);
-			}
 			if (playing_time >= 2.1f)
 			{
-				wave.lock()->Play();
+				if (!player.lock()->jump_flg)
+				{
+					player.lock()->Damage(10);
+				}
+				wave.lock()->SetActive(true);
 				trigger = true;
 			}
 		}

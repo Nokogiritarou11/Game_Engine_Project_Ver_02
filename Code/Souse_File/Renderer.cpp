@@ -5,11 +5,6 @@ RS_State Renderer::Set_RasterizerState = RS_State::Cull_None;
 DS_State Renderer::Set_DepthStencilState = DS_State::LEqual;
 const Matrix Renderer::CorrectionMatrix = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1 };
 
-Renderer::Renderer()
-{
-	enabled_old = enabled;
-}
-
 void Renderer::SetEnabled(bool value)
 {
 	if (value != enabled_old)

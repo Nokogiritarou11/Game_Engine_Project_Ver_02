@@ -7,6 +7,7 @@ class Player : public MonoBehaviour
 {
 public:
 	void Damage(int damage);
+	bool Damage_Effect;
 	int HP;
 	bool jump_flg;
 
@@ -15,12 +16,12 @@ private:
 	std::weak_ptr<Transform> muzzle_trans;
 	std::weak_ptr<Particle> muzzle_flash;
 	std::weak_ptr<AudioSource> se_shot;
+	std::weak_ptr<AudioSource> se_damage;
 	float move_speed;
 	float aim_speed;
 	float gravity;
 	float jump_power;
 	float jump_speed;
-
 
 	void Move();
 	void Jump();

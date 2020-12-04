@@ -17,6 +17,8 @@ unique_ptr<Shader> Sprite_Renderer::default_shader;
 
 void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 {
+	enabled_old = enabled;
+
 	gameObject = obj;
 	transform = obj->transform;
 

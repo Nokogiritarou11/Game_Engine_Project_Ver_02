@@ -17,6 +17,13 @@ void Object_Pool::Start()
 		Bomb_List.emplace_back(obj);
 	}
 
+	for (int i = 0; i < 3; ++i)
+	{
+		shared_ptr<GameObject> obj = Resources::Load_Prefab("Resouces/Prefab/Bomb_Explosion.prefab");
+		obj->SetActive(false);
+		Bomb_Explosion_List.emplace_back(obj);
+	}
+
 	for (int i = 0; i < 20; ++i)
 	{
 		shared_ptr<GameObject> obj = Resources::Load_Prefab("Resouces/Prefab/Hit.prefab");
@@ -67,6 +74,21 @@ shared_ptr<GameObject> Object_Pool::Instance_Bomb()
 		if (!Bomb_List[i].lock()->activeSelf())
 		{
 			obj = Bomb_List[i].lock();
+			obj->SetActive(true);
+			return obj;
+		}
+	}
+	return nullptr;
+}
+
+shared_ptr<GameObject> Object_Pool::Instance_Bomb_Explosion()
+{
+	shared_ptr<GameObject> obj;
+	for (size_t i = 0; i < Bomb_Explosion_List.size(); ++i)
+	{
+		if (!Bomb_Explosion_List[i].lock()->activeSelf())
+		{
+			obj = Bomb_Explosion_List[i].lock();
 			obj->SetActive(true);
 			return obj;
 		}

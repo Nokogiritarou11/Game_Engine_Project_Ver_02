@@ -14,6 +14,7 @@ void Player::Start()
 	muzzle_trans = GameObject::Find("Muzzle").lock()->transform;
 	muzzle_flash = GameObject::Find("Muzzle_Flash").lock()->GetComponent<Particle>();
 	se_shot = GameObject::Find("Muzzle_Flash").lock()->GetComponent<AudioSource>();
+	se_damage = GetComponent<AudioSource>();
 }
 
 void Player::Update()
@@ -27,6 +28,17 @@ void Player::Update()
 	else
 	{
 
+	}
+
+	static float timer = 0;
+	if (Damage_Effect)
+	{
+		timer += Time::deltaTime;
+		if (timer >= 1.5f)
+		{
+			timer = 0;
+			Damage_Effect = false;
+		}
 	}
 
 }
@@ -116,7 +128,7 @@ void Player::Shot()
 		if (bullet)
 		{
 			muzzle_flash.lock()->Play();
-			se_shot.lock()->PlayOneShot();
+			se_shot.lock()->PlayOneShot(0.1f);
 			bullet->transform->Set_position(muzzle_trans.lock()->Get_position());
 			bullet->transform->Set_rotation(muzzle_trans.lock()->Get_rotation());
 			shot_timer = 0;
@@ -132,7 +144,7 @@ void Player::Shot()
 		if (bullet)
 		{
 			muzzle_flash.lock()->Play();
-			se_shot.lock()->PlayOneShot();
+			se_shot.lock()->PlayOneShot(0.1f);
 			bullet->transform->Set_position(muzzle_trans.lock()->Get_position());
 			Vector3 e = muzzle_trans.lock()->Get_eulerAngles();
 			bullet->transform->Set_eulerAngles(e.x - 5.0f, e.y, e.z);
@@ -144,6 +156,8 @@ void Player::Shot()
 void Player::Damage(int damage)
 {
 	HP -= damage;
+	se_damage.lock()->Play();
+	Damage_Effect = true;
 }
 
 bool Player::Draw_ImGui()

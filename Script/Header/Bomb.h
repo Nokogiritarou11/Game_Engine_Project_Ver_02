@@ -2,12 +2,14 @@
 #include "MonoBehaviour.h"
 
 class Dragon_HP;
+class Object_Pool;
 
 class Bomb : public MonoBehaviour
 {
 public:
 private:
 	std::weak_ptr<Dragon_HP> dragon_hp;
+	std::weak_ptr<Object_Pool> obj_pool;
 	float speed;
 
 	void Start() override;

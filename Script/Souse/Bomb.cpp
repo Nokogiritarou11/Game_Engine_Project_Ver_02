@@ -1,11 +1,13 @@
 #include "Bomb.h"
 #include "Dragon_HP.h"
 #include "Enemy_Collider.h"
+#include "Object_Pool.h"
 using namespace std;
 
 void Bomb::Start()
 {
 	dragon_hp = GameObject::Find("Dragon").lock()->GetComponent<Dragon_HP>();
+	obj_pool = GameObject::Find("Object_Pool").lock()->GetComponent<Object_Pool>();
 }
 
 void Bomb::Update()
@@ -16,12 +18,11 @@ void Bomb::Update()
 
 	if (transform->Get_position().y <= 0)
 	{
-		/*
-		if (shared_ptr<GameObject> obj = obj_pool.lock()->Instance_Breath_Explosion())
+		if (shared_ptr<GameObject> obj = obj_pool.lock()->Instance_Bomb_Explosion())
 		{
 			obj->transform->Set_position(transform->Get_position());
 			gameObject->SetActive(false);
-		}*/
+		}
 	}
 
 	shared_ptr<Dragon_HP> dragon = dragon_hp.lock();
@@ -31,8 +32,12 @@ void Bomb::Update()
 		col = c.lock();
 		if (Vector3::Distance(transform->Get_position(), col->transform->Get_position()) <= col->Size)
 		{
-			dragon->Damage(static_cast<int>(col->Damage_Magnification * 25.0f));
-			gameObject->SetActive(false);
+			dragon->Damage(static_cast<int>(col->Damage_Magnification * 50.0f));
+			if (shared_ptr<GameObject> obj = obj_pool.lock()->Instance_Bomb_Explosion())
+			{
+				obj->transform->Set_position(transform->Get_position());
+				gameObject->SetActive(false);
+			}
 			break;
 		}
 	}

@@ -17,7 +17,6 @@
 class Renderer : public Component
 {
 public:
-	Renderer();
 
 	void SetEnabled(bool value); //表示するか
 	bool enableSelf();			 //現在アクティブか
@@ -36,11 +35,11 @@ protected:
 
 	static const Matrix CorrectionMatrix;
 
-private:
-	bool CanMultiple() override { return false; };
-
 	bool enabled = true;
 	bool enabled_old = false;
+
+private:
+	bool CanMultiple() override { return false; };
 
 	friend class View_Texture;
 	virtual void Render(Matrix V, Matrix P) {};

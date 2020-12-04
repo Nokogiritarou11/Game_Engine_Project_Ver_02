@@ -12,6 +12,9 @@ private:
 	std::weak_ptr<Sprite_Renderer> UI_Cursor;
 	std::weak_ptr<Sprite_Renderer> UI_HP_Player;
 	std::weak_ptr<Sprite_Renderer> UI_HP_Dragon;
+	std::weak_ptr<Sprite_Renderer> UI_GameOver;
+	std::weak_ptr<Sprite_Renderer> UI_GameClear;
+	std::weak_ptr<Sprite_Renderer> UI_Damage;
 
 	std::weak_ptr<Player> player;
 	std::weak_ptr<Dragon_HP> dragon;
@@ -21,6 +24,8 @@ private:
 
 	float player_UI_max;
 	float dragon_UI_max;
+
+	float scene_timer;
 
 	void Start() override;
 	void Update() override;
