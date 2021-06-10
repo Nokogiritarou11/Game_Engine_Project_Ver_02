@@ -3,6 +3,7 @@
 #include "Transform.h"
 #include "Engine.h"
 #include "View_Game.h"
+#include "Time_Engine.h"
 #include <math.h>
 
 using namespace std;
@@ -62,7 +63,7 @@ void Particle_Manager::Camera_Update(std::shared_ptr<Transform>& camera_trans, f
 	auto g_position = ::Effekseer::Vector3D(pos.x, pos.y, pos.z);
 
 	// “Š‰es—ñ‚ðÝ’è
-	renderer->SetProjectionMatrix(::Effekseer::Matrix44().PerspectiveFovLH(
+	renderer->SetProjectionMatrix(::Effekseer::Matrix44().PerspectiveFovRH(
 		FOV, aspect, near_z, far_z));
 
 	Vector3 focus = pos + camera_trans->Get_forward();
@@ -73,7 +74,7 @@ void Particle_Manager::Camera_Update(std::shared_ptr<Transform>& camera_trans, f
 
 	// ƒJƒƒ‰s—ñ‚ðÝ’è
 	renderer->SetCameraMatrix(
-		::Effekseer::Matrix44().LookAtLH(g_position, g_focus, g_up));
+		::Effekseer::Matrix44().LookAtRH(g_position, g_focus, g_up));
 
 }
 

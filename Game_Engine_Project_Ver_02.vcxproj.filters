@@ -33,7 +33,7 @@
     <ClCompile Include="Code\Souse_File\Animator.cpp" />
     <ClCompile Include="Code\Souse_File\Animator_Manager.cpp" />
     <ClCompile Include="Code\Souse_File\Rect_Transform.cpp" />
-    <ClCompile Include="Code\Souse_File\Debug_UI.cpp" />
+    <ClCompile Include="Code\Souse_File\Editor_UI.cpp" />
     <ClCompile Include="Code\Souse_File\Original_Math.cpp" />
     <ClCompile Include="Code\Souse_File\Debug.cpp" />
     <ClCompile Include="Librarys\ImGui\imgui.cpp" />
@@ -42,7 +42,6 @@
     <ClCompile Include="Librarys\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="Librarys\ImGui\imgui_stdlib.cpp" />
     <ClCompile Include="Librarys\ImGui\imgui_widgets.cpp" />
-    <ClCompile Include="Script\Souse\Player.cpp" />
     <ClCompile Include="Code\Libraries\ImGui\imgui.cpp" />
     <ClCompile Include="Code\Libraries\ImGui\imgui_draw.cpp" />
     <ClCompile Include="Code\Libraries\ImGui\imgui_impl_dx11.cpp" />
@@ -78,26 +77,6 @@
     <ClCompile Include="Code\Souse_File\Shader.cpp" />
     <ClCompile Include="Code\Souse_File\Sprite_Renderer.cpp" />
     <ClCompile Include="Code\Souse_File\Texture.cpp" />
-    <ClCompile Include="Script\Souse\Bomb.cpp" />
-    <ClCompile Include="Script\Souse\Muzzle.cpp" />
-    <ClCompile Include="Script\Souse\Bullet.cpp" />
-    <ClCompile Include="Script\Souse\Object_Pool.cpp" />
-    <ClCompile Include="Script\Souse\UI_Manager.cpp" />
-    <ClCompile Include="Script\Souse\Actions.cpp" />
-    <ClCompile Include="Script\Souse\BehaviorData.cpp" />
-    <ClCompile Include="Script\Souse\BehaviorTree.cpp" />
-    <ClCompile Include="Script\Souse\Doragon.cpp" />
-    <ClCompile Include="Script\Souse\ExecJudgment.cpp" />
-    <ClCompile Include="Script\Souse\Node.cpp" />
-    <ClCompile Include="Script\Souse\Breath_Sphere.cpp" />
-    <ClCompile Include="Script\Souse\Dragon_Animation_Event.cpp" />
-    <ClCompile Include="Script\Souse\Auto_Disable.cpp" />
-    <ClCompile Include="Script\Souse\ToPlayer_Collider.cpp" />
-    <ClCompile Include="Script\Souse\Enemy_Collider.cpp" />
-    <ClCompile Include="Script\Souse\Dragon_HP.cpp" />
-    <ClCompile Include="Script\Souse\Breath_Round.cpp" />
-    <ClCompile Include="Script\Souse\Title.cpp" />
-    <ClCompile Include="Script\Souse\Sprite_Fade.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -109,7 +88,7 @@
     <ClInclude Include="Code\Header_File\Material.h" />
     <ClInclude Include="Code\Header_File\Scene_Manager.h" />
     <ClInclude Include="Code\Header_File\Engine.h" />
-    <ClInclude Include="Code\Header_File\Time.h" />
+    <ClInclude Include="Code\Header_File\Time_Engine.h" />
     <ClInclude Include="Code\Header_File\Renderer.h" />
     <ClInclude Include="Code\Header_File\Mesh_Renderer.h" />
     <ClInclude Include="Code\Header_File\Mesh.h" />
@@ -119,7 +98,7 @@
     <ClInclude Include="Code\Header_File\Animator_Manager.h" />
     <ClInclude Include="Code\Header_File\RectTransform.h" />
     <ClInclude Include="Code\Header_File\Mathf.h" />
-    <ClInclude Include="Code\Header_File\Debug_UI.h" />
+    <ClInclude Include="Code\Header_File\Editor_UI.h" />
     <ClInclude Include="Code\Header_File\Debug.h" />
     <ClInclude Include="Librarys\ImGui\IconsFontAwesome4.h" />
     <ClInclude Include="Librarys\ImGui\imconfig.h" />
@@ -131,7 +110,6 @@
     <ClInclude Include="Librarys\ImGui\imstb_rectpack.h" />
     <ClInclude Include="Librarys\ImGui\imstb_textedit.h" />
     <ClInclude Include="Librarys\ImGui\imstb_truetype.h" />
-    <ClInclude Include="Script\Header\Player.h" />
     <ClInclude Include="Code\Libraries\ImGui\imstb_truetype.h" />
     <ClInclude Include="Code\Libraries\ImGui\IconsFontAwesome4.h" />
     <ClInclude Include="Code\Libraries\ImGui\imconfig.h" />
@@ -242,7 +220,6 @@
     <ClInclude Include="Librarys\ImGui\imstb_textedit.h" />
     <ClInclude Include="Librarys\ImGui\imstb_truetype.h" />
     <ClInclude Include="Code\Header_File\All_Component_List.h" />
-    <ClInclude Include="Script\Header\Player.h" />
     <ClInclude Include="Code\Header_File\AudioSource.h" />
     <ClInclude Include="Code\Header_File\Audio_Manager.h" />
     <ClInclude Include="Code\Header_File\Camera.h" />
@@ -281,26 +258,6 @@
     <ClInclude Include="Code\Libraries\cereal\external\rapidjson\filereadstream.h" />
     <ClInclude Include="Code\Libraries\cereal\external\rapidjson\filewritestream.h" />
     <ClInclude Include="Code\Libraries\cereal\external\rapidjson\fwd.h" />
-    <ClInclude Include="Script\Header\Bomb.h" />
-    <ClInclude Include="Script\Header\Bullet.h" />
-    <ClInclude Include="Script\Header\Muzzle.h" />
-    <ClInclude Include="Script\Header\Object_Pool.h" />
-    <ClInclude Include="Script\Header\UI_Manager.h" />
-    <ClInclude Include="Script\Header\Actions.h" />
-    <ClInclude Include="Script\Header\BehaviorData.h" />
-    <ClInclude Include="Script\Header\BehaviorTree.h" />
-    <ClInclude Include="Script\Header\Node.h" />
-    <ClInclude Include="Script\Header\Doragon.h" />
-    <ClInclude Include="Script\Header\ExecJudgment.h" />
-    <ClInclude Include="Script\Header\Breath_Sphere.h" />
-    <ClInclude Include="Script\Header\Dragon_Animation_Event.h" />
-    <ClInclude Include="Script\Header\Auto_Disable.h" />
-    <ClInclude Include="Script\Header\ToPlayer_Collider.h" />
-    <ClInclude Include="Script\Header\Enemy_Collider.h" />
-    <ClInclude Include="Script\Header\Dragon_HP.h" />
-    <ClInclude Include="Script\Header\Breath_Round.h" />
-    <ClInclude Include="Script\Header\Title.h" />
-    <ClInclude Include="Script\Header\Sprite_Fade.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

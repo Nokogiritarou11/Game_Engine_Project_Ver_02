@@ -4,7 +4,7 @@
 #include "GameObject.h"
 #include "Transform.h"
 #include "Include_ImGui.h"
-#include "Debug_UI.h"
+#include "Editor_UI.h"
 using namespace std;
 
 void Light::Initialize(std::shared_ptr<GameObject> obj)
@@ -71,9 +71,9 @@ void Light::Initialize(std::shared_ptr<GameObject> obj)
 		sd.BorderColor[1] = 1.0f;
 		sd.BorderColor[2] = 1.0f;
 		sd.BorderColor[3] = 1.0f;
-		sd.ComparisonFunc = D3D11_COMPARISON_LESS;
+		sd.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 		sd.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
-		sd.MaxAnisotropy = 16;
+		sd.MaxAnisotropy = 1;
 		sd.MipLODBias = 0;
 		sd.MinLOD = -FLT_MAX;
 		sd.MaxLOD = +FLT_MAX;
@@ -89,7 +89,7 @@ void Light::Set(shared_ptr<Transform> trans)
 	DxSystem::DeviceContext->OMSetRenderTargets(0, NULL, DepthStencilView.Get());
 	DxSystem::DeviceContext->ClearDepthStencilView(DepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(RS_State::Cull_Back));
+	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(RS_State::Cull_Front));
 	//ブレンドステート設定
 	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(BS_State::Off), nullptr, 0xFFFFFFFF);
 	//デプスステンシルステート設定
@@ -102,11 +102,10 @@ void Light::Set(shared_ptr<Transform> trans)
 
 	// プロジェクション行列を作成
 	{
-		if (Light_View_Size <= 0)
+		if (Shadow_Distance <= 0)
 		{
-			Light_View_Size = 0.1f;
+			Shadow_Distance = 0.1f;
 		}
-		XMStoreFloat4x4(&P, XMMatrixOrthographicLH(Light_View_Size, Light_View_Size, 1000.0f, 10000.0f));
 		//角度をラジアン(θ)に変換
 		//float fov_y = XMConvertToRadians(30);	// 画角
 		//float aspect = 1;	// 画面比率
@@ -116,7 +115,9 @@ void Light::Set(shared_ptr<Transform> trans)
 	// ビュー行列を作成
 	// カメラの設定
 	{
-		Vector3 Look_pos = trans->Get_position() + trans->Get_forward() * Light_View_Size * 0.4f;
+		//Vector3 Look_pos = trans->Get_position() + trans->Get_forward() * Shadow_Distance * 0.4f;
+		Vector3 Look_pos = trans->Get_position();
+
 		//Vector3 pos = Look_pos + (-forward * Distance);
 		//Vector4 p = { pos.x, pos.y, pos.z, 0 };
 		//XMVECTOR eye_v = p;
@@ -128,8 +129,8 @@ void Light::Set(shared_ptr<Transform> trans)
 		//XMFLOAT4 u = { 0, 1, 0, 0 };
 		//XMVECTOR up_v = XMLoadFloat4(&u);
 		//XMVECTOR up_v = XMVectorSet(0, 1, 0, 0);
-
-		V = XMMatrixLookAtLH(Look_pos + (-forward * Distance), Look_pos, transform->Get_up());
+		Look_pos = Look_pos - (forward * 10.0f);
+		V = XMMatrixLookAtRH(Look_pos, Look_pos + forward, transform->Get_up());
 	}
 }
 
@@ -166,10 +167,9 @@ bool Light::Draw_ImGui()
 		float out_color[4] = { Color.x,Color.y,Color.z,Color.w };
 		ImGui::ColorEdit3("Color", out_color);
 		Color = { out_color[0],out_color[1] ,out_color[2] ,out_color[3] };
-		ImGui::DragFloat(u8"距離", &Distance, 0.1f, 0.00001f, FLT_MAX);
 		ImGui::DragFloat(u8"強度", &Intensity, 0.01f, 0, FLT_MAX);
 		ImGui::DragFloat(u8"バイアス", &Bias, 0.000001f, -FLT_MAX, FLT_MAX, "%.6f");
-		ImGui::DragFloat(u8"ライトビューサイズ", &Light_View_Size, 0.1f, 0.01f, FLT_MAX);
+		ImGui::DragFloat(u8"シャドウ描画距離", &Shadow_Distance, 0.1f, 0.01f, FLT_MAX);
 	}
 	return true;
 }

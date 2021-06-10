@@ -32,7 +32,7 @@ private:
 	friend class GameObject;
 	virtual void Initialize(std::shared_ptr<GameObject> obj) {};
 
-	friend class Debug_UI;
+	friend class Editor_UI;
 	virtual bool Draw_ImGui() { return true; };
 };
 

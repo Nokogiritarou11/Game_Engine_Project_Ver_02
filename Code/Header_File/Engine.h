@@ -10,7 +10,7 @@ class Render_Manager;
 class Animator_Manager;
 class Light_Manager;
 class Particle_Manager;
-class Debug_UI;
+class Editor_UI;
 class View_Game;
 class View_Scene;
 
@@ -32,7 +32,7 @@ public:
 	static std::unique_ptr<Animator_Manager> animator_manager;
 	static std::unique_ptr<Light_Manager> light_manager;
 	static std::unique_ptr<Particle_Manager> particle_manager;
-	static std::unique_ptr<Debug_UI> debug_ui;
+	static std::unique_ptr<Editor_UI> editor_ui;
 	static std::unique_ptr<View_Game> view_game;
 	static std::unique_ptr<View_Scene> view_scene;
 private:

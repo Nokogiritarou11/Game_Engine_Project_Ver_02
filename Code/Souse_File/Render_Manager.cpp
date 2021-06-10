@@ -67,7 +67,7 @@ void Render_Manager::Render()
 					float fov_y = XMConvertToRadians(camera->FOV);	// ‰æŠp
 					float aspect = (float)Engine::view_game->screen_x / (float)Engine::view_game->screen_y;	// ‰æ–Ê”ä—¦
 
-					XMStoreFloat4x4(&camera->P, XMMatrixPerspectiveFovLH(fov_y, aspect, camera->near_z, camera->far_z));
+					camera->P =XMMatrixPerspectiveFovRH(fov_y, aspect, camera->near_z, camera->far_z);
 
 					//XMStoreFloat4x4(&P, XMMatrixOrthographicLH(100.0f, 100.0f, 0.1f, 1000.0f));
 				//}
@@ -86,7 +86,8 @@ void Render_Manager::Render()
 					XMVECTOR camRight = XMVectorSet(-XMVectorGetZ(camForward), 0.0f, XMVectorGetX(camForward), 0.0f);
 
 					XMVECTOR up_v = camera->transform->Get_up();
-					XMStoreFloat4x4(&camera->V, XMMatrixLookAtLH(eye_v, focus_v, up_v));
+					//XMStoreFloat4x4(&camera->V, XMMatrixLookAtLH(eye_v, focus_v, up_v));
+					camera->V = XMMatrixLookAtRH(eye_v, focus_v, up_v);
 					//}
 
 					Engine::particle_manager->Camera_Update(camera->transform, fov_y, camera->near_z, camera->far_z, aspect);

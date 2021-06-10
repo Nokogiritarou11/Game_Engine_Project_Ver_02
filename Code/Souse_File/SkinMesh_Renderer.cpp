@@ -161,6 +161,7 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 							Matrix world_transform = bones.at(mesh.nodeIndices.at(i)).lock()->Get_world_matrix();
 							Matrix inverse_transform = mesh.inverseTransforms.at(i);
 							Matrix bone_transform = inverse_transform * world_transform;
+							//cbMesh.bone_transforms[i] = world_transform;
 							cbMesh.bone_transforms[i] = bone_transform;
 						}
 					}

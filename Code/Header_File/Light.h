@@ -30,11 +30,10 @@ public:
 	Matrix V = { 1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1 };
 	Matrix P = { 1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1 };
 	Vector4 Color = { 0.5f ,0.5f ,0.5f ,1.0f };
-	float Distance = 1000;
 	float Intensity = 1;
 	float Bias = 0.00001f;
 	u_int Shadow_Map_Texture_Size = 2048;
-	float Light_View_Size = 300;
+	float Shadow_Distance = 100;
 
 
 private:
@@ -55,7 +54,7 @@ private:
 	template<class Archive>
 	void serialize(Archive& archive, std::uint32_t const version)
 	{
-		archive(cereal::base_class<Component>(this), Color, Distance, Intensity, Bias, Shadow_Map_Texture_Size, Light_View_Size);
+		archive(cereal::base_class<Component>(this), Color, Intensity, Bias, Shadow_Map_Texture_Size, Shadow_Distance);
 	}
 };
 

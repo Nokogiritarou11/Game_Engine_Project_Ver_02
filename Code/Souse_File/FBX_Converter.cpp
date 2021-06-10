@@ -37,7 +37,7 @@ void FBX_Converter::Convert_From_FBX(const char* file_path, const char* fbx_file
 		root->AddComponent<Transform>();
 		root->name = "RootBone";
 		root->transform->Set_parent(obj->transform);
-		root->transform->Set_localScale(1.0f, 1.0f, -1.0f);
+		//root->transform->Set_localScale(1.0f, 1.0f, -1.0f);
 
 		vector<shared_ptr<GameObject>> bone_list;
 		const std::vector<Mesh::Node>& res_nodes = mesh_data->nodes;

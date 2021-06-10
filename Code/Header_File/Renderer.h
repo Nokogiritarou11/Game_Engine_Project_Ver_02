@@ -33,8 +33,6 @@ protected:
 	static RS_State Set_RasterizerState;
 	static DS_State Set_DepthStencilState;
 
-	static const Matrix CorrectionMatrix;
-
 	bool enabled = true;
 	bool enabled_old = false;
 

@@ -74,6 +74,15 @@ inline DirectX::XMFLOAT4X4 FbxAMatrixToFloat4x4(const FbxAMatrix& fbxValue)
 	);
 }
 
+inline Vector3 Vector_Min(Vector3 a, Vector3 b)
+{
+	return Vector3(min(a.x, b.x), min(a.y, b.y), min(a.y, b.y));
+}
+inline Vector3 Vector_Max(Vector3 a, Vector3 b)
+{
+	return Vector3(max(a.x, b.x), max(a.y, b.y), max(a.y, b.y));
+}
+
 shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_path, const char* fbx_filename, const char* ignoreRootMotionNodeName)
 {
 	shared_ptr<Mesh> mesh_ptr = make_shared<Mesh>();
@@ -124,16 +133,27 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_path, const char* fbx_filename
 
 				// インデックスバッファの生成
 				{
+					/*
+					vector<u_int> inverse_indices;
+					for (int t = 0; t < mesh_ptr->meshes[i].indices.size() / 3; ++t)
+					{
+						inverse_indices.push_back(t * 3 + 2);
+						inverse_indices.push_back(t * 3 + 1);
+						inverse_indices.push_back(t * 3);
+					}
+					*/
 					D3D11_BUFFER_DESC bd = {};
 					//bd.Usage                      = D3D11_USAGE_DEFAULT;
 					bd.Usage = D3D11_USAGE_IMMUTABLE;
 					bd.ByteWidth = sizeof(u_int) * mesh_ptr->meshes[i].indices.size();
+					//bd.ByteWidth = sizeof(u_int) * inverse_indices.size();
 					bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 					bd.CPUAccessFlags = 0;
 					bd.MiscFlags = 0;
 					bd.StructureByteStride = 0;
 					D3D11_SUBRESOURCE_DATA InitData = {};
 					InitData.pSysMem = &mesh_ptr->meshes[i].indices[0];				// 頂点のアドレス
+					//InitData.pSysMem = &inverse_indices[0];				// 頂点のアドレス
 					InitData.SysMemPitch = 0;
 					InitData.SysMemSlicePitch = 0;
 					HRESULT hr = DxSystem::Device->CreateBuffer(&bd, &InitData, mesh_ptr->meshes[i].index_buffer.GetAddressOf());
@@ -171,13 +191,6 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_path, const char* fbx_filename
 			fbxGeometryConverter.Triangulate(fbxScene, true);
 			fbxGeometryConverter.RemoveBadPolygonsFromMeshes(fbxScene);
 
-			bool isRight_Hand = false;
-			FbxAxisSystem::ECoordSystem lCoorSystem = fbxScene->GetGlobalSettings().GetAxisSystem().GetCoorSystem();
-			if (lCoorSystem == FbxAxisSystem::eRightHanded)
-			{
-				//isRight_Hand = true;
-			}
-
 #if 0
 			// DirectX座標系へ変換
 			FbxAxisSystem sceneAxisSystem = fbxScene->GetGlobalSettings().GetAxisSystem();
@@ -207,8 +220,8 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_path, const char* fbx_filename
 
 			// モデル構築
 			FbxNode* fbxRootNode = fbxScene->GetRootNode();
-			mesh_ptr->BuildNodes(fbxRootNode, -1, isRight_Hand);
-			mesh_ptr->BuildMeshes(fbxRootNode, isRight_Hand);
+			mesh_ptr->BuildNodes(fbxRootNode, -1);
+			mesh_ptr->BuildMeshes(fbxRootNode);
 
 			// 無視するルートモーションを検索
 			if (ignoreRootMotionNodeName != nullptr)
@@ -225,7 +238,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_path, const char* fbx_filename
 			}
 
 			// アニメーション構築
-			mesh_ptr->BuildAnimations(fbxScene, isRight_Hand);
+			mesh_ptr->BuildAnimations(fbxScene);
 
 			// マネージャ解放
 			fbxManager->Destroy();		// 関連するすべてのオブジェクトが解放される
@@ -243,7 +256,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(const char* file_path, const char* fbx_filename
 }
 
 // FBXノードを再帰的に辿ってデータを構築する
-void Mesh::BuildNodes(FbxNode* fbxNode, int parentNodeIndex, bool isRight_Hand)
+void Mesh::BuildNodes(FbxNode* fbxNode, int parentNodeIndex)
 {
 	FbxNodeAttribute* fbxNodeAttribute = fbxNode->GetNodeAttribute();
 	FbxNodeAttribute::EType fbxNodeAttributeType = FbxNodeAttribute::EType::eUnknown;
@@ -264,7 +277,7 @@ void Mesh::BuildNodes(FbxNode* fbxNode, int parentNodeIndex, bool isRight_Hand)
 		case FbxNodeAttribute::eMesh:
 			break;
 		case FbxNodeAttribute::eSkeleton:
-			BuildNode(fbxNode, parentNodeIndex, isRight_Hand);
+			BuildNode(fbxNode, parentNodeIndex);
 			break;
 	}
 
@@ -272,12 +285,12 @@ void Mesh::BuildNodes(FbxNode* fbxNode, int parentNodeIndex, bool isRight_Hand)
 	parentNodeIndex = static_cast<int>(nodes.size() - 1);
 	for (int i = 0; i < fbxNode->GetChildCount(); ++i)
 	{
-		BuildNodes(fbxNode->GetChild(i), parentNodeIndex, isRight_Hand);
+		BuildNodes(fbxNode->GetChild(i), parentNodeIndex);
 	}
 }
 
 // FBXノードからノードデータを構築する
-void Mesh::BuildNode(FbxNode* fbxNode, int parentNodeIndex, bool isRight_Hand)
+void Mesh::BuildNode(FbxNode* fbxNode, int parentNodeIndex)
 {
 	FbxAMatrix& fbxLocalTransform = fbxNode->EvaluateLocalTransform();
 
@@ -287,19 +300,12 @@ void Mesh::BuildNode(FbxNode* fbxNode, int parentNodeIndex, bool isRight_Hand)
 	node.scale = FbxDouble4ToFloat3(fbxLocalTransform.GetS());
 	node.rotation = FbxDouble4ToFloat4(fbxLocalTransform.GetQ());
 	node.position = FbxDouble4ToFloat3(fbxLocalTransform.GetT());
-	///*
-	if (isRight_Hand)
-	{
-		//node.scale.z *= -1;
-		//node.rotation.x *= -1;
-		//node.rotation.y *= -1;
-	}//*/
 
 	nodes.emplace_back(node);
 }
 
 // FBXノードを再帰的に辿ってメッシュデータを構築する
-void Mesh::BuildMeshes(FbxNode* fbxNode, bool isRight_Hand)
+void Mesh::BuildMeshes(FbxNode* fbxNode)
 {
 	FbxNodeAttribute* fbxNodeAttribute = fbxNode->GetNodeAttribute();
 	FbxNodeAttribute::EType fbxNodeAttributeType = FbxNodeAttribute::EType::eUnknown;
@@ -312,19 +318,19 @@ void Mesh::BuildMeshes(FbxNode* fbxNode, bool isRight_Hand)
 	switch (fbxNodeAttributeType)
 	{
 		case FbxNodeAttribute::eMesh:
-			BuildMesh(fbxNode, static_cast<FbxMesh*>(fbxNodeAttribute), isRight_Hand);
+			BuildMesh(fbxNode, static_cast<FbxMesh*>(fbxNodeAttribute));
 			break;
 	}
 
 	// 再帰的に子ノードを処理する
 	for (int i = 0; i < fbxNode->GetChildCount(); ++i)
 	{
-		BuildMeshes(fbxNode->GetChild(i), isRight_Hand);
+		BuildMeshes(fbxNode->GetChild(i));
 	}
 }
 
 // FBXメッシュからメッシュデータを構築する
-void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh, bool isRight_Hand)
+void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 {
 	int fbxControlPointsCount = fbxMesh->GetControlPointsCount();
 	//int fbxPolygonVertexCount = fbxMesh->GetPolygonVertexCount();
@@ -461,7 +467,7 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh, bool isRight_Hand)
 					// ボーン逆行列を計算する
 					FbxAMatrix fbxInverseTransform = fbxBoneSpaceTransform.Inverse() * fbxMeshSpaceTransform * fbxGeometricTransform;
 
-					DirectX::XMFLOAT4X4 inverseTransform = FbxAMatrixToFloat4x4(fbxInverseTransform);
+					Matrix inverseTransform = FbxAMatrixToFloat4x4(fbxInverseTransform);
 					mesh.inverseTransforms.emplace_back(inverseTransform);
 
 					int nodeIndex = FindNodeIndex(fbxCluster->GetLink()->GetName());
@@ -484,6 +490,8 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh, bool isRight_Hand)
 	int vertexCount = 0;
 	const FbxVector4* fbxControlPoints = fbxMesh->GetControlPoints();
 	bool No_Tanjent = false;
+	Vector3 MinV = { FLT_MAX ,FLT_MAX ,FLT_MAX };
+	Vector3 MaxV = { -FLT_MAX ,-FLT_MAX ,-FLT_MAX };
 	for (int fbxPolygonIndex = 0; fbxPolygonIndex < fbxPolygonCount; ++fbxPolygonIndex)
 	{
 		// ポリゴンに適用されているマテリアルインデックスを取得する
@@ -504,11 +512,8 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh, bool isRight_Hand)
 			// Position
 			{
 				vertex.position = FbxDouble4ToFloat3(fbxControlPoints[fbxControlPointIndex]);
-				///*
-				if (isRight_Hand)
-				{
-					vertex.position.z *= -1;
-				}//*/
+				MinV = Vector_Min(vertex.position, MinV);
+				MaxV = Vector_Max(vertex.position, MaxV);
 			}
 
 			// Weight
@@ -531,11 +536,6 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh, bool isRight_Hand)
 				FbxVector4 fbxNormal;
 				fbxMesh->GetPolygonVertexNormal(fbxPolygonIndex, fbxVertexIndex, fbxNormal);
 				vertex.normal = FbxDouble4ToFloat3(fbxNormal);
-				///*
-				if (isRight_Hand)
-				{
-					vertex.normal.z *= -1;
-				}//*/
 			}
 			else
 			{
@@ -591,11 +591,6 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh, bool isRight_Hand)
 					vertex.tangent.x = static_cast<float>(geometry_element_tangent->GetDirectArray().GetAt(index_of_vertex)[0]);
 					vertex.tangent.y = static_cast<float>(geometry_element_tangent->GetDirectArray().GetAt(index_of_vertex)[1]);
 					vertex.tangent.z = static_cast<float>(geometry_element_tangent->GetDirectArray().GetAt(index_of_vertex)[2]);
-					///*
-					if (isRight_Hand)
-					{
-						vertex.tangent.z *= -1;
-					}//*/
 				}
 				else if (mapping_mode == FbxGeometryElement::EMappingMode::eByPolygonVertex)
 				{
@@ -616,11 +611,6 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh, bool isRight_Hand)
 					vertex.tangent.x = static_cast<float>(geometry_element_tangent->GetDirectArray().GetAt(index_of_vertex)[0]);
 					vertex.tangent.y = static_cast<float>(geometry_element_tangent->GetDirectArray().GetAt(index_of_vertex)[1]);
 					vertex.tangent.z = static_cast<float>(geometry_element_tangent->GetDirectArray().GetAt(index_of_vertex)[2]);
-					///*
-					if (isRight_Hand)
-					{
-						vertex.tangent.z *= -1;
-					}//*/
 				}
 				else
 				{
@@ -688,15 +678,13 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh, bool isRight_Hand)
 					p->tangent.x *= -1;
 					p->tangent.y *= -1;
 					p->tangent.z *= -1;
-					///*
-					if (isRight_Hand)
-					{
-						p->tangent.z *= -1;
-					}//*/
 				}
 			}
 		}
 	}
+
+	mesh.boundingbox.min = MinV;
+	mesh.boundingbox.max = MaxV;
 
 	// 頂点バッファ
 	{
@@ -720,17 +708,28 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh, bool isRight_Hand)
 
 	// インデックスバッファ
 	{
+		/*
+		vector<u_int> inverse_indices;
+		for (int i = 0; i < indices.size() / 3; ++i)
+		{
+			inverse_indices.push_back(i * 3 + 2);
+			inverse_indices.push_back(i * 3 + 1);
+			inverse_indices.push_back(i * 3);
+		}
+		*/
 		D3D11_BUFFER_DESC bufferDesc = {};
 		D3D11_SUBRESOURCE_DATA subresourceData = {};
 
 		bufferDesc.ByteWidth = static_cast<UINT>(sizeof(u_int) * indices.size());
+		//bufferDesc.ByteWidth = static_cast<UINT>(sizeof(u_int) * inverse_indices.size());
 		//bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
 		bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		bufferDesc.CPUAccessFlags = 0;
 		bufferDesc.MiscFlags = 0;
 		bufferDesc.StructureByteStride = 0;
-		subresourceData.pSysMem = indices.data();
+		subresourceData.pSysMem = &indices[0];
+		//subresourceData.pSysMem = &inverse_indices[0];
 		subresourceData.SysMemPitch = 0; //Not use for index buffers.
 		subresourceData.SysMemSlicePitch = 0; //Not use for index buffers.
 		HRESULT hr = DxSystem::Device->CreateBuffer(&bufferDesc, &subresourceData, mesh.index_buffer.GetAddressOf());
@@ -740,7 +739,7 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh, bool isRight_Hand)
 }
 
 // アニメーションデータを構築
-void Mesh::BuildAnimations(FbxScene* fbxScene, bool isRight_Hand)
+void Mesh::BuildAnimations(FbxScene* fbxScene)
 {
 	// すべてのアニメーション名を取得
 	FbxArray<FbxString*> fbxAnimStackNames;
@@ -831,14 +830,6 @@ void Mesh::BuildAnimations(FbxScene* fbxScene, bool isRight_Hand)
 					keyData.scale = FbxDouble4ToFloat3(fbxLocalTransform.GetS());
 					keyData.rotation = FbxDouble4ToFloat4(fbxLocalTransform.GetQ());
 					keyData.position = FbxDouble4ToFloat3(fbxLocalTransform.GetT());
-					///*
-					if (isRight_Hand)
-					{
-						//keyData.scale.z *= -1;
-						//keyData.position.z *= -1;
-						//keyData.rotation.x *= -1;
-						//keyData.rotation.y *= -1;
-					}//*/
 				}
 			}
 			seconds += samplingTime;

@@ -7,7 +7,7 @@
 #include "Animator_Manager.h"
 #include "Light_Manager.h"
 #include "Particle_Manager.h"
-#include "Debug_UI.h"
+#include "Editor_UI.h"
 #include "View_Game.h"
 #include "View_Scene.h"
 #include "System_Function.h"
@@ -25,7 +25,7 @@ unique_ptr<Render_Manager>	 Engine::render_manager;
 unique_ptr<Animator_Manager> Engine::animator_manager;
 unique_ptr<Light_Manager>	 Engine::light_manager;
 unique_ptr<Particle_Manager> Engine::particle_manager;
-unique_ptr<Debug_UI>		 Engine::debug_ui;
+unique_ptr<Editor_UI>		 Engine::editor_ui;
 unique_ptr<View_Game>		 Engine::view_game;
 unique_ptr<View_Scene>		 Engine::view_scene;
 
@@ -44,7 +44,7 @@ Engine::Engine()
 
 #if _DEBUG
 	view_scene = make_unique<View_Scene>();
-	debug_ui = make_unique<Debug_UI>();
+	editor_ui = make_unique<Editor_UI>();
 	//scene_manager->CreateScene_Default("Default_Scene");
 	string load_path;
 	ifstream iIfstream("Default_Resource\\System\\last_save.bin");
@@ -120,11 +120,11 @@ void Engine::Update()
 	scene_manager->Update();
 
 #if _DEBUG
-	debug_ui->Update(scene_manager->Get_Active_Scene());
+	editor_ui->Update(scene_manager->Get_Active_Scene());
 	animator_manager->Update();
 	particle_manager->Update();
 	render_manager->Render();
-	debug_ui->Render();
+	editor_ui->Render();
 #else
 	view_game->Set_Screen_Size(DxSystem::GetScreenWidth(), DxSystem::GetScreenHeight());
 	animator_manager->Update();

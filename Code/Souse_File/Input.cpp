@@ -4,7 +4,7 @@
 
 #if _DEBUG
 #include "Engine.h"
-#include "Debug_UI.h"
+#include "Editor_UI.h"
 #endif
 
 using namespace std;
@@ -26,7 +26,7 @@ void Input::Update()
 	if (Cursor::lockState == CursorLockMode::Locked)
 	{
 #if _DEBUG
-		mousePosition_old = { Cursor::Lock_Pos.x - Engine::debug_ui->Game_View_Pos.x,Engine::debug_ui->Game_View_Pos.y - Cursor::Lock_Pos.y };
+		mousePosition_old = { Cursor::Lock_Pos.x - Engine::editor_ui->Game_View_Pos.x,Engine::editor_ui->Game_View_Pos.y - Cursor::Lock_Pos.y };
 #else
 		mousePosition_old = { Cursor::Lock_Pos.x - static_cast<float>(rect.left) ,static_cast<float>(rect.bottom) - Cursor::Lock_Pos.y };
 #endif
@@ -39,7 +39,7 @@ void Input::Update()
 	POINT mouse_p;
 	GetCursorPos(&mouse_p);
 #if _DEBUG
-	mousePosition = { static_cast<float>(mouse_p.x) - Engine::debug_ui->Game_View_Pos.x, Engine::debug_ui->Game_View_Pos.y - static_cast<float>(mouse_p.y) };
+	mousePosition = { static_cast<float>(mouse_p.x) - Engine::editor_ui->Game_View_Pos.x, Engine::editor_ui->Game_View_Pos.y - static_cast<float>(mouse_p.y) };
 #else
 	mousePosition = { static_cast<float>(mouse_p.x) - static_cast<float>(rect.left),static_cast<float>(rect.bottom) - static_cast<float>(mouse_p.y) };
 #endif

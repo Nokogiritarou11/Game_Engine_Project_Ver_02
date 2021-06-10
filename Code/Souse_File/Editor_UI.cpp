@@ -1,5 +1,5 @@
 #include "DxSystem.h"
-#include "Debug_UI.h"
+#include "Editor_UI.h"
 #include "Debug.h"
 #include "Original_Math.h"
 #include "Scene_Manager.h"
@@ -21,7 +21,7 @@
 using namespace std;
 using namespace DirectX;
 
-Debug_UI::Debug_UI()
+Editor_UI::Editor_UI()
 {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -78,9 +78,10 @@ Debug_UI::Debug_UI()
 			fov_y = XMConvertToRadians(30);	// 画角
 			aspect = (float)Engine::view_scene->screen_x / (float)Engine::view_scene->screen_y;	// 画面比率
 			near_z = 0.1f;
-			far_z = 100000.0f;
+			far_z = 1000.0f;
 
-			XMStoreFloat4x4(&Debug_Camera_P, XMMatrixPerspectiveFovLH(fov_y, aspect, near_z, far_z));
+			//Debug_Camera_P = XMMatrixPerspectiveFovLH(fov_y, aspect, near_z, far_z);
+			Debug_Camera_P = XMMatrixPerspectiveFovRH(fov_y, aspect, near_z, far_z);
 
 			//XMStoreFloat4x4(&Debug_Camera_P, XMMatrixOrthographicLH((float)Engine::view_scene->screen_x, (float)Engine::view_scene->screen_y, 0.1f, 1000.0f));
 		}
@@ -99,19 +100,19 @@ Debug_UI::Debug_UI()
 			XMVECTOR camRight = XMVectorSet(-XMVectorGetZ(camForward), 0.0f, XMVectorGetX(camForward), 0.0f);
 
 			XMVECTOR up_v = Debug_Camera_Transform->Get_up();
-			XMStoreFloat4x4(&Debug_Camera_V, XMMatrixLookAtLH(eye_v, focus_v, up_v));
+			Debug_Camera_V = XMMatrixLookAtRH(eye_v, focus_v, up_v);
 		}
 	}
 }
 
-Debug_UI::~Debug_UI()
+Editor_UI::~Editor_UI()
 {
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 }
 
-void Debug_UI::Update(const unique_ptr<Scene>& scene)
+void Editor_UI::Update(const unique_ptr<Scene>& scene)
 {
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
@@ -147,7 +148,7 @@ void Debug_UI::Update(const unique_ptr<Scene>& scene)
 	ShortCut_Check();
 }
 
-void Debug_UI::Render()
+void Editor_UI::Render()
 {
 	Engine::particle_manager->Camera_Update(Debug_Camera_Transform, fov_y, near_z, far_z, aspect);
 	Engine::view_scene->Render(Debug_Camera_V, Debug_Camera_P, Debug_Camera_Transform);
@@ -163,7 +164,7 @@ void Debug_UI::Render()
 }
 
 //ドッキング用親ウィンドウ描画
-void Debug_UI::Main_Window_Render()
+void Editor_UI::Main_Window_Render()
 {
 	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
@@ -189,7 +190,7 @@ void Debug_UI::Main_Window_Render()
 }
 
 //ログの追加
-void Debug_UI::Print_Log(string log)
+void Editor_UI::Print_Log(string log)
 {
 	Debug_Log.push_back(log + u8"\n");
 	Debug_Log_Changed = true;
@@ -284,7 +285,7 @@ struct Debug_Logger
 };
 
 //デバッグログ描画
-void Debug_UI::Debug_Log_Render()
+void Editor_UI::Debug_Log_Render()
 {
 	ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
 	static bool Open_Log = true;
@@ -303,7 +304,7 @@ void Debug_UI::Debug_Log_Render()
 }
 
 //ヒエラルキー描画
-void Debug_UI::Hierarchy_Render(const unique_ptr<Scene>& scene)
+void Editor_UI::Hierarchy_Render(const unique_ptr<Scene>& scene)
 {
 	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_FirstUseEver);
@@ -455,7 +456,7 @@ void Debug_UI::Hierarchy_Render(const unique_ptr<Scene>& scene)
 }
 
 //インスペクタ描画
-void Debug_UI::Inspector_Render()
+void Editor_UI::Inspector_Render()
 {
 	ImGui::SetNextWindowPos(ImVec2(1500, 0), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
@@ -513,7 +514,7 @@ void Debug_UI::Inspector_Render()
 }
 
 //シーン再生UI描画
-void Debug_UI::ScenePlayer_Render()
+void Editor_UI::ScenePlayer_Render()
 {
 	ImGuiWindowFlags window_flags = 0;
 	window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
@@ -599,7 +600,7 @@ void Debug_UI::ScenePlayer_Render()
 }
 
 //シーンビュー描画
-void Debug_UI::SceneView_Render()
+void Editor_UI::SceneView_Render()
 {
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
@@ -667,9 +668,10 @@ void Debug_UI::SceneView_Render()
 			fov_y = XMConvertToRadians(30);	// 画角
 			aspect = (float)Engine::view_scene->screen_x / (float)Engine::view_scene->screen_y;	// 画面比率
 			near_z = 0.1f;
-			far_z = 100000.0f;
+			far_z = 1000.0f;
 
-			XMStoreFloat4x4(&Debug_Camera_P, XMMatrixPerspectiveFovLH(fov_y, aspect, near_z, far_z));
+			//Debug_Camera_P = XMMatrixPerspectiveFovLH(fov_y, aspect, near_z, far_z);
+			Debug_Camera_P = XMMatrixPerspectiveFovRH(fov_y, aspect, near_z, far_z);
 
 			//XMStoreFloat4x4(&Debug_Camera_P, XMMatrixOrthographicLH((float)Engine::view_scene->screen_x, (float)Engine::view_scene->screen_y, 0.1f, 1000.0f));
 		}
@@ -688,7 +690,8 @@ void Debug_UI::SceneView_Render()
 			XMVECTOR camRight = XMVectorSet(-XMVectorGetZ(camForward), 0.0f, XMVectorGetX(camForward), 0.0f);
 
 			XMVECTOR up_v = Debug_Camera_Transform->Get_up();
-			XMStoreFloat4x4(&Debug_Camera_V, XMMatrixLookAtLH(eye_v, focus_v, up_v));
+			//Debug_Camera_V = XMMatrixLookAtLH(eye_v, focus_v, up_v);
+			Debug_Camera_V = XMMatrixLookAtRH(eye_v, focus_v, up_v);
 		}
 	}
 
@@ -720,7 +723,7 @@ void Debug_UI::SceneView_Render()
 }
 
 //ゲームビュー描画
-void Debug_UI::GameView_Render()
+void Editor_UI::GameView_Render()
 {
 	ImGui::SetNextWindowPos(ImVec2(200, 0), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
@@ -757,7 +760,7 @@ void Debug_UI::GameView_Render()
 	ImGui::End();
 }
 
-void Debug_UI::FileResource_Render()
+void Editor_UI::FileResource_Render()
 {
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_NoCollapse;
@@ -788,7 +791,7 @@ void Debug_UI::FileResource_Render()
 }
 
 //メニューバー描画
-void Debug_UI::MenuBar_Render()
+void Editor_UI::MenuBar_Render()
 {
 	if (ImGui::BeginMenuBar())
 	{
@@ -798,7 +801,7 @@ void Debug_UI::MenuBar_Render()
 }
 
 //シーン保存、展開メニュー描画
-void Debug_UI::Scene_File_Menu_Render()
+void Editor_UI::Scene_File_Menu_Render()
 {
 	if (ImGui::BeginMenu(u8"ファイル"))
 	{
@@ -907,7 +910,7 @@ void Debug_UI::Scene_File_Menu_Render()
 }
 
 //オブジェクトツリー描画
-void Debug_UI::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj, int& selecting, int flag, bool& Item_Clicked)
+void Editor_UI::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj, int& selecting, int flag, bool& Item_Clicked)
 {
 	++ID;
 	const ImGuiTreeNodeFlags in_flag = flag;
@@ -963,7 +966,7 @@ void Debug_UI::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj
 }
 
 //ヒエラルキーでのオブジェクトドラッグ
-void Debug_UI::GameObject_DragMenu_Render(const std::shared_ptr<GameObject>& obj)
+void Editor_UI::GameObject_DragMenu_Render(const std::shared_ptr<GameObject>& obj)
 {
 	if (ImGui::BeginDragDropSource())
 	{
@@ -1033,7 +1036,7 @@ void Debug_UI::GameObject_DragMenu_Render(const std::shared_ptr<GameObject>& obj
 }
 
 //ショートカットキーチェック
-void Debug_UI::ShortCut_Check()
+void Editor_UI::ShortCut_Check()
 {
 	if (ImGui::IsKeyDown(17)) //Ctrl
 	{
@@ -1125,7 +1128,7 @@ void Debug_UI::ShortCut_Check()
 }
 
 //シーンビューのカメラ操作
-void Debug_UI::Debug_Camera_Update()
+void Editor_UI::Debug_Camera_Update()
 {
 	ImGuiIO& io = ImGui::GetIO();
 	//入力
@@ -1146,7 +1149,7 @@ void Debug_UI::Debug_Camera_Update()
 				const float dis_y = (mouse_pos.y - mouse_old_pos.y) * 0.1f;
 
 				Vector3 rot = Debug_Camera_Transform->Get_eulerAngles();
-				rot.y += dis_x;
+				rot.y -= dis_x;
 				rot.x += dis_y;
 				rot.z = 0;
 				Debug_Camera_Transform->Set_eulerAngles(rot);
@@ -1174,11 +1177,11 @@ void Debug_UI::Debug_Camera_Update()
 			}
 			if (ImGui::IsKeyDown(65))
 			{
-				move -= Debug_Camera_Transform->Get_right() * Time::deltaTime * speed;
+				move += Debug_Camera_Transform->Get_right() * Time::deltaTime * speed;
 			}
 			if (ImGui::IsKeyDown(68))
 			{
-				move += Debug_Camera_Transform->Get_right() * Time::deltaTime * speed;
+				move -= Debug_Camera_Transform->Get_right() * Time::deltaTime * speed;
 			}
 			Debug_Camera_Transform->Set_position(Debug_Camera_Transform->Get_position() + move);
 		}

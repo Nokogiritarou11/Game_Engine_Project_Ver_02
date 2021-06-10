@@ -29,7 +29,7 @@ private:
 	friend class MonoBehaviour;
 	friend class Resources;
 	friend class Transform;
-	friend class Debug_UI;
+	friend class Editor_UI;
 
 	std::shared_ptr<GameObject> Instance_GameObject(std::string name);
 	void Destroy_GameObject(std::shared_ptr<GameObject> gameObject);

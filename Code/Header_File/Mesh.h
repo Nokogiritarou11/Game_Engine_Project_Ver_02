@@ -121,11 +121,25 @@ public:
 		}
 	};
 
+	struct BoundingBox
+	{
+		Vector3 min;
+		Vector3 max;
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(min, max);
+		}
+	};
+
 	struct mesh
 	{
 		Microsoft::WRL::ComPtr<ID3D11Buffer> vertex_buffer;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> index_buffer;
 		std::vector<subset>					 subsets;
+
+		BoundingBox boundingbox;
 
 		int									 nodeIndex;
 		std::vector<int>					 nodeIndices;
@@ -137,7 +151,7 @@ public:
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(vertices, indices, subsets, nodeIndex, nodeIndices, inverseTransforms);
+			archive(vertices, indices, subsets, nodeIndex, nodeIndices, inverseTransforms, boundingbox);
 		}
 	};
 
@@ -156,15 +170,15 @@ public:
 
 private:
 	// ノードデータを構築
-	void BuildNodes(FbxNode* fbxNode, int parentNodeIndex, bool isRight_Hand);
-	void BuildNode(FbxNode* fbxNode, int parentNodeIndex, bool isRight_Hand);
+	void BuildNodes(FbxNode* fbxNode, int parentNodeIndex);
+	void BuildNode(FbxNode* fbxNode, int parentNodeIndex);
 
 	// メッシュデータを構築
-	void BuildMeshes(FbxNode* fbxNode, bool isRight_Hand);
-	void BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh, bool isRight_Hand);
+	void BuildMeshes(FbxNode* fbxNode);
+	void BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh);
 
 	// アニメーションデータを構築
-	void BuildAnimations(FbxScene* fbxScene, bool isRight_Hand);
+	void BuildAnimations(FbxScene* fbxScene);
 
 	// インデックスの検索
 	int FindNodeIndex(const char* name);

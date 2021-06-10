@@ -2,11 +2,11 @@
 #include "Scene.h"
 #include <iostream>
 
-class Debug_UI
+class Editor_UI
 {
 public:
-	Debug_UI();
-	~Debug_UI();
+	Editor_UI();
+	~Editor_UI();
 
 	void Update(const std::unique_ptr<Scene>& scene);
 	void Render();

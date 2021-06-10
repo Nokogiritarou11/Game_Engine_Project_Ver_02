@@ -133,7 +133,7 @@ void Mesh_Renderer::Render(Matrix V, Matrix P)
 				// メッシュ用定数バッファ更新
 				CbMesh cbMesh;
 				::memset(&cbMesh, 0, sizeof(cbMesh));
-				cbMesh.world = CorrectionMatrix * transform->Get_world_matrix();
+				cbMesh.world = transform->Get_world_matrix();
 				DxSystem::DeviceContext->VSSetConstantBuffers(1, 1, ConstantBuffer_CbMesh.GetAddressOf());
 				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbMesh.Get(), 0, 0, &cbMesh, 0, 0);
 
@@ -191,7 +191,7 @@ void Mesh_Renderer::Render_Shadow(Matrix V, Matrix P)
 				// メッシュ用定数バッファ更新
 				CbMesh cbMesh;
 				::memset(&cbMesh, 0, sizeof(cbMesh));
-				cbMesh.world = CorrectionMatrix * transform->Get_world_matrix();
+				cbMesh.world = transform->Get_world_matrix();
 				DxSystem::DeviceContext->VSSetConstantBuffers(1, 1, ConstantBuffer_CbMesh.GetAddressOf());
 				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbMesh.Get(), 0, 0, &cbMesh, 0, 0);
 
