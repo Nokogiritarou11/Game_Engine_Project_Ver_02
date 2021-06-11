@@ -6,7 +6,7 @@
 
 #if _DEBUG
 #include "Engine.h"
-#include "Editor_UI.h"
+#include "Editor.h"
 #endif
 
 using namespace std;
@@ -23,10 +23,10 @@ void Cursor::Update()
 		if (lockState == CursorLockMode::Locked)
 		{
 #if _DEBUG
-			if (!Engine::editor_ui->Render_Cursor)
+			if (!Engine::editor->Render_Cursor)
 			{
 				Set_Cursor_Visible(false);
-				Lock_Pos = { Engine::editor_ui->Game_View_CenterPos.x,Engine::editor_ui->Game_View_CenterPos.y };
+				Lock_Pos = { Engine::editor->Game_View_CenterPos.x,Engine::editor->Game_View_CenterPos.y };
 				SetCursorPos(static_cast<int>(Lock_Pos.x), static_cast<int>(Lock_Pos.y));
 			}
 			else

@@ -3,6 +3,9 @@
 #include "Light_Manager.h"
 #include "Engine.h"
 #include "Render_Manager.h"
+#include "Shadow_Manager.h"
+#include "SkyBox.h"
+#include "Transform.h"
 using namespace std;
 using namespace DirectX;
 
@@ -13,6 +16,7 @@ View_Texture::View_Texture()
 	CreateRenderTartgetView(800, 600);
 	CreateDepthStencil(800, 600);
 
+	HRESULT hr;
 	// 定数バッファの生成
 	if (!ConstantBuffer_CbScene)
 	{
@@ -23,7 +27,7 @@ View_Texture::View_Texture()
 		bd.CPUAccessFlags = 0;
 		bd.MiscFlags = 0;
 		bd.StructureByteStride = 0;
-		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer_CbScene.GetAddressOf());
+		hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer_CbScene.GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
 
@@ -158,23 +162,41 @@ void View_Texture::Render_Sky(Vector3 pos)
 	skybox->Render(pos);
 }
 
-void View_Texture::Render_3D(Matrix V, Matrix P, bool Is_Shadow)
+void View_Texture::Render_Shadow_Directional(Vector4 Color, float Intensity, std::shared_ptr<Transform> light_transform, std::shared_ptr<Transform> camera_transform)
 {
+	Matrix V, P, VP;
+	Vector3 Look_pos = camera_transform->Get_position();
+	V = XMMatrixLookAtRH(Look_pos - camera_transform->Get_forward(), Look_pos, camera_transform->Get_up());
+	float size = (float)Engine::shadow_manager->Get_Shadow_Map_Texture_Size();
+	P = XMMatrixOrthographicRH(size, size, 0.1f, 100.f);
+	VP = V * P;
+
+	cb_scene.viewProjection = VP;
+	static const Matrix SHADOW_BIAS = {
+		0.5f, 0.0f, 0.0f, 0.0f,
+		0.0f, -0.5f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.0f, 1.0f };
+	cb_scene.shadowMatrix = VP * SHADOW_BIAS;
+	const Vector3 forward = light_transform->Get_forward();
+	cb_scene.lightDirection = { forward.x, forward.y, forward.z, 0 };
+	cb_scene.lightColor = { Color.x, Color.y, Color.z };
+	cb_scene.Bias = Engine::shadow_manager->Get_Shadow_Bias();
+
+	DxSystem::DeviceContext->VSSetConstantBuffers(0, 1, ConstantBuffer_CbScene.GetAddressOf());
+	DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbScene.Get(), 0, 0, &cb_scene, 0, 0);
+
 	//トポロジー設定
 	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	if (Is_Shadow)
-	{
-		//ブレンドステート設定
-		DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(BS_State::Off), nullptr, 0xFFFFFFFF);
-		Renderer::Set_BlendState = BS_State::Off;
-		//ラスタライザ―設定
-		DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(RS_State::Cull_Back));
-		Renderer::Set_RasterizerState = RS_State::Cull_Back;
-		//デプスステンシルステート設定
-		DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DS_State::LEqual), 1);
-		Renderer::Set_DepthStencilState = DS_State::LEqual;
-	}
+	//ブレンドステート設定
+	DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(BS_State::Off), nullptr, 0xFFFFFFFF);
+	Renderer::Set_BlendState = BS_State::Off;
+	//ラスタライザ―設定
+	DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(RS_State::Cull_Front));
+	Renderer::Set_RasterizerState = RS_State::Cull_Front;
+	//デプスステンシルステート設定
+	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DS_State::LEqual), 1);
+	Renderer::Set_DepthStencilState = DS_State::LEqual;
 
 	shared_ptr<Renderer> p_rend = nullptr;
 	bool expired = false;
@@ -188,14 +210,51 @@ void View_Texture::Render_3D(Matrix V, Matrix P, bool Is_Shadow)
 			{
 				if (p_rend->enableSelf())
 				{
-					if (Is_Shadow)
-					{
-						p_rend->Render_Shadow(V, P);
-					}
-					else
-					{
-						p_rend->Render(V, P);
-					}
+					p_rend->Render_Shadow(V, P);
+				}
+			}
+			else
+			{
+				p_rend->Disable_flg = true;
+				disabled = true;
+			}
+		}
+		else
+		{
+			expired = true;
+		}
+	}
+	if (expired)
+	{
+		auto removeIt = remove_if(Engine::render_manager->Renderer_3D_list.begin(), Engine::render_manager->Renderer_3D_list.end(), [](weak_ptr<Renderer> r) { return r.expired(); });
+		Engine::render_manager->Renderer_3D_list.erase(removeIt, Engine::render_manager->Renderer_3D_list.end());
+	}
+	if (disabled)
+	{
+		auto removeIt = remove_if(Engine::render_manager->Renderer_3D_list.begin(), Engine::render_manager->Renderer_3D_list.end(), [](weak_ptr<Renderer> r) { shared_ptr<Renderer> rend = r.lock(); rend->IsCalled = false; return rend->Disable_flg; });
+		Engine::render_manager->Renderer_3D_list.erase(removeIt, Engine::render_manager->Renderer_3D_list.end());
+	}
+}
+
+void View_Texture::Render_3D(Matrix V, Matrix P)
+{
+	//トポロジー設定
+	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	Engine::shadow_manager->Set_PS_Resource();
+
+	shared_ptr<Renderer> p_rend = nullptr;
+	bool expired = false;
+	bool disabled = false;
+	for (weak_ptr<Renderer> r : Engine::render_manager->Renderer_3D_list)
+	{
+		if (!r.expired())
+		{
+			p_rend = r.lock();
+			if (p_rend->gameObject->activeInHierarchy())
+			{
+				if (p_rend->enableSelf())
+				{
+					p_rend->Render(V, P);
 				}
 			}
 			else

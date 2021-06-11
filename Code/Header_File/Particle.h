@@ -31,7 +31,7 @@ private:
 	bool IsCalled = false;
 	bool Disable_flg = false;
 
-	Effekseer::Effect* effect = nullptr;
+	Effekseer::EffectRef effect = nullptr;
 	Effekseer::Handle handle = -1;
 
 	std::string file_name;

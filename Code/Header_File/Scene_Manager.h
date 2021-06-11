@@ -20,7 +20,7 @@ private:
 
 	//std::list<std::unique_ptr<Scene>> Scene_List;
 
-	friend class Editor_UI;
+	friend class Editor;
 	friend class Engine;
 
 	std::unique_ptr<Scene> CreateScene_FromFile();

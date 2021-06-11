@@ -104,7 +104,7 @@ private:
 	bool Draw_ImGui() override;
 	bool CanMultiple() override { return false; };
 
-	friend class Editor_UI;
+	friend class Editor;
 	friend class cereal::access;
 	template<class Archive>
 	void serialize(Archive& archive);

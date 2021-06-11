@@ -8,10 +8,11 @@
 #include <assert.h>
 #include <DirectXMath.h>
 #include "Original_Math.h"
-#include "SkyBox.h"
-#include "Transform.h"
 #include "Light_Manager.h"
 using Microsoft::WRL::ComPtr;
+
+class Transfrom;
+class SkyBox;
 
 class View_Texture
 {
@@ -27,9 +28,10 @@ public:
 	~View_Texture() {};
 
 	void Set_Screen_Size(int x, int y);
-	virtual void Render(Matrix V, Matrix P, std::shared_ptr<Transform> trans) = 0;
+	virtual void Render(Matrix V, Matrix P, std::shared_ptr<Transform> camera_transform) = 0;
 	void Render_Sky(Vector3 pos);
-	void Render_3D(Matrix V, Matrix P, bool Is_Shadow);
+	void Render_Shadow_Directional(Vector4 Color, float Intensity, std::shared_ptr<Transform> light_transform, std::shared_ptr<Transform> camera_transform);
+	void Render_3D(Matrix V, Matrix P);
 	void Render_2D(Matrix V, Matrix P);
 
 	int screen_x = 0;
@@ -49,6 +51,7 @@ public:
 		Vector3 lightColor;
 		float	Bias;
 	};
+	CbScene cb_scene;
 
 	ComPtr <ID3D11Buffer> ConstantBuffer_CbScene; //コンスタントバッファ
 

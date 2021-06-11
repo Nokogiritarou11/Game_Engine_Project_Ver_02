@@ -22,11 +22,11 @@ public:
 	void Render();
 	void Reset();
 
-	Effekseer::Manager* manager = nullptr;
-	std::unordered_map<std::string, Effekseer::Effect*> effect_cache;
+	Effekseer::ManagerRef manager = nullptr;
+	std::unordered_map<std::string, Effekseer::EffectRef> effect_cache;
 
 private:
 	std::vector<std::weak_ptr<Particle>> Particle_List;
-	EffekseerRendererDX11::Renderer* renderer = nullptr;
+	EffekseerRendererDX11::RendererRef renderer = nullptr;
 
 };

@@ -33,7 +33,7 @@
     <ClCompile Include="Code\Souse_File\Animator.cpp" />
     <ClCompile Include="Code\Souse_File\Animator_Manager.cpp" />
     <ClCompile Include="Code\Souse_File\Rect_Transform.cpp" />
-    <ClCompile Include="Code\Souse_File\Editor_UI.cpp" />
+    <ClCompile Include="Code\Souse_File\Editor.cpp" />
     <ClCompile Include="Code\Souse_File\Original_Math.cpp" />
     <ClCompile Include="Code\Souse_File\Debug.cpp" />
     <ClCompile Include="Librarys\ImGui\imgui.cpp" />
@@ -77,6 +77,8 @@
     <ClCompile Include="Code\Souse_File\Shader.cpp" />
     <ClCompile Include="Code\Souse_File\Sprite_Renderer.cpp" />
     <ClCompile Include="Code\Souse_File\Texture.cpp" />
+    <ClCompile Include="Code\Libraries\ImGui\imgui_tables.cpp" />
+    <ClCompile Include="Code\Souse_File\Shadow_Manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -98,7 +100,7 @@
     <ClInclude Include="Code\Header_File\Animator_Manager.h" />
     <ClInclude Include="Code\Header_File\RectTransform.h" />
     <ClInclude Include="Code\Header_File\Mathf.h" />
-    <ClInclude Include="Code\Header_File\Editor_UI.h" />
+    <ClInclude Include="Code\Header_File\Editor.h" />
     <ClInclude Include="Code\Header_File\Debug.h" />
     <ClInclude Include="Librarys\ImGui\IconsFontAwesome4.h" />
     <ClInclude Include="Librarys\ImGui\imconfig.h" />
@@ -258,6 +260,7 @@
     <ClInclude Include="Code\Libraries\cereal\external\rapidjson\filereadstream.h" />
     <ClInclude Include="Code\Libraries\cereal\external\rapidjson\filewritestream.h" />
     <ClInclude Include="Code\Libraries\cereal\external\rapidjson\fwd.h" />
+    <ClInclude Include="Code\Header_File\Shadow_Manager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

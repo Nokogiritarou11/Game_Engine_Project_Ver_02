@@ -35,12 +35,12 @@ Particle_Manager::~Particle_Manager()
 {
 	if (renderer != nullptr)
 	{
-		renderer->Destroy();
+		renderer.Reset();
 		renderer = nullptr;
 	}
 	if (manager != nullptr)
 	{
-		manager->Destroy();
+		manager.Reset();
 		manager = nullptr;
 	}
 	for (auto pair : effect_cache)
@@ -149,7 +149,7 @@ void Particle_Manager::Reset()
 	Particle_List.clear();
 	if (manager != nullptr)
 	{
-		manager->Destroy();
+		manager.Reset();
 		manager = nullptr;
 		manager = Effekseer::Manager::Create(8000);
 
