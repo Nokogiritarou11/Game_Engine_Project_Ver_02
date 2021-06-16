@@ -13,7 +13,7 @@ public:
 
 	void Set_PS_Resource();
 
-	void Set_Shadow_Map();
+	void Set_Shadow_Map_Texture();
 	void Set_Shadow_Map_Texture_Size(u_int size);
 	void Set_Shadow_Distance(float value);
 	void Set_Shadow_Bias(float value);

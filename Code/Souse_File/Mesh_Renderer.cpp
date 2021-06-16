@@ -90,6 +90,16 @@ void Mesh_Renderer::SetActive(bool value)
 	}
 }
 
+void Mesh_Renderer::Recalculate_Buffer()
+{
+	if (!Recalculated_Constant_Buffer)
+	{
+		// メッシュ用定数バッファ更新
+		mesh_buffer.world = transform->Get_world_matrix();
+		Recalculated_Constant_Buffer = true;
+	}
+}
+
 void Mesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 {
 	if (mesh_data != Mesh_Data)
@@ -115,10 +125,13 @@ void Mesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 		SetActive(enableSelf());
 	}
 }
+
 void Mesh_Renderer::Render(Matrix V, Matrix P)
 {
 	if (mesh_data)
 	{
+		Recalculate_Buffer();
+
 		for (auto& mesh : mesh_data->meshes)
 		{
 			// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
@@ -130,12 +143,8 @@ void Mesh_Renderer::Render(Matrix V, Matrix P)
 			{
 				DxSystem::DeviceContext->IASetInputLayout(vertex_shader->VertexLayout.Get());
 
-				// メッシュ用定数バッファ更新
-				CbMesh cbMesh;
-				::memset(&cbMesh, 0, sizeof(cbMesh));
-				cbMesh.world = transform->Get_world_matrix();
 				DxSystem::DeviceContext->VSSetConstantBuffers(1, 1, ConstantBuffer_CbMesh.GetAddressOf());
-				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbMesh.Get(), 0, 0, &cbMesh, 0, 0);
+				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbMesh.Get(), 0, 0, &mesh_buffer, 0, 0);
 
 				//マテリアルコンスタントバッファ
 				CbColor cbColor;
@@ -173,10 +182,13 @@ void Mesh_Renderer::Render(Matrix V, Matrix P)
 		}
 	}
 }
+
 void Mesh_Renderer::Render_Shadow(Matrix V, Matrix P)
 {
 	if (mesh_data)
 	{
+		Recalculate_Buffer();
+
 		for (auto& mesh : mesh_data->meshes)
 		{
 			// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
@@ -188,18 +200,8 @@ void Mesh_Renderer::Render_Shadow(Matrix V, Matrix P)
 			{
 				DxSystem::DeviceContext->IASetInputLayout(vertex_shader->VertexLayout.Get());
 
-				// メッシュ用定数バッファ更新
-				CbMesh cbMesh;
-				::memset(&cbMesh, 0, sizeof(cbMesh));
-				cbMesh.world = transform->Get_world_matrix();
 				DxSystem::DeviceContext->VSSetConstantBuffers(1, 1, ConstantBuffer_CbMesh.GetAddressOf());
-				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbMesh.Get(), 0, 0, &cbMesh, 0, 0);
-
-				//マテリアルコンスタントバッファ
-				CbColor cbColor;
-				cbColor.materialColor = material[subset.material_ID]->color;
-				DxSystem::DeviceContext->PSSetConstantBuffers(2, 1, ConstantBuffer_CbColor.GetAddressOf());
-				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbColor.Get(), 0, 0, &cbColor, 0, 0);
+				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbMesh.Get(), 0, 0, &mesh_buffer, 0, 0);
 
 				//シェーダーリソースのバインド
 				shadow_shader->Activate(); //PS,VSSetShader

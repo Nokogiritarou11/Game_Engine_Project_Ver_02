@@ -162,11 +162,32 @@ void View_Texture::Render_Sky(Vector3 pos)
 	skybox->Render(pos);
 }
 
+void View_Texture::Render_Shadow(std::shared_ptr<Transform> camera_transform)
+{
+	for (vector<weak_ptr<Light>>::iterator itr = Engine::light_manager->Light_list.begin(); itr != Engine::light_manager->Light_list.end();)
+	{
+		if (itr->expired())
+		{
+			itr = Engine::light_manager->Light_list.erase(itr);
+			continue;
+		}
+		shared_ptr<Light> m_light = itr->lock();
+		if (m_light->gameObject->activeInHierarchy())
+		{
+			if (m_light->enableSelf())
+			{
+				Render_Shadow_Directional(m_light->Color, m_light->Intensity, m_light->transform, camera_transform);
+			}
+		}
+		++itr;
+	}
+}
+
 void View_Texture::Render_Shadow_Directional(Vector4 Color, float Intensity, std::shared_ptr<Transform> light_transform, std::shared_ptr<Transform> camera_transform)
 {
 	Matrix V, P, VP;
 	Vector3 Look_pos = camera_transform->Get_position();
-	V = XMMatrixLookAtRH(Look_pos - camera_transform->Get_forward(), Look_pos, camera_transform->Get_up());
+	V = XMMatrixLookAtRH(Look_pos - light_transform->Get_forward(), Look_pos, light_transform->Get_up());
 	float size = (float)Engine::shadow_manager->Get_Shadow_Map_Texture_Size();
 	P = XMMatrixOrthographicRH(size, size, 0.1f, 100.f);
 	VP = V * P;
@@ -186,6 +207,7 @@ void View_Texture::Render_Shadow_Directional(Vector4 Color, float Intensity, std
 	DxSystem::DeviceContext->VSSetConstantBuffers(0, 1, ConstantBuffer_CbScene.GetAddressOf());
 	DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbScene.Get(), 0, 0, &cb_scene, 0, 0);
 
+	Engine::shadow_manager->Set_Shadow_Map_Texture();
 	//トポロジー設定
 	DxSystem::DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//ブレンドステート設定
@@ -243,40 +265,16 @@ void View_Texture::Render_3D(Matrix V, Matrix P)
 	Engine::shadow_manager->Set_PS_Resource();
 
 	shared_ptr<Renderer> p_rend = nullptr;
-	bool expired = false;
-	bool disabled = false;
 	for (weak_ptr<Renderer> r : Engine::render_manager->Renderer_3D_list)
 	{
-		if (!r.expired())
+		p_rend = r.lock();
+		if (p_rend->gameObject->activeInHierarchy())
 		{
-			p_rend = r.lock();
-			if (p_rend->gameObject->activeInHierarchy())
+			if (p_rend->enableSelf())
 			{
-				if (p_rend->enableSelf())
-				{
-					p_rend->Render(V, P);
-				}
-			}
-			else
-			{
-				p_rend->Disable_flg = true;
-				disabled = true;
+				p_rend->Render(V, P);
 			}
 		}
-		else
-		{
-			expired = true;
-		}
-	}
-	if (expired)
-	{
-		auto removeIt = remove_if(Engine::render_manager->Renderer_3D_list.begin(), Engine::render_manager->Renderer_3D_list.end(), [](weak_ptr<Renderer> r) { return r.expired(); });
-		Engine::render_manager->Renderer_3D_list.erase(removeIt, Engine::render_manager->Renderer_3D_list.end());
-	}
-	if (disabled)
-	{
-		auto removeIt = remove_if(Engine::render_manager->Renderer_3D_list.begin(), Engine::render_manager->Renderer_3D_list.end(), [](weak_ptr<Renderer> r) { shared_ptr<Renderer> rend = r.lock(); rend->IsCalled = false; return rend->Disable_flg; });
-		Engine::render_manager->Renderer_3D_list.erase(removeIt, Engine::render_manager->Renderer_3D_list.end());
 	}
 }
 
@@ -294,40 +292,17 @@ void View_Texture::Render_2D(Matrix V, Matrix P)
 	//デプスステンシルステート設定
 	DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(DS_State::None_No_Write), 1);
 	Renderer::Set_DepthStencilState = DS_State::None_No_Write;
+
 	shared_ptr<Renderer> p_rend = nullptr;
-	bool expired = false;
-	bool disabled = false;
 	for (weak_ptr<Renderer> r : Engine::render_manager->Renderer_2D_list)
 	{
-		if (!r.expired())
+		p_rend = r.lock();
+		if (p_rend->gameObject->activeInHierarchy())
 		{
-			p_rend = r.lock();
-			if (p_rend->gameObject->activeInHierarchy())
+			if (p_rend->enableSelf())
 			{
-				if (p_rend->enableSelf())
-				{
-					p_rend->Render(V, P);
-				}
-			}
-			else
-			{
-				p_rend->Disable_flg = true;
-				disabled = true;
+				p_rend->Render(V, P);
 			}
 		}
-		else
-		{
-			expired = true;
-		}
-	}
-	if (expired)
-	{
-		auto removeIt = remove_if(Engine::render_manager->Renderer_2D_list.begin(), Engine::render_manager->Renderer_2D_list.end(), [](weak_ptr<Renderer> r) { return r.expired(); });
-		Engine::render_manager->Renderer_2D_list.erase(removeIt, Engine::render_manager->Renderer_2D_list.end());
-	}
-	if (disabled)
-	{
-		auto removeIt = remove_if(Engine::render_manager->Renderer_2D_list.begin(), Engine::render_manager->Renderer_2D_list.end(), [](weak_ptr<Renderer> r) { shared_ptr<Renderer> rend = r.lock(); rend->IsCalled = false; return rend->Disable_flg; });
-		Engine::render_manager->Renderer_2D_list.erase(removeIt, Engine::render_manager->Renderer_2D_list.end());
 	}
 }

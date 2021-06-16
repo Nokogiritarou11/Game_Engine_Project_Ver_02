@@ -91,6 +91,32 @@ void SkinMesh_Renderer::SetActive(bool value)
 	}
 }
 
+void SkinMesh_Renderer::Recalculate_Buffer(Mesh::mesh& mesh, int index)
+{
+	// メッシュ用定数バッファ更新
+	if (!bones.empty())
+	{
+		if (mesh.nodeIndices.size() > 0)
+		{
+			for (size_t i = 0; i < mesh.nodeIndices.size(); ++i)
+			{
+				Matrix world_transform = bones.at(mesh.nodeIndices.at(i)).lock()->Get_world_matrix();
+				Matrix inverse_transform = mesh.inverseTransforms.at(i);
+				Matrix bone_transform = inverse_transform * world_transform;
+				mesh_buffer[index].bone_transforms[i] = bone_transform;
+			}
+		}
+		else
+		{
+			mesh_buffer[index].bone_transforms[0] = transform->Get_world_matrix();
+		}
+	}
+	else
+	{
+		mesh_buffer[index].bone_transforms[0] = Matrix::Identity;
+	}
+}
+
 void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 {
 	if (mesh_data != Mesh_Data)
@@ -98,6 +124,7 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 		mesh_data = Mesh_Data;
 		file_name = mesh_data->name;
 		file_path = mesh_data->file_path;
+		mesh_buffer.resize(mesh_data->meshes.size());
 		//マテリアル
 		for (size_t i = 0; i < mesh_data->Default_Material_Passes.size(); i++)
 		{
@@ -113,32 +140,22 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 				material.push_back(Mat);
 			}
 		}
-		/*
-		// ノード
-		const std::vector<Mesh::Node>& res_nodes = mesh_data->nodes;
-
-		nodes.resize(res_nodes.size());
-		for (size_t nodeIndex = 0; nodeIndex < nodes.size(); ++nodeIndex)
-		{
-			auto&& src = res_nodes.at(nodeIndex);
-			auto&& dst = nodes.at(nodeIndex);
-
-			dst.name = src.name.c_str();
-			dst.parent = src.parentIndex >= 0 ? &nodes.at(src.parentIndex) : nullptr;
-			dst.scale = src.scale;
-			dst.rotation = src.rotation;
-			dst.position = src.position;
-		}
-		*/
 		SetActive(enableSelf());
 	}
 }
+
 void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 {
 	if (mesh_data)
 	{
+		int index = 0;
 		for (auto& mesh : mesh_data->meshes)
 		{
+			if (!Recalculated_Constant_Buffer)
+			{
+				Recalculate_Buffer(mesh, index);
+			}
+
 			// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
 			UINT stride = sizeof(Mesh::vertex);
 			UINT offset = 0;
@@ -148,34 +165,8 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 			{
 				DxSystem::DeviceContext->IASetInputLayout(vertex_shader->VertexLayout.Get());
 
-				// メッシュ用定数バッファ更新
-				CbMesh cbMesh;
-				::memset(&cbMesh, 0, sizeof(cbMesh));
-				//if (!nodes.empty())
-				if (!bones.empty())
-				{
-					if (mesh.nodeIndices.size() > 0)
-					{
-						for (size_t i = 0; i < mesh.nodeIndices.size(); ++i)
-						{
-							Matrix world_transform = bones.at(mesh.nodeIndices.at(i)).lock()->Get_world_matrix();
-							Matrix inverse_transform = mesh.inverseTransforms.at(i);
-							Matrix bone_transform = inverse_transform * world_transform;
-							//cbMesh.bone_transforms[i] = world_transform;
-							cbMesh.bone_transforms[i] = bone_transform;
-						}
-					}
-					else
-					{
-						cbMesh.bone_transforms[0] = transform->Get_world_matrix();
-					}
-				}
-				else
-				{
-					cbMesh.bone_transforms[0] = Matrix::Identity;
-				}
 				DxSystem::DeviceContext->VSSetConstantBuffers(1, 1, ConstantBuffer_CbMesh.GetAddressOf());
-				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbMesh.Get(), 0, 0, &cbMesh, 0, 0);
+				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbMesh.Get(), 0, 0, &mesh_buffer[index], 0, 0);
 
 				//マテリアルコンスタントバッファ
 				CbColor cbColor;
@@ -209,16 +200,25 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 
 				// ↑で設定したリソースを利用してポリゴンを描画する。
 				DxSystem::DeviceContext->DrawIndexed(subset.index_count, subset.index_start, 0);
+				++index;
 			}
 		}
+		Recalculated_Constant_Buffer = true;
 	}
 }
+
 void SkinMesh_Renderer::Render_Shadow(Matrix V, Matrix P)
 {
 	if (mesh_data)
 	{
+		int index = 0;
 		for (auto& mesh : mesh_data->meshes)
 		{
+			if (!Recalculated_Constant_Buffer)
+			{
+				Recalculate_Buffer(mesh, index);
+			}
+
 			// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
 			UINT stride = sizeof(Mesh::vertex);
 			UINT offset = 0;
@@ -228,87 +228,26 @@ void SkinMesh_Renderer::Render_Shadow(Matrix V, Matrix P)
 			{
 				DxSystem::DeviceContext->IASetInputLayout(vertex_shader->VertexLayout.Get());
 
-				// メッシュ用定数バッファ更新
-				CbMesh cbMesh;
-				::memset(&cbMesh, 0, sizeof(cbMesh));
-				//if (!nodes.empty())
-				if (!bones.empty())
-				{
-					if (mesh.nodeIndices.size() > 0)
-					{
-						for (size_t i = 0; i < mesh.nodeIndices.size(); ++i)
-						{
-							Matrix world_transform = bones.at(mesh.nodeIndices.at(i)).lock()->Get_world_matrix();
-							Matrix inverse_transform = mesh.inverseTransforms.at(i);
-							Matrix bone_transform = inverse_transform * world_transform;
-							cbMesh.bone_transforms[i] = bone_transform;
-						}
-					}
-					else
-					{
-						cbMesh.bone_transforms[0] = transform->Get_world_matrix();
-					}
-				}
-				else
-				{
-					cbMesh.bone_transforms[0] = Matrix::Identity;
-				}
 				DxSystem::DeviceContext->VSSetConstantBuffers(1, 1, ConstantBuffer_CbMesh.GetAddressOf());
-				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbMesh.Get(), 0, 0, &cbMesh, 0, 0);
-
-				//マテリアルコンスタントバッファ
-				CbColor cbColor;
-				cbColor.materialColor = material[subset.material_ID]->color;
-				DxSystem::DeviceContext->PSSetConstantBuffers(2, 1, ConstantBuffer_CbColor.GetAddressOf());
-				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbColor.Get(), 0, 0, &cbColor, 0, 0);
+				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbMesh.Get(), 0, 0, &mesh_buffer[index], 0, 0);
 
 				//シェーダーリソースのバインド
 				shadow_shader->Activate(); //PS,VSSetShader
 				// ↑で設定したリソースを利用してポリゴンを描画する。
 				DxSystem::DeviceContext->DrawIndexed(subset.index_count, subset.index_start, 0);
+				++index;
 			}
 		}
-	}
-}
-/*
-// ローカル変換行列計算
-void SkinMesh_Renderer::CalculateLocalTransform()
-{
-	for (auto& node : nodes)
-	{
-		Matrix scale, rotation, position;
-		scale = Matrix::CreateScale(node.scale.x, node.scale.y, node.scale.z);
-		rotation = Matrix::CreateFromQuaternion(DirectX::XMVectorSet(node.rotation.x, node.rotation.y, node.rotation.z, node.rotation.w));
-		position = Matrix::CreateTranslation(node.position.x, node.position.y, node.position.z);
-
-		node.localTransform = scale * rotation * position;
+		Recalculated_Constant_Buffer = true;
 	}
 }
 
-// ワールド変換行列計算
-void SkinMesh_Renderer::CalculateWorldTransform(const Matrix& world_transform)
-{
-	for (auto& node : nodes)
-	{
-		Matrix localTransform = node.localTransform;
-		if (node.parent != nullptr)
-		{
-			Matrix parentTransform = node.parent->worldTransform;
-			node.worldTransform = localTransform * parentTransform;
-		}
-		else
-		{
-			node.worldTransform = localTransform * world_transform;
-		}
-	}
-}
-*/
 void SkinMesh_Renderer::Reset()
 {
 	mesh_data = nullptr;
-	//nodes.clear();
 	bones.clear();
 	material.clear();
+	mesh_buffer.clear();
 }
 
 bool SkinMesh_Renderer::Draw_ImGui()
@@ -341,64 +280,6 @@ bool SkinMesh_Renderer::Draw_ImGui()
 
 	if (open)
 	{
-		/*
-		ImGui::Text(u8"現在のメッシュ::");
-		ImGui::SameLine();
-		ImGui::Text(file_name.c_str());
-		if (ImGui::Button(u8"メッシュを選択"))
-		{
-			string path = System_Function::Get_Open_File_Name();
-			//Debug::Log(path);
-			if (path != "")
-			{
-				int path_i = path.find_last_of("\\") + 1;//7
-				int ext_i = path.find_last_of(".");//10
-				string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
-				string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
-				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
-				if (extname == ".fbx" || extname == ".mesh")
-				{
-					Reset();
-					Set_Mesh(Mesh::Load_Mesh(pathname.c_str(), filename.c_str()));
-				}
-				else
-				{
-					Debug::Log("ファイル形式が対応していません");
-				}
-			}
-		}
-
-		for (int i = 0; i < 5; ++i) ImGui::Spacing();
-		static int ID_bone = 0;
-		if (mesh_data)
-		{
-			if (ImGui::TreeNode(u8"ボーン"))
-			{
-				for (auto& node : nodes)
-				{
-					ImGui::PushID(ID_bone);
-					if (ImGui::TreeNode(node.name))
-					{
-						ImGui::DragFloat3(u8"Position", &node.position.x, 0.05f, -FLT_MAX, FLT_MAX);
-						//node.euler = node.rotation.To_Euler();
-						if (ImGui::DragFloat3(u8"Rotation", &node.euler.x, 0.05f, -FLT_MAX, FLT_MAX))
-						{
-							node.rotation = Quaternion::Euler(node.euler);
-						}
-						ImGui::DragFloat3(u8"Scale", &node.scale.x, 0.05f, -FLT_MAX, FLT_MAX);
-						ImGui::TreePop();
-					}
-					++ID_bone;
-					ImGui::PopID();
-				}
-				ImGui::TreePop();
-			}
-		}
-		ID_bone = 0;
-
-		for (int i = 0; i < 5; ++i) ImGui::Spacing();
-		*/
-
 		static int ID_mat = 0;
 		if (mesh_data)
 		{

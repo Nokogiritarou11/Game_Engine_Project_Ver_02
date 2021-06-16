@@ -12,23 +12,7 @@ using namespace DirectX;
 void View_Scene::Render(Matrix V, Matrix P, std::shared_ptr<Transform> camera_transform)
 {
 	//シャドウマップ描画
-	for (vector<weak_ptr<Light>>::iterator itr = Engine::light_manager->Light_list.begin(); itr != Engine::light_manager->Light_list.end();)
-	{
-		if (itr->expired())
-		{
-			itr = Engine::light_manager->Light_list.erase(itr);
-			continue;
-		}
-		shared_ptr<Light> m_light = itr->lock();
-		if (m_light->gameObject->activeInHierarchy())
-		{
-			if (m_light->enableSelf())
-			{
-				Render_Shadow_Directional(m_light->Color, m_light->Intensity, m_light->transform, camera_transform);
-			}
-		}
-		++itr;
-	}
+	Render_Shadow(camera_transform);
 
 	//通常描画
 	{

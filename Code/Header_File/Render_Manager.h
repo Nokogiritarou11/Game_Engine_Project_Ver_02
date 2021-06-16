@@ -28,4 +28,7 @@ private:
 	};
 
 	std::list<std::vector<Render_Obj>> Renderer_list;
+
+	//Rendererの生存チェック
+	void Check_Renderer();
 };

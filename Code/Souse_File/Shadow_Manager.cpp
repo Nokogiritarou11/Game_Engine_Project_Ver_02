@@ -76,7 +76,7 @@ Shadow_Manager::~Shadow_Manager()
 {
 }
 
-void Shadow_Manager::Set_Shadow_Map()
+void Shadow_Manager::Set_Shadow_Map_Texture()
 {
 	DxSystem::DeviceContext->OMSetRenderTargets(0, NULL, DepthStencilView.Get());
 	DxSystem::DeviceContext->ClearDepthStencilView(DepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);

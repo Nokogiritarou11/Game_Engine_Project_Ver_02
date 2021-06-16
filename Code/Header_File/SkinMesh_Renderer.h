@@ -22,20 +22,8 @@ private:
 
 	static ComPtr <ID3D11Buffer> ConstantBuffer_CbMesh;  //コンスタントバッファ(メッシュデータ)
 	static ComPtr <ID3D11Buffer> ConstantBuffer_CbColor; //コンスタントバッファ(カラー)
-	/*
-	struct Node
-	{
-		const char* name;
-		Node* parent;
-		Vector3	scale;
-		Quaternion rotation;
-		Vector3	euler;
-		Vector3	position;
-		Matrix	localTransform;
-		Matrix	worldTransform;
-	};
-	std::vector<Node>	  nodes;
-	*/
+
+	std::vector<CbMesh> mesh_buffer;
 	std::vector<std::weak_ptr<Transform>> bones;
 
 	void Initialize(std::shared_ptr<GameObject> obj);
@@ -43,12 +31,9 @@ private:
 	void Render_Shadow(Matrix V, Matrix P) override;
 	bool Draw_ImGui() override;
 	void SetActive(bool value) override;
+	void Recalculate_Buffer(Mesh::mesh& mesh, int index);
 
 	void Set_Mesh(std::shared_ptr<Mesh> Mesh_Data); //メッシュデータを設定する
-
-	// 行列計算
-	//void CalculateLocalTransform();
-	//void CalculateWorldTransform(const Matrix& world_transform);
 
 	void Reset();
 

@@ -16,16 +16,18 @@ private:
 	void Render_Shadow(Matrix V, Matrix P) override;
 	bool Draw_ImGui() override;
 	void SetActive(bool value) override;
+	void Recalculate_Buffer();
 
 	struct CbMesh
 	{
 		Matrix world = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
 	};
-
 	struct CbColor
 	{
 		Vector4	materialColor;
 	};
+
+	CbMesh mesh_buffer;
 
 	static ComPtr <ID3D11Buffer> ConstantBuffer_CbMesh;  //コンスタントバッファ(メッシュデータ)
 	static ComPtr <ID3D11Buffer> ConstantBuffer_CbColor; //コンスタントバッファ(カラー)

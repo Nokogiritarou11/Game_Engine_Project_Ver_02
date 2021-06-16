@@ -28,9 +28,12 @@ public:
 	~View_Texture() {};
 
 	void Set_Screen_Size(int x, int y);
+
 	virtual void Render(Matrix V, Matrix P, std::shared_ptr<Transform> camera_transform) = 0;
+
+	void Render_Shadow(std::shared_ptr<Transform> camera_transform);
+
 	void Render_Sky(Vector3 pos);
-	void Render_Shadow_Directional(Vector4 Color, float Intensity, std::shared_ptr<Transform> light_transform, std::shared_ptr<Transform> camera_transform);
 	void Render_3D(Matrix V, Matrix P);
 	void Render_2D(Matrix V, Matrix P);
 
@@ -56,4 +59,5 @@ public:
 	ComPtr <ID3D11Buffer> ConstantBuffer_CbScene; //コンスタントバッファ
 
 private:
+	void Render_Shadow_Directional(Vector4 Color, float Intensity, std::shared_ptr<Transform> light_transform, std::shared_ptr<Transform> camera_transform);
 };

@@ -26,15 +26,16 @@ public:
 protected:
 	friend class View_Texture;
 	friend class Render_Manager;
+
 	bool IsCalled = false;
 	bool Disable_flg = false;
+	bool enabled = true;
+	bool enabled_old = false;
+	bool Recalculated_Constant_Buffer = false;
 
 	static BS_State Set_BlendState;
 	static RS_State Set_RasterizerState;
 	static DS_State Set_DepthStencilState;
-
-	bool enabled = true;
-	bool enabled_old = false;
 
 private:
 	bool CanMultiple() override { return false; };

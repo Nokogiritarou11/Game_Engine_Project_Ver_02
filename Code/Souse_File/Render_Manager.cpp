@@ -48,8 +48,79 @@ void Render_Manager::Add(shared_ptr<Camera> mono)
 	Camera_list.emplace_back(mono);
 }
 
+void Render_Manager::Check_Renderer()
+{
+	shared_ptr<Renderer> p_rend = nullptr;
+	//3Dオブジェクト
+	{
+		bool expired = false;
+		bool disabled = false;
+		for (weak_ptr<Renderer> r : Renderer_3D_list)
+		{
+			if (!r.expired())
+			{
+				p_rend = r.lock();
+				p_rend->Recalculated_Constant_Buffer = false;
+				if (!p_rend->gameObject->activeInHierarchy())
+				{
+					p_rend->Disable_flg = true;
+					disabled = true;
+				}
+			}
+			else
+			{
+				expired = true;
+			}
+		}
+		if (expired)
+		{
+			auto removeIt = remove_if(Renderer_3D_list.begin(), Renderer_3D_list.end(), [](weak_ptr<Renderer> r) { return r.expired(); });
+			Renderer_3D_list.erase(removeIt, Renderer_3D_list.end());
+		}
+		if (disabled)
+		{
+			auto removeIt = remove_if(Renderer_3D_list.begin(), Renderer_3D_list.end(), [](weak_ptr<Renderer> r) { shared_ptr<Renderer> rend = r.lock(); rend->IsCalled = false; return rend->Disable_flg; });
+			Renderer_3D_list.erase(removeIt, Renderer_3D_list.end());
+		}
+	}
+	//2Dオブジェクト
+	{
+		bool expired = false;
+		bool disabled = false;
+		for (weak_ptr<Renderer> r : Renderer_2D_list)
+		{
+			if (!r.expired())
+			{
+				p_rend = r.lock();
+				p_rend->Recalculated_Constant_Buffer = false;
+				if (!p_rend->gameObject->activeInHierarchy())
+				{
+					p_rend->Disable_flg = true;
+					disabled = true;
+				}
+			}
+			else
+			{
+				expired = true;
+			}
+		}
+		if (expired)
+		{
+			auto removeIt = remove_if(Renderer_2D_list.begin(), Renderer_2D_list.end(), [](weak_ptr<Renderer> r) { return r.expired(); });
+			Renderer_2D_list.erase(removeIt, Renderer_2D_list.end());
+		}
+		if (disabled)
+		{
+			auto removeIt = remove_if(Renderer_2D_list.begin(), Renderer_2D_list.end(), [](weak_ptr<Renderer> r) { shared_ptr<Renderer> rend = r.lock(); rend->IsCalled = false; return rend->Disable_flg; });
+			Renderer_2D_list.erase(removeIt, Renderer_2D_list.end());
+		}
+	}
+}
+
 void Render_Manager::Render()
 {
+	Check_Renderer();
+
 	shared_ptr<Camera> camera = nullptr;
 	bool expired = false;
 	for (weak_ptr<Camera> c : Camera_list)
@@ -62,18 +133,13 @@ void Render_Manager::Render()
 				if (camera->enableSelf())
 				{
 					// プロジェクション行列を作成
-					//{
-						// 角度をラジアン(θ)に変換
 					float fov_y = XMConvertToRadians(camera->FOV);	// 画角
 					float aspect = (float)Engine::view_game->screen_x / (float)Engine::view_game->screen_y;	// 画面比率
 
-					camera->P =XMMatrixPerspectiveFovRH(fov_y, aspect, camera->near_z, camera->far_z);
+					camera->P = XMMatrixPerspectiveFovRH(fov_y, aspect, camera->near_z, camera->far_z);
 
-					//XMStoreFloat4x4(&P, XMMatrixOrthographicLH(100.0f, 100.0f, 0.1f, 1000.0f));
-				//}
-				// ビュー行列を作成
-				// カメラの設定
-				//{
+					// ビュー行列を作成
+					//{
 					Vector3 pos = camera->transform->Get_position();
 					Vector4 eye = { pos.x,pos.y,pos.z ,0 };
 					XMVECTOR eye_v = XMLoadFloat4(&eye);
