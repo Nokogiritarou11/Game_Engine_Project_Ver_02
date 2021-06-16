@@ -10,10 +10,12 @@
 #include "System_Function.h"
 #include "Engine.h"
 #include "Scene_Manager.h"
+#include "Scene.h"
 #include "Render_Manager.h"
 #include "Audio_Manager.h"
 #include "Particle_Manager.h"
 using namespace std;
+using namespace BeastEngine;
 
 //**********************************************
 //

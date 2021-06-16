@@ -1,6 +1,8 @@
 #include "Resources.h"
 #include "Engine.h"
 #include "Scene_Manager.h"
+#include "Scene.h"
+#include "GameObject.h"
 #include "Debug.h"
 #include <locale.h>
 #include <sstream>
@@ -8,6 +10,7 @@
 #include <iostream>
 #include <fstream>
 using namespace std;
+using namespace BeastEngine;
 
 void Resources::Create_Prefab(shared_ptr<GameObject> gameobject)
 {

@@ -1,10 +1,13 @@
 #pragma once
 
-class Screen
+namespace BeastEngine
 {
-public:
-	static int Get_Width();
-	static int Get_Height();
+	class Screen
+	{
+	public:
+		static int Get_Width();
+		static int Get_Height();
 
-private:
-};
+	private:
+	};
+}

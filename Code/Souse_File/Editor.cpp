@@ -11,6 +11,8 @@
 #include "All_Component_List.h"
 #include "Resources.h"
 #include "Cursor.h"
+#include "Transform.h"
+#include "Scene.h"
 #include "Include_ImGui.h"
 #include <ImGuizmo.h>
 #include "System_Function.h"
@@ -20,6 +22,7 @@
 #include <fstream>
 using namespace std;
 using namespace DirectX;
+using namespace BeastEngine;
 
 Editor::Editor()
 {
@@ -88,11 +91,8 @@ Editor::Editor()
 		// ビュー行列を作成
 		// カメラの設定
 		{
-			Vector3 pos = Debug_Camera_Transform->Get_position();
-			Vector4 eye = { pos.x,pos.y,pos.z ,0 };
-			XMVECTOR eye_v = XMLoadFloat4(&eye);
-
-			XMVECTOR focus_v = eye_v + XMLoadFloat3(&Debug_Camera_Transform->Get_forward());
+			Vector3 eye_v = Debug_Camera_Transform->Get_position();
+			Vector3 focus_v = eye_v + Debug_Camera_Transform->Get_forward();
 
 			XMVECTOR camForward = XMVector3Normalize(focus_v - eye_v);    // Get forward vector based on target
 			camForward = XMVectorSetY(camForward, 0.0f);    // set forwards y component to 0 so it lays only on
@@ -678,11 +678,8 @@ void Editor::SceneView_Render()
 		// ビュー行列を作成
 		// カメラの設定
 		{
-			Vector3 pos = Debug_Camera_Transform->Get_position();
-			Vector4 eye = { pos.x,pos.y,pos.z ,0 };
-			XMVECTOR eye_v = XMLoadFloat4(&eye);
-
-			XMVECTOR focus_v = eye_v + XMLoadFloat3(&Debug_Camera_Transform->Get_forward());
+			Vector3 eye_v = Debug_Camera_Transform->Get_position();
+			Vector3 focus_v = eye_v + Debug_Camera_Transform->Get_forward();
 
 			XMVECTOR camForward = XMVector3Normalize(focus_v - eye_v);    // Get forward vector based on target
 			camForward = XMVectorSetY(camForward, 0.0f);    // set forwards y component to 0 so it lays only on
@@ -690,7 +687,6 @@ void Editor::SceneView_Render()
 			XMVECTOR camRight = XMVectorSet(-XMVectorGetZ(camForward), 0.0f, XMVectorGetX(camForward), 0.0f);
 
 			XMVECTOR up_v = Debug_Camera_Transform->Get_up();
-			//Debug_Camera_V = XMMatrixLookAtLH(eye_v, focus_v, up_v);
 			Debug_Camera_V = XMMatrixLookAtRH(eye_v, focus_v, up_v);
 		}
 	}

@@ -18,6 +18,7 @@
 /////////////////////////////////////////////////////////////////
 
 using namespace std;
+using namespace BeastEngine;
 
 void All_Component_List::Add(shared_ptr<GameObject> obj)
 {

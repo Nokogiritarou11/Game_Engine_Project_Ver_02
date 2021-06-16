@@ -1,28 +1,31 @@
 #pragma once
 #include "Original_Math.h"
 
-enum class CursorLockMode
+namespace BeastEngine
 {
-	None,
-	Locked
-};
+	enum class CursorLockMode
+	{
+		None,
+		Locked
+	};
 
-class Cursor
-{
-public:
+	class Cursor
+	{
+	public:
 
-	static bool visible;
-	static CursorLockMode lockState;
+		static bool visible;
+		static CursorLockMode lockState;
 
-private:
-	friend class Engine;
-	friend class Input;
+	private:
+		friend class Engine;
+		friend class Input;
 
-	bool Is_Visible = true;
+		bool Is_Visible = true;
 
-	static bool Window_Focus;
-	static Vector2 Lock_Pos;
+		static bool Window_Focus;
+		static Vector2 Lock_Pos;
 
-	void Update();
-	void Set_Cursor_Visible(bool value);
-};
+		void Update();
+		void Set_Cursor_Visible(bool value);
+	};
+}

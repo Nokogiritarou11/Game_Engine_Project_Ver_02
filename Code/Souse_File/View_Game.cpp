@@ -8,6 +8,7 @@
 #include "Transform.h"
 using namespace std;
 using namespace DirectX;
+using namespace BeastEngine;
 
 void View_Game::Render(Matrix V, Matrix P, std::shared_ptr<Transform> camera_transform)
 {

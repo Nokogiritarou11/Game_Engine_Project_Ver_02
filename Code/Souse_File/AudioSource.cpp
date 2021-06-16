@@ -9,6 +9,7 @@
 #include "Debug.h"
 using namespace std;
 using namespace DirectX;
+using namespace BeastEngine;
 
 AudioSource::~AudioSource()
 {

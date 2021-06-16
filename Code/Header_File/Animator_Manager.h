@@ -1,15 +1,22 @@
 #pragma once
-#include "Animator.h"
+#include <memory>
+#include <vector>
+#include <list>
 
-class Animator_Manager
+namespace BeastEngine
 {
-public:
+	class Animator;
 
-	void Reset();
+	class Animator_Manager
+	{
+	public:
 
-	void Update();
-	void Add(std::shared_ptr<Animator> aniamtor);
+		void Reset();
 
-private:
-	std::list<std::weak_ptr<Animator>> Animator_list;
-};
+		void Update();
+		void Add(std::shared_ptr<Animator> aniamtor);
+
+	private:
+		std::list<std::weak_ptr<Animator>> Animator_list;
+	};
+}

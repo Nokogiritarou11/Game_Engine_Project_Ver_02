@@ -6,12 +6,16 @@
 #include "Render_Manager.h"
 #include "Include_ImGui.h"
 #include "Debug.h"
+#include "Shader.h"
+#include "Texture.h"
+#include "Material.h"
 #include <sstream>
 #include <functional>
 #include <iostream>
 #include <fstream>
 #include "System_Function.h"
 using namespace std;
+using namespace BeastEngine;
 
 unique_ptr<Shader> Sprite_Renderer::default_shader;
 

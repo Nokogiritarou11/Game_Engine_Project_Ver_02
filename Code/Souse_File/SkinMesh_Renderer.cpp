@@ -5,12 +5,15 @@
 #include "Render_Manager.h"
 #include "Debug.h"
 #include "Include_ImGui.h"
+#include "Shader.h"
+#include "Material.h"
 #include <sstream>
 #include <functional>
 #include <iostream>
 #include <fstream>
 #include "System_Function.h"
 using namespace std;
+using namespace BeastEngine;
 
 ComPtr <ID3D11Buffer> SkinMesh_Renderer::ConstantBuffer_CbMesh;
 ComPtr <ID3D11Buffer> SkinMesh_Renderer::ConstantBuffer_CbColor;

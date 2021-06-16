@@ -2,10 +2,12 @@
 #include "Engine.h"
 #include "Light_Manager.h"
 #include "GameObject.h"
+#include "Object.h"
 #include "Transform.h"
 #include "Include_ImGui.h"
 #include "Editor.h"
 using namespace std;
+using namespace BeastEngine;
 
 void Light::Initialize(std::shared_ptr<GameObject> obj)
 {
@@ -25,7 +27,7 @@ bool Light::Draw_ImGui()
 	{
 		if (ImGui::Selectable(u8"コンポーネントを削除"))
 		{
-			Object::Destroy(dynamic_pointer_cast<SkinMesh_Renderer>(shared_from_this()));
+			Object::Destroy(dynamic_pointer_cast<Light>(shared_from_this()));
 			removed = false;
 		}
 		ImGui::EndPopup();

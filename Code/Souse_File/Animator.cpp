@@ -3,9 +3,12 @@
 #include "Animator_Manager.h"
 #include "GameObject.h"
 #include "Transform.h"
+#include "Mesh.h"
+#include "SkinMesh_Renderer.h"
 #include "Time_Engine.h"
 #include "Include_ImGui.h"
 using namespace std;
+using namespace BeastEngine;
 
 void Animator::Initialize(shared_ptr<GameObject> obj)
 {

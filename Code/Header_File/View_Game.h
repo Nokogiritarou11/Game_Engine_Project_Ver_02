@@ -1,10 +1,15 @@
 #pragma once
 #include "View_Texture.h"
 
-class View_Game : public View_Texture
+namespace BeastEngine
 {
-public:
-	void Render(Matrix V, Matrix P, std::shared_ptr<Transform> camera_transform) override;
-private:
+	class Transform;
 
-};
+	class View_Game : public View_Texture
+	{
+	public:
+		void Render(BeastEngine::Matrix V, BeastEngine::Matrix P, std::shared_ptr<BeastEngine::Transform> camera_transform) override;
+	private:
+
+	};
+}

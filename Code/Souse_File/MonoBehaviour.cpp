@@ -2,7 +2,9 @@
 #include "GameObject.h"
 #include "Engine.h"
 #include "Scene_Manager.h"
+#include "Scene.h"
 using namespace std;
+using namespace BeastEngine;
 
 void MonoBehaviour::Initialize(shared_ptr<GameObject> obj)
 {

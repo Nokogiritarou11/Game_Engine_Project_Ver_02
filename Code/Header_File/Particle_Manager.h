@@ -1,32 +1,33 @@
 #pragma once
 #include <Effekseer.h>
 #include <EffekseerRendererDX11.h>
-#include "DxSystem.h"
-#include "Original_Math.h"
 #include <memory>
 #include <vector>
 #include <locale.h>
 
-class Transform;
-class Particle;
-
-class Particle_Manager
+namespace BeastEngine
 {
-public:
-	Particle_Manager();
-	~Particle_Manager();
+	class Particle;
+	class Transform;
 
-	void Add(std::weak_ptr<Particle> particle);
-	void Camera_Update(std::shared_ptr<Transform>& camera_trans, float FOV, float near_z, float far_z, float aspect);
-	void Update();
-	void Render();
-	void Reset();
+	class Particle_Manager
+	{
+	public:
+		Particle_Manager();
+		~Particle_Manager();
 
-	Effekseer::ManagerRef manager = nullptr;
-	std::unordered_map<std::string, Effekseer::EffectRef> effect_cache;
+		void Add(std::weak_ptr<BeastEngine::Particle> particle);
+		void Camera_Update(std::shared_ptr<BeastEngine::Transform>& camera_trans, float FOV, float near_z, float far_z, float aspect);
+		void Update();
+		void Render();
+		void Reset();
 
-private:
-	std::vector<std::weak_ptr<Particle>> Particle_List;
-	EffekseerRendererDX11::RendererRef renderer = nullptr;
+		Effekseer::ManagerRef manager = nullptr;
+		std::unordered_map<std::string, Effekseer::EffectRef> effect_cache;
 
-};
+	private:
+		std::vector<std::weak_ptr<BeastEngine::Particle>> Particle_List;
+		EffekseerRendererDX11::RendererRef renderer = nullptr;
+
+	};
+}

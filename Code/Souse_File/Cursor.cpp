@@ -10,6 +10,7 @@
 #endif
 
 using namespace std;
+using namespace BeastEngine;
 
 bool Cursor::visible = true;
 bool Cursor::Window_Focus = true;

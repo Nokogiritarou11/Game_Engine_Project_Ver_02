@@ -1,4 +1,5 @@
 #include "Renderer.h"
+using namespace BeastEngine;
 
 BS_State Renderer::Set_BlendState = BS_State::Off;
 RS_State Renderer::Set_RasterizerState = RS_State::Cull_None;

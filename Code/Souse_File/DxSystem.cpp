@@ -1,6 +1,6 @@
 #include "DxSystem.h"
 using namespace DirectX;
-//#include <crtdbg.h>
+using namespace BeastEngine;
 
 #pragma comment( lib, "d3d11.lib" )
 #pragma comment( lib, "d3dcompiler.lib" )

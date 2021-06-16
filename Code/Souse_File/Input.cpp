@@ -8,6 +8,7 @@
 #endif
 
 using namespace std;
+using namespace BeastEngine;
 
 BYTE Input::key_state[256] = { 0x00 };
 BYTE Input::key_state_old[256] = { 0x00 };

@@ -5,6 +5,7 @@
 #include "Texture.h"
 using namespace std;
 using namespace DirectX;
+using namespace BeastEngine;
 
 Texture::Texture()
 {

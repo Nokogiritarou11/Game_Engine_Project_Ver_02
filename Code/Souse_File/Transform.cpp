@@ -1,8 +1,10 @@
 #include "Transform.h"
 #include "Scene_Manager.h"
+#include "Scene.h"
 #include "Include_ImGui.h"
 using namespace DirectX;
 using namespace std;
+using namespace BeastEngine;
 
 Transform::Transform()
 {

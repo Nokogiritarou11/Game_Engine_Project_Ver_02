@@ -2,8 +2,10 @@
 #include "GameObject.h"
 #include "Transform.h"
 #include "Scene_Manager.h"
+#include "Scene.h"
 using namespace DirectX;
 using namespace std;
+using namespace BeastEngine;
 
 string Object::ToString()
 {

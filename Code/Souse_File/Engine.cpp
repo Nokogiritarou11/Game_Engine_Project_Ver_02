@@ -2,6 +2,7 @@
 #include "Input.h"
 #include "Cursor.h"
 #include "Scene_Manager.h"
+#include "Scene.h"
 #include "Audio_Manager.h"
 #include "Render_Manager.h"
 #include "Animator_Manager.h"
@@ -17,6 +18,7 @@
 #include <iostream>
 #include <fstream>
 using namespace std;
+using namespace BeastEngine;
 
 unique_ptr<Scene_Manager>	 Engine::scene_manager;
 unique_ptr<Input>			 Engine::input_manager;
@@ -26,7 +28,7 @@ unique_ptr<Render_Manager>	 Engine::render_manager;
 unique_ptr<Animator_Manager> Engine::animator_manager;
 unique_ptr<Light_Manager>	 Engine::light_manager;
 unique_ptr<Particle_Manager> Engine::particle_manager;
-unique_ptr<Shadow_Manager> Engine::shadow_manager;
+unique_ptr<Shadow_Manager>	 Engine::shadow_manager;
 unique_ptr<Editor>			 Engine::editor;
 unique_ptr<View_Game>		 Engine::view_game;
 unique_ptr<View_Scene>		 Engine::view_scene;

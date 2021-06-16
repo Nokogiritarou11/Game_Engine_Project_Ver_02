@@ -5,20 +5,23 @@
 #include <wrl.h>
 #include <stdio.h>
 
-class Audio_Manager
+namespace BeastEngine
 {
-public:
-	Audio_Manager();
+	class Audio_Manager
+	{
+	public:
+		Audio_Manager();
 
-	void Update();
-	void Suspend();
-	void Resume();
-	void Reset();
+		void Update();
+		void Suspend();
+		void Resume();
+		void Reset();
 
-	std::unique_ptr<DirectX::SoundEffectInstance> Load_SoundEffect(std::string filename);
-	void PlayOneShot(std::string filename, float volume = 1.0f, float pitch = 0.0f);
+		std::unique_ptr<DirectX::SoundEffectInstance> Load_SoundEffect(std::string filename);
+		void PlayOneShot(std::string filename, float volume = 1.0f, float pitch = 0.0f);
 
-private:
-	std::unique_ptr<DirectX::AudioEngine> Engine;
-	std::unordered_map<std::wstring, std::unique_ptr<DirectX::SoundEffect>> Effect_Map;
-};
+	private:
+		std::unique_ptr<DirectX::AudioEngine> Engine;
+		std::unordered_map<std::wstring, std::unique_ptr<DirectX::SoundEffect>> Effect_Map;
+	};
+}

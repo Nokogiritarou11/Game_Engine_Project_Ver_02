@@ -1,9 +1,11 @@
 #include "SkyBox.h"
+#include "Shader.h"
 #include <sstream>
 #include <functional>
 #include <iostream>
 #include <fstream>
 using namespace std;
+using namespace BeastEngine;
 
 SkyBox::SkyBox()
 {

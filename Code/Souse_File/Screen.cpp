@@ -1,4 +1,5 @@
 #include "Screen.h"
+using namespace BeastEngine;
 
 #if _DEBUG
 #include "Engine.h"

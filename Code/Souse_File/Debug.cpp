@@ -3,6 +3,7 @@
 #include "Editor.h"
 using namespace std;
 using namespace DirectX;
+using namespace BeastEngine;
 
 void Debug::Log()
 {

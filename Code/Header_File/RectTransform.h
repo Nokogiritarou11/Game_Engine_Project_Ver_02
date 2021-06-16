@@ -1,14 +1,17 @@
 #pragma once
 #include "Transform.h"
 
-class Rect_Transform : public Transform
+namespace BeastEngine
 {
-public:
-	Rect_Transform();
-	~Rect_Transform();
+	class Rect_Transform : public BeastEngine::Transform
+	{
+	public:
+		Rect_Transform();
+		~Rect_Transform();
 
-	float Width = 100;
-	float Height = 100;
+		float Width = 100;
+		float Height = 100;
 
-private:
-};
+	private:
+	};
+}

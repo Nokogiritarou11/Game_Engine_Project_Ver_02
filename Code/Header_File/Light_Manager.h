@@ -1,12 +1,19 @@
 #pragma once
-#include "Light.h"
+#include <vector>
+#include <memory>
 
-class Light_Manager
+
+namespace BeastEngine
 {
-public:
-	void Reset();
-	void Add(std::shared_ptr<Light> light);
-	std::vector<std::weak_ptr<Light>> Light_list;
-private:
+	class Light;
 
-};
+	class Light_Manager
+	{
+	public:
+		void Reset();
+		void Add(std::shared_ptr<BeastEngine::Light> light);
+		std::vector<std::weak_ptr<BeastEngine::Light>> Light_list;
+	private:
+
+	};
+}

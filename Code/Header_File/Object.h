@@ -15,37 +15,40 @@
 #include "cereal/types/base_class.hpp"
 #include "cereal/types/memory.hpp"
 
-class Transform;
-class GameObject;
-class Component;
 
-class Object : public std::enable_shared_from_this<Object>
+namespace BeastEngine
 {
-public:
-	std::string name; //名前
+	class Transform;
+	class GameObject;
+	class Component;
 
-	Object(){};
-	virtual ~Object(){};
-
-	std::string ToString(); //名前を返す
-	static void Destroy(std::shared_ptr<GameObject> obj); //オブジェクトを削除する
-	static void Destroy(std::shared_ptr<Component> comp); //オブジェクトを削除する
-
-	static std::shared_ptr<GameObject> Instantiate(std::string name);                                                                        //オブジェクトを生成する
-	static std::shared_ptr<GameObject> Instantiate(std::string name, std::shared_ptr<Transform> parent);                                     //オブジェクトを生成する
-	static std::shared_ptr<GameObject> Instantiate(std::string name, std::shared_ptr<Transform> parent, bool instantiateInWorldSpace);       //オブジェクトを生成する
-	static std::shared_ptr<GameObject> Instantiate(std::string name, Vector3 position, Vector3 euler);                                       //オブジェクトを生成する
-	static std::shared_ptr<GameObject> Instantiate(std::string name, Vector3 position, Vector4 rotation);                                    //オブジェクトを生成する
-	static std::shared_ptr<GameObject> Instantiate(std::string name, Vector3 position, Vector3 euler, std::shared_ptr<Transform> parent);    //オブジェクトを生成する
-	static std::shared_ptr<GameObject> Instantiate(std::string name, Vector3 position, Vector4 rotation, std::shared_ptr<Transform> parent); //オブジェクトを生成する
-
-private:
-	friend class cereal::access;
-	template<class Archive>
-	void serialize(Archive& archive)
+	class Object : public std::enable_shared_from_this<Object>
 	{
-		archive(name);
-	}
-};
+	public:
+		std::string name; //名前
 
-CEREAL_REGISTER_TYPE(Object)
+		Object() {};
+		virtual ~Object() {};
+
+		std::string ToString(); //名前を返す
+		static void Destroy(std::shared_ptr<BeastEngine::GameObject> obj); //オブジェクトを削除する
+		static void Destroy(std::shared_ptr<BeastEngine::Component> comp); //オブジェクトを削除する
+
+		static std::shared_ptr<BeastEngine::GameObject> Instantiate(std::string name);                                                                        //オブジェクトを生成する
+		static std::shared_ptr<BeastEngine::GameObject> Instantiate(std::string name, std::shared_ptr<BeastEngine::Transform> parent);                                     //オブジェクトを生成する
+		static std::shared_ptr<BeastEngine::GameObject> Instantiate(std::string name, std::shared_ptr<BeastEngine::Transform> parent, bool instantiateInWorldSpace);       //オブジェクトを生成する
+		static std::shared_ptr<BeastEngine::GameObject> Instantiate(std::string name, BeastEngine::Vector3 position, BeastEngine::Vector3 euler);                                       //オブジェクトを生成する
+		static std::shared_ptr<BeastEngine::GameObject> Instantiate(std::string name, BeastEngine::Vector3 position, BeastEngine::Vector4 rotation);                                    //オブジェクトを生成する
+		static std::shared_ptr<BeastEngine::GameObject> Instantiate(std::string name, BeastEngine::Vector3 position, BeastEngine::Vector3 euler, std::shared_ptr<BeastEngine::Transform> parent);    //オブジェクトを生成する
+		static std::shared_ptr<BeastEngine::GameObject> Instantiate(std::string name, BeastEngine::Vector3 position, BeastEngine::Vector4 rotation, std::shared_ptr<BeastEngine::Transform> parent); //オブジェクトを生成する
+
+	private:
+		friend class cereal::access;
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(name);
+		}
+	};
+}
+CEREAL_REGISTER_TYPE(BeastEngine::Object)

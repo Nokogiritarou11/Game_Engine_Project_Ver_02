@@ -3,6 +3,7 @@
 #include <tchar.h>
 using namespace std;
 using namespace DirectX;
+using namespace BeastEngine;
 
 Audio_Manager::Audio_Manager()
 {

@@ -1,34 +1,42 @@
 #pragma once
-#include "Mesh_Renderer.h"
+#include <memory>
+#include <vector>
+#include <list>
 #include "SkinMesh_Renderer.h"
+#include "Mesh_Renderer.h"
 #include "Sprite_Renderer.h"
 
-class Render_Manager
+namespace BeastEngine
 {
-public:
+	class Camera;
 
-	void Reset();
-	void Add(std::shared_ptr<Mesh_Renderer> m_rend);
-	void Add(std::shared_ptr<SkinMesh_Renderer> m_rend);
-	void Add(std::shared_ptr<Sprite_Renderer> m_rend);
-	void Add(std::shared_ptr<Camera> mono);
-	void Render();
-
-	std::vector<std::weak_ptr<Renderer>> Renderer_3D_list;
-	std::vector<std::weak_ptr<Renderer>> Renderer_2D_list;
-	std::vector<std::weak_ptr<Camera>> Camera_list;
-
-private:
-
-	struct Render_Obj
+	class Render_Manager
 	{
-		std::weak_ptr<Renderer> renderer;
-		int   Queue;
-		float Z_Distance;
+	public:
+
+		void Reset();
+		void Add(std::shared_ptr<BeastEngine::Mesh_Renderer> m_rend);
+		void Add(std::shared_ptr<BeastEngine::SkinMesh_Renderer> m_rend);
+		void Add(std::shared_ptr<BeastEngine::Sprite_Renderer> m_rend);
+		void Add(std::shared_ptr<BeastEngine::Camera> mono);
+		void Render();
+
+		std::vector<std::weak_ptr<BeastEngine::Renderer>> Renderer_3D_list;
+		std::vector<std::weak_ptr<BeastEngine::Renderer>> Renderer_2D_list;
+		std::vector<std::weak_ptr<BeastEngine::Camera>> Camera_list;
+
+	private:
+
+		struct Render_Obj
+		{
+			std::weak_ptr<BeastEngine::Renderer> renderer;
+			int   Queue;
+			float Z_Distance;
+		};
+
+		std::list<std::vector<Render_Obj>> Renderer_list;
+
+		//Rendererの生存チェック
+		void Check_Renderer();
 	};
-
-	std::list<std::vector<Render_Obj>> Renderer_list;
-
-	//Rendererの生存チェック
-	void Check_Renderer();
-};
+}

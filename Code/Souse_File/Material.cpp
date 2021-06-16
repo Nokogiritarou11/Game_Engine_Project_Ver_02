@@ -10,6 +10,7 @@
 #include <tchar.h>
 #include "Include_ImGui.h"
 using namespace std;
+using namespace BeastEngine;
 
 unordered_map<string, shared_ptr<Material>> Material::mat_cache;
 

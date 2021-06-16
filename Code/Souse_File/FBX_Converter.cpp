@@ -1,7 +1,12 @@
 #include "FBX_Converter.h"
 #include "GameObject.h"
 #include "Resources.h"
+#include "Mesh.h"
+#include "Renderer.h"
+#include "Mesh_Renderer.h"
+#include "SkinMesh_Renderer.h"
 using namespace std;
+using namespace BeastEngine;
 
 void FBX_Converter::Convert_From_FBX(const char* file_path, const char* fbx_filename)
 {

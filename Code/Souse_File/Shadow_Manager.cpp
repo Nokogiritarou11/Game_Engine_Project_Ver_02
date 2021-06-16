@@ -1,4 +1,5 @@
 #include "Shadow_Manager.h"
+using namespace BeastEngine;
 
 Shadow_Manager::Shadow_Manager()
 {

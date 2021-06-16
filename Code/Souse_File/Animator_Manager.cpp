@@ -1,6 +1,8 @@
 #include "Animator_Manager.h"
 #include "GameObject.h"
+#include "Animator.h"
 using namespace std;
+using namespace BeastEngine;
 
 void Animator_Manager::Reset()
 {

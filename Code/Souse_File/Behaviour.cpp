@@ -1,4 +1,5 @@
 #include "Behaviour.h"
+using namespace BeastEngine;
 
 Behaviour::Behaviour()
 {

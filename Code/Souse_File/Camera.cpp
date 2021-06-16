@@ -5,7 +5,7 @@
 #include "Engine.h"
 #include "Render_Manager.h"
 using namespace DirectX;
-
+using namespace BeastEngine;
 using namespace std;
 
 void Camera::Initialize(std::shared_ptr<GameObject> obj)

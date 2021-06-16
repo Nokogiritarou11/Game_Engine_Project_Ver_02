@@ -6,6 +6,9 @@
 #include "Shadow_Manager.h"
 #include "SkyBox.h"
 #include "Transform.h"
+#include "Renderer.h"
+#include "Light.h"
+using namespace BeastEngine;
 using namespace std;
 using namespace DirectX;
 

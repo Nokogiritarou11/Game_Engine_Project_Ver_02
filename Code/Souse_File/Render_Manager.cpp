@@ -4,7 +4,12 @@
 #include "Engine.h"
 #include "View_Game.h"
 #include "Particle_Manager.h"
+#include "Renderer.h"
+#include "Camera.h"
+#include "Original_Math.h"
+using namespace DirectX;
 using namespace std;
+using namespace BeastEngine;
 
 void Render_Manager::Reset()
 {
@@ -140,19 +145,15 @@ void Render_Manager::Render()
 
 					// ƒrƒ…[s—ñ‚ðì¬
 					//{
-					Vector3 pos = camera->transform->Get_position();
-					Vector4 eye = { pos.x,pos.y,pos.z ,0 };
-					XMVECTOR eye_v = XMLoadFloat4(&eye);
+					Vector3 eye_v = camera->transform->Get_position();
+					Vector3 focus_v = eye_v + camera->transform->Get_forward();
 
-					XMVECTOR focus_v = eye_v + XMLoadFloat3(&camera->transform->Get_forward());
-
-					XMVECTOR camForward = XMVector3Normalize(focus_v - eye_v);    // Get forward vector based on target
+					Vector3 camForward = XMVector3Normalize(focus_v - eye_v);    // Get forward vector based on target
 					camForward = XMVectorSetY(camForward, 0.0f);    // set forwards y component to 0 so it lays only on
 					camForward = XMVector3Normalize(camForward);
-					XMVECTOR camRight = XMVectorSet(-XMVectorGetZ(camForward), 0.0f, XMVectorGetX(camForward), 0.0f);
+					Vector3 camRight = { -XMVectorGetZ(camForward), 0.0f, XMVectorGetX(camForward) };
 
 					XMVECTOR up_v = camera->transform->Get_up();
-					//XMStoreFloat4x4(&camera->V, XMMatrixLookAtLH(eye_v, focus_v, up_v));
 					camera->V = XMMatrixLookAtRH(eye_v, focus_v, up_v);
 					//}
 

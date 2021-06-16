@@ -3,6 +3,7 @@
 #include <clocale>
 #include <tchar.h>
 using namespace std;
+using namespace BeastEngine;
 
 //開くファイルのパス取得
 string System_Function::Get_Open_File_Name()

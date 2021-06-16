@@ -8,6 +8,7 @@
 #include "System_Function.h"
 #include "Debug.h"
 using namespace std;
+using namespace BeastEngine;
 
 Particle::~Particle()
 {

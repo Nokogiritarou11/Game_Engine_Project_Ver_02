@@ -6,6 +6,7 @@
 #include "Time_Engine.h"
 #include <math.h>
 
+using namespace BeastEngine;
 using namespace std;
 
 Particle_Manager::Particle_Manager()

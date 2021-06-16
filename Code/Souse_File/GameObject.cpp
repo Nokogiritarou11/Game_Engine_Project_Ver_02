@@ -1,6 +1,8 @@
 #include "GameObject.h"
 #include "Scene_Manager.h"
+#include "Scene.h"
 using namespace std;
+using namespace BeastEngine;
 
 void GameObject::Initialize()
 {

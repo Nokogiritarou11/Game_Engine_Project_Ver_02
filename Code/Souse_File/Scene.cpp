@@ -7,6 +7,7 @@
 #include "GameObject.h"
 #include <typeinfo>
 using namespace std;
+using namespace BeastEngine;
 
 shared_ptr<GameObject> Scene::Instance_GameObject(std::string name)
 {

@@ -7,8 +7,10 @@
 #include <fstream>
 #include <assert.h>
 #include "DxSystem.h"
+#include "Material.h"
 using namespace std;
 using namespace fbxsdk;
+using namespace BeastEngine;
 using namespace DirectX;
 
 // FbxDouble2 Å® XMFLOAT2

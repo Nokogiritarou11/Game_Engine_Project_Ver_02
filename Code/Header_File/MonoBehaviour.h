@@ -20,37 +20,40 @@
 #include "Include_ImGui.h"
 #include "Time_Engine.h"
 
-class MonoBehaviour : public Behaviour
+namespace BeastEngine
 {
-private:
-
-	virtual void Awake() {}; //初めてアクティブになった時に一回だけ呼ばれる(Enableに依存し、ゲームオブジェクトのActiveを無視する)
-	virtual void Start() {}; //初めてアクティブになった時に一回だけ呼ばれる(ゲームオブジェクトのActiveと自身のEnableに依存する)
-	virtual void Update() {}; //アクティブ時に毎フレーム呼ばれる
-	virtual void LateUpdate() {}; //アクティブ時に毎フレーム、Updateのあとに呼ばれる
-
-	virtual void OnEnable() {};//アクティブになった時に呼ばれる
-	virtual void OnDisable() {};//非アクティブになった時に呼ばれる
-	virtual void OnDestroy() {};//削除時に呼ばれる
-
-	void Initialize(std::shared_ptr<GameObject> obj) override;
-	void SetActive(bool value) override;
-	bool CanMultiple() override { return true; };
-
-	bool IsCalled_Awake = false;
-	bool IsCalled_Start = false;
-	bool IsCalled_Update = false;
-	bool Disable_flg = false;
-	void Add();
-
-	friend class Scene;
-	friend class GameObject;
-	friend class cereal::access;
-	template<class Archive>
-	void serialize(Archive& archive)
+	class MonoBehaviour : public BeastEngine::Behaviour
 	{
-		archive(cereal::base_class<Behaviour>(this));
-	}
-};
-CEREAL_REGISTER_TYPE(MonoBehaviour)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(Behaviour, MonoBehaviour)
+	private:
+
+		virtual void Awake() {}; //初めてアクティブになった時に一回だけ呼ばれる(Enableに依存し、ゲームオブジェクトのActiveを無視する)
+		virtual void Start() {}; //初めてアクティブになった時に一回だけ呼ばれる(ゲームオブジェクトのActiveと自身のEnableに依存する)
+		virtual void Update() {}; //アクティブ時に毎フレーム呼ばれる
+		virtual void LateUpdate() {}; //アクティブ時に毎フレーム、Updateのあとに呼ばれる
+
+		virtual void OnEnable() {};//アクティブになった時に呼ばれる
+		virtual void OnDisable() {};//非アクティブになった時に呼ばれる
+		virtual void OnDestroy() {};//削除時に呼ばれる
+
+		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
+		void SetActive(bool value) override;
+		bool CanMultiple() override { return true; };
+
+		bool IsCalled_Awake = false;
+		bool IsCalled_Start = false;
+		bool IsCalled_Update = false;
+		bool Disable_flg = false;
+		void Add();
+
+		friend class Scene;
+		friend class GameObject;
+		friend class cereal::access;
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(cereal::base_class<Behaviour>(this));
+		}
+	};
+}
+CEREAL_REGISTER_TYPE(BeastEngine::MonoBehaviour)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Behaviour, BeastEngine::MonoBehaviour)

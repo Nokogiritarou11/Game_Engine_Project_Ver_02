@@ -64,7 +64,6 @@
     <ClCompile Include="Code\Libraries\ImGuizmo\ImSequencer.cpp" />
     <ClCompile Include="Code\Souse_File\AudioSource.cpp" />
     <ClCompile Include="Code\Souse_File\Resources.cpp" />
-    <ClCompile Include="Code\Souse_File\Line_Renderer.cpp" />
     <ClCompile Include="Code\Souse_File\FBX_Converter.cpp" />
     <ClCompile Include="Code\Souse_File\Cursor.cpp" />
     <ClCompile Include="Code\Souse_File\Screen.cpp" />
@@ -232,7 +231,6 @@
     <ClInclude Include="Code\Header_File\Input.h" />
     <ClInclude Include="Code\Header_File\Light.h" />
     <ClInclude Include="Code\Header_File\Light_Manager.h" />
-    <ClInclude Include="Code\Header_File\Line_Renderer.h" />
     <ClInclude Include="Code\Header_File\misc.h" />
     <ClInclude Include="Code\Header_File\Original_Math.h" />
     <ClInclude Include="Code\Header_File\Particle.h" />

@@ -9,23 +9,26 @@
 #include "cereal/types/string.hpp"
 #include "cereal/types/memory.hpp"
 
-class SkyBox
+namespace BeastEngine
 {
-public:
-	SkyBox();
-
-	void Render(Vector3 pos);
-
-private:
-	std::shared_ptr<Material> material;
-	std::shared_ptr<Mesh> mesh_data;
-
-	struct CbSkyBox
+	class SkyBox
 	{
-		Matrix world;
-		Vector4 color;
-	};
+	public:
+		SkyBox();
 
-	Microsoft::WRL::ComPtr<ID3D11Buffer> ConstantBuffer_CbSkyBox;		//コンスタントバッファ
-	std::unique_ptr<Shader> vertex_shader;
-};
+		void Render(BeastEngine::Vector3 pos);
+
+	private:
+		std::shared_ptr<BeastEngine::Material> material;
+		std::shared_ptr<BeastEngine::Mesh> mesh_data;
+
+		struct CbSkyBox
+		{
+			BeastEngine::Matrix world;
+			BeastEngine::Vector4 color;
+		};
+
+		Microsoft::WRL::ComPtr<ID3D11Buffer> ConstantBuffer_CbSkyBox;		//コンスタントバッファ
+		std::unique_ptr<BeastEngine::Shader> vertex_shader;
+	};
+}

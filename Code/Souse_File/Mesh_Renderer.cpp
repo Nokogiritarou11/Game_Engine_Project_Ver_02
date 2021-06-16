@@ -10,7 +10,12 @@
 #include <iostream>
 #include <fstream>
 #include "System_Function.h"
+#include "Shader.h"
+#include "Mesh.h"
+#include "Material.h"
 using namespace std;
+using namespace BeastEngine;
+
 
 ComPtr <ID3D11Buffer> Mesh_Renderer::ConstantBuffer_CbMesh;
 ComPtr <ID3D11Buffer> Mesh_Renderer::ConstantBuffer_CbColor;

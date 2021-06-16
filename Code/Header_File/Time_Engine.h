@@ -1,11 +1,14 @@
 #pragma once
 #include <stdio.h>
 
-class Time
+namespace BeastEngine
 {
-public:
+	class Time
+	{
+	public:
 
-	static float deltaTime;
-	static float timeScale;
-private:
-};
+		static float deltaTime;
+		static float timeScale;
+	private:
+	};
+}

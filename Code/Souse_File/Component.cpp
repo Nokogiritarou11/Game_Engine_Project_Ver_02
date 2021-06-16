@@ -2,6 +2,7 @@
 #include "Transform.h"
 #include "GameObject.h"
 using namespace std;
+using namespace BeastEngine;
 
 bool Component::CompareTag(string _tag)
 {

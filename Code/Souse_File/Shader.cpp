@@ -3,6 +3,7 @@
 #include <locale.h>
 using namespace DirectX;
 using namespace std;
+using namespace BeastEngine;
 
 unordered_map<wstring, Shader::set_of_vertex_shader_and_input_layout> Shader::vertex_cache;
 unordered_map<wstring, ID3D11PixelShader*> Shader::pixel_cache;
