@@ -1,5 +1,4 @@
 #include "Mesh.h"
-#include "misc.h"
 #include <locale.h>
 #include <sstream>
 #include <functional>
@@ -685,8 +684,7 @@ void Mesh::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 		}
 	}
 
-	mesh.boundingbox.min = MinV;
-	mesh.boundingbox.max = MaxV;
+	mesh.boundingbox.Set_size(MaxV - MinV);
 
 	// 頂点バッファ
 	{

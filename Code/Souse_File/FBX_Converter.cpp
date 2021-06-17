@@ -68,6 +68,8 @@ void FBX_Converter::Convert_From_FBX(const char* file_path, const char* fbx_file
 			}
 		}
 
+		obj->transform->Set_scale(0.01f, 0.01f, 0.01f);
+
 		Resources::Create_Prefab(obj);
 
 		for (size_t i = 0; i < bone_list.size(); ++i)

@@ -1,5 +1,6 @@
 #pragma once
 #include "Texture.h"
+#include "Bounds.h"
 #include <unordered_map>
 #include <vector>
 #include <wrl.h>
@@ -110,25 +111,13 @@ namespace BeastEngine
 			}
 		};
 
-		struct BoundingBox
-		{
-			BeastEngine::Vector3 min;
-			BeastEngine::Vector3 max;
-
-			template<class Archive>
-			void serialize(Archive& archive)
-			{
-				archive(min, max);
-			}
-		};
-
 		struct mesh
 		{
 			Microsoft::WRL::ComPtr<ID3D11Buffer> vertex_buffer;
 			Microsoft::WRL::ComPtr<ID3D11Buffer> index_buffer;
 			std::vector<subset>					 subsets;
 
-			BoundingBox boundingbox;
+			BeastEngine::Bounds boundingbox;
 
 			int									 nodeIndex;
 			std::vector<int>					 nodeIndices;

@@ -7,7 +7,7 @@
 #include <Windows.h>
 #include <string.h>
 #include <DirectXMath.h>
-#include "misc.h"
+#include "Misc.h"
 using Microsoft::WRL::ComPtr;
 
 #include <assert.h>

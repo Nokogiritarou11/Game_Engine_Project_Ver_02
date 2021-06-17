@@ -68,8 +68,8 @@ Editor::Editor()
 	io.Fonts->AddFontFromFileTTF("Default_Resource/Font/fontawesome-webfont.ttf", size_icon, &config, icon_ranges);
 	io.Fonts->Build();
 
-	Vector3 p = { -50, 40, -50 };
-	Vector3 e = { 15, 45, 0 };
+	Vector3 p = { 0, 1.5f, -3 };
+	Vector3 e = { 15, 0, 0 };
 	Debug_Camera_Transform = make_unique<Transform>(p, e);
 
 	//ƒJƒƒ‰s—ñ‰‰ñŒvZ

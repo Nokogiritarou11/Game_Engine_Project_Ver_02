@@ -205,6 +205,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Code\Souse_File\Behaviour.cpp" />
+    <ClCompile Include="Code\Souse_File\Bounds.cpp" />
     <ClCompile Include="Code\Souse_File\Camera.cpp" />
     <ClCompile Include="Code\Souse_File\Component.cpp" />
     <ClCompile Include="Code\Souse_File\Cursor.cpp" />
@@ -288,6 +289,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Code\Header_File\Behaviour.h" />
+    <ClInclude Include="Code\Header_File\Bounds.h" />
     <ClInclude Include="Code\Header_File\Camera.h" />
     <ClInclude Include="Code\Header_File\Component.h" />
     <ClInclude Include="Code\Header_File\Cursor.h" />
@@ -305,7 +307,7 @@
     <ClInclude Include="Code\Header_File\Mathf.h" />
     <ClInclude Include="Code\Header_File\Mesh.h" />
     <ClInclude Include="Code\Header_File\Mesh_Renderer.h" />
-    <ClInclude Include="Code\Header_File\misc.h" />
+    <ClInclude Include="Code\Header_File\Misc.h" />
     <ClInclude Include="Code\Header_File\MonoBehaviour.h" />
     <ClInclude Include="Code\Header_File\Object.h" />
     <ClInclude Include="Code\Header_File\Original_Math.h" />

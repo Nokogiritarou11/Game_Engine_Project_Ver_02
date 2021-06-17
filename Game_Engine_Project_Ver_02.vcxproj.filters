@@ -78,6 +78,7 @@
     <ClCompile Include="Code\Souse_File\Texture.cpp" />
     <ClCompile Include="Code\Libraries\ImGui\imgui_tables.cpp" />
     <ClCompile Include="Code\Souse_File\Shadow_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\Bounds.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -231,7 +232,7 @@
     <ClInclude Include="Code\Header_File\Input.h" />
     <ClInclude Include="Code\Header_File\Light.h" />
     <ClInclude Include="Code\Header_File\Light_Manager.h" />
-    <ClInclude Include="Code\Header_File\misc.h" />
+    <ClInclude Include="Code\Header_File\Misc.h" />
     <ClInclude Include="Code\Header_File\Original_Math.h" />
     <ClInclude Include="Code\Header_File\Particle.h" />
     <ClInclude Include="Code\Header_File\Particle_Manager.h" />
@@ -259,6 +260,7 @@
     <ClInclude Include="Code\Libraries\cereal\external\rapidjson\filewritestream.h" />
     <ClInclude Include="Code\Libraries\cereal\external\rapidjson\fwd.h" />
     <ClInclude Include="Code\Header_File\Shadow_Manager.h" />
+    <ClInclude Include="Code\Header_File\Bounds.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />
