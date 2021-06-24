@@ -25,7 +25,7 @@ namespace BeastEngine
 
 		void Update();
 
-		static void GetHundle(UINT msg, WPARAM wParam, LPARAM lParam);
+		static void Get_Hundle(UINT msg, WPARAM wParam, LPARAM lParam);
 
 		static std::unique_ptr<BeastEngine::Scene_Manager> scene_manager;
 		static std::unique_ptr<BeastEngine::Input> input_manager;

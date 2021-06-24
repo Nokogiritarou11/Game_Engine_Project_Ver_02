@@ -22,13 +22,13 @@ namespace BeastEngine
 		std::shared_ptr<BeastEngine::Material> material;
 		std::shared_ptr<BeastEngine::Mesh> mesh_data;
 
-		struct CbSkyBox
+		struct Constant_Buffer_Skybox
 		{
 			BeastEngine::Matrix world;
 			BeastEngine::Vector4 color;
 		};
 
-		Microsoft::WRL::ComPtr<ID3D11Buffer> ConstantBuffer_CbSkyBox;		//コンスタントバッファ
+		Microsoft::WRL::ComPtr<ID3D11Buffer> constant_buffer_skybox;		//コンスタントバッファ
 		std::unique_ptr<BeastEngine::Shader> vertex_shader;
 	};
 }

@@ -9,8 +9,8 @@ namespace BeastEngine
 		Rect_Transform();
 		~Rect_Transform();
 
-		float Width = 100;
-		float Height = 100;
+		float width = 100;
+		float height = 100;
 
 	private:
 	};

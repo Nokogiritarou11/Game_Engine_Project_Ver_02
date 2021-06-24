@@ -12,8 +12,8 @@ using namespace BeastEngine;
 
 BYTE Input::key_state[256] = { 0x00 };
 BYTE Input::key_state_old[256] = { 0x00 };
-Vector2 Input::mousePosition = { 0,0 };
-Vector2 Input::mousePosition_old = { 0,0 };
+Vector2 Input::mouse_position = { 0,0 };
+Vector2 Input::mouse_position_old = { 0,0 };
 
 void Input::Update()
 {
@@ -24,25 +24,25 @@ void Input::Update()
 	GetWindowRect(DxSystem::hwnd, &rect);
 #endif
 
-	if (Cursor::lockState == CursorLockMode::Locked)
+	if (Cursor::cursor_lock_mode == CursorLock_Mode::Locked)
 	{
 #if _DEBUG
-		mousePosition_old = { Cursor::Lock_Pos.x - Engine::editor->Game_View_Pos.x,Engine::editor->Game_View_Pos.y - Cursor::Lock_Pos.y };
+		mouse_position_old = { Cursor::lock_position.x - Engine::editor->game_view_position.x,Engine::editor->game_view_position.y - Cursor::lock_position.y };
 #else
-		mousePosition_old = { Cursor::Lock_Pos.x - static_cast<float>(rect.left) ,static_cast<float>(rect.bottom) - Cursor::Lock_Pos.y };
+		mouse_position_old = { Cursor::Lock_Pos.x - static_cast<float>(rect.left) ,static_cast<float>(rect.bottom) - Cursor::Lock_Pos.y };
 #endif
 	}
 	else
 	{
-		mousePosition_old = mousePosition;
+		mouse_position_old = mouse_position;
 	}
 
 	POINT mouse_p;
 	GetCursorPos(&mouse_p);
 #if _DEBUG
-	mousePosition = { static_cast<float>(mouse_p.x) - Engine::editor->Game_View_Pos.x, Engine::editor->Game_View_Pos.y - static_cast<float>(mouse_p.y) };
+	mouse_position = { static_cast<float>(mouse_p.x) - Engine::editor->game_view_position.x, Engine::editor->game_view_position.y - static_cast<float>(mouse_p.y) };
 #else
-	mousePosition = { static_cast<float>(mouse_p.x) - static_cast<float>(rect.left),static_cast<float>(rect.bottom) - static_cast<float>(mouse_p.y) };
+	mouse_position = { static_cast<float>(mouse_p.x) - static_cast<float>(rect.left),static_cast<float>(rect.bottom) - static_cast<float>(mouse_p.y) };
 #endif
 
 	memcpy(key_state_old, key_state, sizeof(key_state));
@@ -52,33 +52,33 @@ void Input::Update()
 	}
 }
 
-bool Input::GetKey(KeyCode key)
+bool Input::Get_Key(Key_Code key)
 {
 	return (key_state[static_cast<int>(key)] & 0x80);
 }
 
-bool Input::GetKeyDown(KeyCode key)
+bool Input::Get_Key_Down(Key_Code key)
 {
 	return (key_state[static_cast<int>(key)] & 0x80) && !(key_state_old[static_cast<int>(key)] & 0x80);
 }
 
-bool Input::GetKeyUp(KeyCode key)
+bool Input::Get_Key_Up(Key_Code key)
 {
 	return !(key_state[static_cast<int>(key)] & 0x80) && (key_state_old[static_cast<int>(key)] & 0x80);
 }
 
-bool Input::GetMouseButton(int button)
+bool Input::Get_Mouse_Button(int button)
 {
 	switch (button)
 	{
 		case 0:
-			return (key_state[static_cast<int>(KeyCode::Mouse0)] & 0x80);
+			return (key_state[static_cast<int>(Key_Code::Mouse0)] & 0x80);
 			break;
 		case 1:
-			return (key_state[static_cast<int>(KeyCode::Mouse1)] & 0x80);
+			return (key_state[static_cast<int>(Key_Code::Mouse1)] & 0x80);
 			break;
 		case 2:
-			return (key_state[static_cast<int>(KeyCode::Mouse2)] & 0x80);
+			return (key_state[static_cast<int>(Key_Code::Mouse2)] & 0x80);
 			break;
 		default:
 			break;
@@ -86,18 +86,18 @@ bool Input::GetMouseButton(int button)
 	return false;
 }
 
-bool Input::GetMouseButtonDown(int button)
+bool Input::Get_Mouse_Button_Down(int button)
 {
 	switch (button)
 	{
 		case 0:
-			return (key_state[static_cast<int>(KeyCode::Mouse0)] & 0x80) && !(key_state_old[static_cast<int>(KeyCode::Mouse0)] & 0x80);
+			return (key_state[static_cast<int>(Key_Code::Mouse0)] & 0x80) && !(key_state_old[static_cast<int>(Key_Code::Mouse0)] & 0x80);
 			break;
 		case 1:
-			return (key_state[static_cast<int>(KeyCode::Mouse1)] & 0x80) && !(key_state_old[static_cast<int>(KeyCode::Mouse1)] & 0x80);
+			return (key_state[static_cast<int>(Key_Code::Mouse1)] & 0x80) && !(key_state_old[static_cast<int>(Key_Code::Mouse1)] & 0x80);
 			break;
 		case 2:
-			return (key_state[static_cast<int>(KeyCode::Mouse2)] & 0x80) && !(key_state_old[static_cast<int>(KeyCode::Mouse2)] & 0x80);
+			return (key_state[static_cast<int>(Key_Code::Mouse2)] & 0x80) && !(key_state_old[static_cast<int>(Key_Code::Mouse2)] & 0x80);
 			break;
 		default:
 			break;
@@ -105,18 +105,18 @@ bool Input::GetMouseButtonDown(int button)
 	return false;
 }
 
-bool Input::GetMouseButtonUp(int button)
+bool Input::Get_Mouse_Button_Up(int button)
 {
 	switch (button)
 	{
 		case 0:
-			return !(key_state[static_cast<int>(KeyCode::Mouse0)] & 0x80) && (key_state_old[static_cast<int>(KeyCode::Mouse0)] & 0x80);
+			return !(key_state[static_cast<int>(Key_Code::Mouse0)] & 0x80) && (key_state_old[static_cast<int>(Key_Code::Mouse0)] & 0x80);
 			break;
 		case 1:
-			return !(key_state[static_cast<int>(KeyCode::Mouse1)] & 0x80) && (key_state_old[static_cast<int>(KeyCode::Mouse1)] & 0x80);
+			return !(key_state[static_cast<int>(Key_Code::Mouse1)] & 0x80) && (key_state_old[static_cast<int>(Key_Code::Mouse1)] & 0x80);
 			break;
 		case 2:
-			return !(key_state[static_cast<int>(KeyCode::Mouse2)] & 0x80) && (key_state_old[static_cast<int>(KeyCode::Mouse2)] & 0x80);
+			return !(key_state[static_cast<int>(Key_Code::Mouse2)] & 0x80) && (key_state_old[static_cast<int>(Key_Code::Mouse2)] & 0x80);
 			break;
 		default:
 			break;
@@ -124,12 +124,12 @@ bool Input::GetMouseButtonUp(int button)
 	return false;
 }
 
-Vector2 Input::GetMousePosition()
+Vector2 Input::Get_Mouse_Position()
 {
-	return mousePosition;
+	return mouse_position;
 }
 
-Vector2 Input::GetMouseRelativePosition()
+Vector2 Input::Get_Mouse_Relative_Position()
 {
-	return mousePosition - mousePosition_old;
+	return mouse_position - mouse_position_old;
 }

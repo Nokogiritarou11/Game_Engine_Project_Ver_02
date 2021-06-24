@@ -8,19 +8,19 @@ using namespace BeastEngine;
 
 void MonoBehaviour::Initialize(shared_ptr<GameObject> obj)
 {
-	gameObject = obj;
+	gameobject = obj;
 	transform = obj->transform;
-	IsCalled_Awake = false;
-	IsCalled_Start = false;
-	IsCalled_Update = false;
-	Disable_flg = false;
-	if (Engine::scene_manager->Run)
+	is_called_Awake = false;
+	is_called_Start = false;
+	is_called_Update = false;
+	is_disable = false;
+	if (Engine::scene_manager->run)
 	{
 		Add();
 	}
 }
 
-void  MonoBehaviour::SetActive(bool value)
+void  MonoBehaviour::Set_Active(bool value)
 {
 	if (value)
 	{
@@ -28,7 +28,7 @@ void  MonoBehaviour::SetActive(bool value)
 	}
 	else
 	{
-		if (enableSelf())
+		if (Get_Enabled())
 		{
 			OnDisable();
 		}
@@ -37,34 +37,34 @@ void  MonoBehaviour::SetActive(bool value)
 
 void  MonoBehaviour::Add()
 {
-	if (gameObject->activeInHierarchy())
+	if (gameobject->Get_Active_In_Hierarchy())
 	{
-		if (!IsCalled_Awake)
+		if (!is_called_Awake)
 		{
 			Awake();
-			IsCalled_Awake = true;
+			is_called_Awake = true;
 		}
-		if (gameObject->activeInHierarchy())
+		if (gameobject->Get_Active_In_Hierarchy())
 		{
-			if (enableSelf())
+			if (Get_Enabled())
 			{
 				OnEnable();
-				if (gameObject->activeInHierarchy())
+				if (gameobject->Get_Active_In_Hierarchy())
 				{
-					if (enableSelf())
+					if (Get_Enabled())
 					{
-						if (!IsCalled_Start)
+						if (!is_called_Start)
 						{
-							Scene_Manager::Get_Active_Scene()->MonoBehaviour_Start_Next_list.emplace_back(static_pointer_cast<MonoBehaviour>(shared_from_this()));
+							Scene_Manager::Get_Active_Scene()->monobehaviour_Start_next_list.emplace_back(static_pointer_cast<MonoBehaviour>(shared_from_this()));
 						}
 						else
 						{
-							if (!IsCalled_Update)
+							if (!is_called_Update)
 							{
-								Scene_Manager::Get_Active_Scene()->MonoBehaviour_Update_Next_list.emplace_back(static_pointer_cast<MonoBehaviour>(shared_from_this()));
-								IsCalled_Update = true;
+								Scene_Manager::Get_Active_Scene()->monobehaviour_Update_next_list.emplace_back(static_pointer_cast<MonoBehaviour>(shared_from_this()));
+								is_called_Update = true;
 							}
-							Disable_flg = false;
+							is_disable = false;
 						}
 					}
 				}

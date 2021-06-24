@@ -10,9 +10,9 @@ namespace BeastEngine
 	{
 	public:
 
-		bool IsPlayAnimation() const { return currentAnimation >= 0; } //Ä¶’†‚©
-		int  GetPlayingAnimation() const { return currentAnimation; }
-		float  GetPlayingSeconds() const { return currentSeconds; }
+		bool Is_PlayAnimation() const { return currentAnimation >= 0; } //Ä¶’†‚©
+		int  Get_PlayingAnimation() const { return currentAnimation; }
+		float  Get_PlayingSeconds() const { return currentSeconds; }
 		void Play(int animationIndex);                                 //Ä¶
 		void Stop();                                                   //’â~
 		void Pause();                                                  //ˆê’â~
@@ -24,7 +24,7 @@ namespace BeastEngine
 	private:
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
 		bool Draw_ImGui() override;
-		bool CanMultiple() override { return false; };
+		bool Can_Multiple() override { return false; };
 
 		void Set_Skin_Renderer(std::shared_ptr<BeastEngine::SkinMesh_Renderer> render);
 		void Set_Mesh(std::shared_ptr<BeastEngine::Mesh> mesh);
@@ -35,7 +35,7 @@ namespace BeastEngine
 		int			currentAnimation = -1;
 		float		currentSeconds = 0.0f;
 		bool		endAnimation = false;
-		bool        Playing = false;
+		bool        playing = false;
 
 		friend class cereal::access;
 		template<class Archive>

@@ -13,11 +13,11 @@ namespace BeastEngine
 	class Shader
 	{
 	protected:
-		ComPtr<ID3D11VertexShader>		VS = nullptr; // 頂点シェーダ
-		ComPtr<ID3D11PixelShader>		PS = nullptr; // ピクセルシェーダ
-		ComPtr<ID3D11GeometryShader>	GS = nullptr; // ジオメトリシェーダ
-		ComPtr<ID3D11HullShader>		HS = nullptr; // ハルシェーダ
-		ComPtr<ID3D11DomainShader>		DS = nullptr; // ドメインネームシェーダ
+		ComPtr<ID3D11VertexShader>		vs = nullptr; // 頂点シェーダ
+		ComPtr<ID3D11PixelShader>		ps = nullptr; // ピクセルシェーダ
+		ComPtr<ID3D11GeometryShader>	gs = nullptr; // ジオメトリシェーダ
+		ComPtr<ID3D11HullShader>		hs = nullptr; // ハルシェーダ
+		ComPtr<ID3D11DomainShader>		ds = nullptr; // ドメインネームシェーダ
 
 		HRESULT Compile(WCHAR* filename, LPCSTR method, LPCSTR shaderModel, ID3DBlob** ppBlobOut);
 
@@ -41,7 +41,7 @@ namespace BeastEngine
 			Overlay
 		};
 
-		ComPtr<ID3D11InputLayout>		VertexLayout;
+		ComPtr<ID3D11InputLayout>		vertex_layout;
 
 		Shader() { /*ZeroMemory(this, sizeof(Shader));*/ }
 		virtual ~Shader();

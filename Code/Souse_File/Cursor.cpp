@@ -13,29 +13,29 @@ using namespace std;
 using namespace BeastEngine;
 
 bool Cursor::visible = true;
-bool Cursor::Window_Focus = true;
-Vector2 Cursor::Lock_Pos = { 0,0 };
-CursorLockMode Cursor::lockState = CursorLockMode::None;
+bool Cursor::window_focus = true;
+Vector2 Cursor::lock_position = { 0,0 };
+CursorLock_Mode Cursor::cursor_lock_mode = CursorLock_Mode::None;
 
 void Cursor::Update()
 {
-	if (Window_Focus)
+	if (window_focus)
 	{
-		if (lockState == CursorLockMode::Locked)
+		if (cursor_lock_mode == CursorLock_Mode::Locked)
 		{
 #if _DEBUG
-			if (!Engine::editor->Render_Cursor)
+			if (!Engine::editor->render_cursor)
 			{
 				Set_Cursor_Visible(false);
-				Lock_Pos = { Engine::editor->Game_View_CenterPos.x,Engine::editor->Game_View_CenterPos.y };
-				SetCursorPos(static_cast<int>(Lock_Pos.x), static_cast<int>(Lock_Pos.y));
+				lock_position = { Engine::editor->game_view_center_position.x,Engine::editor->game_view_center_position.y };
+				SetCursorPos(static_cast<int>(lock_position.x), static_cast<int>(lock_position.y));
 			}
 			else
 			{
 				Set_Cursor_Visible(true);
 			}
 #else
-			Vector2 m_pos = Input::GetMousePosition();
+			Vector2 m_pos = Input::Get_Mouse_Position();
 			if (m_pos.x >= 0 && m_pos.x < Screen::Get_Width() && m_pos.y >= 0 && m_pos.y < Screen::Get_Height())
 			{
 				Set_Cursor_Visible(false);
@@ -54,7 +54,7 @@ void Cursor::Update()
 		{
 			if (!visible)
 			{
-				Vector2 m_pos = Input::GetMousePosition();
+				Vector2 m_pos = Input::Get_Mouse_Position();
 				if (m_pos.x >= 0 && m_pos.x < Screen::Get_Width() && m_pos.y >= 0 && m_pos.y < Screen::Get_Height())
 				{
 					Set_Cursor_Visible(false);
@@ -80,18 +80,18 @@ void Cursor::Set_Cursor_Visible(bool value)
 {
 	if (value)
 	{
-		if (!Is_Visible)
+		if (!is_visible)
 		{
 			while (ShowCursor(true) < 0);
-			Is_Visible = true;
+			is_visible = true;
 		}
 	}
 	else
 	{
-		if (Is_Visible)
+		if (is_visible)
 		{
 			while (ShowCursor(false) > 0);
-			Is_Visible = false;
+			is_visible = false;
 		}
 	}
 }

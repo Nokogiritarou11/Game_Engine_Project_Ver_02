@@ -12,17 +12,17 @@ using namespace BeastEngine;
 shared_ptr<GameObject> Scene::Instance_GameObject(std::string name)
 {
 	shared_ptr<GameObject> obj = make_shared<GameObject>();
-	obj->AddComponent<Transform>();
-	gameObject_List.emplace_back(obj);
+	obj->Add_Component<Transform>();
+	gameobject_list.emplace_back(obj);
 	obj->name = name;
 	return obj;
 }
 
 void Scene::Initialize()
 {
-	for (shared_ptr<GameObject> g : gameObject_List)
+	for (shared_ptr<GameObject> g : gameobject_list)
 	{
-		if (g->transform->Get_parent().expired())
+		if (g->transform->Get_Parent().expired())
 		{
 			g->Initialize();
 		}
@@ -32,31 +32,31 @@ void Scene::Initialize()
 void Scene::Destroy_GameObject(shared_ptr<GameObject> gameObject)
 {
 	gameObject->Release();
-	vector<shared_ptr<GameObject>>::iterator itr_end = gameObject_List.end();
-	for (vector<shared_ptr<GameObject>>::iterator itr = gameObject_List.begin(); itr != itr_end; ++itr)
+	vector<shared_ptr<GameObject>>::iterator itr_end = gameobject_list.end();
+	for (vector<shared_ptr<GameObject>>::iterator itr = gameobject_list.begin(); itr != itr_end; ++itr)
 	{
 		if ((*itr) == gameObject)
 		{
-			gameObject_List.erase(itr);
+			gameobject_list.erase(itr);
 			return;
 		}
 	}
 }
 void Scene::Destroy_Component(shared_ptr<Component> component)
 {
-	vector<shared_ptr<GameObject>>::iterator itr_end = gameObject_List.end();
-	for (vector<shared_ptr<GameObject>>::iterator itr = gameObject_List.begin(); itr != itr_end; ++itr)
+	vector<shared_ptr<GameObject>>::iterator itr_end = gameobject_list.end();
+	for (vector<shared_ptr<GameObject>>::iterator itr = gameobject_list.begin(); itr != itr_end; ++itr)
 	{
-		if ((*itr) == component->gameObject)
+		if ((*itr) == component->gameobject)
 		{
-			vector<shared_ptr<Component>>::iterator itr_comp_end = (*itr)->Component_List.end();
-			for (vector<shared_ptr<Component>>::iterator itr_comp = (*itr)->Component_List.begin(); itr_comp != itr_comp_end; ++itr_comp)
+			vector<shared_ptr<Component>>::iterator itr_comp_end = (*itr)->component_list.end();
+			for (vector<shared_ptr<Component>>::iterator itr_comp = (*itr)->component_list.begin(); itr_comp != itr_comp_end; ++itr_comp)
 			{
 				if (typeid(*(*itr_comp)) == typeid(*component))
 				{
-					(*itr_comp)->gameObject.reset();
+					(*itr_comp)->gameobject.reset();
 					(*itr_comp)->transform.reset();
-					(*itr)->Component_List.erase(itr_comp);
+					(*itr)->component_list.erase(itr_comp);
 					return;
 				}
 			}
@@ -67,7 +67,7 @@ void Scene::Destroy_Component(shared_ptr<Component> component)
 
 weak_ptr<GameObject> Scene::Find(std::string Name)
 {
-	for (shared_ptr<GameObject> g : gameObject_List)
+	for (shared_ptr<GameObject> g : gameobject_list)
 	{
 		if (g->name == Name)
 		{
@@ -78,11 +78,11 @@ weak_ptr<GameObject> Scene::Find(std::string Name)
 	return n;
 }
 
-weak_ptr<GameObject> Scene::FindWithTag(std::string Tag)
+weak_ptr<GameObject> Scene::Find_With_Tag(std::string Tag)
 {
-	for (shared_ptr<GameObject> g : gameObject_List)
+	for (shared_ptr<GameObject> g : gameobject_list)
 	{
-		if (g->CompareTag(Tag))
+		if (g->Compare_Tag(Tag))
 		{
 			return g;
 		}
@@ -101,35 +101,35 @@ void Scene::Update()
 
 void Scene::Processing_Start()
 {
-	if (!MonoBehaviour_Start_Next_list.empty())
+	if (!monobehaviour_Start_next_list.empty())
 	{
-		copy(MonoBehaviour_Start_Next_list.begin(), MonoBehaviour_Start_Next_list.end(), std::back_inserter(MonoBehaviour_Start_list));
-		MonoBehaviour_Start_Next_list.clear();
+		copy(monobehaviour_Start_next_list.begin(), monobehaviour_Start_next_list.end(), std::back_inserter(monobehaviour_Start_list));
+		monobehaviour_Start_next_list.clear();
 	}
-	if (!MonoBehaviour_Start_list.empty())
+	if (!monobehaviour_Start_list.empty())
 	{
-		for (weak_ptr<MonoBehaviour> m : MonoBehaviour_Start_list)
+		for (weak_ptr<MonoBehaviour> m : monobehaviour_Start_list)
 		{
 			if (!m.expired())
 			{
 				shared_ptr<MonoBehaviour> mono = m.lock();
-				if (mono->gameObject->activeInHierarchy())
+				if (mono->gameobject->Get_Active_In_Hierarchy())
 				{
-					if (mono->enableSelf())
+					if (mono->Get_Enabled())
 					{
-						if (!mono->IsCalled_Start)
+						if (!mono->is_called_Start)
 						{
 							mono->Start();
-							mono->IsCalled_Start = true;
-							if (mono->gameObject->activeInHierarchy())
+							mono->is_called_Start = true;
+							if (mono->gameobject->Get_Active_In_Hierarchy())
 							{
-								if (mono->enableSelf())
+								if (mono->Get_Enabled())
 								{
-									if (!mono->IsCalled_Update)
+									if (!mono->is_called_Update)
 									{
-										MonoBehaviour_Update_list.emplace_back(m);
-										mono->IsCalled_Update = true;
-										mono->Disable_flg = false;
+										monobehaviour_Update_list.emplace_back(m);
+										mono->is_called_Update = true;
+										mono->is_disable = false;
 									}
 								}
 							}
@@ -138,28 +138,28 @@ void Scene::Processing_Start()
 				}
 			}
 		}
-		MonoBehaviour_Start_list.clear();
+		monobehaviour_Start_list.clear();
 	}
 }
 
 void Scene::Processing_Update(int state)
 {
-	if (!MonoBehaviour_Update_Next_list.empty())
+	if (!monobehaviour_Update_next_list.empty())
 	{
-		copy(MonoBehaviour_Update_Next_list.begin(), MonoBehaviour_Update_Next_list.end(), std::back_inserter(MonoBehaviour_Update_list));
-		MonoBehaviour_Update_Next_list.clear();
+		copy(monobehaviour_Update_next_list.begin(), monobehaviour_Update_next_list.end(), std::back_inserter(monobehaviour_Update_list));
+		monobehaviour_Update_next_list.clear();
 	}
 
 	bool expired = false;
 	bool disabled = false;
-	for (weak_ptr<MonoBehaviour> m : MonoBehaviour_Update_list)
+	for (weak_ptr<MonoBehaviour> m : monobehaviour_Update_list)
 	{
 		if (!m.expired())
 		{
 			shared_ptr<MonoBehaviour> mono = m.lock();
-			if (mono->gameObject->activeInHierarchy())
+			if (mono->gameobject->Get_Active_In_Hierarchy())
 			{
-				if (mono->enableSelf())
+				if (mono->Get_Enabled())
 				{
 					if (state == 0)
 					{
@@ -172,13 +172,13 @@ void Scene::Processing_Update(int state)
 				}
 				else
 				{
-					mono->Disable_flg = true;
+					mono->is_disable = true;
 					disabled = true;
 				}
 			}
 			else
 			{
-				mono->Disable_flg = true;
+				mono->is_disable = true;
 				disabled = true;
 			}
 		}
@@ -189,26 +189,26 @@ void Scene::Processing_Update(int state)
 	}
 	if (expired)
 	{
-		auto removeIt = remove_if(MonoBehaviour_Update_list.begin(), MonoBehaviour_Update_list.end(), [](weak_ptr<MonoBehaviour> m) { return m.expired(); });
-		MonoBehaviour_Update_list.erase(removeIt, MonoBehaviour_Update_list.end());
+		auto removeIt = remove_if(monobehaviour_Update_list.begin(), monobehaviour_Update_list.end(), [](weak_ptr<MonoBehaviour> m) { return m.expired(); });
+		monobehaviour_Update_list.erase(removeIt, monobehaviour_Update_list.end());
 	}
 	if (disabled)
 	{
-		auto removeIt = remove_if(MonoBehaviour_Update_list.begin(), MonoBehaviour_Update_list.end(), [](weak_ptr<MonoBehaviour> m) { shared_ptr<MonoBehaviour> mono = m.lock(); mono->IsCalled_Update = false; return mono->Disable_flg; });
-		MonoBehaviour_Update_list.erase(removeIt, MonoBehaviour_Update_list.end());
+		auto removeIt = remove_if(monobehaviour_Update_list.begin(), monobehaviour_Update_list.end(), [](weak_ptr<MonoBehaviour> m) { shared_ptr<MonoBehaviour> mono = m.lock(); mono->is_called_Update = false; return mono->is_disable; });
+		monobehaviour_Update_list.erase(removeIt, monobehaviour_Update_list.end());
 	}
 }
 
 void Scene::Reset()
 {
-	MonoBehaviour_Update_list.clear();
-	MonoBehaviour_Start_list.clear();
-	MonoBehaviour_Start_Next_list.clear();
+	monobehaviour_Update_list.clear();
+	monobehaviour_Start_list.clear();
+	monobehaviour_Start_next_list.clear();
 
 	vector<shared_ptr<GameObject>> no_parent_list;
-	for (shared_ptr<GameObject> g : gameObject_List)
+	for (shared_ptr<GameObject> g : gameobject_list)
 	{
-		if (g->transform->Get_parent().expired())
+		if (g->transform->Get_Parent().expired())
 		{
 			no_parent_list.emplace_back(g);
 		}
@@ -218,5 +218,5 @@ void Scene::Reset()
 		g->Release();
 	}
 	no_parent_list.clear();
-	gameObject_List.clear();
+	gameobject_list.clear();
 }

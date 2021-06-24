@@ -23,7 +23,7 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 {
 	enabled_old = enabled;
 
-	gameObject = obj;
+	gameobject = obj;
 	transform = obj->transform;
 
 	VERTEX v[] = {
@@ -44,7 +44,7 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 	ZeroMemory(&res, sizeof(res));
 	res.pSysMem = v;
 
-	DxSystem::Device->CreateBuffer(&bd, &res, VertexBuffer.GetAddressOf());
+	DxSystem::device->CreateBuffer(&bd, &res, vertex_buffer.GetAddressOf());
 	texture = make_shared<Texture>();
 
 	if (!default_shader)
@@ -56,30 +56,30 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 
 	if (file_path != "")
 	{
-		texture->Load(file_path + file_name);
+		texture->load(file_path + file_name);
 	}
 	else
 	{
-		texture->Load("Default_Resource\\Image\\Default_Texture.png");
+		texture->load("Default_Resource\\Image\\Default_Texture.png");
 	}
 
-	SetActive(enableSelf());
+	Set_Active(Get_Enabled());
 }
 
-void Sprite_Renderer::SetActive(bool value)
+void Sprite_Renderer::Set_Active(bool value)
 {
 	if (value)
 	{
-		if (gameObject->activeSelf())
+		if (gameobject->Get_Active())
 		{
-			if (enableSelf())
+			if (Get_Enabled())
 			{
-				if (!IsCalled)
+				if (!is_called)
 				{
 					Engine::render_manager->Add(static_pointer_cast<Sprite_Renderer>(shared_from_this()));
-					IsCalled = true;
+					is_called = true;
 				}
-				Disable_flg = false;
+				is_disable = false;
 			}
 		}
 	}
@@ -100,120 +100,120 @@ void Sprite_Renderer::Render(Matrix V, Matrix P)
 		//頂点データ設定
 		VERTEX data[4];
 
-		Vector3 trans_pos = gameObject->transform->Get_position();
+		Vector3 trans_pos = gameobject->transform->Get_Position();
 
-		data[0].Pos.x = trans_pos.x;
-		data[0].Pos.y = trans_pos.y;
-		data[0].Pos.z = 0.0f;
+		data[0].pos.x = trans_pos.x;
+		data[0].pos.y = trans_pos.y;
+		data[0].pos.z = 0.0f;
 
-		data[1].Pos.x = trans_pos.x + Size.x;//trans->Width;
-		data[1].Pos.y = trans_pos.y;
-		data[1].Pos.z = 0.0f;
+		data[1].pos.x = trans_pos.x + size.x;//trans->Width;
+		data[1].pos.y = trans_pos.y;
+		data[1].pos.z = 0.0f;
 
-		data[2].Pos.x = trans_pos.x;
-		data[2].Pos.y = trans_pos.y + Size.y;//trans->Height;
-		data[2].Pos.z = 0.0f;
+		data[2].pos.x = trans_pos.x;
+		data[2].pos.y = trans_pos.y + size.y;//trans->Height;
+		data[2].pos.z = 0.0f;
 
-		data[3].Pos.x = trans_pos.x + Size.x;//trans->Width;
-		data[3].Pos.y = trans_pos.y + Size.y;//trans->Height;
-		data[3].Pos.z = 0.0f;
+		data[3].pos.x = trans_pos.x + size.x;//trans->Width;
+		data[3].pos.y = trans_pos.y + size.y;//trans->Height;
+		data[3].pos.z = 0.0f;
 
 		// 中心座標を原点へ
 		//float mx = trans_pos.x + trans->Width * 0.5f;
 		//float my = trans_pos.y + trans->Height * 0.5f;
-		float mx = trans_pos.x + Size.x * 0.5f;
-		float my = trans_pos.y + Size.y * 0.5f;
-		data[0].Pos.x -= mx; data[0].Pos.y -= my;
-		data[1].Pos.x -= mx; data[1].Pos.y -= my;
-		data[2].Pos.x -= mx; data[2].Pos.y -= my;
-		data[3].Pos.x -= mx; data[3].Pos.y -= my;
+		float mx = trans_pos.x + size.x * 0.5f;
+		float my = trans_pos.y + size.y * 0.5f;
+		data[0].pos.x -= mx; data[0].pos.y -= my;
+		data[1].pos.x -= mx; data[1].pos.y -= my;
+		data[2].pos.x -= mx; data[2].pos.y -= my;
+		data[3].pos.x -= mx; data[3].pos.y -= my;
 
 		// 角度計算
 		float rx, ry;
-		float z = transform->Get_eulerAngles().z;
+		float z = transform->Get_Euler_Angles().z;
 		float cos = cosf(XMConvertToRadians(z));
 		float sin = sinf(XMConvertToRadians(z));
 
-		rx = data[0].Pos.x;
-		ry = data[0].Pos.y;
-		data[0].Pos.x = cos * rx + -sin * ry;
-		data[0].Pos.y = sin * rx + cos * ry;
+		rx = data[0].pos.x;
+		ry = data[0].pos.y;
+		data[0].pos.x = cos * rx + -sin * ry;
+		data[0].pos.y = sin * rx + cos * ry;
 
-		rx = data[1].Pos.x;
-		ry = data[1].Pos.y;
-		data[1].Pos.x = cos * rx + -sin * ry;
-		data[1].Pos.y = sin * rx + cos * ry;
+		rx = data[1].pos.x;
+		ry = data[1].pos.y;
+		data[1].pos.x = cos * rx + -sin * ry;
+		data[1].pos.y = sin * rx + cos * ry;
 
-		rx = data[2].Pos.x;
-		ry = data[2].Pos.y;
-		data[2].Pos.x = cos * rx + -sin * ry;
-		data[2].Pos.y = sin * rx + cos * ry;
+		rx = data[2].pos.x;
+		ry = data[2].pos.y;
+		data[2].pos.x = cos * rx + -sin * ry;
+		data[2].pos.y = sin * rx + cos * ry;
 
-		rx = data[3].Pos.x;
-		ry = data[3].Pos.y;
-		data[3].Pos.x = cos * rx + -sin * ry;
-		data[3].Pos.y = sin * rx + cos * ry;
+		rx = data[3].pos.x;
+		ry = data[3].pos.y;
+		data[3].pos.x = cos * rx + -sin * ry;
+		data[3].pos.y = sin * rx + cos * ry;
 
 		// 動かした分戻す
-		data[0].Pos.x += mx; data[0].Pos.y += my;
-		data[1].Pos.x += mx; data[1].Pos.y += my;
-		data[2].Pos.x += mx; data[2].Pos.y += my;
-		data[3].Pos.x += mx; data[3].Pos.y += my;
+		data[0].pos.x += mx; data[0].pos.y += my;
+		data[1].pos.x += mx; data[1].pos.y += my;
+		data[2].pos.x += mx; data[2].pos.y += my;
+		data[3].pos.x += mx; data[3].pos.y += my;
 
 		// 正規化デバイス座標系
 		for (int i = 0; i < 4; i++)
 		{
-			data[i].Pos.x = 2.0f * data[i].Pos.x / Screen::Get_Width() - 1.0f;
-			data[i].Pos.y = 1.0f - 2.0f * data[i].Pos.y / Screen::Get_Height();
-			data[i].Pos.z = 0.0f;
+			data[i].pos.x = 2.0f * data[i].pos.x / Screen::Get_Width() - 1.0f;
+			data[i].pos.y = 1.0f - 2.0f * data[i].pos.y / Screen::Get_Height();
+			data[i].pos.z = 0.0f;
 		}
 
 		//テクスチャ座標設定
-		data[0].Tex.x = UV_Origin.x;
-		data[0].Tex.y = UV_Origin.y;
-		data[1].Tex.x = UV_Origin.x + UV_Size.x;
-		data[1].Tex.y = UV_Origin.y;
-		data[2].Tex.x = UV_Origin.x;
-		data[2].Tex.y = UV_Origin.y + UV_Size.y;
-		data[3].Tex.x = UV_Origin.x + UV_Size.x;
-		data[3].Tex.y = UV_Origin.y + UV_Size.y;
+		data[0].tex.x = uv_origin.x;
+		data[0].tex.y = uv_origin.y;
+		data[1].tex.x = uv_origin.x + uv_size.x;
+		data[1].tex.y = uv_origin.y;
+		data[2].tex.x = uv_origin.x;
+		data[2].tex.y = uv_origin.y + uv_size.y;
+		data[3].tex.x = uv_origin.x + uv_size.x;
+		data[3].tex.y = uv_origin.y + uv_size.y;
 
 		//UV座標
-		float w = (float)texture->GetWidth();
-		float h = (float)texture->GetHeight();
+		float w = (float)texture->Get_Width();
+		float h = (float)texture->Get_Height();
 		for (int i = 0; i < 4; i++)
 		{
-			data[i].Tex.x = data[i].Tex.x / w;
-			data[i].Tex.y = data[i].Tex.y / h;
+			data[i].tex.x = data[i].tex.x / w;
+			data[i].tex.y = data[i].tex.y / h;
 		}
 		//頂点カラー
-		data[0].Color = Color;
-		data[1].Color = Color;
-		data[2].Color = Color;
-		data[3].Color = Color;
+		data[0].color = color;
+		data[1].color = color;
+		data[2].color = color;
+		data[3].color = color;
 
 		if (material.empty())
 		{
-			DxSystem::DeviceContext->IASetInputLayout(default_shader->VertexLayout.Get());
+			DxSystem::device_context->IASetInputLayout(default_shader->vertex_layout.Get());
 		}
 		else
 		{
-			DxSystem::DeviceContext->IASetInputLayout(material[0]->shader->VertexLayout.Get());
+			DxSystem::device_context->IASetInputLayout(material[0]->shader->vertex_layout.Get());
 		}
 		//	頂点バッファの指定
 		UINT stride = sizeof(VERTEX);
 		UINT offset = 0;
-		DxSystem::DeviceContext->IASetVertexBuffers(
-			0, 1, VertexBuffer.GetAddressOf(), // スロット, 数, バッファ
+		DxSystem::device_context->IASetVertexBuffers(
+			0, 1, vertex_buffer.GetAddressOf(), // スロット, 数, バッファ
 			&stride,		// １頂点のサイズ
 			&offset			// 開始位置
 		);
-		DxSystem::DeviceContext->UpdateSubresource(VertexBuffer.Get(), 0, NULL, data, 0, 0);
+		DxSystem::device_context->UpdateSubresource(vertex_buffer.Get(), 0, NULL, data, 0, 0);
 
 		//テクスチャの設定
 		texture->Set(1);
 
-		DxSystem::DeviceContext->Draw(4, 0);
+		DxSystem::device_context->Draw(4, 0);
 	}
 }
 
@@ -239,10 +239,10 @@ bool Sprite_Renderer::Draw_ImGui()
 
 	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
 	static bool enable;
-	enable = enableSelf();
+	enable = Get_Enabled();
 	if (ImGui::Checkbox("##enable", &enable))
 	{
-		SetEnabled(enable);
+		Set_Enabled(enable);
 	}
 
 	if (open)
@@ -261,7 +261,7 @@ bool Sprite_Renderer::Draw_ImGui()
 				string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
 				string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
 				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
-				texture->Load(path);
+				texture->load(path);
 				file_path = pathname;
 				file_name = filename + extname;
 			}
@@ -275,21 +275,21 @@ bool Sprite_Renderer::Draw_ImGui()
 		static int uv_origin[2] = { 0,0 };
 		static int uv_size[2] = { 0,0 };
 
-		size[0] = Size.x; size[1] = Size.y;
-		uv_origin[0] = (int)UV_Origin.x; uv_origin[1] = (int)UV_Origin.y;
-		uv_size[0] = (int)UV_Size.x; uv_size[1] = (int)UV_Size.y;
+		size[0] = size.x; size[1] = size.y;
+		uv_origin[0] = (int)uv_origin.x; uv_origin[1] = (int)uv_origin.y;
+		uv_size[0] = (int)uv_size.x; uv_size[1] = (int)uv_size.y;
 
 		ImGui::DragFloat2(u8"表示サイズ", size, 0.1f, -FLT_MAX, FLT_MAX);
 		ImGui::DragInt2(u8"UV始点", uv_origin, 0, INT_MAX);
 		ImGui::DragInt2(u8"UVサイズ", uv_size, 0, INT_MAX);
 
-		Size = { (float)size[0],(float)size[1] };
-		UV_Origin = { (float)uv_origin[0],(float)uv_origin[1] };
-		UV_Size = { (float)uv_size[0],(float)uv_size[1] };
+		size = { (float)size[0],(float)size[1] };
+		uv_origin = { (float)uv_origin[0],(float)uv_origin[1] };
+		uv_size = { (float)uv_size[0],(float)uv_size[1] };
 
-		float out_color[4] = { Color.x,Color.y,Color.z,Color.w };
+		float out_color[4] = { color.x,color.y,color.z,color.w };
 		ImGui::ColorEdit4("Color", out_color);
-		Color = { out_color[0],out_color[1] ,out_color[2] ,out_color[3] };
+		color = { out_color[0],out_color[1] ,out_color[2] ,out_color[3] };
 	}
 	return true;
 }

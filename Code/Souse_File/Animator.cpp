@@ -12,11 +12,11 @@ using namespace BeastEngine;
 
 void Animator::Initialize(shared_ptr<GameObject> obj)
 {
-	gameObject = obj;
+	gameobject = obj;
 	transform = obj->transform;
 	Engine::animator_manager->Add(static_pointer_cast<Animator>(shared_from_this()));
 
-	shared_ptr<SkinMesh_Renderer> skin = GetComponent<SkinMesh_Renderer>();
+	shared_ptr<SkinMesh_Renderer> skin = Get_Component<SkinMesh_Renderer>();
 	if (skin)
 	{
 		Set_Skin_Renderer(skin);
@@ -39,7 +39,7 @@ void Animator::Set_Mesh(std::shared_ptr<Mesh> mesh)
 void Animator::Update()
 {
 	if (!mesh_data)	                   return;
-	if (!Playing)                      return;
+	if (!playing)                      return;
 	if (currentAnimation < 0)          return;
 	if (mesh_data->animations.empty()) return;
 
@@ -70,9 +70,9 @@ void Animator::Update()
 
 				shared_ptr<Transform> bone = nodes[nodeIndex].lock();
 
-				bone->Set_localScale(DirectX::XMVectorLerp(key0.scale, key1.scale, rate));
-				bone->Set_localRotation(DirectX::XMQuaternionSlerp(key0.rotation, key1.rotation, rate));
-				bone->Set_localPosition(DirectX::XMVectorLerp(key0.position, key1.position, rate));
+				bone->Set_Local_Scale(DirectX::XMVectorLerp(key0.scale, key1.scale, rate));
+				bone->Set_Local_Rotation(DirectX::XMQuaternionSlerp(key0.rotation, key1.rotation, rate));
+				bone->Set_Local_Position(DirectX::XMVectorLerp(key0.position, key1.position, rate));
 			}
 			break;
 		}
@@ -88,7 +88,7 @@ void Animator::Update()
 	}
 
 	// éûä‘åoâﬂ
-	currentSeconds += Time::deltaTime * animation_speed;
+	currentSeconds += Time::delta_time * animation_speed;
 	if (currentSeconds >= animation.secondsLength)
 	{
 		if (loopAnimation)
@@ -108,19 +108,19 @@ void Animator::Play(int animationIndex)
 {
 	currentAnimation = animationIndex;
 	endAnimation = false;
-	Playing = true;
+	playing = true;
 }
 
 void Animator::Stop()
 {
 	currentAnimation = -1;
 	currentSeconds = 0;
-	Playing = false;
+	playing = false;
 }
 
 void Animator::Pause()
 {
-	Playing = false;
+	playing = false;
 }
 
 bool Animator::Draw_ImGui()
@@ -145,10 +145,10 @@ bool Animator::Draw_ImGui()
 
 	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
 	static bool enable;
-	enable = enableSelf();
+	enable = Get_Enabled();
 	if (ImGui::Checkbox("##enable", &enable))
 	{
-		SetEnabled(enable);
+		Set_Enabled(enable);
 	}
 
 	if (open)
@@ -162,7 +162,7 @@ bool Animator::Draw_ImGui()
 		{
 			if (ImGui::Button(u8"MeshÇåüçı"))
 			{
-				shared_ptr<SkinMesh_Renderer> skin = GetComponent<SkinMesh_Renderer>();
+				shared_ptr<SkinMesh_Renderer> skin = Get_Component<SkinMesh_Renderer>();
 				if (skin)
 				{
 					Set_Skin_Renderer(skin);

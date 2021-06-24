@@ -20,37 +20,37 @@ namespace BeastEngine
 		void Pause(); //一時停止
 		void Stop();  //停止
 
-		void PlayOneShot(float volume = 1.0f, float pitch = 0.0f); //再生(同時再生可能),(再生中制御不可)
+		void Play_OneShot(float volume = 1.0f, float pitch = 0.0f); //再生(同時再生可能),(再生中制御不可)
 		//static void PlayClipAtPoint(const char* filepath, const char* filename, Vector3 position = { 0,0,0 }, float volume = 1.0f, float pitch = 0.0f); //その場でオブジェクトを生成し再生(同時再生可能),(再生中制御不可)
 
-		bool IsPlaying();
+		bool Is_Playing();
 		void Set_Volume(float volume);
-		float Get_Volume() { return Volume; };
+		float Get_Volume() { return volume; };
 		void Set_Pitch(float pitch);
-		float Get_Pitch() { return Pitch; };
+		float Get_Pitch() { return pitch; };
 
-		bool Play_On_Awake = true;
-		bool Loop = false;
+		bool play_on_awake = true;
+		bool loop = false;
 
 	private:
 
-		std::unique_ptr<DirectX::SoundEffectInstance> Effect_Instance;
+		std::unique_ptr<DirectX::SoundEffectInstance> effect_instance;
 		std::string file_name;
 		std::string file_path;
 
-		float Volume = 1.0f;
-		float Pitch = 0.0f;
+		float volume = 1.0f;
+		float pitch = 0.0f;
 
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
-		void SetActive(bool value) override;
+		void Set_Active(bool value) override;
 		bool Draw_ImGui() override;
-		bool CanMultiple() override { return true; };
+		bool Can_Multiple() override { return true; };
 
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(cereal::base_class<BeastEngine::Behaviour>(this), file_name, file_path, Play_On_Awake, Loop, Volume, Pitch);
+			archive(cereal::base_class<BeastEngine::Behaviour>(this), file_name, file_path, play_on_awake, loop, volume, pitch);
 		}
 	};
 }

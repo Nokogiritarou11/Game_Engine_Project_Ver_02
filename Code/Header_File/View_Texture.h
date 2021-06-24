@@ -18,12 +18,12 @@ namespace BeastEngine
 	class View_Texture
 	{
 	public:
-		ComPtr<ID3D11RenderTargetView>		RenderTargetView;
-		ComPtr<ID3D11Texture2D>				Texture_RenderTarget;
-		ComPtr<ID3D11DepthStencilView>		DepthStencilView;
-		ComPtr<ID3D11Texture2D>				Texture_DepthStencil;
-		ComPtr<ID3D11ShaderResourceView>	ShaderResourceView_Depth;
-		ComPtr<ID3D11ShaderResourceView>	ShaderResourceView_Render;
+		ComPtr<ID3D11RenderTargetView>		render_target_view;
+		ComPtr<ID3D11Texture2D>				texture_render_target;
+		ComPtr<ID3D11DepthStencilView>		depth_stencil_view;
+		ComPtr<ID3D11Texture2D>				texture_depth_stencil;
+		ComPtr<ID3D11ShaderResourceView>	shader_resource_view_depth;
+		ComPtr<ID3D11ShaderResourceView>	shader_resource_view_render;
 
 		View_Texture();
 		~View_Texture() {};
@@ -41,25 +41,25 @@ namespace BeastEngine
 		int screen_x = 0;
 		int screen_y = 0;
 
-		bool CreateDepthStencil(int x, int y);
-		bool CreateRenderTartgetView(int x, int y);
+		bool Create_Depth_Stencil(int x, int y);
+		bool Create_Render_Tartget_View(int x, int y);
 		void Clear();
 
 		static std::unique_ptr<BeastEngine::SkyBox> skybox;
 
-		struct CbScene
+		struct Constant_Buffer_Scene
 		{
-			BeastEngine::Matrix	viewProjection;
-			BeastEngine::Matrix	shadowMatrix;
-			BeastEngine::Vector4	lightDirection;
-			BeastEngine::Vector3 lightColor;
-			float	Bias;
+			BeastEngine::Matrix	 view_projection_matrix;
+			BeastEngine::Matrix	 shadow_matrix;
+			BeastEngine::Vector4 light_direction;
+			BeastEngine::Vector3 light_color;
+			float	bias;
 		};
-		CbScene cb_scene;
+		Constant_Buffer_Scene buffer_scene;
 
-		ComPtr <ID3D11Buffer> ConstantBuffer_CbScene; //コンスタントバッファ
+		ComPtr <ID3D11Buffer> constant_buffer_scene; //コンスタントバッファ
 
 	private:
-		void Render_Shadow_Directional(BeastEngine::Vector4 Color, float Intensity, std::shared_ptr<BeastEngine::Transform> light_transform, std::shared_ptr<BeastEngine::Transform> camera_transform);
+		void Render_Shadow_Directional(BeastEngine::Vector4 color, float intensity, std::shared_ptr<BeastEngine::Transform> light_transform, std::shared_ptr<BeastEngine::Transform> camera_transform);
 	};
 }

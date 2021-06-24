@@ -26,13 +26,13 @@ Particle::~Particle()
 
 void Particle::Initialize(shared_ptr<GameObject> obj)
 {
-	gameObject = obj;
+	gameobject = obj;
 	transform = obj->transform;
 	if (file_path != "")
 	{
 		Set_Particle(file_path.c_str(), file_name.c_str());
 	}
-	SetActive(gameObject->activeInHierarchy());
+	Set_Active(gameobject->Get_Active_In_Hierarchy());
 }
 
 void Particle::Set_Particle(const char* filepath, const char* filename)
@@ -70,39 +70,39 @@ void Particle::Set_Particle(const char* filepath, const char* filename)
 		}
 	}
 	handle = -1;
-	IsCalled = false;
-	SetActive(gameObject->activeInHierarchy());
+	is_called = false;
+	Set_Active(gameobject->Get_Active_In_Hierarchy());
 }
 
-void Particle::SetActive(bool value)
+void Particle::Set_Active(bool value)
 {
 	if (value)
 	{
-		if (!IsCalled)
+		if (!is_called)
 		{
 			Engine::particle_manager->Add(static_pointer_cast<Particle>(shared_from_this()));
-			IsCalled = true;
+			is_called = true;
 		}
-		if (Play_On_Awake)
+		if (play_on_awake)
 		{
-			if (Engine::scene_manager->Run)
+			if (Engine::scene_manager->run)
 			{
 				Play();
 			}
 		}
 		else
 		{
-			if (Engine::scene_manager->Run)
+			if (Engine::scene_manager->run)
 			{
 				Stop();
 			}
 		}
-		Disable_flg = false;
+		is_disable = false;
 	}
 	else
 	{
 
-		if (Engine::scene_manager->Run)
+		if (Engine::scene_manager->run)
 		{
 			Stop();
 		}
@@ -113,7 +113,7 @@ void Particle::Play()
 {
 	if (effect != nullptr)
 	{
-		if (gameObject->activeInHierarchy())
+		if (gameobject->Get_Active_In_Hierarchy())
 		{
 			if (!Engine::particle_manager->manager->Exists(handle))
 			{
@@ -135,7 +135,7 @@ void Particle::Pause()
 {
 	if (effect != nullptr)
 	{
-		if (gameObject->activeInHierarchy())
+		if (gameobject->Get_Active_In_Hierarchy())
 		{
 			// インスタンスが存在しているか確認して
 			if (Engine::particle_manager->manager->Exists(handle))
@@ -151,7 +151,7 @@ void Particle::Stop()
 {
 	if (effect != nullptr)
 	{
-		if (gameObject->activeInHierarchy())
+		if (gameobject->Get_Active_In_Hierarchy())
 		{
 			// インスタンスが存在しているか確認して
 			if (Engine::particle_manager->manager->Exists(handle))
@@ -216,9 +216,9 @@ bool Particle::Draw_ImGui()
 		}
 		for (int i = 0; i < 5; ++i) ImGui::Spacing();
 
-		ImGui::DragFloat(u8"再生速度", &Play_Speed, 0.01f, 0.0f, FLT_MAX);
+		ImGui::DragFloat(u8"再生速度", &play_speed, 0.01f, 0.0f, FLT_MAX);
 		for (int i = 0; i < 5; ++i) ImGui::Spacing();
-		ImGui::Checkbox(u8"アクティブ時の自動再生", &Play_On_Awake);
+		ImGui::Checkbox(u8"アクティブ時の自動再生", &play_on_awake);
 		for (int i = 0; i < 5; ++i) ImGui::Spacing();
 		if (effect != nullptr)
 		{

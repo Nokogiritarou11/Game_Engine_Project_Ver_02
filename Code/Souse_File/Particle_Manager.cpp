@@ -12,7 +12,7 @@ using namespace std;
 Particle_Manager::Particle_Manager()
 {
 	// エフェクトのレンダラーの作成
-	renderer = EffekseerRendererDX11::Renderer::Create(DxSystem::Device.Get(), DxSystem::DeviceContext.Get(), 8000);
+	renderer = EffekseerRendererDX11::Renderer::Create(DxSystem::device.Get(), DxSystem::device_context.Get(), 8000);
 
 	// エフェクトのマネージャーの作成
 	manager = Effekseer::Manager::Create(8000);
@@ -53,12 +53,12 @@ Particle_Manager::~Particle_Manager()
 
 void Particle_Manager::Add(weak_ptr<Particle> particle)
 {
-	Particle_List.emplace_back(particle);
+	particle_list.emplace_back(particle);
 }
 
 void Particle_Manager::Camera_Update(std::shared_ptr<Transform>& camera_trans, float FOV, float near_z, float far_z, float aspect)
 {
-	Vector3 pos = camera_trans->Get_position();
+	Vector3 pos = camera_trans->Get_Position();
 
 	// 視点位置を確定
 	auto g_position = ::Effekseer::Vector3D(pos.x, pos.y, pos.z);
@@ -67,10 +67,10 @@ void Particle_Manager::Camera_Update(std::shared_ptr<Transform>& camera_trans, f
 	renderer->SetProjectionMatrix(::Effekseer::Matrix44().PerspectiveFovRH(
 		FOV, aspect, near_z, far_z));
 
-	Vector3 focus = pos + camera_trans->Get_forward();
+	Vector3 focus = pos + camera_trans->Get_Forward();
 	auto g_focus = ::Effekseer::Vector3D(focus.x, focus.y, focus.z);
 
-	Vector3 up = camera_trans->Get_up();
+	Vector3 up = camera_trans->Get_Up();
 	auto g_up = ::Effekseer::Vector3D(up.x, up.y, up.z);
 
 	// カメラ行列を設定
@@ -84,23 +84,23 @@ void Particle_Manager::Update()
 	shared_ptr<Particle> p_eff = nullptr;
 	bool expired = false;
 	bool disabled = false;
-	for (weak_ptr<Particle> r : Particle_List)
+	for (weak_ptr<Particle> r : particle_list)
 	{
 		if (!r.expired())
 		{
 			p_eff = r.lock();
-			if (p_eff->gameObject->activeInHierarchy())
+			if (p_eff->gameobject->Get_Active_In_Hierarchy())
 			{
 				if (Engine::particle_manager->manager->Exists(p_eff->handle))
 				{
 					Effekseer::Matrix43 mat;
-					Matrix m = p_eff->transform->Get_world_matrix();
+					Matrix m = p_eff->transform->Get_World_Matrix();
 					mat.Value[0][0] = m._11;mat.Value[0][1] = m._12;mat.Value[0][2] = m._13;
 					mat.Value[1][0] = m._21;mat.Value[1][1] = m._22;mat.Value[1][2] = m._23;
 					mat.Value[2][0] = m._31;mat.Value[2][1] = m._32;mat.Value[2][2] = m._33;
 					mat.Value[3][0] = m._41;mat.Value[3][1] = m._42;mat.Value[3][2] = m._43;
 					manager->SetBaseMatrix(p_eff->handle, mat);
-					manager->SetSpeed(p_eff->handle, p_eff->Play_Speed);
+					manager->SetSpeed(p_eff->handle, p_eff->play_speed);
 				}
 			}
 			else
@@ -110,7 +110,7 @@ void Particle_Manager::Update()
 					// 再生を停止する
 					Engine::particle_manager->manager->StopEffect(p_eff->handle);
 				}
-				p_eff->Disable_flg = true;
+				p_eff->is_disable = true;
 				disabled = true;
 			}
 		}
@@ -121,16 +121,16 @@ void Particle_Manager::Update()
 	}
 	if (expired)
 	{
-		auto removeIt = remove_if(Particle_List.begin(), Particle_List.end(), [](weak_ptr<Particle> r) { return r.expired(); });
-		Particle_List.erase(removeIt, Particle_List.end());
+		auto removeIt = remove_if(particle_list.begin(), particle_list.end(), [](weak_ptr<Particle> r) { return r.expired(); });
+		particle_list.erase(removeIt, particle_list.end());
 	}
 	if (disabled)
 	{
-		auto removeIt = remove_if(Particle_List.begin(), Particle_List.end(), [](weak_ptr<Particle> r) { shared_ptr<Particle> p = r.lock(); p->IsCalled = false; return p->Disable_flg; });
-		Particle_List.erase(removeIt, Particle_List.end());
+		auto removeIt = remove_if(particle_list.begin(), particle_list.end(), [](weak_ptr<Particle> r) { shared_ptr<Particle> p = r.lock(); p->is_called = false; return p->is_disable; });
+		particle_list.erase(removeIt, particle_list.end());
 	}
 
-	manager->Update(60.0f / (1 / Time::deltaTime));
+	manager->Update(60.0f / (1 / Time::delta_time));
 }
 
 void Particle_Manager::Render()
@@ -147,7 +147,7 @@ void Particle_Manager::Render()
 
 void Particle_Manager::Reset()
 {
-	Particle_List.clear();
+	particle_list.clear();
 	if (manager != nullptr)
 	{
 		manager.Reset();

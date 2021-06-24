@@ -2,6 +2,9 @@
 #include "DxSystem.h"
 #include <clocale>
 #include <tchar.h>
+#include <stdio.h>
+#include <Windows.h>
+#pragma comment(lib, "rpcrt4.lib")
 using namespace std;
 using namespace BeastEngine;
 
@@ -88,4 +91,21 @@ string System_Function::Get_Save_File_Name()
 		str_path = "";
 	}
 	return str_path;
+}
+
+string System_Function::Create_ID()
+{
+	UUID uuid = { 0 };
+	string guid;
+
+	UuidCreate(&uuid);
+
+	RPC_CSTR szUuid = NULL;
+	if (UuidToStringA(&uuid, &szUuid) == RPC_S_OK)
+	{
+		guid = (char*)szUuid;
+		RpcStringFreeA(&szUuid);
+	}
+
+	return guid;
 }

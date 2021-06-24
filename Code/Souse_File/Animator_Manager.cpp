@@ -6,22 +6,22 @@ using namespace BeastEngine;
 
 void Animator_Manager::Reset()
 {
-	Animator_list.clear();
+	animator_list.clear();
 }
 
 void Animator_Manager::Update()
 {
-	for (list<weak_ptr<Animator>>::iterator itr = Animator_list.begin(); itr != Animator_list.end();)
+	for (list<weak_ptr<Animator>>::iterator itr = animator_list.begin(); itr != animator_list.end();)
 	{
 		if (itr->expired())
 		{
-			itr = Animator_list.erase(itr);
+			itr = animator_list.erase(itr);
 			continue;
 		}
 		shared_ptr<Animator> animator = itr->lock();
-		if (animator->gameObject->activeInHierarchy())
+		if (animator->gameobject->Get_Active_In_Hierarchy())
 		{
-			if (animator->enableSelf())
+			if (animator->Get_Enabled())
 			{
 				animator->Update();
 			}
@@ -32,5 +32,5 @@ void Animator_Manager::Update()
 
 void Animator_Manager::Add(shared_ptr<Animator> animator)
 {
-	Animator_list.emplace_back(animator);
+	animator_list.emplace_back(animator);
 }

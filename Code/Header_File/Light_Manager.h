@@ -12,7 +12,7 @@ namespace BeastEngine
 	public:
 		void Reset();
 		void Add(std::shared_ptr<BeastEngine::Light> light);
-		std::vector<std::weak_ptr<BeastEngine::Light>> Light_list;
+		std::vector<std::weak_ptr<BeastEngine::Light>> light_list;
 	private:
 
 	};

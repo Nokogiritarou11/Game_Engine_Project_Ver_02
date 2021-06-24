@@ -27,27 +27,30 @@ namespace BeastEngine
 	public:
 		std::string name; //名前
 
-		Object() {};
+		Object();
+		Object(const Object& obj);
 		virtual ~Object() {};
 
-		std::string ToString(); //名前を返す
+		std::string To_String(); //名前を返す
 		static void Destroy(std::shared_ptr<BeastEngine::GameObject> obj); //オブジェクトを削除する
 		static void Destroy(std::shared_ptr<BeastEngine::Component> comp); //オブジェクトを削除する
 
-		static std::shared_ptr<BeastEngine::GameObject> Instantiate(std::string name);                                                                        //オブジェクトを生成する
-		static std::shared_ptr<BeastEngine::GameObject> Instantiate(std::string name, std::shared_ptr<BeastEngine::Transform> parent);                                     //オブジェクトを生成する
-		static std::shared_ptr<BeastEngine::GameObject> Instantiate(std::string name, std::shared_ptr<BeastEngine::Transform> parent, bool instantiateInWorldSpace);       //オブジェクトを生成する
-		static std::shared_ptr<BeastEngine::GameObject> Instantiate(std::string name, BeastEngine::Vector3 position, BeastEngine::Vector3 euler);                                       //オブジェクトを生成する
-		static std::shared_ptr<BeastEngine::GameObject> Instantiate(std::string name, BeastEngine::Vector3 position, BeastEngine::Vector4 rotation);                                    //オブジェクトを生成する
-		static std::shared_ptr<BeastEngine::GameObject> Instantiate(std::string name, BeastEngine::Vector3 position, BeastEngine::Vector3 euler, std::shared_ptr<BeastEngine::Transform> parent);    //オブジェクトを生成する
-		static std::shared_ptr<BeastEngine::GameObject> Instantiate(std::string name, BeastEngine::Vector3 position, BeastEngine::Vector4 rotation, std::shared_ptr<BeastEngine::Transform> parent); //オブジェクトを生成する
+		static std::shared_ptr<BeastEngine::Object> Instantiate(std::weak_ptr<BeastEngine::Object> original); //オブジェクトを生成する
+		//static std::shared_ptr<BeastEngine::Object> Instantiate(std::weak_ptr<BeastEngine::Object> original, std::shared_ptr<BeastEngine::Transform> parent);                                     //オブジェクトを生成する
+		//static std::shared_ptr<BeastEngine::Object> Instantiate(std::weak_ptr<BeastEngine::Object> original, std::shared_ptr<BeastEngine::Transform> parent, bool instantiateInWorldSpace);       //オブジェクトを生成する
+		//static std::shared_ptr<BeastEngine::Object> Instantiate(std::weak_ptr<BeastEngine::Object> original, BeastEngine::Vector3 position, BeastEngine::Vector3 euler);                                       //オブジェクトを生成する
+		//static std::shared_ptr<BeastEngine::Object> Instantiate(std::weak_ptr<BeastEngine::Object> original, BeastEngine::Vector3 position, BeastEngine::Vector4 rotation);                                    //オブジェクトを生成する
+		//static std::shared_ptr<BeastEngine::Object> Instantiate(std::weak_ptr<BeastEngine::Object> original, BeastEngine::Vector3 position, BeastEngine::Vector3 euler, std::shared_ptr<BeastEngine::Transform> parent);    //オブジェクトを生成する
+		//static std::shared_ptr<BeastEngine::Object> Instantiate(std::weak_ptr<BeastEngine::Object> original, BeastEngine::Vector3 position, BeastEngine::Vector4 rotation, std::shared_ptr<BeastEngine::Transform> parent); //オブジェクトを生成する
 
 	private:
+		std::string instance_id;
+
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(name);
+			archive(name, instance_id);
 		}
 	};
 }

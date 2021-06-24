@@ -12,9 +12,9 @@ namespace BeastEngine
 	class Texture
 	{
 	protected:
-		ComPtr<ID3D11ShaderResourceView> ShaderResourceView = nullptr;
+		ComPtr<ID3D11ShaderResourceView> shader_resource_view = nullptr;
 		ComPtr<ID3D11SamplerState>       sampler = nullptr;
-		ComPtr<ID3D11RenderTargetView>   RenderTargetView = nullptr;
+		ComPtr<ID3D11RenderTargetView>   render_target_view = nullptr;
 
 		// テクスチャ情報
 		D3D11_TEXTURE2D_DESC texture2d_desc;
@@ -24,13 +24,13 @@ namespace BeastEngine
 		Texture();
 		virtual ~Texture();
 
-		bool Load(std::string filename, int sampler_state = 0);							//テクスチャをファイルを指定し読み込む(失敗したらFalseを返す)
+		bool load(std::string filename, int sampler_state = 0);							//テクスチャをファイルを指定し読み込む(失敗したらFalseを返す)
 		void Set(UINT Slot = 0, BOOL flg = TRUE);										//テクスチャをシェーダーにステージする
-		UINT GetWidth() { return texture2d_desc.Width; }								//テクスチャの横幅を返す
-		UINT GetHeight() { return texture2d_desc.Height; }								//テクスチャの縦幅を返す
-		ID3D11RenderTargetView* GetRenderTarget() { return RenderTargetView.Get(); }	//レンダーターゲットを返す
+		UINT Get_Width() { return texture2d_desc.Width; }								//テクスチャの横幅を返す
+		UINT Get_Height() { return texture2d_desc.Height; }								//テクスチャの縦幅を返す
+		ID3D11RenderTargetView* Get_Render_Target() { return render_target_view.Get(); }	//レンダーターゲットを返す
 
-		bool Texture_Have = false;														//テクスチャデータを保持しているか
+		bool has_texture = false;														//テクスチャデータを保持しているか
 
 		enum class Texture_Type
 		{

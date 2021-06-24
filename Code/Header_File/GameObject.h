@@ -10,31 +10,31 @@ namespace BeastEngine
 	class GameObject : public BeastEngine::Object
 	{
 	public:
-		bool CompareTag(std::string _tag);								//指定したタグに一致するか返す
-		bool activeSelf();												//ゲームオブジェクトがアクティブか(親の状態を考慮しない)
-		bool activeInHierarchy();										//ヒエラルキー上でアクティブか(親の状態を考慮する)
-		void SetActive(bool value);										//アクティブ状態を指定する
+		bool Compare_Tag(std::string _tag);								//指定したタグに一致するか返す
+		bool Get_Active();												//ゲームオブジェクトがアクティブか(親の状態を考慮しない)
+		void Set_Active(bool value);									//アクティブ状態を指定する
+		bool Get_Active_In_Hierarchy();										//ヒエラルキー上でアクティブか(親の状態を考慮する)
 
 		int layer = 0;
 		std::string tag = "Default";
 		std::shared_ptr<BeastEngine::Transform> transform;
-		std::vector<std::shared_ptr<BeastEngine::Component>> Component_List;
+		std::vector<std::shared_ptr<BeastEngine::Component>> component_list;
 
 		template<class T>
-		std::shared_ptr<T> GetComponent();								//アタッチサれているコンポーネントを検索し返す(存在しない場合null_ptr)
+		std::shared_ptr<T> Get_Component();								//アタッチサれているコンポーネントを検索し返す(存在しない場合null_ptr)
 		template<class T>
-		std::shared_ptr<T> AddComponent();								//コンポーネントをアタッチする
+		std::shared_ptr<T> Add_Component();								//コンポーネントをアタッチする
 
 		static std::weak_ptr<GameObject> Find(std::string Name);		//シーン内のゲームオブジェクトを名前で検索する
-		static std::weak_ptr<GameObject> FindWithTag(std::string Tag);	//シーン内のゲームオブジェクトをタグで検索する
+		static std::weak_ptr<GameObject> Find_With_Tag(std::string Tag);	//シーン内のゲームオブジェクトをタグで検索する
 
 	private:
 
 		void Initialize();
 		void Release();
 		void Set_Child_Active(bool value);
-		bool Active = true;
-		bool Old_Active = true;
+		bool active = true;
+		bool active_old = true;
 
 		friend class Resources;
 		friend class Scene;
@@ -48,9 +48,9 @@ CEREAL_REGISTER_TYPE(BeastEngine::GameObject)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Object, BeastEngine::GameObject)
 
 template<class T>
-std::shared_ptr<T> BeastEngine::GameObject::GetComponent()
+std::shared_ptr<T> BeastEngine::GameObject::Get_Component()
 {
-	for (std::shared_ptr<BeastEngine::Component> com : Component_List)
+	for (std::shared_ptr<BeastEngine::Component> com : component_list)
 	{
 		std::shared_ptr<T> buff = std::dynamic_pointer_cast<T>(com);
 		if (buff != nullptr)
@@ -65,15 +65,15 @@ std::shared_ptr<T> BeastEngine::GameObject::GetComponent()
 }
 
 template<class T>
-std::shared_ptr<T> BeastEngine::GameObject::AddComponent()
+std::shared_ptr<T> BeastEngine::GameObject::Add_Component()
 {
 	std::shared_ptr<T> buff = std::make_shared<T>();
-	bool can_multiple = std::dynamic_pointer_cast<BeastEngine::Component>(buff)->CanMultiple();
+	bool can_multiple = std::dynamic_pointer_cast<BeastEngine::Component>(buff)->Can_Multiple();
 
 	if (!can_multiple)
 	{
 		bool already_attach = false;
-		for (std::shared_ptr<BeastEngine::Component> com : Component_List)
+		for (std::shared_ptr<BeastEngine::Component> com : component_list)
 		{
 			std::shared_ptr<T> _buff = std::dynamic_pointer_cast<T>(com);
 			if (_buff != nullptr)
@@ -87,14 +87,14 @@ std::shared_ptr<T> BeastEngine::GameObject::AddComponent()
 		if (!already_attach)
 		{
 			std::dynamic_pointer_cast<BeastEngine::Component>(buff)->Initialize(std::static_pointer_cast<BeastEngine::GameObject>(shared_from_this()));
-			Component_List.emplace_back(buff);
+			component_list.emplace_back(buff);
 			return buff;
 		}
 	}
 	else
 	{
 		std::dynamic_pointer_cast<BeastEngine::Component>(buff)->Initialize(std::static_pointer_cast<BeastEngine::GameObject>(shared_from_this()));
-		Component_List.emplace_back(buff);
+		component_list.emplace_back(buff);
 		return buff;
 	}
 	return nullptr;
@@ -104,5 +104,5 @@ std::shared_ptr<T> BeastEngine::GameObject::AddComponent()
 template<class Archive>
 void BeastEngine::GameObject::serialize(Archive& archive)
 {
-	archive(cereal::base_class<BeastEngine::Object>(this), layer, tag, transform, Component_List, Active, Old_Active);
+	archive(cereal::base_class<BeastEngine::Object>(this), layer, tag, transform, component_list, active, active_old);
 }

@@ -22,17 +22,17 @@ namespace BeastEngine
 		void Pause(); //一時停止
 		void Stop();  //停止
 
-		bool Play_On_Awake = true; //アクティブ時に自動で再生を開始するか
-		float Play_Speed = 1.0f;   //再生速度
+		bool play_on_awake = true; //アクティブ時に自動で再生を開始するか
+		float play_speed = 1.0f;   //再生速度
 
 	private:
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
 		bool Draw_ImGui() override;
-		void SetActive(bool value) override;
-		bool CanMultiple() override { return false; };
+		void Set_Active(bool value) override;
+		bool Can_Multiple() override { return false; };
 
-		bool IsCalled = false;
-		bool Disable_flg = false;
+		bool is_called = false;
+		bool is_disable = false;
 
 		Effekseer::EffectRef effect = nullptr;
 		Effekseer::Handle handle = -1;
@@ -45,7 +45,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(cereal::base_class<Component>(this), Play_On_Awake, Play_Speed, file_name, file_path);
+			archive(cereal::base_class<Component>(this), play_on_awake, play_speed, file_name, file_path);
 		}
 	};
 }

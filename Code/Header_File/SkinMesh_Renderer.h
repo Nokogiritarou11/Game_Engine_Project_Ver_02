@@ -13,28 +13,28 @@ namespace BeastEngine
 	private:
 		std::shared_ptr<BeastEngine::Mesh> mesh_data;
 
-		struct CbMesh
+		struct Constant_Buffer_Mesh
 		{
 #define MAX_BONES 128
 			BeastEngine::Matrix bone_transforms[MAX_BONES] = { { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 } };
 		};
-		struct CbColor
+		struct Constant_Buffer_Color
 		{
-			BeastEngine::Vector4	materialColor;
+			BeastEngine::Vector4	material_color;
 		};
 
-		static ComPtr <ID3D11Buffer> ConstantBuffer_CbMesh;  //コンスタントバッファ(メッシュデータ)
-		static ComPtr <ID3D11Buffer> ConstantBuffer_CbColor; //コンスタントバッファ(カラー)
+		static ComPtr <ID3D11Buffer> constant_buffer_mesh;  //コンスタントバッファ(メッシュデータ)
+		static ComPtr <ID3D11Buffer> constant_buffer_color; //コンスタントバッファ(カラー)
 
-		std::vector<CbMesh> mesh_buffer;
+		std::vector<Constant_Buffer_Mesh> buffer_mesh;
 		std::vector<std::weak_ptr<BeastEngine::Transform>> bones;
 
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj);
 		void Render(BeastEngine::Matrix V, BeastEngine::Matrix P) override;
 		void Render_Shadow(BeastEngine::Matrix V, BeastEngine::Matrix P) override;
 		bool Draw_ImGui() override;
-		void SetActive(bool value) override;
-		void Recalculate_Buffer(BeastEngine::Mesh::mesh& mesh, int index);
+		void Set_Active(bool value) override;
+		void Recalculate_Frame(BeastEngine::Mesh::mesh& mesh, int index);
 
 		void Set_Mesh(std::shared_ptr<BeastEngine::Mesh> Mesh_Data); //メッシュデータを設定する
 

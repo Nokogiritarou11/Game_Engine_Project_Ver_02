@@ -8,8 +8,8 @@ namespace BeastEngine
 	public:
 		Behaviour();
 
-		void SetEnabled(bool value);
-		bool enableSelf();
+		void Set_Enabled(bool value);
+		bool Get_Enabled();
 
 	private:
 		bool enabled = true;

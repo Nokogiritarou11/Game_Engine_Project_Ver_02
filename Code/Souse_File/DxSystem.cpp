@@ -5,25 +5,25 @@ using namespace BeastEngine;
 #pragma comment( lib, "d3d11.lib" )
 #pragma comment( lib, "d3dcompiler.lib" )
 
-ComPtr<ID3D11Device>		        DxSystem::Device;
-ComPtr<IDXGISwapChain>		        DxSystem::SwapChain;
+ComPtr<ID3D11Device>		        DxSystem::device;
+ComPtr<IDXGISwapChain>		        DxSystem::swap_chain;
 
-ComPtr<ID3D11DeviceContext>		    DxSystem::DeviceContext;
-ComPtr<ID3D11RenderTargetView>      DxSystem::RenderTargetView;
+ComPtr<ID3D11DeviceContext>		    DxSystem::device_context;
+ComPtr<ID3D11RenderTargetView>      DxSystem::render_target_view;
 
-ComPtr<ID3D11Texture2D>				DxSystem::DepthStencilTexture;
-ComPtr<ID3D11DepthStencilView>		DxSystem::DepthStencilView;
-ComPtr<ID3D11ShaderResourceView>	DxSystem::ShaderResourceView;
-ComPtr<ID3D11DepthStencilState>		DxSystem::DepthStencilState[16];
-ComPtr<ID3D11RasterizerState>		DxSystem::RasterizerState[RASTERIZE_TYPE];
-ComPtr<ID3D11BlendState>			DxSystem::BlendState[BLEND_TYPE];
+ComPtr<ID3D11Texture2D>				DxSystem::depth_stencil_texture;
+ComPtr<ID3D11DepthStencilView>		DxSystem::depth_stencil_view;
+ComPtr<ID3D11ShaderResourceView>	DxSystem::shader_resource_view;
+ComPtr<ID3D11DepthStencilState>		DxSystem::depth_stencil_state[16];
+ComPtr<ID3D11RasterizerState>		DxSystem::rasterizer_state[RASTERIZE_TYPE];
+ComPtr<ID3D11BlendState>			DxSystem::blend_state[BLEND_TYPE];
 
-ComPtr<IDXGIDebug>                  DxSystem::DXGIDebug;
+ComPtr<IDXGIDebug>                  DxSystem::DXGI_debug;
 HWND								DxSystem::hwnd;
 DXGI_SAMPLE_DESC					DxSystem::MSAA;
-int DxSystem::ScreenWidth = 1920;
-int DxSystem::ScreenHeight = 1080;
-XMFLOAT4 DxSystem::Light_Direction = { 0.0f, 1.0f, 0.0f, 0 };
+int DxSystem::screen_width = 1920;
+int DxSystem::screen_height = 1080;
+XMFLOAT4 DxSystem::light_direction = { 0.0f, 1.0f, 0.0f, 0 };
 float DxSystem::elapsed_time = 0;
 
 //****************************************************************
@@ -34,10 +34,10 @@ float DxSystem::elapsed_time = 0;
 bool DxSystem::Initialize(HWND hWnd, int width, int height)
 {
 	hwnd = hWnd;
-	CreateDevice();
-	InitializeRenderTarget();
-	CreateRasterizerState();
-	CreateBlendState();
+	Create_Device();
+	Initialize_Render_Target();
+	Create_Rasterizer_State();
+	Create_Blend_State();
 	return false;
 }
 
@@ -46,7 +46,7 @@ bool DxSystem::Initialize(HWND hWnd, int width, int height)
 //	デバイス生成
 //
 //****************************************************************
-HRESULT DxSystem::CreateDevice()
+HRESULT DxSystem::Create_Device()
 {
 	HRESULT hr = S_OK;
 	UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
@@ -63,9 +63,9 @@ HRESULT DxSystem::CreateDevice()
 		NULL,
 		0,
 		D3D11_SDK_VERSION,
-		Device.GetAddressOf(),
+		device.GetAddressOf(),
 		NULL,
-		DeviceContext.GetAddressOf());
+		device_context.GetAddressOf());
 	if (FAILED(hr))
 	{
 		MessageBoxW(hwnd, L"D3D11CreateDevice", L"Err", MB_ICONSTOP);
@@ -98,7 +98,7 @@ HRESULT DxSystem::CreateDevice()
 	for (int i = 0; i <= max_count; i++)
 	{
 		UINT Quality;
-		if SUCCEEDED(Device->CheckMultisampleQualityLevels(DXGI_FORMAT_D24_UNORM_S8_UINT, i, &Quality))
+		if SUCCEEDED(device->CheckMultisampleQualityLevels(DXGI_FORMAT_D24_UNORM_S8_UINT, i, &Quality))
 		{
 			if (0 < Quality)
 			{
@@ -111,7 +111,7 @@ HRESULT DxSystem::CreateDevice()
 
 	//インターフェース取得
 	IDXGIDevice1* hpDXGI = NULL;
-	if (FAILED(Device.Get()->QueryInterface(__uuidof(IDXGIDevice1), (void**)&hpDXGI)))
+	if (FAILED(device.Get()->QueryInterface(__uuidof(IDXGIDevice1), (void**)&hpDXGI)))
 	{
 		MessageBoxW(hwnd, L"QueryInterface", L"Err", MB_ICONSTOP);
 		return S_FALSE;
@@ -136,13 +136,13 @@ HRESULT DxSystem::CreateDevice()
 
 	RECT clientRect;
 	GetClientRect(hwnd, &clientRect);
-	ScreenWidth = clientRect.right;
-	ScreenHeight = clientRect.bottom;
+	screen_width = clientRect.right;
+	screen_height = clientRect.bottom;
 
 	//スワップチェイン作成
 	DXGI_SWAP_CHAIN_DESC scd;
-	scd.BufferDesc.Width = ScreenWidth;
-	scd.BufferDesc.Height = ScreenHeight;
+	scd.BufferDesc.Width = screen_width;
+	scd.BufferDesc.Height = screen_height;
 	scd.BufferDesc.RefreshRate.Numerator = 60;
 	scd.BufferDesc.RefreshRate.Denominator = 1;
 	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -157,7 +157,7 @@ HRESULT DxSystem::CreateDevice()
 	scd.Windowed = TRUE;
 	scd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-	if (FAILED(hpDXGIFactory->CreateSwapChain(Device.Get(), &scd, SwapChain.GetAddressOf())))
+	if (FAILED(hpDXGIFactory->CreateSwapChain(device.Get(), &scd, swap_chain.GetAddressOf())))
 	{
 		MessageBoxW(hwnd, L"CreateSwapChain", L"Err", MB_ICONSTOP);
 		return S_FALSE;
@@ -178,11 +178,11 @@ void DxSystem::Release()
 //------------------------------------------------
 //	初期化
 //------------------------------------------------
-bool DxSystem::InitializeRenderTarget()
+bool DxSystem::Initialize_Render_Target()
 {
 	// バックバッファ取得
 	ID3D11Texture2D* BackBuffer = NULL;
-	HRESULT hr = SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&BackBuffer);
+	HRESULT hr = swap_chain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&BackBuffer);
 
 	if (FAILED(hr))
 	{
@@ -191,7 +191,7 @@ bool DxSystem::InitializeRenderTarget()
 	}
 
 	// レンダーターゲットビュー生成
-	hr = Device->CreateRenderTargetView(BackBuffer, NULL, RenderTargetView.GetAddressOf());
+	hr = device->CreateRenderTargetView(BackBuffer, NULL, render_target_view.GetAddressOf());
 	BackBuffer->Release();
 	BackBuffer = NULL;
 
@@ -201,10 +201,10 @@ bool DxSystem::InitializeRenderTarget()
 		return false;
 	}
 	//  深度ステンシルバッファ生成
-	CreateDepthStencil();
+	Create_Depth_Stencil();
 
 	// ビューポートの設定
-	SetViewPort(ScreenWidth, ScreenHeight);
+	Set_ViewPort(screen_width, screen_height);
 
 	return true;
 }
@@ -212,7 +212,7 @@ bool DxSystem::InitializeRenderTarget()
 //------------------------------------------------
 //	ビューポートの設定
 //------------------------------------------------
-void DxSystem::SetViewPort(int width, int height, int Num)
+void DxSystem::Set_ViewPort(int width, int height, int Num)
 {
 	D3D11_VIEWPORT vp;
 	vp.Width = (FLOAT)width;
@@ -221,25 +221,25 @@ void DxSystem::SetViewPort(int width, int height, int Num)
 	vp.MaxDepth = 1.0f;
 	vp.TopLeftX = 0;
 	vp.TopLeftY = 0;
-	DeviceContext->RSSetViewports(Num, &vp);
+	device_context->RSSetViewports(Num, &vp);
 }
 
 // レンダーターゲットビュー設定
-void DxSystem::SetDefaultView()
+void DxSystem::Set_Default_View()
 {
-	DeviceContext->OMSetRenderTargets(1, RenderTargetView.GetAddressOf(), DepthStencilView.Get());
+	device_context->OMSetRenderTargets(1, render_target_view.GetAddressOf(), depth_stencil_view.Get());
 }
 
 //------------------------------------------------
 //	深度ステンシルバッファ生成
 //------------------------------------------------
-bool DxSystem::CreateDepthStencil()
+bool DxSystem::Create_Depth_Stencil()
 {
 	// 深度ステンシル設定
 	D3D11_TEXTURE2D_DESC td;
 	ZeroMemory(&td, sizeof(D3D11_TEXTURE2D_DESC));
-	td.Width = ScreenWidth;
-	td.Height = ScreenHeight;
+	td.Width = screen_width;
+	td.Height = screen_height;
 	td.MipLevels = 1;
 	td.ArraySize = 1;
 	td.Format = DXGI_FORMAT_R32G8X24_TYPELESS;
@@ -252,7 +252,7 @@ bool DxSystem::CreateDepthStencil()
 	td.MiscFlags = 0;
 
 	// 深度ステンシルテクスチャ生成
-	HRESULT hr = Device->CreateTexture2D(&td, NULL, &DepthStencilTexture);
+	HRESULT hr = device->CreateTexture2D(&td, NULL, &depth_stencil_texture);
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	// 深度ステンシルビュー設定
@@ -263,7 +263,7 @@ bool DxSystem::CreateDepthStencil()
 	dsvd.Texture2D.MipSlice = 0;
 
 	// 深度ステンシルビュー生成
-	hr = Device->CreateDepthStencilView(DepthStencilTexture.Get(), &dsvd, DepthStencilView.GetAddressOf());
+	hr = device->CreateDepthStencilView(depth_stencil_texture.Get(), &dsvd, depth_stencil_view.GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	//デプスステンシルステート
@@ -271,111 +271,111 @@ bool DxSystem::CreateDepthStencil()
 
 	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
 	depth_stencil_desc.DepthEnable = FALSE;
-	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[static_cast<int>(DS_State::None)].GetAddressOf());
+	hr = device->CreateDepthStencilState(&depth_stencil_desc, depth_stencil_state[static_cast<int>(DS_State::None)].GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
 	depth_stencil_desc.DepthEnable = TRUE;
 	depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	depth_stencil_desc.DepthFunc = D3D11_COMPARISON_LESS;
-	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[static_cast<int>(DS_State::Less)].GetAddressOf());
+	hr = device->CreateDepthStencilState(&depth_stencil_desc, depth_stencil_state[static_cast<int>(DS_State::Less)].GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
 	depth_stencil_desc.DepthEnable = TRUE;
 	depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	depth_stencil_desc.DepthFunc = D3D11_COMPARISON_GREATER;
-	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[static_cast<int>(DS_State::Greater)].GetAddressOf());
+	hr = device->CreateDepthStencilState(&depth_stencil_desc, depth_stencil_state[static_cast<int>(DS_State::Greater)].GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
 	depth_stencil_desc.DepthEnable = TRUE;
 	depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	depth_stencil_desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[static_cast<int>(DS_State::LEqual)].GetAddressOf());
+	hr = device->CreateDepthStencilState(&depth_stencil_desc, depth_stencil_state[static_cast<int>(DS_State::LEqual)].GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
 	depth_stencil_desc.DepthEnable = TRUE;
 	depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	depth_stencil_desc.DepthFunc = D3D11_COMPARISON_GREATER_EQUAL;
-	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[static_cast<int>(DS_State::GEqual)].GetAddressOf());
+	hr = device->CreateDepthStencilState(&depth_stencil_desc, depth_stencil_state[static_cast<int>(DS_State::GEqual)].GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
 	depth_stencil_desc.DepthEnable = TRUE;
 	depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	depth_stencil_desc.DepthFunc = D3D11_COMPARISON_EQUAL;
-	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[static_cast<int>(DS_State::Equal)].GetAddressOf());
+	hr = device->CreateDepthStencilState(&depth_stencil_desc, depth_stencil_state[static_cast<int>(DS_State::Equal)].GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
 	depth_stencil_desc.DepthEnable = TRUE;
 	depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	depth_stencil_desc.DepthFunc = D3D11_COMPARISON_NOT_EQUAL;
-	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[static_cast<int>(DS_State::NotEqual)].GetAddressOf());
+	hr = device->CreateDepthStencilState(&depth_stencil_desc, depth_stencil_state[static_cast<int>(DS_State::NotEqual)].GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
 	depth_stencil_desc.DepthEnable = TRUE;
 	depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	depth_stencil_desc.DepthFunc = D3D11_COMPARISON_ALWAYS;
-	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[static_cast<int>(DS_State::Always)].GetAddressOf());
+	hr = device->CreateDepthStencilState(&depth_stencil_desc, depth_stencil_state[static_cast<int>(DS_State::Always)].GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
 	depth_stencil_desc.DepthEnable = FALSE;
 	depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[static_cast<int>(DS_State::None_No_Write)].GetAddressOf());
+	hr = device->CreateDepthStencilState(&depth_stencil_desc, depth_stencil_state[static_cast<int>(DS_State::None_No_Write)].GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
 	depth_stencil_desc.DepthEnable = TRUE;
 	depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	depth_stencil_desc.DepthFunc = D3D11_COMPARISON_LESS;
-	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[static_cast<int>(DS_State::Less_No_Write)].GetAddressOf());
+	hr = device->CreateDepthStencilState(&depth_stencil_desc, depth_stencil_state[static_cast<int>(DS_State::Less_No_Write)].GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
 	depth_stencil_desc.DepthEnable = TRUE;
 	depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	depth_stencil_desc.DepthFunc = D3D11_COMPARISON_GREATER;
-	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[static_cast<int>(DS_State::Greater_No_Write)].GetAddressOf());
+	hr = device->CreateDepthStencilState(&depth_stencil_desc, depth_stencil_state[static_cast<int>(DS_State::Greater_No_Write)].GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
 	depth_stencil_desc.DepthEnable = TRUE;
 	depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	depth_stencil_desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[static_cast<int>(DS_State::LEqual_No_Write)].GetAddressOf());
+	hr = device->CreateDepthStencilState(&depth_stencil_desc, depth_stencil_state[static_cast<int>(DS_State::LEqual_No_Write)].GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
 	depth_stencil_desc.DepthEnable = TRUE;
 	depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	depth_stencil_desc.DepthFunc = D3D11_COMPARISON_GREATER_EQUAL;
-	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[static_cast<int>(DS_State::GEqual_No_Write)].GetAddressOf());
+	hr = device->CreateDepthStencilState(&depth_stencil_desc, depth_stencil_state[static_cast<int>(DS_State::GEqual_No_Write)].GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
 	depth_stencil_desc.DepthEnable = TRUE;
 	depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	depth_stencil_desc.DepthFunc = D3D11_COMPARISON_EQUAL;
-	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[static_cast<int>(DS_State::Equal_No_Write)].GetAddressOf());
+	hr = device->CreateDepthStencilState(&depth_stencil_desc, depth_stencil_state[static_cast<int>(DS_State::Equal_No_Write)].GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
 	depth_stencil_desc.DepthEnable = TRUE;
 	depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	depth_stencil_desc.DepthFunc = D3D11_COMPARISON_NOT_EQUAL;
-	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[static_cast<int>(DS_State::NotEqual_No_Write)].GetAddressOf());
+	hr = device->CreateDepthStencilState(&depth_stencil_desc, depth_stencil_state[static_cast<int>(DS_State::NotEqual_No_Write)].GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
 	depth_stencil_desc.DepthEnable = TRUE;
 	depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	depth_stencil_desc.DepthFunc = D3D11_COMPARISON_ALWAYS;
-	hr = Device->CreateDepthStencilState(&depth_stencil_desc, DepthStencilState[static_cast<int>(DS_State::Always_No_Write)].GetAddressOf());
+	hr = device->CreateDepthStencilState(&depth_stencil_desc, depth_stencil_state[static_cast<int>(DS_State::Always_No_Write)].GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	// シェーダリソースビュー設定
@@ -387,7 +387,7 @@ bool DxSystem::CreateDepthStencil()
 	srvd.Texture2D.MipLevels = 1;
 
 	// シェーダリソースビュー生成
-	hr = Device->CreateShaderResourceView(DepthStencilTexture.Get(), &srvd, ShaderResourceView.GetAddressOf());
+	hr = device->CreateShaderResourceView(depth_stencil_texture.Get(), &srvd, shader_resource_view.GetAddressOf());
 	//_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	if (FAILED(hr))
@@ -401,7 +401,7 @@ bool DxSystem::CreateDepthStencil()
 //------------------------------------------------
 //	ラスタライザステートの生成
 //------------------------------------------------
-bool DxSystem::CreateRasterizerState()
+bool DxSystem::Create_Rasterizer_State()
 {
 	D3D11_RASTERIZER_DESC rd;
 	for (int state = 0; state < RASTERIZE_TYPE; ++state)
@@ -478,7 +478,7 @@ bool DxSystem::CreateRasterizerState()
 				rd.AntialiasedLineEnable = TRUE;
 				break;
 		}
-		HRESULT hr = Device->CreateRasterizerState(&rd, RasterizerState[state].GetAddressOf());
+		HRESULT hr = device->Create_Rasterizer_State(&rd, rasterizer_state[state].GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
 
@@ -486,7 +486,7 @@ bool DxSystem::CreateRasterizerState()
 }
 
 //ブレンドステートの作成
-bool DxSystem::CreateBlendState()
+bool DxSystem::Create_Blend_State()
 {
 	D3D11_BLEND_DESC bd;
 
@@ -623,7 +623,7 @@ bool DxSystem::CreateBlendState()
 				break;
 		}
 		//ブレンドステートの作成
-		HRESULT hr = Device->CreateBlendState(&bd, BlendState[state].GetAddressOf());
+		HRESULT hr = device->Create_Blend_State(&bd, blend_state[state].GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
 	return true;
@@ -635,7 +635,7 @@ bool DxSystem::CreateBlendState()
 void DxSystem::Clear(DWORD color)
 {
 	// レンダーターゲットビュー設定
-	DeviceContext->OMSetRenderTargets(1, RenderTargetView.GetAddressOf(), DepthStencilView.Get());
+	device_context->OMSetRenderTargets(1, render_target_view.GetAddressOf(), depth_stencil_view.Get());
 
 	float clearColor[4] = {1,0,0,0};
 	/*
@@ -644,9 +644,9 @@ void DxSystem::Clear(DWORD color)
 		clearColor[i] = ((color >> 8 * (3 - i)) & 0x00000000) / 255.0f;
 	}
 	*/
-	DeviceContext->ClearRenderTargetView(RenderTargetView.Get(), clearColor);
-	DeviceContext->ClearDepthStencilView(DepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	DeviceContext->OMSetDepthStencilState(DepthStencilState[static_cast<int>(DS_State::LEqual)].Get(), 1);
+	device_context->ClearRenderTargetView(render_target_view.Get(), clearColor);
+	device_context->ClearDepthStencilView(depth_stencil_view.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	device_context->OMSetDepthStencilState(depth_stencil_state[static_cast<int>(DS_State::LEqual)].Get(), 1);
 }
 
 //------------------------------------------------
@@ -655,5 +655,5 @@ void DxSystem::Clear(DWORD color)
 void DxSystem::Flip(int n)
 {
 	// フリップ処理
-	SwapChain->Present(n, 0);
+	swap_chain->Present(n, 0);
 }

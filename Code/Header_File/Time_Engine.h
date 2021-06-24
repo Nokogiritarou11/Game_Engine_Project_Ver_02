@@ -7,8 +7,8 @@ namespace BeastEngine
 	{
 	public:
 
-		static float deltaTime;
-		static float timeScale;
+		static float delta_time;
+		static float time_scale;
 	private:
 	};
 }

@@ -16,10 +16,10 @@ void Resources::Create_Prefab(shared_ptr<GameObject> gameobject)
 {
 	string path = "Resouces\\Prefab\\" + gameobject->name + ".prefab";
 
-	weak_ptr<Transform> parent = gameobject->transform->Get_parent();
+	weak_ptr<Transform> parent = gameobject->transform->Get_Parent();
 	if (!parent.expired())
 	{
-		gameobject->transform->Set_parent(nullptr);
+		gameobject->transform->Set_Parent(nullptr);
 	}
 	{
 		ifstream in_bin(path, ios::binary);
@@ -47,7 +47,7 @@ void Resources::Create_Prefab(shared_ptr<GameObject> gameobject)
 
 	if (!parent.expired())
 	{
-		gameobject->transform->Set_parent(parent.lock());
+		gameobject->transform->Set_Parent(parent.lock());
 	}
 
 	Debug::Log(u8"Resouces\\Prefab\\ˆÈ‰º‚É" + gameobject->name + u8"‚ðƒvƒŒƒnƒu‰»‚µ‚Ü‚µ‚½");
@@ -78,9 +78,9 @@ shared_ptr<GameObject> Resources::Load_Prefab(string file_path)
 
 void Resources::Instance_child(shared_ptr<GameObject> gameobject)
 {
-	Engine::scene_manager->Get_Active_Scene()->gameObject_List.emplace_back(gameobject);
-	for (int i = 0; i < gameobject->transform->childCount(); ++i)
+	Engine::scene_manager->Get_Active_Scene()->gameobject_list.emplace_back(gameobject);
+	for (int i = 0; i < gameobject->transform->Get_Child_Count(); ++i)
 	{
-		Instance_child(gameobject->transform->GetChild(i).lock()->gameObject);
+		Instance_child(gameobject->transform->Get_Child(i).lock()->gameobject);
 	}
 }

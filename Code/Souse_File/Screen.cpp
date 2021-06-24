@@ -14,7 +14,7 @@ using namespace std;
 int Screen::Get_Width()
 {
 #if _DEBUG
-	return static_cast<int>(Engine::editor->Game_View_Size.x);
+	return static_cast<int>(Engine::editor->game_view_size.x);
 #else
 	RECT rect;
 	GetClientRect(DxSystem::hwnd, &rect);
@@ -25,7 +25,7 @@ int Screen::Get_Width()
 int Screen::Get_Height()
 {
 #if _DEBUG
-	return static_cast<int>(Engine::editor->Game_View_Size.y);
+	return static_cast<int>(Engine::editor->game_view_size.y);
 #else
 	RECT rect;
 	GetClientRect(DxSystem::hwnd, &rect);

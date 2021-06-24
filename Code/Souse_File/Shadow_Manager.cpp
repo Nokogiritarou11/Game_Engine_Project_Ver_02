@@ -3,13 +3,13 @@ using namespace BeastEngine;
 
 Shadow_Manager::Shadow_Manager()
 {
-	if (!ShaderResourceView)
+	if (!shader_resource_view)
 	{
 		// 深度ステンシル設定
 		D3D11_TEXTURE2D_DESC td;
 		ZeroMemory(&td, sizeof(D3D11_TEXTURE2D_DESC));
-		td.Width = Shadow_Map_Texture_Size;
-		td.Height = Shadow_Map_Texture_Size;
+		td.Width = shadow_map_texture_size;
+		td.Height = shadow_map_texture_size;
 		td.MipLevels = 1;
 		td.ArraySize = 1;
 		td.Format = DXGI_FORMAT_R32G8X24_TYPELESS;
@@ -22,7 +22,7 @@ Shadow_Manager::Shadow_Manager()
 		td.MiscFlags = 0;
 
 		// 深度ステンシルテクスチャ生成
-		HRESULT hr = DxSystem::Device->CreateTexture2D(&td, NULL, DepthStencilTexture.GetAddressOf());
+		HRESULT hr = DxSystem::device->CreateTexture2D(&td, NULL, depth_stencil_texture.GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 		// 深度ステンシルビュー設定
@@ -34,7 +34,7 @@ Shadow_Manager::Shadow_Manager()
 		dsvd.Texture2D.MipSlice = 0;
 
 		// 深度ステンシルビュー生成
-		hr = DxSystem::Device->CreateDepthStencilView(DepthStencilTexture.Get(), &dsvd, DepthStencilView.GetAddressOf());
+		hr = DxSystem::device->CreateDepthStencilView(depth_stencil_texture.Get(), &dsvd, depth_stencil_view.GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 		// シェーダリソースビュー設定
@@ -47,7 +47,7 @@ Shadow_Manager::Shadow_Manager()
 		srvd.Texture2D.MipLevels = 1;
 
 		// シェーダリソースビュー生成
-		hr = DxSystem::Device->CreateShaderResourceView(DepthStencilTexture.Get(), &srvd, ShaderResourceView.GetAddressOf());
+		hr = DxSystem::device->CreateShaderResourceView(depth_stencil_texture.Get(), &srvd, shader_resource_view.GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 		//	サンプラステート作成
@@ -67,7 +67,7 @@ Shadow_Manager::Shadow_Manager()
 		sd.MinLOD = -FLT_MAX;
 		sd.MaxLOD = +FLT_MAX;
 
-		hr = DxSystem::Device->CreateSamplerState(
+		hr = DxSystem::device->CreateSamplerState(
 			&sd, sampler.GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
@@ -79,31 +79,31 @@ Shadow_Manager::~Shadow_Manager()
 
 void Shadow_Manager::Set_Shadow_Map_Texture()
 {
-	DxSystem::DeviceContext->OMSetRenderTargets(0, NULL, DepthStencilView.Get());
-	DxSystem::DeviceContext->ClearDepthStencilView(DepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	DxSystem::device_context->OMSetRenderTargets(0, NULL, depth_stencil_view.Get());
+	DxSystem::device_context->ClearDepthStencilView(depth_stencil_view.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	// ビューポートの設定
-	DxSystem::SetViewPort(Shadow_Map_Texture_Size, Shadow_Map_Texture_Size);
+	DxSystem::Set_ViewPort(shadow_map_texture_size, shadow_map_texture_size);
 }
 
 void Shadow_Manager::Set_PS_Resource()
 {
-	DxSystem::DeviceContext->PSSetSamplers(0, 1, sampler.GetAddressOf());
-	DxSystem::DeviceContext->PSSetShaderResources(0, 1, ShaderResourceView.GetAddressOf());
+	DxSystem::device_context->PSSetSamplers(0, 1, sampler.GetAddressOf());
+	DxSystem::device_context->PSSetShaderResources(0, 1, shader_resource_view.GetAddressOf());
 }
 
 void Shadow_Manager::Set_Shadow_Map_Texture_Size(u_int size)
 {
-	Shadow_Map_Texture_Size = size;
-	DepthStencilTexture.Reset();
-	DepthStencilView.Reset();
-	ShaderResourceView.Reset();
+	shadow_map_texture_size = size;
+	depth_stencil_texture.Reset();
+	depth_stencil_view.Reset();
+	shader_resource_view.Reset();
 
 	// 深度ステンシル設定
 	D3D11_TEXTURE2D_DESC td;
 	ZeroMemory(&td, sizeof(D3D11_TEXTURE2D_DESC));
-	td.Width = Shadow_Map_Texture_Size;
-	td.Height = Shadow_Map_Texture_Size;
+	td.Width = shadow_map_texture_size;
+	td.Height = shadow_map_texture_size;
 	td.MipLevels = 1;
 	td.ArraySize = 1;
 	td.Format = DXGI_FORMAT_R32G8X24_TYPELESS;
@@ -116,7 +116,7 @@ void Shadow_Manager::Set_Shadow_Map_Texture_Size(u_int size)
 	td.MiscFlags = 0;
 
 	// 深度ステンシルテクスチャ生成
-	HRESULT hr = DxSystem::Device->CreateTexture2D(&td, NULL, DepthStencilTexture.GetAddressOf());
+	HRESULT hr = DxSystem::device->CreateTexture2D(&td, NULL, depth_stencil_texture.GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	// 深度ステンシルビュー設定
@@ -128,7 +128,7 @@ void Shadow_Manager::Set_Shadow_Map_Texture_Size(u_int size)
 	dsvd.Texture2D.MipSlice = 0;
 
 	// 深度ステンシルビュー生成
-	hr = DxSystem::Device->CreateDepthStencilView(DepthStencilTexture.Get(), &dsvd, DepthStencilView.GetAddressOf());
+	hr = DxSystem::device->CreateDepthStencilView(depth_stencil_texture.Get(), &dsvd, depth_stencil_view.GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	// シェーダリソースビュー設定
@@ -141,16 +141,16 @@ void Shadow_Manager::Set_Shadow_Map_Texture_Size(u_int size)
 	srvd.Texture2D.MipLevels = 1;
 
 	// シェーダリソースビュー生成
-	hr = DxSystem::Device->CreateShaderResourceView(DepthStencilTexture.Get(), &srvd, ShaderResourceView.GetAddressOf());
+	hr = DxSystem::device->CreateShaderResourceView(depth_stencil_texture.Get(), &srvd, shader_resource_view.GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 }
 
 void Shadow_Manager::Set_Shadow_Distance(float value)
 {
-	Shadow_Distance = value;
+	shadow_distance = value;
 }
 
 void Shadow_Manager::Set_Shadow_Bias(float value)
 {
-	Shadow_Bias = value;
+	shadow_bias = value;
 }

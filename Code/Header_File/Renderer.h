@@ -4,6 +4,7 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include "Original_Math.h"
+#include "Bounds.h"
 #include <string>
 #include <wrl.h>
 #include <memory>
@@ -18,33 +19,31 @@ namespace BeastEngine
 	class Renderer : public BeastEngine::Component
 	{
 	public:
-
-		void SetEnabled(bool value); //表示するか
-		bool enableSelf();			 //現在アクティブか
+		void Set_Enabled(bool value); //表示するか
+		bool Get_Enabled();			 //現在アクティブか
 
 		std::vector<std::shared_ptr<BeastEngine::Material>> material; //使用するマテリアル
+		std::vector<Bounds> bounds;
 
 	protected:
-		friend class View_Texture;
-		friend class Render_Manager;
-
-		bool IsCalled = false;
-		bool Disable_flg = false;
+		bool is_called = false;
+		bool is_disable = false;
 		bool enabled = true;
 		bool enabled_old = false;
-		bool Recalculated_Constant_Buffer = false;
+		bool recalculated_frame = false;
 
-		static BS_State Set_BlendState;
-		static RS_State Set_RasterizerState;
-		static DS_State Set_DepthStencilState;
+		BeastEngine::Matrix world_old;
+
+		static BS_State binding_blend_state;
+		static RS_State binding_rasterizer_state;
+		static DS_State binding_depth_stencil_State;
 
 	private:
-		bool CanMultiple() override { return false; };
-
-		friend class View_Texture;
 		virtual void Render(BeastEngine::Matrix V, BeastEngine::Matrix P) {};
 		virtual void Render_Shadow(BeastEngine::Matrix V, BeastEngine::Matrix P) {};
 
+		friend class View_Texture;
+		friend class Render_Manager;
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive)

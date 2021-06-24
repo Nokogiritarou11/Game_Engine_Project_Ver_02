@@ -10,10 +10,10 @@ using namespace std;
 
 void Camera::Initialize(std::shared_ptr<GameObject> obj)
 {
-	gameObject = obj;
+	gameobject = obj;
 	transform = obj->transform;
 	Engine::render_manager->Add(static_pointer_cast<Camera>(shared_from_this()));
-	DxSystem::DeviceContext->RSGetViewports(&num_viewports, &viewport);
+	DxSystem::device_context->RSGetViewports(&num_viewports, &viewport);
 }
 
 bool Camera::Draw_ImGui()
@@ -38,23 +38,23 @@ bool Camera::Draw_ImGui()
 
 	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
 	static bool enable;
-	enable = enableSelf();
+	enable = Get_Enabled();
 	if (ImGui::Checkbox("##enable", &enable))
 	{
-		SetEnabled(enable);
+		Set_Enabled(enable);
 	}
 
 
 	if (open)
 	{
-		ImGui::DragFloat("FOV", &FOV, 0.1f, 0.01f, FLT_MAX);
+		ImGui::DragFloat("FOV", &fov, 0.1f, 0.01f, FLT_MAX);
 		ImGui::DragFloat(u8"ç≈íZï`âÊãóó£", &near_z, 0.1f, -FLT_MAX, FLT_MAX);
 		ImGui::DragFloat(u8"ç≈í∑ï`âÊãóó£", &far_z, 0.1f, -FLT_MAX, FLT_MAX);
 	}
 	return true;
 }
 
-Vector2 Camera::WorldToViewportPoint(Vector3 pos)
+Vector2 Camera::World_To_ViewportPoint(Vector3 pos)
 {
 	XMVECTOR p = XMLoadFloat3(&pos);
 	XMVECTOR screen
@@ -66,8 +66,8 @@ Vector2 Camera::WorldToViewportPoint(Vector3 pos)
 			viewport.Height,
 			viewport.MinDepth,
 			viewport.MaxDepth,
-			XMLoadFloat4x4(&P),
-			XMLoadFloat4x4(&V),
+			XMLoadFloat4x4(&projection_matrix),
+			XMLoadFloat4x4(&view_matrix),
 			XMMatrixIdentity()
 		);
 	Vector2 re;

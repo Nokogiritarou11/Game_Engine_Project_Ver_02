@@ -12,34 +12,34 @@ Audio_Manager::Audio_Manager()
 #ifdef _DEBUG
 	eflags = eflags | AudioEngine_Debug;
 #endif
-	Engine = make_unique<AudioEngine>(eflags);
+	engine = make_unique<AudioEngine>(eflags);
 }
 
 void Audio_Manager::Update()
 {
-	if (!Engine->Update())
+	if (!engine->Update())
 	{
-		if (Engine->IsCriticalError())
+		if (engine->IsCriticalError())
 		{
-			Engine->Reset();
+			engine->Reset();
 		}
 	}
 }
 
 void Audio_Manager::Resume()
 {
-	Engine->Resume();
+	engine->Resume();
 }
 
 void Audio_Manager::Suspend()
 {
-	Engine->Suspend();
+	engine->Suspend();
 }
 
 void Audio_Manager::Reset()
 {
-	Engine->TrimVoicePool();
-	Engine->Reset();
+	engine->TrimVoicePool();
+	engine->Reset();
 }
 
 unique_ptr<DirectX::SoundEffectInstance> Audio_Manager::Load_SoundEffect(string filename)
@@ -49,35 +49,35 @@ unique_ptr<DirectX::SoundEffectInstance> Audio_Manager::Load_SoundEffect(string 
 	size_t ret = 0;
 	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
 
-	auto it = Effect_Map.find(FileName);
-	if (it != Effect_Map.end())
+	auto it = effect_map.find(FileName);
+	if (it != effect_map.end())
 	{
 		return move(it->second->CreateInstance());
 	}
 	else
 	{
-		Effect_Map.insert(make_pair(FileName, make_unique<SoundEffect>(Engine.get(), FileName)));
-		return move(Effect_Map.find(FileName)->second->CreateInstance());
+		effect_map.insert(make_pair(FileName, make_unique<SoundEffect>(engine.get(), FileName)));
+		return move(effect_map.find(FileName)->second->CreateInstance());
 	}
 
 	return nullptr;
 }
 
-void Audio_Manager::PlayOneShot(std::string filename, float volume, float pitch)
+void Audio_Manager::Play_OneShot(std::string filename, float volume, float pitch)
 {
 	setlocale(LC_ALL, "japanese");
 	wchar_t FileName[MAX_PATH] = { 0 };
 	size_t ret = 0;
 	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
 
-	auto it = Effect_Map.find(FileName);
-	if (it != Effect_Map.end())
+	auto it = effect_map.find(FileName);
+	if (it != effect_map.end())
 	{
 		it->second->Play(volume, pitch, 0.0f);
 	}
 	else
 	{
-		Effect_Map.insert(make_pair(FileName, make_unique<SoundEffect>(Engine.get(), FileName)));
-		Effect_Map.find(FileName)->second->Play(volume, pitch, 0.0f);
+		effect_map.insert(make_pair(FileName, make_unique<SoundEffect>(engine.get(), FileName)));
+		effect_map.find(FileName)->second->Play(volume, pitch, 0.0f);
 	}
 }

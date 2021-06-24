@@ -13,7 +13,7 @@ void Light::Initialize(std::shared_ptr<GameObject> obj)
 {
 	Engine::light_manager->Add(static_pointer_cast<Light>(shared_from_this()));
 
-	gameObject = obj;
+	gameobject = obj;
 	transform = obj->transform;
 }
 
@@ -39,18 +39,18 @@ bool Light::Draw_ImGui()
 
 	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
 	static bool enable;
-	enable = enableSelf();
+	enable = Get_Enabled();
 	if (ImGui::Checkbox("##enable", &enable))
 	{
-		SetEnabled(enable);
+		Set_Enabled(enable);
 	}
 
 	if (open)
 	{
-		float out_color[4] = { Color.x,Color.y,Color.z,Color.w };
+		float out_color[4] = { color.x,color.y,color.z,color.w };
 		ImGui::ColorEdit3("Color", out_color);
-		Color = { out_color[0],out_color[1] ,out_color[2] ,out_color[3] };
-		ImGui::DragFloat(u8"‹­“x", &Intensity, 0.01f, 0, FLT_MAX);
+		color = { out_color[0],out_color[1] ,out_color[2] ,out_color[3] };
+		ImGui::DragFloat(u8"‹­“x", &intensity, 0.01f, 0, FLT_MAX);
 	}
 	return true;
 }

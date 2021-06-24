@@ -62,8 +62,8 @@ bool Shader::Create_VS(WCHAR* filename, LPCSTR VSFunc)
 	auto it = vertex_cache.find(filename);
 	if (it != vertex_cache.end())
 	{
-		VS = it->second.vertex_shader;
-		VertexLayout = it->second.input_layout;
+		vs = it->second.vertex_shader;
+		vertex_layout = it->second.input_layout;
 	}
 	else
 	{
@@ -71,7 +71,7 @@ bool Shader::Create_VS(WCHAR* filename, LPCSTR VSFunc)
 		assert(SUCCEEDED(hr));
 
 		// 頂点シェーダ生成
-		hr = DxSystem::Device->CreateVertexShader(VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), NULL, VS.GetAddressOf());
+		hr = DxSystem::device->CreateVertexShader(VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), NULL, vs.GetAddressOf());
 		assert(SUCCEEDED(hr));
 
 		// Reflect shader info
@@ -130,12 +130,12 @@ bool Shader::Create_VS(WCHAR* filename, LPCSTR VSFunc)
 		}
 
 		// Try to create Input Layout
-		hr = DxSystem::Device->CreateInputLayout(&inputLayoutDesc[0], inputLayoutDesc.size(), VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), VertexLayout.GetAddressOf());
+		hr = DxSystem::device->CreateInputLayout(&inputLayoutDesc[0], inputLayoutDesc.size(), VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), vertex_layout.GetAddressOf());
 		assert(SUCCEEDED(hr));
 
-		vertex_cache.insert(make_pair(filename, set_of_vertex_shader_and_input_layout(VS.Get(), VertexLayout.Get())));
+		vertex_cache.insert(make_pair(filename, set_of_vertex_shader_and_input_layout(vs.Get(), vertex_layout.Get())));
 		// 入力レイアウト設定
-		DxSystem::DeviceContext->IASetInputLayout(VertexLayout.Get());
+		DxSystem::device_context->IASetInputLayout(vertex_layout.Get());
 		//Free allocation shader reflection memory
 		pVertexShaderReflection->Release();
 	}
@@ -149,7 +149,7 @@ bool Shader::Create_PS(WCHAR* filename, LPCSTR PSFunc)
 	auto itr = pixel_cache.find(filename);
 	if (itr != pixel_cache.end())
 	{
-		PS = itr->second;
+		ps = itr->second;
 	}
 	else
 	{
@@ -160,8 +160,8 @@ bool Shader::Create_PS(WCHAR* filename, LPCSTR PSFunc)
 			return false;
 		}
 		// ピクセルシェーダ生成
-		hr = DxSystem::Device->CreatePixelShader(PSBlob->GetBufferPointer(), PSBlob->GetBufferSize(), NULL, PS.GetAddressOf());
-		pixel_cache.insert(make_pair(filename, PS.Get()));
+		hr = DxSystem::device->CreatePixelShader(PSBlob->GetBufferPointer(), PSBlob->GetBufferSize(), NULL, ps.GetAddressOf());
+		pixel_cache.insert(make_pair(filename, ps.Get()));
 		//PSBlob->Release();
 		assert(SUCCEEDED(hr));
 	}
@@ -181,8 +181,8 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc)
 	auto it = vertex_cache.find(filename);
 	if (it != vertex_cache.end())
 	{
-		VS = it->second.vertex_shader;
-		VertexLayout = it->second.input_layout;
+		vs = it->second.vertex_shader;
+		vertex_layout = it->second.input_layout;
 	}
 	else
 	{
@@ -190,7 +190,7 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc)
 		assert(SUCCEEDED(hr));
 
 		// 頂点シェーダ生成
-		hr = DxSystem::Device->CreateVertexShader(VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), NULL, VS.GetAddressOf());
+		hr = DxSystem::device->CreateVertexShader(VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), NULL, vs.GetAddressOf());
 		assert(SUCCEEDED(hr));
 
 		// Reflect shader info
@@ -249,12 +249,12 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc)
 		}
 
 		// Try to create Input Layout
-		hr = DxSystem::Device->CreateInputLayout(&inputLayoutDesc[0], inputLayoutDesc.size(), VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), VertexLayout.GetAddressOf());
+		hr = DxSystem::device->CreateInputLayout(&inputLayoutDesc[0], inputLayoutDesc.size(), VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), vertex_layout.GetAddressOf());
 		assert(SUCCEEDED(hr));
 
-		vertex_cache.insert(make_pair(filename, set_of_vertex_shader_and_input_layout(VS.Get(), VertexLayout.Get())));
+		vertex_cache.insert(make_pair(filename, set_of_vertex_shader_and_input_layout(vs.Get(), vertex_layout.Get())));
 		// 入力レイアウト設定
-		DxSystem::DeviceContext->IASetInputLayout(VertexLayout.Get());
+		DxSystem::device_context->IASetInputLayout(vertex_layout.Get());
 		//Free allocation shader reflection memory
 		pVertexShaderReflection->Release();
 
@@ -315,7 +315,7 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc)
 	auto itr = pixel_cache.find(filename);
 	if (itr != pixel_cache.end())
 	{
-		PS = itr->second;
+		ps = itr->second;
 	}
 	else
 	{
@@ -326,8 +326,8 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc)
 			return false;
 		}
 		// ピクセルシェーダ生成
-		hr = DxSystem::Device->CreatePixelShader(PSBlob->GetBufferPointer(), PSBlob->GetBufferSize(), NULL, PS.GetAddressOf());
-		pixel_cache.insert(make_pair(filename, PS.Get()));
+		hr = DxSystem::device->CreatePixelShader(PSBlob->GetBufferPointer(), PSBlob->GetBufferSize(), NULL, ps.GetAddressOf());
+		pixel_cache.insert(make_pair(filename, ps.Get()));
 		//PSBlob->Release();
 		assert(SUCCEEDED(hr));
 	}
@@ -348,7 +348,7 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc, LPCSTR GSFunc
 	assert(SUCCEEDED(hr));
 
 	// 頂点シェーダ生成
-	hr = DxSystem::Device->CreateVertexShader(VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), NULL, VS.GetAddressOf());
+	hr = DxSystem::device->CreateVertexShader(VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), NULL, vs.GetAddressOf());
 	assert(SUCCEEDED(hr));
 
 	// 入力レイアウト
@@ -363,18 +363,18 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc, LPCSTR GSFunc
 	UINT numElements = ARRAYSIZE(layout);
 
 	// 入力レイアウト生成
-	hr = DxSystem::Device->CreateInputLayout(
+	hr = DxSystem::device->CreateInputLayout(
 		layout,
 		numElements,
 		VSBlob->GetBufferPointer(),
 		VSBlob->GetBufferSize(),
-		VertexLayout.GetAddressOf()
+		vertex_layout.GetAddressOf()
 	);
 
 	assert(SUCCEEDED(hr));
 
 	// 入力レイアウト設定
-	DxSystem::DeviceContext->IASetInputLayout(VertexLayout.Get());
+	DxSystem::device_context->IASetInputLayout(vertex_layout.Get());
 
 	// ピクセルシェーダ
 	ComPtr<ID3DBlob> PSBlob = NULL;
@@ -382,7 +382,7 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc, LPCSTR GSFunc
 	assert(SUCCEEDED(hr));
 
 	// ピクセルシェーダ生成
-	hr = DxSystem::Device->CreatePixelShader(PSBlob->GetBufferPointer(), PSBlob->GetBufferSize(), NULL, PS.GetAddressOf());
+	hr = DxSystem::device->CreatePixelShader(PSBlob->GetBufferPointer(), PSBlob->GetBufferSize(), NULL, ps.GetAddressOf());
 	//PSBlob.Get()->Release();
 	assert(SUCCEEDED(hr));
 	// ジオメトリシェーダ
@@ -391,7 +391,7 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc, LPCSTR GSFunc
 	assert(SUCCEEDED(hr));
 
 	// ジオメトリシェーダ生成
-	hr = DxSystem::Device->CreateGeometryShader(GSBlob->GetBufferPointer(), GSBlob->GetBufferSize(), NULL, GS.GetAddressOf());
+	hr = DxSystem::device->CreateGeometryShader(GSBlob->GetBufferPointer(), GSBlob->GetBufferSize(), NULL, gs.GetAddressOf());
 	assert(SUCCEEDED(hr));
 
 	return true;
@@ -410,7 +410,7 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc, LPCSTR GSFunc
 	assert(SUCCEEDED(hr));
 
 	// 頂点シェーダ生成
-	hr = DxSystem::Device->CreateVertexShader(VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), NULL, VS.GetAddressOf());
+	hr = DxSystem::device->CreateVertexShader(VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), NULL, vs.GetAddressOf());
 	assert(SUCCEEDED(hr));
 
 	// 入力レイアウト
@@ -425,19 +425,19 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc, LPCSTR GSFunc
 	UINT numElements = ARRAYSIZE(layout);
 
 	// 入力レイアウト生成
-	hr = DxSystem::Device->CreateInputLayout(
+	hr = DxSystem::device->CreateInputLayout(
 		layout,
 		numElements,
 		VSBlob->GetBufferPointer(),
 		VSBlob->GetBufferSize(),
-		VertexLayout.GetAddressOf()
+		vertex_layout.GetAddressOf()
 	);
 
 	assert(SUCCEEDED(hr));
 	VSBlob.Get()->Release();
 
 	// 入力レイアウト設定
-	DxSystem::DeviceContext->IASetInputLayout(VertexLayout.Get());
+	DxSystem::device_context->IASetInputLayout(vertex_layout.Get());
 
 	// ピクセルシェーダ
 	ComPtr<ID3DBlob> PSBlob = NULL;
@@ -445,7 +445,7 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc, LPCSTR GSFunc
 	assert(SUCCEEDED(hr));
 
 	// ピクセルシェーダ生成
-	hr = DxSystem::Device->CreatePixelShader(PSBlob->GetBufferPointer(), PSBlob->GetBufferSize(), NULL, PS.GetAddressOf());
+	hr = DxSystem::device->CreatePixelShader(PSBlob->GetBufferPointer(), PSBlob->GetBufferSize(), NULL, ps.GetAddressOf());
 	assert(SUCCEEDED(hr));
 
 	// ジオメトリシェーダ
@@ -453,7 +453,7 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc, LPCSTR GSFunc
 	hr = Compile(filename, GSFunc, "gs_5_0", GSBlob.GetAddressOf());
 	assert(SUCCEEDED(hr));
 	// ジオメトリシェーダ生成
-	hr = DxSystem::Device->CreateGeometryShader(GSBlob->GetBufferPointer(), GSBlob->GetBufferSize(), NULL, GS.GetAddressOf());
+	hr = DxSystem::device->CreateGeometryShader(GSBlob->GetBufferPointer(), GSBlob->GetBufferSize(), NULL, gs.GetAddressOf());
 	assert(SUCCEEDED(hr));
 
 	// ハルシェーダ
@@ -462,7 +462,7 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc, LPCSTR GSFunc
 	assert(SUCCEEDED(hr));
 
 	// ハルシェーダ生成
-	hr = DxSystem::Device->CreateHullShader(HSBlob->GetBufferPointer(), HSBlob->GetBufferSize(), NULL, HS.GetAddressOf());
+	hr = DxSystem::device->CreateHullShader(HSBlob->GetBufferPointer(), HSBlob->GetBufferSize(), NULL, hs.GetAddressOf());
 	assert(SUCCEEDED(hr));
 
 	// ドメインシェーダ
@@ -471,7 +471,7 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc, LPCSTR GSFunc
 	assert(SUCCEEDED(hr));
 
 	// ドメインシェーダ生成
-	hr = DxSystem::Device->CreateDomainShader(DSBlob->GetBufferPointer(), DSBlob->GetBufferSize(), NULL, DS.GetAddressOf());
+	hr = DxSystem::device->CreateDomainShader(DSBlob->GetBufferPointer(), DSBlob->GetBufferSize(), NULL, ds.GetAddressOf());
 	assert(SUCCEEDED(hr));
 
 	return true;
@@ -487,30 +487,30 @@ bool Shader::Create(WCHAR* filename, LPCSTR VSFunc, LPCSTR PSFunc, LPCSTR GSFunc
 //------------------------------------------------
 void Shader::Activate()
 {
-	DxSystem::DeviceContext->VSSetShader(VS.Get(), NULL, 0);
-	DxSystem::DeviceContext->PSSetShader(PS.Get(), NULL, 0);
-	DxSystem::DeviceContext->GSSetShader(GS.Get(), NULL, 0);
-	DxSystem::DeviceContext->HSSetShader(HS.Get(), NULL, 0);
-	DxSystem::DeviceContext->DSSetShader(DS.Get(), NULL, 0);
+	DxSystem::device_context->VSSetShader(vs.Get(), NULL, 0);
+	DxSystem::device_context->PSSetShader(ps.Get(), NULL, 0);
+	DxSystem::device_context->GSSetShader(gs.Get(), NULL, 0);
+	DxSystem::device_context->HSSetShader(hs.Get(), NULL, 0);
+	DxSystem::device_context->DSSetShader(ds.Get(), NULL, 0);
 }
 
 void Shader::Activate_VS()
 {
-	DxSystem::DeviceContext->VSSetShader(VS.Get(), NULL, 0);
+	DxSystem::device_context->VSSetShader(vs.Get(), NULL, 0);
 }
 void Shader::Activate_PS()
 {
-	DxSystem::DeviceContext->PSSetShader(PS.Get(), NULL, 0);
+	DxSystem::device_context->PSSetShader(ps.Get(), NULL, 0);
 }
 void Shader::Activate_GS()
 {
-	DxSystem::DeviceContext->GSSetShader(GS.Get(), NULL, 0);
+	DxSystem::device_context->GSSetShader(gs.Get(), NULL, 0);
 }
 void Shader::Activate_HS()
 {
-	DxSystem::DeviceContext->HSSetShader(HS.Get(), NULL, 0);
+	DxSystem::device_context->HSSetShader(hs.Get(), NULL, 0);
 }
 void Shader::Activate_DS()
 {
-	DxSystem::DeviceContext->DSSetShader(DS.Get(), NULL, 0);
+	DxSystem::device_context->DSSetShader(ds.Get(), NULL, 0);
 }

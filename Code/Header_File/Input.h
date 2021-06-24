@@ -7,7 +7,7 @@
 
 namespace BeastEngine
 {
-	enum class KeyCode
+	enum class Key_Code
 	{
 		None = 0x00,
 		Mouse0 = 0x01,
@@ -135,23 +135,23 @@ namespace BeastEngine
 	public:
 		void Update();
 
-		static bool GetKey(KeyCode key);
-		static bool GetKeyDown(KeyCode key);
-		static bool GetKeyUp(KeyCode key);
+		static bool Get_Key(Key_Code key);
+		static bool Get_Key_Down(Key_Code key);
+		static bool Get_Key_Up(Key_Code key);
 
-		static bool GetMouseButton(int button);
-		static bool GetMouseButtonDown(int button);
-		static bool GetMouseButtonUp(int button);
+		static bool Get_Mouse_Button(int button);
+		static bool Get_Mouse_Button_Down(int button);
+		static bool Get_Mouse_Button_Up(int button);
 
-		static BeastEngine::Vector2 GetMousePosition();
-		static BeastEngine::Vector2 GetMouseRelativePosition();
+		static BeastEngine::Vector2 Get_Mouse_Position();
+		static BeastEngine::Vector2 Get_Mouse_Relative_Position();
 
 	private:
 
 		static BYTE key_state[256];
 		static BYTE key_state_old[256];
 
-		static BeastEngine::Vector2 mousePosition;
-		static BeastEngine::Vector2 mousePosition_old;
+		static BeastEngine::Vector2 mouse_position;
+		static BeastEngine::Vector2 mouse_position_old;
 	};
 }

@@ -3,11 +3,28 @@
 #include "Transform.h"
 #include "Scene_Manager.h"
 #include "Scene.h"
+#include "System_Function.h"
 using namespace DirectX;
 using namespace std;
 using namespace BeastEngine;
 
-string Object::ToString()
+Object::Object()
+{
+	if (instance_id == "")
+	{
+		instance_id = System_Function::Create_ID();
+	}
+}
+
+Object::Object(const Object& obj)
+{
+	if (instance_id == "")
+	{
+		instance_id = System_Function::Create_ID();
+	}
+}
+
+string Object::To_String()
 {
 	return name;
 }
@@ -21,56 +38,57 @@ void Object::Destroy(shared_ptr<Component> comp)
 	Scene_Manager::Get_Active_Scene()->Destroy_Component(comp);
 }
 
-shared_ptr<GameObject> Object::Instantiate(string name)
+shared_ptr<Object> Object::Instantiate(std::weak_ptr<BeastEngine::Object> original)
 {
-	shared_ptr<GameObject> obj = Scene_Manager::Get_Active_Scene()->Instance_GameObject(name);
+	shared_ptr<Object> obj = make_shared<Object>(*original.lock());
 	return obj;
 }
-
-shared_ptr<GameObject> Object::Instantiate(string name, shared_ptr<Transform> parent)
+/*
+shared_ptr<Object> Object::Instantiate(std::weak_ptr<BeastEngine::Object> original, shared_ptr<Transform> parent)
 {
-	shared_ptr<GameObject> obj = Scene_Manager::Get_Active_Scene()->Instance_GameObject(name);
+	shared_ptr<Object> obj = make_shared<Object>(*original.lock());
 	obj->transform->Set_parent(parent);
 	return obj;
 }
 
-shared_ptr<GameObject> Object::Instantiate(string name, shared_ptr<Transform> parent, bool instantiateInWorldSpace)
+shared_ptr<Object> Object::Instantiate(std::weak_ptr<BeastEngine::Object> original, shared_ptr<Transform> parent, bool instantiateInWorldSpace)
 {
-	shared_ptr<GameObject> obj = Scene_Manager::Get_Active_Scene()->Instance_GameObject(name);
+	shared_ptr<Object> obj = make_shared<Object>(*original.lock());
 	obj->transform->Set_parent(parent);
 	return obj;
 }
 
-shared_ptr<GameObject> Object::Instantiate(string name, Vector3 position, Vector3 euler)
+shared_ptr<Object> Object::Instantiate(std::weak_ptr<BeastEngine::Object> original, Vector3 position, Vector3 euler)
 {
-	shared_ptr<GameObject> obj = Scene_Manager::Get_Active_Scene()->Instance_GameObject(name);
+	shared_ptr<Object> obj = make_shared<Object>(*original.lock());
 	obj->transform->Set_localPosition(position);
 	obj->transform->Set_localEulerAngles(euler);
 	return obj;
 }
 
-shared_ptr<GameObject> Object::Instantiate(string name, Vector3 position, Vector4 rotation)
+shared_ptr<Object> Object::Instantiate(std::weak_ptr<BeastEngine::Object> original, Vector3 position, Vector4 rotation)
 {
-	shared_ptr<GameObject> obj = Scene_Manager::Get_Active_Scene()->Instance_GameObject(name);
+	shared_ptr<Object> obj = make_shared<Object>(*original.lock());
 	obj->transform->Set_localPosition(position);
 	obj->transform->Set_localRotation(rotation);
 	return obj;
 }
 
-shared_ptr<GameObject> Object::Instantiate(string name, Vector3 position, Vector3 euler, shared_ptr<Transform> parent)
+shared_ptr<Object> Object::Instantiate(std::weak_ptr<BeastEngine::Object> original, Vector3 position, Vector3 euler, shared_ptr<Transform> parent)
 {
-	shared_ptr<GameObject> obj = Scene_Manager::Get_Active_Scene()->Instance_GameObject(name);
+	shared_ptr<Object> obj = make_shared<Object>(*original.lock());
 	obj->transform->Set_parent(parent);
 	obj->transform->Set_localPosition(position);
 	obj->transform->Set_localEulerAngles(euler);
 	return obj;
 }
 
-shared_ptr<GameObject> Object::Instantiate(string name, Vector3 position, Vector4 rotation, shared_ptr<Transform> parent)
+shared_ptr<Object> Object::Instantiate(std::weak_ptr<BeastEngine::Object> original, Vector3 position, Vector4 rotation, shared_ptr<Transform> parent)
 {
-	shared_ptr<GameObject> obj = Scene_Manager::Get_Active_Scene()->Instance_GameObject(name);
+	shared_ptr<Object> obj = make_shared<Object>(*original.lock());
 	obj->transform->Set_parent(parent);
 	obj->transform->Set_localPosition(position);
 	obj->transform->Set_localRotation(rotation);
 	return obj;
 }
+*/

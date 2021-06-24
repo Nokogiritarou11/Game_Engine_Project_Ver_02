@@ -99,6 +99,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>d3d11.lib;dxgi.lib;DirectXTK.lib;wininet.lib;d3dcompiler.lib;libfbxsdk-md.lib;libxml2-md.lib;zlib-md.lib;DirectXTex.lib;shlwapi.lib;Effekseerd.lib;EffekseerRendererDX11d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>.\2020.0.1\lib\vs2017\x86\debug;.\DirectXTK-master\Bin\Desktop_2019_Win10\Win32\Debug;.\Code\Libraries\DirectXTex\Bin\Desktop_2019_Win10\Win32\Debug;.\Code\Libraries\Effekseer\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>Rpcrt4.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -142,6 +143,7 @@
       <AdditionalLibraryDirectories>.\2020.0.1\lib\vs2017\x86\release;.\DirectXTK-master\Bin\Desktop_2019_Win10\Win32\Release;.\Code\Libraries\DirectXTex\Bin\Desktop_2019_Win10\Win32\Release;.\Code\Libraries\Effekseer\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>DirectXTK.lib;d3d11.lib;dxgi.lib;wininet.lib;libfbxsdk-md.lib;libxml2-md.lib;zlib-md.lib;DirectXTex.lib;shlwapi.lib;EffekseerRendererDX11.lib;Effekseer.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalOptions>Rpcrt4.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -198,8 +200,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Code\Souse_File\Animation.cpp" />
     <ClCompile Include="Code\Souse_File\Animator.cpp" />
     <ClCompile Include="Code\Souse_File\Animator_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\Asset_Manager.cpp" />
     <ClCompile Include="Code\Souse_File\AudioSource.cpp" />
     <ClCompile Include="Code\Souse_File\Audio_Manager.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -221,6 +225,7 @@
     <ClCompile Include="Code\Souse_File\main.cpp" />
     <ClCompile Include="Code\Souse_File\Material.cpp" />
     <ClCompile Include="Code\Souse_File\Mesh.cpp" />
+    <ClCompile Include="Code\Souse_File\Model_Data.cpp" />
     <ClCompile Include="Code\Souse_File\Mesh_Renderer.cpp" />
     <ClCompile Include="Code\Souse_File\MonoBehaviour.cpp" />
     <ClCompile Include="Code\Souse_File\Object.cpp" />
@@ -282,6 +287,7 @@
     <ClCompile Include="Script\Souse\All_Component_List.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Code\Header_File\Animation.h" />
     <ClInclude Include="Code\Header_File\Animator.h" />
     <ClInclude Include="Code\Header_File\Animator_Manager.h" />
     <ClInclude Include="Code\Header_File\AudioSource.h" />
@@ -306,6 +312,7 @@
     <ClInclude Include="Code\Header_File\Material.h" />
     <ClInclude Include="Code\Header_File\Mathf.h" />
     <ClInclude Include="Code\Header_File\Mesh.h" />
+    <ClInclude Include="Code\Header_File\Model_Data.h" />
     <ClInclude Include="Code\Header_File\Mesh_Renderer.h" />
     <ClInclude Include="Code\Header_File\Misc.h" />
     <ClInclude Include="Code\Header_File\MonoBehaviour.h" />
@@ -341,6 +348,7 @@
     <ClInclude Include="Code\Header_File\View_Game.h" />
     <ClInclude Include="Code\Header_File\View_Scene.h" />
     <ClInclude Include="Code\Header_File\View_Texture.h" />
+    <ClInclude Include="Code\Header_File\Asset_Manager.h" />
     <ClInclude Include="Code\Libraries\cereal\access.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>

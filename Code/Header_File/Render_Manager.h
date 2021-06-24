@@ -21,20 +21,20 @@ namespace BeastEngine
 		void Add(std::shared_ptr<BeastEngine::Camera> mono);
 		void Render();
 
-		std::vector<std::weak_ptr<BeastEngine::Renderer>> Renderer_3D_list;
-		std::vector<std::weak_ptr<BeastEngine::Renderer>> Renderer_2D_list;
-		std::vector<std::weak_ptr<BeastEngine::Camera>> Camera_list;
+		std::vector<std::weak_ptr<BeastEngine::Renderer>> renderer_3D_list;
+		std::vector<std::weak_ptr<BeastEngine::Renderer>> renderer_2D_list;
+		std::vector<std::weak_ptr<BeastEngine::Camera>> camera_list;
 
 	private:
 
 		struct Render_Obj
 		{
 			std::weak_ptr<BeastEngine::Renderer> renderer;
-			int   Queue;
-			float Z_Distance;
+			int   queue;
+			float Z_distance;
 		};
 
-		std::list<std::vector<Render_Obj>> Renderer_list;
+		std::list<std::vector<Render_Obj>> renderer_list;
 
 		//Rendererの生存チェック
 		void Check_Renderer();

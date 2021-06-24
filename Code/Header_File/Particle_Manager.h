@@ -26,7 +26,7 @@ namespace BeastEngine
 		std::unordered_map<std::string, Effekseer::EffectRef> effect_cache;
 
 	private:
-		std::vector<std::weak_ptr<BeastEngine::Particle>> Particle_List;
+		std::vector<std::weak_ptr<BeastEngine::Particle>> particle_list;
 		EffekseerRendererDX11::RendererRef renderer = nullptr;
 
 	};

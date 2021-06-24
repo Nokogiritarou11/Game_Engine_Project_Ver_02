@@ -36,10 +36,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			PostQuitMessage(0);
 			break;
 		case WM_SETFOCUS:
-			BeastEngine::Engine::GetHundle(message, wParam, lParam);
+			BeastEngine::Engine::Get_Hundle(message, wParam, lParam);
 			break;
 		case WM_KILLFOCUS:
-			BeastEngine::Engine::GetHundle(message, wParam, lParam);
+			BeastEngine::Engine::Get_Hundle(message, wParam, lParam);
 			break;
 			/*
 			case WM_CREATE:
@@ -90,7 +90,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 	hWnd = CreateWindow(szWindowClass,
 		szWindowClass,
 		WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
-		0, 0, BeastEngine::DxSystem::GetScreenWidth(), BeastEngine::DxSystem::GetScreenHeight(),
+		0, 0, BeastEngine::DxSystem::Get_Screen_Width(), BeastEngine::DxSystem::Get_Screen_Height(),
 		NULL,
 		NULL,
 		hInstance,
@@ -101,13 +101,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 	Microsoft::WRL::Wrappers::RoInitializeWrapper initialize(RO_INIT_MULTITHREADED);
 
 	// デバイス初期化
-	if (FAILED((HRESULT)BeastEngine::DxSystem::Initialize(hWnd, BeastEngine::DxSystem::GetScreenWidth(), BeastEngine::DxSystem::GetScreenHeight())))
+	if (FAILED((HRESULT)BeastEngine::DxSystem::Initialize(hWnd, BeastEngine::DxSystem::Get_Screen_Width(), BeastEngine::DxSystem::Get_Screen_Height())))
 	{
 		return 0;
 	}
 
 	BeastEngine::Engine* engine = new BeastEngine::Engine();
-	BeastEngine::Time::timeScale = 1.0f;
+	BeastEngine::Time::time_scale = 1.0f;
 
 	//メインループ
 	MSG hMsg = { 0 };
@@ -124,13 +124,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 		}
 		else
 		{
-			BeastEngine::Time::deltaTime = //1/60.0f;
-				(GetTickCount64() - before) * 0.001f * BeastEngine::Time::timeScale;
+			BeastEngine::Time::delta_time = //1/60.0f;
+				(GetTickCount64() - before) * 0.001f * BeastEngine::Time::time_scale;
 
 			before = GetTickCount64();
 			float mspf = 1000.0f / fps;
 
-			Interval -= BeastEngine::Time::deltaTime;
+			Interval -= BeastEngine::Time::delta_time;
 			fps++;
 			if (Interval < 0)
 			{

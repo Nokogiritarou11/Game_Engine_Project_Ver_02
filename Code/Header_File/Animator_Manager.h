@@ -17,6 +17,6 @@ namespace BeastEngine
 		void Add(std::shared_ptr<Animator> aniamtor);
 
 	private:
-		std::list<std::weak_ptr<Animator>> Animator_list;
+		std::list<std::weak_ptr<Animator>> animator_list;
 	};
 }

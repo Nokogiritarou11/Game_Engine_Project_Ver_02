@@ -50,7 +50,7 @@ Engine::Engine()
 #if _DEBUG
 	view_scene = make_unique<View_Scene>();
 	editor = make_unique<Editor>();
-	//scene_manager->CreateScene_Default("Default_Scene");
+	//scene_manager->Create_Scene_Default("Default_Scene");
 	string load_path;
 	ifstream iIfstream("Default_Resource\\System\\last_save.bin");
 	if (iIfstream.is_open())
@@ -70,7 +70,7 @@ Engine::Engine()
 				string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
 				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 				path = pathname + filename + ".bin";
-				Engine::scene_manager->CreateScene_Default(path, filename);
+				Engine::scene_manager->Create_Scene_Default(path, filename);
 			}
 		}
 	}
@@ -84,7 +84,7 @@ Engine::Engine()
 			string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
 			string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 			path = pathname + filename + ".bin";
-			Engine::scene_manager->CreateScene_Default(path, filename);
+			Engine::scene_manager->Create_Scene_Default(path, filename);
 		}
 	}
 
@@ -105,7 +105,7 @@ Engine::Engine()
 	else
 	{
 	}
-	scene_manager->Run = true;
+	scene_manager->run = true;
 #endif
 }
 
@@ -131,7 +131,7 @@ void Engine::Update()
 	render_manager->Render();
 	editor->Render();
 #else
-	view_game->Set_Screen_Size(DxSystem::GetScreenWidth(), DxSystem::GetScreenHeight());
+	view_game->Set_Screen_Size(DxSystem::Get_Screen_Width(), DxSystem::Get_Screen_Height());
 	animator_manager->Update();
 	particle_manager->Update();
 	render_manager->Render();
@@ -140,15 +140,15 @@ void Engine::Update()
 	DxSystem::Flip(1);
 }
 
-void Engine::GetHundle(UINT msg, WPARAM wParam, LPARAM lParam)
+void Engine::Get_Hundle(UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
 		case WM_SETFOCUS:
-			Cursor::Window_Focus = true;
+			Cursor::window_focus = true;
 			break;
 		case WM_KILLFOCUS:
-			Cursor::Window_Focus = false;
+			Cursor::window_focus = false;
 			break;
 	}
 }

@@ -34,36 +34,36 @@ namespace BeastEngine
 	class DxSystem
 	{
 	private:
-		static int ScreenWidth;
-		static int ScreenHeight;
-		static ComPtr<IDXGISwapChain>			SwapChain;
-		static ComPtr<ID3D11RenderTargetView>	RenderTargetView;
-		static ComPtr<ID3D11Texture2D>			DepthStencilTexture;
-		static ComPtr<ID3D11DepthStencilView>	DepthStencilView;
-		static ComPtr<ID3D11ShaderResourceView>	ShaderResourceView;
-		static ComPtr<ID3D11DepthStencilState>	DepthStencilState[16];
+		static int screen_width;
+		static int screen_height;
+		static ComPtr<IDXGISwapChain>			swap_chain;
+		static ComPtr<ID3D11RenderTargetView>	render_target_view;
+		static ComPtr<ID3D11Texture2D>			depth_stencil_texture;
+		static ComPtr<ID3D11DepthStencilView>	depth_stencil_view;
+		static ComPtr<ID3D11ShaderResourceView>	shader_resource_view;
+		static ComPtr<ID3D11DepthStencilState>	depth_stencil_state[16];
 
-		static ComPtr<IDXGIDebug>               DXGIDebug;
+		static ComPtr<IDXGIDebug>               DXGI_debug;
 
-		static HRESULT CreateDevice();
-		static bool CreateDepthStencil();
-		static bool InitializeRenderTarget();
+		static HRESULT Create_Device();
+		static bool Create_Depth_Stencil();
+		static bool Initialize_Render_Target();
 
 		static const int RASTERIZE_TYPE = 5;
-		static ComPtr<ID3D11RasterizerState> RasterizerState[RASTERIZE_TYPE];
-		static bool CreateRasterizerState();
+		static ComPtr<ID3D11RasterizerState> rasterizer_state[RASTERIZE_TYPE];
+		static bool Create_Rasterizer_State();
 
 		static const int BLEND_TYPE = 8;
-		static ComPtr<ID3D11BlendState>		BlendState[BLEND_TYPE];
-		static bool CreateBlendState();
+		static ComPtr<ID3D11BlendState>	blend_state[BLEND_TYPE];
+		static bool Create_Blend_State();
 
 	public:
-		static ComPtr<ID3D11Device>			Device;
-		static ComPtr<ID3D11DeviceContext>	DeviceContext;
+		static ComPtr<ID3D11Device>			device;
+		static ComPtr<ID3D11DeviceContext>	device_context;
 		static HWND hwnd;
 		static DXGI_SAMPLE_DESC MSAA;
 
-		static DirectX::XMFLOAT4 Light_Direction;
+		static DirectX::XMFLOAT4 light_direction;
 		static float elapsed_time;
 
 		static bool Initialize(HWND hWnd, int width, int height);
@@ -71,14 +71,14 @@ namespace BeastEngine
 		static void Clear(DWORD color = 0x0000FFFF);
 		static void Flip(int n = 0);
 
-		static int GetScreenWidth() { return ScreenWidth; }
-		static int GetScreenHeight() { return ScreenHeight; }
-		static ID3D11DepthStencilView* GetDepthStencilView() { return DepthStencilView.Get(); }
-		static ID3D11RenderTargetView* GetRenderTargetView() { return RenderTargetView.Get(); }
-		static ID3D11DepthStencilState* GetDephtStencilState(DS_State state) { return DepthStencilState[static_cast<int>(state)].Get(); }
-		static ID3D11RasterizerState* GetRasterizerState(RS_State state) { return RasterizerState[static_cast<int>(state)].Get(); }
-		static ID3D11BlendState* GetBlendState(BS_State state) { return BlendState[static_cast<int>(state)].Get(); }
-		static void SetViewPort(int width, int height, int Num = 1);
-		static void SetDefaultView();
+		static int Get_Screen_Width() { return screen_width; }
+		static int Get_Screen_Height() { return screen_height; }
+		static ID3D11DepthStencilView* Get_DepthStencilView() { return depth_stencil_view.Get(); }
+		static ID3D11RenderTargetView* Get_RenderTargetView() { return render_target_view.Get(); }
+		static ID3D11DepthStencilState* Get_DephtStencil_State(DS_State state) { return depth_stencil_state[static_cast<int>(state)].Get(); }
+		static ID3D11RasterizerState* Get_Rasterizer_State(RS_State state) { return rasterizer_state[static_cast<int>(state)].Get(); }
+		static ID3D11BlendState* Get_Blend_State(BS_State state) { return blend_state[static_cast<int>(state)].Get(); }
+		static void Set_ViewPort(int width, int height, int Num = 1);
+		static void Set_Default_View();
 	};
 }

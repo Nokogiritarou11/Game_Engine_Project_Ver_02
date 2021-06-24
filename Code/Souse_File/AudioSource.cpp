@@ -13,36 +13,36 @@ using namespace BeastEngine;
 
 AudioSource::~AudioSource()
 {
-	if (Effect_Instance)
+	if (effect_instance)
 	{
-		auto state = Effect_Instance->GetState();
+		auto state = effect_instance->GetState();
 		if (state == SoundState::PLAYING)
 		{
-			Effect_Instance->Stop();
+			effect_instance->Stop();
 		}
-		Effect_Instance.reset();
+		effect_instance.reset();
 	}
 }
 
 void AudioSource::Initialize(shared_ptr<GameObject> obj)
 {
-	gameObject = obj;
+	gameobject = obj;
 	transform = obj->transform;
 
 	if (file_path != "")
 	{
-		Effect_Instance = Engine::audio_manager->Load_SoundEffect(file_path + file_name);
-		Set_Volume(Volume);
-		Set_Pitch(Pitch);
+		effect_instance = Engine::audio_manager->Load_SoundEffect(file_path + file_name);
+		Set_Volume(volume);
+		Set_Pitch(pitch);
 	}
-	SetActive(enableSelf());
+	Set_Active(Get_Enabled());
 }
 
-void AudioSource::SetActive(bool value)
+void AudioSource::Set_Active(bool value)
 {
 	if (value)
 	{
-		if (Play_On_Awake && gameObject->activeInHierarchy() && enableSelf() && Engine::scene_manager->Run)
+		if (play_on_awake && gameobject->Get_Active_In_Hierarchy() && Get_Enabled() && Engine::scene_manager->run)
 		{
 			Play();
 		}
@@ -55,65 +55,65 @@ void AudioSource::SetActive(bool value)
 
 void AudioSource::Set_Clip(const char* filepath, const char* filename)
 {
-	if (Effect_Instance)
+	if (effect_instance)
 	{
-		auto state = Effect_Instance->GetState();
+		auto state = effect_instance->GetState();
 		if (state == SoundState::PLAYING)
 		{
-			Effect_Instance->Stop();
+			effect_instance->Stop();
 		}
 	}
 	file_name = filename;
 	file_path = filepath;
-	Effect_Instance = Engine::audio_manager->Load_SoundEffect(file_path + file_name);
-	Set_Volume(Volume);
-	Set_Pitch(Pitch);
+	effect_instance = Engine::audio_manager->Load_SoundEffect(file_path + file_name);
+	Set_Volume(volume);
+	Set_Pitch(pitch);
 }
 
 void AudioSource::Play()
 {
-	if (Effect_Instance)
+	if (effect_instance)
 	{
-		auto state = Effect_Instance->GetState();
-		Set_Volume(Volume);
-		Set_Pitch(Pitch);
+		auto state = effect_instance->GetState();
+		Set_Volume(volume);
+		Set_Pitch(pitch);
 		if (state == SoundState::PAUSED)
 		{
-			Effect_Instance->Resume();
+			effect_instance->Resume();
 		}
 		else if (state == SoundState::PLAYING)
 		{
-			Effect_Instance->Stop();
-			Effect_Instance->Play(Loop);
+			effect_instance->Stop();
+			effect_instance->Play(loop);
 		}
 		else
 		{
-			Effect_Instance->Play(Loop);
+			effect_instance->Play(loop);
 		}
 	}
 }
 
 void AudioSource::Pause()
 {
-	if (Effect_Instance)
+	if (effect_instance)
 	{
-		Effect_Instance->Pause();
+		effect_instance->Pause();
 	}
 }
 
 void AudioSource::Stop()
 {
-	if (Effect_Instance)
+	if (effect_instance)
 	{
-		Effect_Instance->Stop();
+		effect_instance->Stop();
 	}
 }
 
-void AudioSource::PlayOneShot(float volume, float pitch)
+void AudioSource::Play_OneShot(float volume, float pitch)
 {
 	if (file_path != "")
 	{
-		Engine::audio_manager->PlayOneShot(file_path + file_name, volume, pitch);
+		Engine::audio_manager->Play_OneShot(file_path + file_name, volume, pitch);
 	}
 }
 
@@ -126,11 +126,11 @@ void AudioSource::PlayClipAtPoint(const char* filepath, const char* filename, Ve
 }
 */
 
-bool AudioSource::IsPlaying()
+bool AudioSource::Is_Playing()
 {
-	if (Effect_Instance)
+	if (effect_instance)
 	{
-		auto state = Effect_Instance->GetState();
+		auto state = effect_instance->GetState();
 		if (state == SoundState::PLAYING)
 		{
 			return true;
@@ -145,18 +145,18 @@ bool AudioSource::IsPlaying()
 
 void AudioSource::Set_Volume(float volume)
 {
-	Volume = max(0, volume);
-	if (Effect_Instance)
+	volume = max(0, volume);
+	if (effect_instance)
 	{
-		Effect_Instance->SetVolume(Volume);
+		effect_instance->SetVolume(volume);
 	}
 }
 void AudioSource::Set_Pitch(float pitch)
 {
-	Pitch = Mathf::Clamp(pitch, -1.0f, 1.0f);
-	if (Effect_Instance)
+	pitch = Mathf::Clamp(pitch, -1.0f, 1.0f);
+	if (effect_instance)
 	{
-		Effect_Instance->SetPitch(Pitch);
+		effect_instance->SetPitch(pitch);
 	}
 }
 
@@ -182,10 +182,10 @@ bool AudioSource::Draw_ImGui()
 
 	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
 	static bool enable;
-	enable = enableSelf();
+	enable = Get_Enabled();
 	if (ImGui::Checkbox("##enable", &enable))
 	{
-		SetEnabled(enable);
+		Set_Enabled(enable);
 	}
 
 	if (open)
@@ -219,16 +219,16 @@ bool AudioSource::Draw_ImGui()
 		ImGui::Text(u8"音量　");
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50);
-		bool Input_volume = ImGui::DragFloat(u8"##音量", &Volume, 0.01f, 0.0f, 5.0f, "%.2f");
+		bool Input_volume = ImGui::DragFloat(u8"##音量", &volume, 0.01f, 0.0f, 5.0f, "%.2f");
 		ImGui::SameLine();
-		bool slide_volume = ImGui::SliderFloat("##音量", &Volume, 0.0f, 5.0f, "%.2f");
+		bool slide_volume = ImGui::SliderFloat("##音量", &volume, 0.0f, 5.0f, "%.2f");
 		if (Input_volume || slide_volume)
 		{
-			if (Effect_Instance)
+			if (effect_instance)
 			{
-				if (Effect_Instance->GetState() == SoundState::PLAYING)
+				if (effect_instance->GetState() == SoundState::PLAYING)
 				{
-					Set_Volume(Volume);
+					Set_Volume(volume);
 				}
 			}
 		}
@@ -236,27 +236,27 @@ bool AudioSource::Draw_ImGui()
 		ImGui::Text(u8"ピッチ");
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50);
-		bool Input_pitch = ImGui::DragFloat(u8"##ピッチ", &Pitch, 0.01f, -1.0f, 1.0f, "%.2f");
+		bool Input_pitch = ImGui::DragFloat(u8"##ピッチ", &pitch, 0.01f, -1.0f, 1.0f, "%.2f");
 		ImGui::SameLine();
-		bool slide_pitch = ImGui::SliderFloat("##ピッチ", &Pitch, -1.0f, 1.0f, "%.2f");
+		bool slide_pitch = ImGui::SliderFloat("##ピッチ", &pitch, -1.0f, 1.0f, "%.2f");
 		if (Input_pitch || slide_pitch)
 		{
-			if (Effect_Instance)
+			if (effect_instance)
 			{
-				if (Effect_Instance->GetState() == SoundState::PLAYING)
+				if (effect_instance->GetState() == SoundState::PLAYING)
 				{
-					Set_Pitch(Pitch);
+					Set_Pitch(pitch);
 				}
 			}
 		}
 
 		for (int i = 0; i < 5; ++i) ImGui::Spacing();
-		ImGui::Checkbox(u8"アクティブ時の自動再生", &Play_On_Awake);
+		ImGui::Checkbox(u8"アクティブ時の自動再生", &play_on_awake);
 		for (int i = 0; i < 5; ++i) ImGui::Spacing();
-		ImGui::Checkbox(u8"ループ再生", &Loop);
+		ImGui::Checkbox(u8"ループ再生", &loop);
 
 		for (int i = 0; i < 5; ++i) ImGui::Spacing();
-		if (Effect_Instance)
+		if (effect_instance)
 		{
 			if (ImGui::Button(ICON_FA_PLAY, ImVec2(30, 0)))
 			{

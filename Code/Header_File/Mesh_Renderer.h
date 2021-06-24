@@ -18,22 +18,22 @@ namespace BeastEngine
 		void Render(BeastEngine::Matrix V, BeastEngine::Matrix P) override;
 		void Render_Shadow(BeastEngine::Matrix V, BeastEngine::Matrix P) override;
 		bool Draw_ImGui() override;
-		void SetActive(bool value) override;
-		void Recalculate_Buffer();
+		void Set_Active(bool value) override;
+		void Recalculate_Frame();
 
-		struct CbMesh
+		struct Constant_Buffer_Mesh
 		{
 			BeastEngine::Matrix world = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
 		};
-		struct CbColor
+		struct Constant_Buffer_Color
 		{
-			BeastEngine::Vector4	materialColor;
+			BeastEngine::Vector4	material_color;
 		};
 
-		CbMesh mesh_buffer;
+		Constant_Buffer_Mesh buffer_mesh;
 
-		static ComPtr <ID3D11Buffer> ConstantBuffer_CbMesh;  //コンスタントバッファ(メッシュデータ)
-		static ComPtr <ID3D11Buffer> ConstantBuffer_CbColor; //コンスタントバッファ(カラー)
+		static ComPtr <ID3D11Buffer> constant_buffer_mesh;  //コンスタントバッファ(メッシュデータ)
+		static ComPtr <ID3D11Buffer> constant_buffer_color; //コンスタントバッファ(カラー)
 
 		void Reset();
 

@@ -38,12 +38,12 @@ shared_ptr<Material> Material::Create(const string& Material_Pass, const string&
 			str_pass = char_pass;
 			int path_i = str_pass.find_last_of("\\") + 1;//7
 			int ext_i = str_pass.find_last_of(".");//10
-			mat->shader_info[static_cast<int>(Shader_Type::PS)].Shader_FullPass = str_pass;
-			mat->shader_info[static_cast<int>(Shader_Type::PS)].Shader_Pass = str_pass.substr(0, path_i); //ファイルまでのディレクトリ
+			mat->shader_info[static_cast<int>(Shader_Type::PS)].shader_fullpass = str_pass;
+			mat->shader_info[static_cast<int>(Shader_Type::PS)].shader_pass = str_pass.substr(0, path_i); //ファイルまでのディレクトリ
 			string filename = str_pass.substr(path_i, ext_i - path_i); //ファイル名
-			mat->shader_info[static_cast<int>(Shader_Type::PS)].Shader_Name = filename;
+			mat->shader_info[static_cast<int>(Shader_Type::PS)].shader_name = filename;
 		}
-		mat->Self_Save_Pass = Material_Pass + Material_Name + ".mat";
+		mat->self_save_pass = Material_Pass + Material_Name + ".mat";
 		return mat;
 	}
 }
@@ -66,29 +66,29 @@ void Material::Initialize(shared_ptr<Material>& mat, string Material_FullPass)
 		setlocale(LC_ALL, "japanese");
 		wchar_t ps[MAX_PATH] = { 0 };
 		size_t ret = 0;
-		mbstowcs_s(&ret, ps, MAX_PATH, mat->shader_info[static_cast<int>(Shader_Type::PS)].Shader_FullPass.c_str(), _TRUNCATE);
+		mbstowcs_s(&ret, ps, MAX_PATH, mat->shader_info[static_cast<int>(Shader_Type::PS)].shader_fullpass.c_str(), _TRUNCATE);
 		mat->shader->Create_PS(ps, "PSMain");
 
-		mat->Self_Save_Pass = Material_FullPass;
+		mat->self_save_pass = Material_FullPass;
 		mat_cache.insert(make_pair(Material_FullPass, mat));
 	}
 }
 
 void Material::Set_Texture(Texture::Texture_Type texture_type, const std::string& filepath, const string& filename)
 {
-	texture_info[static_cast<int>(texture_type)].Texture_Name = filename;
-	texture_info[static_cast<int>(texture_type)].Texture_Pass = filepath;
-	texture_info[static_cast<int>(texture_type)].Texture_FullPass = filepath + filename;
-	texture[static_cast<int>(texture_type)]->Load(texture_info[static_cast<int>(texture_type)].Texture_FullPass);
+	texture_info[static_cast<int>(texture_type)].texture_name = filename;
+	texture_info[static_cast<int>(texture_type)].texture_pass = filepath;
+	texture_info[static_cast<int>(texture_type)].texture_fullpass = filepath + filename;
+	texture[static_cast<int>(texture_type)]->load(texture_info[static_cast<int>(texture_type)].texture_fullpass);
 }
 
 void Material::Set_Texture_All()
 {
 	for (size_t i = 0; i < 5; i++)
 	{
-		if (!texture_info[i].Texture_FullPass.empty())
+		if (!texture_info[i].texture_fullpass.empty())
 		{
-			texture[i]->Load(texture_info[i].Texture_FullPass);
+			texture[i]->load(texture_info[i].texture_fullpass);
 		}
 	}
 }
@@ -97,7 +97,7 @@ void Material::Active_Texture(bool Use_Material)
 {
 	for (size_t i = 0; i < 5; i++)
 	{
-		if (texture[i]->Texture_Have)
+		if (texture[i]->has_texture)
 		{
 			texture[i]->Set(i + 1, Use_Material);
 		}
@@ -114,7 +114,7 @@ void Material::Save(const string& path)
 	string save_path;
 	if (path.empty())
 	{
-		save_path = Self_Save_Pass;
+		save_path = self_save_pass;
 	}
 	else
 	{
@@ -139,30 +139,30 @@ void Material::Draw_ImGui()
 
 		static const char* depth[] = { "None", "Less", "Greater", "LEqual", "GEqual", "Equal", "NotEqual", "Always", "None_No_Write", "Less_No_Write", "Greater_No_Write", "LEqual_No_Write", "GEqual_No_Write", "Equal_No_Write", "NotEqual_No_Write", "Always_No_Write" };
 		static int depth_current = 0;
-		depth_current = static_cast<int>(DepthStencilState);
+		depth_current = static_cast<int>(depth_stencil_state);
 		if (ImGui::Combo("DepthMode", &depth_current, depth, IM_ARRAYSIZE(depth)))
 		{
-			DepthStencilState = DS_State(depth_current);
+			depth_stencil_state = DS_State(depth_current);
 		}
 
 		for (int i = 0; i < 3; ++i) ImGui::Spacing();
 
 		static const char* cull[] = { "Back", "Front", "None" };
 		static int cull_current = 0;
-		cull_current = static_cast<int>(RasterizerState);
+		cull_current = static_cast<int>(rasterizer_state);
 		if (ImGui::Combo("Culling", &cull_current, cull, IM_ARRAYSIZE(cull)))
 		{
-			RasterizerState = RS_State(cull_current);
+			rasterizer_state = RS_State(cull_current);
 		}
 
 		for (int i = 0; i < 3; ++i) ImGui::Spacing();
 
 		static const char* blends[] = { "Off", "Alpha", "Alpha_Test", "Transparent", "Add", "Subtract", "Replace", "Multiply" };
 		static int blend_current = 0;
-		blend_current = static_cast<int>(BlendState);
+		blend_current = static_cast<int>(blend_state);
 		if (ImGui::Combo("BlendMode", &blend_current, blends, IM_ARRAYSIZE(blends)))
 		{
-			BlendState = BS_State(blend_current);
+			blend_state = BS_State(blend_current);
 		}
 
 		for (int i = 0; i < 3; ++i) ImGui::Spacing();

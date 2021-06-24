@@ -14,16 +14,16 @@ namespace BeastEngine
 		std::string name; //シーン名
 
 		std::weak_ptr<BeastEngine::GameObject> Find(std::string Name);         //指定した名前のゲームオブジェクトを返す
-		std::weak_ptr<BeastEngine::GameObject> FindWithTag(std::string Tag);   //指定したタグのゲームオブジェクトを返す
+		std::weak_ptr<BeastEngine::GameObject> Find_With_Tag(std::string Tag);   //指定したタグのゲームオブジェクトを返す
 
 	private:
-		std::vector<std::shared_ptr<BeastEngine::GameObject>> gameObject_List; //シーン内の全ゲームオブジェクト
+		std::vector<std::shared_ptr<BeastEngine::GameObject>> gameobject_list; //シーン内の全ゲームオブジェクト
 
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(gameObject_List);
+			archive(gameobject_list);
 		}
 
 		friend class Scene_Manager;
@@ -44,9 +44,9 @@ namespace BeastEngine
 		void Processing_Start();
 		void Processing_Update(int state);
 
-		std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Start_list;
-		std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Start_Next_list;
-		std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Update_list;
-		std::vector<std::weak_ptr<MonoBehaviour>> MonoBehaviour_Update_Next_list;
+		std::vector<std::weak_ptr<MonoBehaviour>> monobehaviour_Start_list;
+		std::vector<std::weak_ptr<MonoBehaviour>> monobehaviour_Start_next_list;
+		std::vector<std::weak_ptr<MonoBehaviour>> monobehaviour_Update_list;
+		std::vector<std::weak_ptr<MonoBehaviour>> monobehaviour_Update_next_list;
 	};
 }

@@ -4,9 +4,9 @@
 using namespace std;
 using namespace BeastEngine;
 
-bool Component::CompareTag(string _tag)
+bool Component::Compare_Tag(string _tag)
 {
-	if (gameObject->tag == _tag)
+	if (gameobject->tag == _tag)
 	{
 		return true;
 	}

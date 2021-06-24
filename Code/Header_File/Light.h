@@ -12,8 +12,8 @@ namespace BeastEngine
 	class Light : public BeastEngine::Behaviour
 	{
 	public:
-		BeastEngine::Vector4 Color = { 0.5f ,0.5f ,0.5f ,1.0f };
-		float Intensity = 1;
+		BeastEngine::Vector4 color = { 0.5f ,0.5f ,0.5f ,1.0f };
+		float intensity = 1;
 
 	private:
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
@@ -23,7 +23,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Component>(this), Color, Intensity);
+			archive(cereal::base_class<BeastEngine::Component>(this), color, intensity);
 		}
 	};
 }

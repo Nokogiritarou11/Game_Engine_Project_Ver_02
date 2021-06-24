@@ -15,31 +15,31 @@ namespace BeastEngine
 		static void LoadScene(std::string Scene_Path);	  //指定した不シーンファイルをロードし、切り替える
 		static std::unique_ptr<BeastEngine::Scene>& Get_Active_Scene(); //現在アクティブなシーンを返す
 
-		bool Run = false;   //再生中か
-		bool Pause = false; //ポーズ中か
+		bool run = false;   //再生中か
+		bool pause = false; //ポーズ中か
 
 	private:
 
 		friend class Editor;
 		friend class Engine;
 
-		std::unique_ptr<BeastEngine::Scene> CreateScene_FromFile();
-		std::unique_ptr<BeastEngine::Scene> CreateScene_FromFile(std::string file_path);
+		std::unique_ptr<BeastEngine::Scene> CreateScene_From_File();
+		std::unique_ptr<BeastEngine::Scene> CreateScene_From_File(std::string file_path);
 
 		void Update();
-		void CreateScene_Default(std::string file_path, std::string file_name);
-		void SaveScene(std::string Save_Path);
-		void Start_DebugScene();
-		void End_DebugScene();
+		void Create_Scene_Default(std::string file_path, std::string file_name);
+		void Save_Scene(std::string Save_Path);
+		void Start_Debug_Scene();
+		void End_Debug_Scene();
 
 		void Release();
 
-		static std::unique_ptr<BeastEngine::Scene> Active_Scene;
-		std::unique_ptr<BeastEngine::Scene> Behind_Scene;
-		std::string Behind_Path = "";
-		std::string Last_Save_Path = "";
+		static std::unique_ptr<BeastEngine::Scene> active_scene;
+		std::unique_ptr<BeastEngine::Scene> behind_scene;
+		std::string behind_path = "";
+		std::string last_save_path = "";
 
-		static bool Load;
-		static std::string Next_Scene_Path;
+		static bool load;
+		static std::string next_scene_path;
 	};
 }

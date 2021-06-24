@@ -6,17 +6,17 @@ Behaviour::Behaviour()
 	enabled_old = enabled;
 }
 
-void Behaviour::SetEnabled(bool value)
+void Behaviour::Set_Enabled(bool value)
 {
 	if (value != enabled_old)
 	{
 		enabled = value;
 		enabled_old = value;
-		SetActive(value);
+		Set_Active(value);
 	}
 }
 
-bool Behaviour::enableSelf()
+bool Behaviour::Get_Enabled()
 {
 	return enabled;
 }

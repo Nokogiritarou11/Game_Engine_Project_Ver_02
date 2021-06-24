@@ -36,13 +36,13 @@ namespace BeastEngine
 		virtual void OnDestroy() {};//íœ‚ÉŒÄ‚Î‚ê‚é
 
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
-		void SetActive(bool value) override;
-		bool CanMultiple() override { return true; };
+		void Set_Active(bool value) override;
+		bool Can_Multiple() override { return true; };
 
-		bool IsCalled_Awake = false;
-		bool IsCalled_Start = false;
-		bool IsCalled_Update = false;
-		bool Disable_flg = false;
+		bool is_called_Awake = false;
+		bool is_called_Start = false;
+		bool is_called_Update = false;
+		bool is_disable = false;
 		void Add();
 
 		friend class Scene;

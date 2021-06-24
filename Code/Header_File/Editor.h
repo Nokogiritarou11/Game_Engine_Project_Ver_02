@@ -19,26 +19,26 @@ namespace BeastEngine
 
 		void Print_Log(std::string log);
 
-		BeastEngine::Vector2 Game_View_Size;
-		BeastEngine::Vector2 Game_View_Pos;
-		BeastEngine::Vector2 Game_View_CenterPos;
-		bool Render_Cursor = true;
+		BeastEngine::Vector2 game_view_size;
+		BeastEngine::Vector2 game_view_position;
+		BeastEngine::Vector2 game_view_center_position;
+		bool render_cursor = true;
 
 	private:
-		char* Font_Name = "Default_Resource/Font/mplus-1p-medium.ttf";
-		float Font_Size_Pixels = 30.0f;
-		float Font_Size = 0.6f;
-		float UI_Size = 0.6f;
-		std::vector<std::string> Debug_Log = {};
-		bool Debug_Log_Changed = false;
-		std::weak_ptr<BeastEngine::GameObject> Active_Object;
-		std::weak_ptr<BeastEngine::GameObject> Active_Object_Old;
+		char* font_name = "Default_Resource/Font/mplus-1p-medium.ttf";
+		float font_size_pixels = 30.0f;
+		float font_size = 0.6f;
+		float ui_size = 0.6f;
+		std::vector<std::string> debug_log = {};
+		bool debug_log_changed = false;
+		std::weak_ptr<BeastEngine::GameObject> active_object;
+		std::weak_ptr<BeastEngine::GameObject> active_object_old;
 
-		std::weak_ptr<BeastEngine::GameObject> Drag_Object;
+		std::weak_ptr<BeastEngine::GameObject> draging_object;
 
-		BeastEngine::Matrix Debug_Camera_V;
-		BeastEngine::Matrix Debug_Camera_P;
-		std::shared_ptr<BeastEngine::Transform> Debug_Camera_Transform;
+		BeastEngine::Matrix debug_camera_view_matrix;
+		BeastEngine::Matrix debug_camera_projection_matrix;
+		std::shared_ptr<BeastEngine::Transform> debug_camera_transform;
 		float fov_y;
 		float aspect;
 		float near_z;

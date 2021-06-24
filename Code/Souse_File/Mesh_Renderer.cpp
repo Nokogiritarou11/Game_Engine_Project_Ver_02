@@ -17,8 +17,8 @@ using namespace std;
 using namespace BeastEngine;
 
 
-ComPtr <ID3D11Buffer> Mesh_Renderer::ConstantBuffer_CbMesh;
-ComPtr <ID3D11Buffer> Mesh_Renderer::ConstantBuffer_CbColor;
+ComPtr <ID3D11Buffer> Mesh_Renderer::constant_buffer_mesh;
+ComPtr <ID3D11Buffer> Mesh_Renderer::constant_buffer_color;
 unique_ptr<Shader>	  Mesh_Renderer::shadow_shader;
 unique_ptr<Shader>	  Mesh_Renderer::vertex_shader;
 
@@ -26,31 +26,31 @@ void Mesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 {
 	enabled_old = enabled;
 
-	gameObject = obj;
+	gameobject = obj;
 	transform = obj->transform;
 	// 定数バッファの生成
-	if (!ConstantBuffer_CbMesh)
+	if (!constant_buffer_mesh)
 	{
 		D3D11_BUFFER_DESC bd = {};
 		bd.Usage = D3D11_USAGE_DEFAULT;
-		bd.ByteWidth = sizeof(CbMesh);
+		bd.ByteWidth = sizeof(Constant_Buffer_Mesh);
 		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		bd.CPUAccessFlags = 0;
 		bd.MiscFlags = 0;
 		bd.StructureByteStride = 0;
-		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer_CbMesh.GetAddressOf());
+		HRESULT hr = DxSystem::device->CreateBuffer(&bd, nullptr, constant_buffer_mesh.GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
-	if (!ConstantBuffer_CbColor)
+	if (!constant_buffer_color)
 	{
 		D3D11_BUFFER_DESC bd = {};
 		bd.Usage = D3D11_USAGE_DEFAULT;
-		bd.ByteWidth = sizeof(CbColor);
+		bd.ByteWidth = sizeof(Constant_Buffer_Color);
 		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		bd.CPUAccessFlags = 0;
 		bd.MiscFlags = 0;
 		bd.StructureByteStride = 0;
-		HRESULT hr = DxSystem::Device->CreateBuffer(&bd, nullptr, ConstantBuffer_CbColor.GetAddressOf());
+		HRESULT hr = DxSystem::device->CreateBuffer(&bd, nullptr, constant_buffer_color.GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
 
@@ -70,38 +70,46 @@ void Mesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 	{
 		Set_Mesh(Mesh::Load_Mesh(file_path.c_str(), file_name.c_str()));
 	}
-	SetActive(enableSelf());
+	Set_Active(Get_Enabled());
 }
 
-void Mesh_Renderer::SetActive(bool value)
+void Mesh_Renderer::Set_Active(bool value)
 {
 	if (value)
 	{
 		if (mesh_data)
 		{
-			if (gameObject->activeInHierarchy())
+			if (gameobject->Get_Active_In_Hierarchy())
 			{
-				if (enableSelf())
+				if (Get_Enabled())
 				{
-					if (!IsCalled)
+					if (!is_called)
 					{
 						Engine::render_manager->Add(static_pointer_cast<Mesh_Renderer>(shared_from_this()));
-						IsCalled = true;
+						is_called = true;
 					}
-					Disable_flg = false;
+					is_disable = false;
 				}
 			}
 		}
 	}
 }
 
-void Mesh_Renderer::Recalculate_Buffer()
+void Mesh_Renderer::Recalculate_Frame()
 {
-	if (!Recalculated_Constant_Buffer)
+	if (!recalculated_frame)
 	{
-		// メッシュ用定数バッファ更新
-		mesh_buffer.world = transform->Get_world_matrix();
-		Recalculated_Constant_Buffer = true;
+		if (world_old != transform->Get_World_Matrix())
+		{
+			// メッシュ用定数バッファ更新
+			buffer_mesh.world = transform->Get_World_Matrix();
+			//AABB更新
+			bounds
+
+			world_old = transform->Get_World_Matrix();
+		}
+
+		recalculated_frame = true;
 	}
 }
 
@@ -113,21 +121,27 @@ void Mesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 		file_name = mesh_data->name;
 		file_path = mesh_data->file_path;
 		//マテリアル
-		for (size_t i = 0; i < mesh_data->Default_Material_Passes.size(); i++)
+		for (size_t i = 0; i < mesh_data->default_material_passes.size(); i++)
 		{
 			shared_ptr<Material> Mat = make_shared<Material>();
-			ifstream in_bin(mesh_data->Default_Material_Passes[i], ios::binary);
+			ifstream in_bin(mesh_data->default_material_passes[i], ios::binary);
 			if (in_bin.is_open())
 			{
 				stringstream bin_s_stream;
 				bin_s_stream << in_bin.rdbuf();
 				cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
 				binaryInputArchive(Mat);
-				Material::Initialize(Mat, mesh_data->Default_Material_Passes[i]);
+				Material::Initialize(Mat, mesh_data->default_material_passes[i]);
 				material.push_back(Mat);
 			}
 		}
-		SetActive(enableSelf());
+		//AABB
+		bounds.resize(mesh_data->meshes.size());
+		for (int i = 0;i < bounds.size();++i)
+		{
+			bounds[i] = mesh_data->meshes[i].boundingbox;
+		}
+		Set_Active(Get_Enabled());
 	}
 }
 
@@ -135,27 +149,27 @@ void Mesh_Renderer::Render(Matrix V, Matrix P)
 {
 	if (mesh_data)
 	{
-		Recalculate_Buffer();
+		Recalculate_Frame();
 
 		for (auto& mesh : mesh_data->meshes)
 		{
 			// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
 			UINT stride = sizeof(Mesh::vertex);
 			UINT offset = 0;
-			DxSystem::DeviceContext->IASetVertexBuffers(0, 1, mesh.vertex_buffer.GetAddressOf(), &stride, &offset);
-			DxSystem::DeviceContext->IASetIndexBuffer(mesh.index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+			DxSystem::device_context->IASetVertexBuffers(0, 1, mesh.vertex_buffer.GetAddressOf(), &stride, &offset);
+			DxSystem::device_context->IASetIndexBuffer(mesh.index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 			for (auto& subset : mesh.subsets)
 			{
-				DxSystem::DeviceContext->IASetInputLayout(vertex_shader->VertexLayout.Get());
+				DxSystem::device_context->IASetInputLayout(vertex_shader->vertex_layout.Get());
 
-				DxSystem::DeviceContext->VSSetConstantBuffers(1, 1, ConstantBuffer_CbMesh.GetAddressOf());
-				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbMesh.Get(), 0, 0, &mesh_buffer, 0, 0);
+				DxSystem::device_context->VSSetConstantBuffers(1, 1, constant_buffer_mesh.GetAddressOf());
+				DxSystem::device_context->UpdateSubresource(constant_buffer_mesh.Get(), 0, 0, &buffer_mesh, 0, 0);
 
 				//マテリアルコンスタントバッファ
-				CbColor cbColor;
-				cbColor.materialColor = material[subset.material_ID]->color;
-				DxSystem::DeviceContext->PSSetConstantBuffers(2, 1, ConstantBuffer_CbColor.GetAddressOf());
-				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbColor.Get(), 0, 0, &cbColor, 0, 0);
+				Constant_Buffer_Color cbColor;
+				cbColor.material_color = material[subset.material_ID]->color;
+				DxSystem::device_context->PSSetConstantBuffers(2, 1, constant_buffer_color.GetAddressOf());
+				DxSystem::device_context->UpdateSubresource(constant_buffer_color.Get(), 0, 0, &cbColor, 0, 0);
 
 				material[subset.material_ID]->Active_Texture(); //PSSetSamplar PSSetShaderResources
 				//シェーダーリソースのバインド
@@ -163,26 +177,26 @@ void Mesh_Renderer::Render(Matrix V, Matrix P)
 				material[subset.material_ID]->shader->Activate_PS(); //PSSetShader
 
 				//ブレンドステート設定
-				if (Set_BlendState != material[subset.material_ID]->BlendState)
+				if (binding_blend_state != material[subset.material_ID]->blend_state)
 				{
-					DxSystem::DeviceContext->OMSetBlendState(DxSystem::GetBlendState(material[subset.material_ID]->BlendState), nullptr, 0xFFFFFFFF);
-					Set_BlendState = material[subset.material_ID]->BlendState;
+					DxSystem::device_context->OMSetBlendState(DxSystem::Get_Blend_State(material[subset.material_ID]->blend_state), nullptr, 0xFFFFFFFF);
+					binding_blend_state = material[subset.material_ID]->blend_state;
 				}
 				//ラスタライザ―設定
-				if (Set_RasterizerState != material[subset.material_ID]->RasterizerState)
+				if (binding_rasterizer_state != material[subset.material_ID]->rasterizer_state)
 				{
-					DxSystem::DeviceContext->RSSetState(DxSystem::GetRasterizerState(material[subset.material_ID]->RasterizerState));
-					Set_RasterizerState = material[subset.material_ID]->RasterizerState;
+					DxSystem::device_context->RSSetState(DxSystem::Get_Rasterizer_State(material[subset.material_ID]->rasterizer_state));
+					binding_rasterizer_state = material[subset.material_ID]->rasterizer_state;
 				}
 				//デプスステンシルステート設定
-				if (Set_DepthStencilState != material[subset.material_ID]->DepthStencilState)
+				if (binding_depth_stencil_State != material[subset.material_ID]->depth_stencil_state)
 				{
-					DxSystem::DeviceContext->OMSetDepthStencilState(DxSystem::GetDephtStencilState(material[subset.material_ID]->DepthStencilState), 1);
-					Set_DepthStencilState = material[subset.material_ID]->DepthStencilState;
+					DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(material[subset.material_ID]->depth_stencil_state), 1);
+					binding_depth_stencil_State = material[subset.material_ID]->depth_stencil_state;
 				}
 
 				// ↑で設定したリソースを利用してポリゴンを描画する。
-				DxSystem::DeviceContext->DrawIndexed(subset.index_count, subset.index_start, 0);
+				DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
 			}
 		}
 	}
@@ -192,26 +206,26 @@ void Mesh_Renderer::Render_Shadow(Matrix V, Matrix P)
 {
 	if (mesh_data)
 	{
-		Recalculate_Buffer();
+		Recalculate_Frame();
 
 		for (auto& mesh : mesh_data->meshes)
 		{
 			// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
 			UINT stride = sizeof(Mesh::vertex);
 			UINT offset = 0;
-			DxSystem::DeviceContext->IASetVertexBuffers(0, 1, mesh.vertex_buffer.GetAddressOf(), &stride, &offset);
-			DxSystem::DeviceContext->IASetIndexBuffer(mesh.index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+			DxSystem::device_context->IASetVertexBuffers(0, 1, mesh.vertex_buffer.GetAddressOf(), &stride, &offset);
+			DxSystem::device_context->IASetIndexBuffer(mesh.index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 			for (auto& subset : mesh.subsets)
 			{
-				DxSystem::DeviceContext->IASetInputLayout(vertex_shader->VertexLayout.Get());
+				DxSystem::device_context->IASetInputLayout(vertex_shader->vertex_layout.Get());
 
-				DxSystem::DeviceContext->VSSetConstantBuffers(1, 1, ConstantBuffer_CbMesh.GetAddressOf());
-				DxSystem::DeviceContext->UpdateSubresource(ConstantBuffer_CbMesh.Get(), 0, 0, &mesh_buffer, 0, 0);
+				DxSystem::device_context->VSSetConstantBuffers(1, 1, constant_buffer_mesh.GetAddressOf());
+				DxSystem::device_context->UpdateSubresource(constant_buffer_mesh.Get(), 0, 0, &buffer_mesh, 0, 0);
 
 				//シェーダーリソースのバインド
 				shadow_shader->Activate(); //PS,VSSetShader
 				// ↑で設定したリソースを利用してポリゴンを描画する。
-				DxSystem::DeviceContext->DrawIndexed(subset.index_count, subset.index_start, 0);
+				DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
 			}
 		}
 	}
@@ -245,10 +259,10 @@ bool Mesh_Renderer::Draw_ImGui()
 
 	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
 	static bool enable;
-	enable = enableSelf();
+	enable = Get_Enabled();
 	if (ImGui::Checkbox("##enable", &enable))
 	{
-		SetEnabled(enable);
+		Set_Enabled(enable);
 	}
 
 	if (open)

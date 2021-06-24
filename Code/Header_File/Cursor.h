@@ -3,7 +3,7 @@
 
 namespace BeastEngine
 {
-	enum class CursorLockMode
+	enum class CursorLock_Mode
 	{
 		None,
 		Locked
@@ -14,16 +14,16 @@ namespace BeastEngine
 	public:
 
 		static bool visible;
-		static CursorLockMode lockState;
+		static CursorLock_Mode cursor_lock_mode;
 
 	private:
 		friend class Engine;
 		friend class Input;
 
-		bool Is_Visible = true;
+		bool is_visible = true;
 
-		static bool Window_Focus;
-		static Vector2 Lock_Pos;
+		static bool window_focus;
+		static Vector2 lock_position;
 
 		void Update();
 		void Set_Cursor_Visible(bool value);

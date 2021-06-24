@@ -9,7 +9,7 @@ using namespace BeastEngine;
 
 Texture::Texture()
 {
-	ShaderResourceView = nullptr;
+	shader_resource_view = nullptr;
 	sampler = nullptr;
 }
 
@@ -17,7 +17,7 @@ Texture::~Texture()
 {
 }
 
-bool Texture::Load(string filename, int sampler_state)
+bool Texture::load(string filename, int sampler_state)
 {
 	HRESULT hr = S_OK;
 
@@ -34,10 +34,10 @@ bool Texture::Load(string filename, int sampler_state)
 	if (it != cache.end())
 	{
 		//it->second.Attach(*shader_resource_view);
-		ShaderResourceView = it->second.Get();
-		ShaderResourceView->AddRef();
-		ShaderResourceView->GetResource(resource.GetAddressOf());
-		Texture_Have = true;
+		shader_resource_view = it->second.Get();
+		shader_resource_view->AddRef();
+		shader_resource_view->GetResource(resource.GetAddressOf());
+		has_texture = true;
 	}
 	else
 	{
@@ -92,7 +92,7 @@ bool Texture::Load(string filename, int sampler_state)
 			//	bool forceSRGB,
 			//	ID3D11ShaderResourceView** ppSRV);
 			hr = CreateShaderResourceViewEx(
-				DxSystem::Device.Get(),
+				DxSystem::device.Get(),
 				image.GetImages(),
 				image.GetImageCount(),
 				metadata,
@@ -101,12 +101,12 @@ bool Texture::Load(string filename, int sampler_state)
 				0,
 				texture_flg,
 				false/*force_srgb*/,
-				ShaderResourceView.GetAddressOf());
+				shader_resource_view.GetAddressOf());
 			_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 		}
 
-		ShaderResourceView->GetResource(resource.GetAddressOf());
-		cache.insert(make_pair(FileName, ShaderResourceView));
+		shader_resource_view->GetResource(resource.GetAddressOf());
+		cache.insert(make_pair(FileName, shader_resource_view));
 	}
 
 	//テクスチャ情報取得
@@ -144,11 +144,11 @@ bool Texture::Load(string filename, int sampler_state)
 		sd.MinLOD = -FLT_MAX;
 		sd.MaxLOD = +FLT_MAX;
 	}
-	hr = DxSystem::Device->CreateSamplerState(
+	hr = DxSystem::device->CreateSamplerState(
 		&sd, sampler.GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
-	Texture_Have = true;
+	has_texture = true;
 	return true;
 }
 void Texture::Set(UINT Slot, BOOL flg)
@@ -157,17 +157,17 @@ void Texture::Set(UINT Slot, BOOL flg)
 	{
 		ID3D11ShaderResourceView* rtv[1] = { NULL };
 		ID3D11SamplerState* ss[1] = { NULL };
-		DxSystem::DeviceContext->PSSetShaderResources(Slot, 1, rtv);
-		DxSystem::DeviceContext->PSSetSamplers(Slot, 1, ss);
-		DxSystem::DeviceContext->DSSetShaderResources(Slot, 1, rtv);
-		DxSystem::DeviceContext->DSSetSamplers(Slot, 1, ss);
+		DxSystem::device_context->PSSetShaderResources(Slot, 1, rtv);
+		DxSystem::device_context->PSSetSamplers(Slot, 1, ss);
+		DxSystem::device_context->DSSetShaderResources(Slot, 1, rtv);
+		DxSystem::device_context->DSSetSamplers(Slot, 1, ss);
 		return;
 	}
-	if (ShaderResourceView)
+	if (shader_resource_view)
 	{
-		DxSystem::DeviceContext->PSSetShaderResources(Slot, 1, ShaderResourceView.GetAddressOf());
-		DxSystem::DeviceContext->PSSetSamplers(Slot, 1, sampler.GetAddressOf());
-		DxSystem::DeviceContext->DSSetShaderResources(Slot, 1, ShaderResourceView.GetAddressOf());
-		DxSystem::DeviceContext->DSSetSamplers(Slot, 1, sampler.GetAddressOf());
+		DxSystem::device_context->PSSetShaderResources(Slot, 1, shader_resource_view.GetAddressOf());
+		DxSystem::device_context->PSSetSamplers(Slot, 1, sampler.GetAddressOf());
+		DxSystem::device_context->DSSetShaderResources(Slot, 1, shader_resource_view.GetAddressOf());
+		DxSystem::device_context->DSSetSamplers(Slot, 1, sampler.GetAddressOf());
 	}
 }

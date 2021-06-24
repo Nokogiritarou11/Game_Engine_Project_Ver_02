@@ -11,14 +11,14 @@ namespace BeastEngine
 	{
 	public:
 
-		float FOV = 30.0f;
+		float fov = 30.0f;
 		float near_z = 0.1f;	// ï\é¶ç≈ãﬂñ Ç‹Ç≈ÇÃãóó£
 		float far_z = 1000.0f;	// ï\é¶ç≈âìñ Ç‹Ç≈ÇÃãóó£
 
-		BeastEngine::Matrix V = { 0.0f,0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-		BeastEngine::Matrix P = { 0.0f,0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+		BeastEngine::Matrix view_matrix = { 0.0f,0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+		BeastEngine::Matrix projection_matrix = { 0.0f,0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
-		BeastEngine::Vector2 WorldToViewportPoint(BeastEngine::Vector3 pos);
+		BeastEngine::Vector2 World_To_ViewportPoint(BeastEngine::Vector3 pos);
 
 	private:
 
@@ -26,11 +26,11 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(cereal::base_class<BeastEngine::Behaviour>(this), FOV, near_z, far_z);
+			archive(cereal::base_class<BeastEngine::Behaviour>(this), fov, near_z, far_z);
 		}
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
 		bool Draw_ImGui() override;
-		bool CanMultiple() override { return false; };
+		bool Can_Multiple() override { return false; };
 
 		D3D11_VIEWPORT viewport;
 		UINT num_viewports = 1;
