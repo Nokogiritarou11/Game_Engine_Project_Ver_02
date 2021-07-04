@@ -1,23 +1,21 @@
-#include "DxSystem.h"
+#include <unordered_map>
 #include <DirectXTex.h>
 #include <Shlwapi.h>
 #include <mutex>
+#include <clocale>
+#include <tchar.h>
+#include "DxSystem.h"
 #include "Texture.h"
+#include "Engine.h"
+#include "Asset_Manager.h"
+using Microsoft::WRL::ComPtr;
 using namespace std;
 using namespace DirectX;
 using namespace BeastEngine;
 
-Texture::Texture()
-{
-	shader_resource_view = nullptr;
-	sampler = nullptr;
-}
+unordered_map<string, shared_ptr<Texture>> Texture::cache_texture;
 
-Texture::~Texture()
-{
-}
-
-bool Texture::load(string filename, int sampler_state)
+shared_ptr<Texture> Texture::Load(string filename)
 {
 	HRESULT hr = S_OK;
 
@@ -29,18 +27,15 @@ bool Texture::load(string filename, int sampler_state)
 	size_t ret = 0;
 	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
 
-	static unordered_map<wstring, ComPtr<ID3D11ShaderResourceView>> cache;
-	auto it = cache.find(FileName);
-	if (it != cache.end())
+	auto it = cache_texture.find(filename);
+	if (it != cache_texture.end())
 	{
-		//it->second.Attach(*shader_resource_view);
-		shader_resource_view = it->second.Get();
-		shader_resource_view->AddRef();
-		shader_resource_view->GetResource(resource.GetAddressOf());
-		has_texture = true;
+		return it->second;
 	}
 	else
 	{
+		shared_ptr<Texture> texture = make_shared<Texture>();
+
 		TexMetadata metadata;
 		ScratchImage image;
 		u_int texture_flg = 0;
@@ -101,23 +96,19 @@ bool Texture::load(string filename, int sampler_state)
 				0,
 				texture_flg,
 				false/*force_srgb*/,
-				shader_resource_view.GetAddressOf());
+				texture->shader_resource_view.GetAddressOf());
 			_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 		}
 
-		shader_resource_view->GetResource(resource.GetAddressOf());
-		cache.insert(make_pair(FileName, shader_resource_view));
-	}
+		texture->shader_resource_view->GetResource(resource.GetAddressOf());
 
-	//テクスチャ情報取得
-	ComPtr<ID3D11Texture2D> texture2D;
-	resource.Get()->QueryInterface(texture2D.GetAddressOf());
-	texture2D.Get()->GetDesc(&texture2d_desc);
+		//テクスチャ情報取得
+		ComPtr<ID3D11Texture2D> texture2D;
+		resource.Get()->QueryInterface(texture2D.GetAddressOf());
+		texture2D.Get()->GetDesc(&texture->texture2d_desc);
 
-	//	サンプラステート作成
-	D3D11_SAMPLER_DESC sd = {};
-	if (sampler_state == 0)
-	{
+		//	サンプラステート作成
+		D3D11_SAMPLER_DESC sd = {};
 		sd.Filter = D3D11_FILTER_ANISOTROPIC;		// 異方性フィルタ
 		sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;	    // U
 		sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;	    // V
@@ -127,30 +118,19 @@ bool Texture::load(string filename, int sampler_state)
 		sd.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 		sd.MinLOD = 0;
 		sd.MaxLOD = D3D11_FLOAT32_MAX;
-	}
-	if (sampler_state == 1)
-	{
-		sd.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-		sd.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-		sd.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-		sd.BorderColor[0] = 1.0f;
-		sd.BorderColor[1] = 1.0f;
-		sd.BorderColor[2] = 1.0f;
-		sd.BorderColor[3] = 1.0f;
-		sd.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
-		sd.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
-		sd.MaxAnisotropy = 16;
-		sd.MipLODBias = 0;
-		sd.MinLOD = -FLT_MAX;
-		sd.MaxLOD = +FLT_MAX;
-	}
-	hr = DxSystem::device->CreateSamplerState(
-		&sd, sampler.GetAddressOf());
-	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
-	has_texture = true;
-	return true;
+		hr = DxSystem::device->CreateSamplerState(
+			&sd, texture->sampler.GetAddressOf());
+		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+
+		cache_texture.insert(make_pair(filename, texture));
+		Engine::asset_manager->Registration_Asset(texture);
+		return texture;
+	}
+
+	return nullptr;
 }
+
 void Texture::Set(UINT Slot, BOOL flg)
 {
 	if (flg == FALSE)

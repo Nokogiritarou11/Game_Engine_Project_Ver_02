@@ -79,9 +79,9 @@
     <ClCompile Include="Code\Libraries\ImGui\imgui_tables.cpp" />
     <ClCompile Include="Code\Souse_File\Shadow_Manager.cpp" />
     <ClCompile Include="Code\Souse_File\Bounds.cpp" />
-    <ClCompile Include="Code\Souse_File\Asset_Manager.cpp" />
     <ClCompile Include="Code\Souse_File\Model_Data.cpp" />
-    <ClCompile Include="Code\Souse_File\Animation.cpp" />
+    <ClCompile Include="Code\Souse_File\Animation_Clip.cpp" />
+    <ClCompile Include="Code\Souse_File\Asset_Manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -264,9 +264,9 @@
     <ClInclude Include="Code\Libraries\cereal\external\rapidjson\fwd.h" />
     <ClInclude Include="Code\Header_File\Shadow_Manager.h" />
     <ClInclude Include="Code\Header_File\Bounds.h" />
-    <ClInclude Include="Code\Header_File\Asset_Manager.h" />
     <ClInclude Include="Code\Header_File\Model_Data.h" />
-    <ClInclude Include="Code\Header_File\Animation.h" />
+    <ClInclude Include="Code\Header_File\Animation_Clip.h" />
+    <ClInclude Include="Code\Header_File\Asset_Manager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

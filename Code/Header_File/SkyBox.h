@@ -1,16 +1,15 @@
 #pragma once
-#include "Material.h"
-#include "Mesh.h"
 #include <vector>
-#include "cereal/cereal.hpp"
-#include "cereal/access.hpp"
-#include "cereal/archives/binary.hpp"
-#include "cereal/types/vector.hpp"
-#include "cereal/types/string.hpp"
-#include "cereal/types/memory.hpp"
+#include <memory>
+#include "DxSystem.h"
+#include "Original_Math.h"
 
 namespace BeastEngine
 {
+	class Mesh;
+	class Material;
+	class Shader;
+
 	class SkyBox
 	{
 	public:
@@ -20,7 +19,7 @@ namespace BeastEngine
 
 	private:
 		std::shared_ptr<BeastEngine::Material> material;
-		std::shared_ptr<BeastEngine::Mesh> mesh_data;
+		std::shared_ptr<BeastEngine::Mesh> mesh;
 
 		struct Constant_Buffer_Skybox
 		{
@@ -29,6 +28,6 @@ namespace BeastEngine
 		};
 
 		Microsoft::WRL::ComPtr<ID3D11Buffer> constant_buffer_skybox;		//コンスタントバッファ
-		std::unique_ptr<BeastEngine::Shader> vertex_shader;
+		std::shared_ptr<BeastEngine::Shader> vertex_shader;
 	};
 }

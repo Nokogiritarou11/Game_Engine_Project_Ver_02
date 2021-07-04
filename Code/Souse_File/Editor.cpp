@@ -346,7 +346,7 @@ void Editor::Hierarchy_Render(const unique_ptr<Scene>& scene)
 			}
 			if (ImGui::Selectable(u8"ƒvƒŒƒnƒu‚ð“Ç‚Ýž‚Þ"))
 			{
-				string path = System_Function::Get_Open_File_Name();
+				string path = System_Function::Get_Open_File_Name("prefab","\\Resouces\\Prefab");
 				if (path != "")
 				{
 					Resources::Load_Prefab(path);
@@ -764,7 +764,7 @@ void Editor::FileResource_Render()
 
 	if (ImGui::Button(u8"FBX“Ç‚Ýž‚Ý"))
 	{
-		string path = System_Function::Get_Open_File_Name();
+		string path = System_Function::Get_Open_File_Name("fbx","\\Resouces\\Model");
 		if (path != "")
 		{
 			int path_i = path.find_last_of("\\") + 1;//7
@@ -821,7 +821,7 @@ void Editor::Scene_File_Menu_Render()
 		{
 			if (!Engine::scene_manager->run && !Engine::scene_manager->pause)
 			{
-				string path = System_Function::Get_Open_File_Name();
+				string path = System_Function::Get_Open_File_Name("bin","\\Resouces\\Scene");
 				if (path != "")
 				{
 					Engine::scene_manager->last_save_path = path;

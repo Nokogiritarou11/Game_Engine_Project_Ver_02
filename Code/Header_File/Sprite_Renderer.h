@@ -1,7 +1,6 @@
 #pragma once
 #include <d3d11.h>
 #include <DirectXMath.h>
-using namespace DirectX;
 #include <string>
 #include <wrl.h>
 #include "Renderer.h"
@@ -28,19 +27,19 @@ namespace BeastEngine
 		bool Draw_ImGui() override;
 		void Set_Active(bool value) override;
 
-		struct VERTEX
+		struct Vertex
 		{
 			BeastEngine::Vector3 pos;	//位置
 			BeastEngine::Vector2 tex;	//UV座標
 			BeastEngine::Vector4 color;	//頂点色
 		};
 
-		ComPtr<ID3D11Buffer> vertex_buffer;
+		Microsoft::WRL::ComPtr<ID3D11Buffer> vertex_buffer;
 
 		std::string file_name;
 		std::string file_path;
 
-		static std::unique_ptr<BeastEngine::Shader> default_shader;
+		static std::shared_ptr<BeastEngine::Shader> default_shader;
 
 		friend class cereal::access;
 		template<class Archive>

@@ -3,12 +3,28 @@
 #include "Animator_Manager.h"
 #include "GameObject.h"
 #include "Transform.h"
-#include "Mesh.h"
-#include "SkinMesh_Renderer.h"
+#include "Animation_Clip.h"
 #include "Time_Engine.h"
 #include "Include_ImGui.h"
+#include "System_Function.h"
 using namespace std;
 using namespace BeastEngine;
+
+//指定文字での分割
+vector<string> split(const string& s, char delim)
+{
+	vector<string> elems;
+	stringstream ss(s);
+	string item;
+	while (getline(ss, item, delim))
+	{
+		if (!item.empty())
+		{
+			elems.push_back(item);
+		}
+	}
+	return elems;
+}
 
 void Animator::Initialize(shared_ptr<GameObject> obj)
 {
@@ -16,65 +32,87 @@ void Animator::Initialize(shared_ptr<GameObject> obj)
 	transform = obj->transform;
 	Engine::animator_manager->Add(static_pointer_cast<Animator>(shared_from_this()));
 
-	shared_ptr<SkinMesh_Renderer> skin = Get_Component<SkinMesh_Renderer>();
-	if (skin)
+	for each (string path in pathes)
 	{
-		Set_Skin_Renderer(skin);
+		Add_Clip(path);
 	}
 }
 
-void Animator::Set_Skin_Renderer(std::shared_ptr<SkinMesh_Renderer> render)
+void Animator::Add_Clip(string path)
 {
-	skin_renderer = render;
-	if (render->mesh_data)
+	shared_ptr<Animation_Clip> clip = Animation_Clip::Load_Clip(path);
+	bool already = false;
+	for (size_t i = 0; i < clips.size(); ++i)
 	{
-		Set_Mesh(render->mesh_data);
+		if (clips[i].clip == clip) { already = true; break; }
 	}
-}
-void Animator::Set_Mesh(std::shared_ptr<Mesh> mesh)
-{
-	mesh_data = mesh;
+	if (!already)
+	{
+		Clip_Data data;
+		data.clip = clip;
+
+		for (size_t i = 0; i < clip->animations.size(); ++i)
+		{
+			Animation_Clip::Animation& anim = clip->animations[i];
+
+			string t_path = anim.Target_Path;
+			weak_ptr<Transform> t_trans = gameobject->transform;
+			if (!t_path.empty())
+			{
+				vector<string> s = split(t_path, '/');
+				for (size_t i = 0; i < s.size(); ++i)
+				{
+					t_trans = t_trans.lock()->Find(s[i]);
+				}
+			}
+
+			Animation_Target target = { t_trans, anim };
+			data.targets.push_back(target);
+		}
+
+		bool loaded = false;
+		for (size_t i = 0; i < pathes.size(); ++i)
+		{
+			if (pathes[i] == path) { loaded = true; break; }
+		}
+		if (!loaded)
+		{
+			pathes.push_back(path);
+		}
+		clips.push_back(data);
+	}
 }
 
 void Animator::Update()
 {
-	if (!mesh_data)	                   return;
-	if (!playing)                      return;
-	if (currentAnimation < 0)          return;
-	if (mesh_data->animations.empty()) return;
+	if (clips.empty())            return;
+	if (!playing)                 return;
+	if (currentAnimation < 0)     return;
 
-	const Mesh::Animation& animation = mesh_data->animations.at(currentAnimation);
-	const std::vector<Mesh::Keyframe>& keyframes = animation.keyframes;
-
-	shared_ptr<SkinMesh_Renderer> skin = skin_renderer.lock();
-	vector<weak_ptr<Transform>>& nodes = skin->bones;
-
-	int keyCount = static_cast<int>(keyframes.size());
-	for (int keyIndex = 0; keyIndex < keyCount - 1; ++keyIndex)
+	const shared_ptr<Animation_Clip> clip = clips[currentAnimation].clip;
+	for (size_t i = 0; i < clips[currentAnimation].targets.size(); ++i)
 	{
-		// 現在の時間がどのキーフレームの間にいるか判定する
-		const Mesh::Keyframe& keyframe0 = keyframes.at(keyIndex);
-		const Mesh::Keyframe& keyframe1 = keyframes.at(keyIndex + 1);
-		if (currentSeconds >= keyframe0.seconds && currentSeconds < keyframe1.seconds)
+		const Animation_Target target = clips[currentAnimation].targets[i];
+		const std::vector<Animation_Clip::Keyframe>& keyframes = target.animation.keys;
+
+		int keyCount = static_cast<int>(keyframes.size());
+		for (int keyIndex = 0; keyIndex < keyCount - 1; ++keyIndex)
 		{
-			float rate = (currentSeconds - keyframe0.seconds / keyframe1.seconds - keyframe0.seconds);
-
-			assert(nodes.size() == keyframe0.nodeKeys.size());
-			assert(nodes.size() == keyframe1.nodeKeys.size());
-			int nodeCount = static_cast<int>(nodes.size());
-			for (int nodeIndex = 0; nodeIndex < nodeCount; ++nodeIndex)
+			// 現在の時間がどのキーフレームの間にいるか判定する
+			const Animation_Clip::Keyframe& keyframe0 = keyframes.at(keyIndex);
+			const Animation_Clip::Keyframe& keyframe1 = keyframes.at(keyIndex + 1);
+			if (currentSeconds >= keyframe0.time && currentSeconds < keyframe1.time)
 			{
+				float rate = (currentSeconds - keyframe0.time / keyframe1.time - keyframe0.time);
+
 				// ２つのキーフレーム間の補完計算
-				const Mesh::NodeKeyData& key0 = keyframe0.nodeKeys.at(nodeIndex);
-				const Mesh::NodeKeyData& key1 = keyframe1.nodeKeys.at(nodeIndex);
+				shared_ptr<Transform> bone = target.target_transform.lock();
 
-				shared_ptr<Transform> bone = nodes[nodeIndex].lock();
-
-				bone->Set_Local_Scale(DirectX::XMVectorLerp(key0.scale, key1.scale, rate));
-				bone->Set_Local_Rotation(DirectX::XMQuaternionSlerp(key0.rotation, key1.rotation, rate));
-				bone->Set_Local_Position(DirectX::XMVectorLerp(key0.position, key1.position, rate));
+				bone->Set_Local_Scale(DirectX::XMVectorLerp(keyframe0.scale, keyframe1.scale, rate));
+				bone->Set_Local_Rotation(DirectX::XMQuaternionSlerp(keyframe0.rotation, keyframe1.rotation, rate));
+				bone->Set_Local_Position(DirectX::XMVectorLerp(keyframe0.position, keyframe1.position, rate));
+				break;
 			}
-			break;
 		}
 	}
 
@@ -89,24 +127,25 @@ void Animator::Update()
 
 	// 時間経過
 	currentSeconds += Time::delta_time * animation_speed;
-	if (currentSeconds >= animation.secondsLength)
+	float length = clip->Get_Length();
+	if (currentSeconds >= length)
 	{
 		if (loopAnimation)
 		{
-			currentSeconds -= animation.secondsLength;
+			currentSeconds -= length;
 		}
 		else
 		{
-			currentSeconds = animation.secondsLength;
+			currentSeconds = length;
 			endAnimation = true;
 		}
 	}
 }
 
 // アニメーション再生
-void Animator::Play(int animationIndex)
+void Animator::Play(int clipIndex)
 {
-	currentAnimation = animationIndex;
+	currentAnimation = clipIndex;
 	endAnimation = false;
 	playing = true;
 }
@@ -153,69 +192,54 @@ bool Animator::Draw_ImGui()
 
 	if (open)
 	{
-		if (skin_renderer.expired())
+		if (!clips.empty())
 		{
-			mesh_data = nullptr;
-		}
-
-		if (!mesh_data)
-		{
-			if (ImGui::Button(u8"Meshを検索"))
+			static int item_current_idx = 0;                    // Here our selection data is an index.
+			if (ImGui::BeginCombo("Select_Animation", clips[item_current_idx].clip->name.data()))
 			{
-				shared_ptr<SkinMesh_Renderer> skin = Get_Component<SkinMesh_Renderer>();
-				if (skin)
+				for (unsigned int n = 0; n < clips.size(); n++)
 				{
-					Set_Skin_Renderer(skin);
-					shared_ptr<SkinMesh_Renderer> skin = skin_renderer.lock();
-					if (skin->mesh_data)
-					{
-						mesh_data = skin->mesh_data;
-					}
+					const bool is_selected = (item_current_idx == n);
+					if (ImGui::Selectable(clips[n].clip->name.data(), is_selected))
+						item_current_idx = n;
+
+					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
 				}
+				ImGui::EndCombo();
+			}
+			ImGui::DragFloat(u8"再生速度", &animation_speed, 0.01f, 0, FLT_MAX);
+			ImGui::Checkbox(u8"ループ", &loopAnimation);
+
+			if (ImGui::Button(ICON_FA_PLAY))
+			{
+				Play(item_current_idx);
+			}
+
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_FA_STOP))
+			{
+				Stop();
+			}
+
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_FA_PAUSE))
+			{
+				Pause();
 			}
 		}
 		else
 		{
-			if (!mesh_data->animations.empty())
+			ImGui::Text(u8"アニメーションデータが登録されていません");
+		}
+
+		if (ImGui::Button(u8"アニメーションの追加"))
+		{
+			string path = System_Function::Get_Open_File_Name("anim");
+			if (path != "")
 			{
-				static int item_current_idx = 0;                    // Here our selection data is an index.
-				if (ImGui::BeginCombo("Select_Animation", mesh_data->animations[item_current_idx].name.data()))
-				{
-					for (unsigned int n = 0; n < mesh_data->animations.size(); n++)
-					{
-						const bool is_selected = (item_current_idx == n);
-						if (ImGui::Selectable(mesh_data->animations[n].name.data(), is_selected))
-							item_current_idx = n;
-
-						// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-						if (is_selected)
-							ImGui::SetItemDefaultFocus();
-					}
-					ImGui::EndCombo();
-				}
-				ImGui::DragFloat(u8"再生速度", &animation_speed, 0.01f, 0, FLT_MAX);
-				ImGui::Checkbox(u8"ループ", &loopAnimation);
-
-				if (ImGui::Button(ICON_FA_PLAY))
-				{
-					Play(item_current_idx);
-				}
-
-				ImGui::SameLine();
-				if (ImGui::Button(ICON_FA_STOP))
-				{
-					Stop();
-				}
-
-				ImGui::SameLine();
-				if (ImGui::Button(ICON_FA_PAUSE))
-				{
-					Pause();
-				}
-			}
-			else
-			{
-				ImGui::Text(u8"メッシュにアニメーションデータがありません");
+				Add_Clip(path);
 			}
 		}
 	}

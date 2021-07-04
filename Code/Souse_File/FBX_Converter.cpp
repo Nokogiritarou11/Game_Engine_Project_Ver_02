@@ -1,31 +1,49 @@
+#include <sstream>
+#include <functional>
+#include <iostream>
+#include <fstream>
 #include "FBX_Converter.h"
 #include "GameObject.h"
 #include "Resources.h"
-#include "Mesh.h"
-#include "Renderer.h"
+#include "Model_Data.h"
 #include "Mesh_Renderer.h"
 #include "SkinMesh_Renderer.h"
+#include "Animation_Clip.h"
+#include "Animator.h"
 using namespace std;
 using namespace BeastEngine;
 
 void FBX_Converter::Convert_From_FBX(const char* file_path, const char* fbx_filename)
 {
-	shared_ptr<Mesh> mesh_data = Mesh::Load_Mesh(file_path, fbx_filename);
+	shared_ptr<Model_Data> model = Model_Data::Load_Model(file_path, fbx_filename);
 
-	shared_ptr<GameObject> obj = make_shared<GameObject>();
-	obj->Add_Component<Transform>();
-	obj->name = fbx_filename;
+	shared_ptr<GameObject> obj = Create_GameObject(fbx_filename);
 
-	if (mesh_data->nodes.empty())
+	if (model->nodes.empty())
 	{
-		shared_ptr<Mesh_Renderer> renderer = obj->Add_Component<Mesh_Renderer>();
-		renderer->file_name = mesh_data->name;
-		renderer->file_path = mesh_data->file_path;
+		vector<shared_ptr<GameObject>> rend_list;
+		for (size_t i = 0; i < model->meshes.size(); ++i)
+		{
+			shared_ptr<GameObject> g = Create_GameObject(model->meshes[i]->name);
+			g->transform->Set_Parent(obj->transform);
+			shared_ptr<Mesh_Renderer> renderer = g->Add_Component<Mesh_Renderer>();
+			renderer->file_name = model->meshes[i]->name;
+			renderer->file_path = model->file_path;
+			rend_list.push_back(g);
+		}
 
+		Convert_Mesh(model);
 		Resources::Create_Prefab(obj);
 
-		renderer->transform.reset();
-		renderer->gameobject.reset();
+		for each (shared_ptr<GameObject> g in rend_list)
+		{
+			g->transform->gameobject.reset();
+			g->transform->transform.reset();
+			g->transform.reset();
+			g->component_list.clear();
+		}
+		rend_list.clear();
+
 		obj->transform->gameobject.reset();
 		obj->transform->transform.reset();
 		obj->transform.reset();
@@ -34,29 +52,32 @@ void FBX_Converter::Convert_From_FBX(const char* file_path, const char* fbx_file
 	}
 	else
 	{
-		shared_ptr<SkinMesh_Renderer> renderer = obj->Add_Component<SkinMesh_Renderer>();
-		renderer->file_name = mesh_data->name;
-		renderer->file_path = mesh_data->file_path;
+		obj->Add_Component<Animator>();
 
-		shared_ptr<GameObject> root = make_shared<GameObject>();
-		root->Add_Component<Transform>();
-		root->name = "RootBone";
+		vector<shared_ptr<GameObject>> rend_list;
+		for (size_t i = 0; i < model->meshes.size(); ++i)
+		{
+			shared_ptr<GameObject> g = Create_GameObject(model->meshes[i]->name);
+			g->transform->Set_Parent(obj->transform);
+			shared_ptr<SkinMesh_Renderer> renderer = g->Add_Component<SkinMesh_Renderer>();
+			renderer->file_name = model->meshes[i]->name;
+			renderer->file_path = model->file_path;
+			rend_list.push_back(g);
+		}
+
+		shared_ptr<GameObject> root = Create_GameObject("RootBone");
 		root->transform->Set_Parent(obj->transform);
-		//root->transform->Set_localScale(1.0f, 1.0f, -1.0f);
 
 		vector<shared_ptr<GameObject>> bone_list;
-		const std::vector<Mesh::Node>& res_nodes = mesh_data->nodes;
+		const vector<Model_Data::Skeleton>& res_nodes = model->nodes;
 
 		for (size_t i = 0; i < res_nodes.size(); ++i)
 		{
-			shared_ptr<GameObject> bone = make_shared<GameObject>();
-			bone->Add_Component<Transform>();
+			shared_ptr<GameObject> bone = Create_GameObject(res_nodes[i].name);
 			bone->transform->Set_Local_Position(res_nodes[i].position);
 			bone->transform->Set_Local_Rotation(res_nodes[i].rotation);
 			bone->transform->Set_Local_Scale(res_nodes[i].scale);
-			bone->name = res_nodes[i].name;
 			bone_list.emplace_back(bone);
-			renderer->bones.emplace_back(bone->transform);
 			bone->transform->Set_Parent(root->transform);
 		}
 
@@ -64,25 +85,44 @@ void FBX_Converter::Convert_From_FBX(const char* file_path, const char* fbx_file
 		{
 			if (res_nodes[i].parentIndex != -1)
 			{
-				renderer->bones[i].lock()->Set_Parent(renderer->bones[res_nodes[i].parentIndex].lock());
+				bone_list[i]->transform->Set_Parent(bone_list[res_nodes[i].parentIndex]->transform);
+			}
+		}
+
+		for (size_t i = 0; i < rend_list.size(); ++i)
+		{
+			shared_ptr<SkinMesh_Renderer> rend = rend_list[i]->Get_Component<SkinMesh_Renderer>();
+			shared_ptr<Mesh>& mesh = model->meshes[i];
+
+			for (size_t t = 0; t < mesh->nodeIndices.size(); ++t)
+			{
+				rend->bones.push_back(bone_list[mesh->nodeIndices[t]]->transform);
 			}
 		}
 
 		obj->transform->Set_Scale(0.01f, 0.01f, 0.01f);
+		Convert_Animation(model, bone_list);
+		Convert_Mesh(model);
 
 		Resources::Create_Prefab(obj);
 
-		for (size_t i = 0; i < bone_list.size(); ++i)
+		for each (shared_ptr<GameObject> g in rend_list)
 		{
-			bone_list[i]->transform->gameobject.reset();
-			bone_list[i]->transform->transform.reset();
-			bone_list[i]->transform.reset();
-			bone_list[i]->component_list.clear();
+			g->transform->gameobject.reset();
+			g->transform->transform.reset();
+			g->transform.reset();
+			g->component_list.clear();
+		}
+		rend_list.clear();
+
+		for each (shared_ptr<GameObject> g in bone_list)
+		{
+			g->transform->gameobject.reset();
+			g->transform->transform.reset();
+			g->transform.reset();
+			g->component_list.clear();
 		}
 		bone_list.clear();
-
-		renderer->transform.reset();
-		renderer->gameobject.reset();
 
 		root->transform->gameobject.reset();
 		root->transform->transform.reset();
@@ -96,4 +136,92 @@ void FBX_Converter::Convert_From_FBX(const char* file_path, const char* fbx_file
 		obj->component_list.clear();
 		obj.reset();
 	}
+}
+
+void FBX_Converter::Convert_Animation(shared_ptr<Model_Data> model, vector<shared_ptr<GameObject>>& objects)
+{
+	for (size_t i = 0; i < model->animations.size(); ++i)
+	{
+		Model_Data::Animation& animation = model->animations[i];
+
+		shared_ptr<Animation_Clip> clip = make_shared<Animation_Clip>();
+		clip->name = animation.name;
+		clip->length = animation.secondsLength;
+
+		clip->animations.resize(model->nodes.size());
+
+		for (size_t t = 0; t < clip->animations.size(); ++t)
+		{
+			Animation_Clip::Animation& anim = clip->animations[t];
+
+			//アニメーション対象のボーン名を登録する
+			string path;
+			if (model->nodes[t].parentIndex == -1)
+			{
+				path = "RootBone/" + model->nodes[t].name;
+			}
+			else
+			{
+				path = objects[t]->name;
+				weak_ptr<Transform> trans = objects[t]->transform->Get_Parent();
+				shared_ptr<Transform> target;
+				while (target = trans.lock())
+				{
+					path = target->gameobject->name + "/" + path;
+					if (target->gameobject->name != "RootBone")
+					{
+						trans = target->Get_Parent();
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+			anim.Target_Path = path;
+
+			//対象ボーンのキーを登録する
+			anim.keys.resize(animation.keyframes.size());
+			for (size_t l = 0; l < anim.keys.size(); ++l)
+			{
+				anim.keys[l].time = animation.keyframes[l].seconds;
+				anim.keys[l].position = animation.keyframes[l].nodeKeys[t].position;
+				anim.keys[l].rotation = animation.keyframes[l].nodeKeys[t].rotation;
+				anim.keys[l].scale = animation.keyframes[l].nodeKeys[t].scale;
+			}
+		}
+
+		string save_path = model->file_path + animation.name + ".anim";
+		{
+			ofstream ss(save_path.c_str(), ios::binary);
+			{
+				cereal::BinaryOutputArchive o_archive(ss);
+				o_archive(clip);
+			}
+		}
+	}
+}
+
+void FBX_Converter::Convert_Mesh(std::shared_ptr<BeastEngine::Model_Data> model)
+{
+	for each (shared_ptr<Mesh> mesh in model->meshes)
+	{
+		string save_path = model->file_path + mesh->name + ".mesh";
+		{
+			ofstream ss(save_path.c_str(), ios::binary);
+			{
+				cereal::BinaryOutputArchive o_archive(ss);
+				o_archive(mesh);
+			}
+		}
+	}
+}
+
+shared_ptr<GameObject> FBX_Converter::Create_GameObject(string n)
+{
+	shared_ptr<GameObject> obj = make_shared<GameObject>();
+	obj->Add_Component<Transform>();
+	obj->name = n;
+
+	return obj;
 }

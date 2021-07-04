@@ -24,10 +24,10 @@ namespace BeastEngine
 		float Get_Shadow_Bias() { return shadow_bias; }
 
 	private:
-		ComPtr<ID3D11DepthStencilView>		depth_stencil_view = nullptr;
-		ComPtr<ID3D11Texture2D>				depth_stencil_texture = nullptr;
-		ComPtr<ID3D11ShaderResourceView>	shader_resource_view = nullptr;
-		ComPtr<ID3D11SamplerState>			sampler = nullptr;
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilView>		depth_stencil_view = nullptr;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D>				depth_stencil_texture = nullptr;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	shader_resource_view = nullptr;
+		Microsoft::WRL::ComPtr<ID3D11SamplerState>			sampler = nullptr;
 
 		float shadow_bias = 0.01f;
 		u_int shadow_map_texture_size = 1024;

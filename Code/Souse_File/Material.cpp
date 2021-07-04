@@ -1,6 +1,3 @@
-#include "Material.h"
-#include "Shader.h"
-#include "Texture.h"
 #include <clocale>
 #include <unordered_map>
 #include <sstream>
@@ -8,29 +5,28 @@
 #include <iostream>
 #include <fstream>
 #include <tchar.h>
+#include "Material.h"
+#include "Shader.h"
+#include "Texture.h"
 #include "Include_ImGui.h"
+#include "Engine.h"
+#include "Asset_Manager.h"
 using namespace std;
 using namespace BeastEngine;
 
-unordered_map<string, shared_ptr<Material>> Material::mat_cache;
+unordered_map<string, shared_ptr<Material>> Material::cache_material;
 
 shared_ptr<Material> Material::Create(const string& Material_Pass, const string& Material_Name, WCHAR* PS_Name)
 {
-	auto it = mat_cache.find(Material_Pass + Material_Name + ".mat");
-	if (it != mat_cache.end())
+	auto it = cache_material.find(Material_Pass + Material_Name + ".mat");
+	if (it != cache_material.end())
 	{
 		return it->second;
 	}
 	else
 	{
-		shared_ptr<Material> mat = make_unique<Material>();
-		for (size_t i = 0; i < 5; i++)
-		{
-			mat->texture[i] = make_unique<Texture>();
-		}
+		shared_ptr<Material> mat = make_shared<Material>();
 		mat->name = Material_Name;
-		mat->shader = make_unique<Shader>();
-
 		{
 			char char_pass[MAX_PATH];
 			string str_pass;
@@ -50,36 +46,27 @@ shared_ptr<Material> Material::Create(const string& Material_Pass, const string&
 
 void Material::Initialize(shared_ptr<Material>& mat, string Material_FullPass)
 {
-	auto it = mat_cache.find(Material_FullPass);
-	if (it != mat_cache.end())
+	auto it = cache_material.find(Material_FullPass);
+	if (it != cache_material.end())
 	{
 		mat = it->second;
 	}
 	else
 	{
-		for (size_t i = 0; i < 5; i++)
-		{
-			mat->texture[i] = make_unique<Texture>();
-		}
 		mat->Set_Texture_All();
-		mat->shader = make_unique<Shader>();
-		setlocale(LC_ALL, "japanese");
-		wchar_t ps[MAX_PATH] = { 0 };
-		size_t ret = 0;
-		mbstowcs_s(&ret, ps, MAX_PATH, mat->shader_info[static_cast<int>(Shader_Type::PS)].shader_fullpass.c_str(), _TRUNCATE);
-		mat->shader->Create_PS(ps, "PSMain");
+		mat->shader = Shader::Create("", mat->shader_info[static_cast<int>(Shader_Type::PS)].shader_fullpass);
 
 		mat->self_save_pass = Material_FullPass;
-		mat_cache.insert(make_pair(Material_FullPass, mat));
+		cache_material.insert(make_pair(Material_FullPass, mat));
 	}
 }
 
-void Material::Set_Texture(Texture::Texture_Type texture_type, const std::string& filepath, const string& filename)
+void Material::Set_Texture(Texture_Type texture_type, const std::string& filepath, const string& filename)
 {
 	texture_info[static_cast<int>(texture_type)].texture_name = filename;
 	texture_info[static_cast<int>(texture_type)].texture_pass = filepath;
 	texture_info[static_cast<int>(texture_type)].texture_fullpass = filepath + filename;
-	texture[static_cast<int>(texture_type)]->load(texture_info[static_cast<int>(texture_type)].texture_fullpass);
+	texture[static_cast<int>(texture_type)] = Texture::Load(texture_info[static_cast<int>(texture_type)].texture_fullpass);
 }
 
 void Material::Set_Texture_All()
@@ -88,7 +75,7 @@ void Material::Set_Texture_All()
 	{
 		if (!texture_info[i].texture_fullpass.empty())
 		{
-			texture[i]->load(texture_info[i].texture_fullpass);
+			texture[i] = Texture::Load(texture_info[i].texture_fullpass);
 		}
 	}
 }
@@ -97,7 +84,7 @@ void Material::Active_Texture(bool Use_Material)
 {
 	for (size_t i = 0; i < 5; i++)
 	{
-		if (texture[i]->has_texture)
+		if (texture[i])
 		{
 			texture[i]->Set(i + 1, Use_Material);
 		}
@@ -123,7 +110,7 @@ void Material::Save(const string& path)
 	ofstream ss(save_path, ios::binary);
 	{
 		cereal::BinaryOutputArchive o_archive(ss);
-		o_archive(shared_from_this());
+		o_archive(static_pointer_cast<Material>(shared_from_this()));
 	}
 }
 

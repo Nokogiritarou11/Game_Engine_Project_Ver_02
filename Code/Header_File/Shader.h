@@ -4,34 +4,35 @@
 #include <DirectXMath.h>
 #include <unordered_map>
 #include <wrl.h>
+#include <utility>
+#include "Object.h"
 #pragma comment( lib, "d3d11.lib" )
 #pragma comment( lib, "d3dcompiler.lib" )
-using Microsoft::WRL::ComPtr;
 
 namespace BeastEngine
 {
-	class Shader
+	class Shader : public BeastEngine::Object
 	{
-	protected:
-		ComPtr<ID3D11VertexShader>		vs = nullptr; // 頂点シェーダ
-		ComPtr<ID3D11PixelShader>		ps = nullptr; // ピクセルシェーダ
-		ComPtr<ID3D11GeometryShader>	gs = nullptr; // ジオメトリシェーダ
-		ComPtr<ID3D11HullShader>		hs = nullptr; // ハルシェーダ
-		ComPtr<ID3D11DomainShader>		ds = nullptr; // ドメインネームシェーダ
+	private:
+		Microsoft::WRL::ComPtr<ID3D11VertexShader>		vs = nullptr; // 頂点シェーダ
+		Microsoft::WRL::ComPtr<ID3D11PixelShader>		ps = nullptr; // ピクセルシェーダ
+		Microsoft::WRL::ComPtr<ID3D11GeometryShader>	gs = nullptr; // ジオメトリシェーダ
+		Microsoft::WRL::ComPtr<ID3D11HullShader>		hs = nullptr; // ハルシェーダ
+		Microsoft::WRL::ComPtr<ID3D11DomainShader>		ds = nullptr; // ドメインネームシェーダ
 
 		HRESULT Compile(WCHAR* filename, LPCSTR method, LPCSTR shaderModel, ID3DBlob** ppBlobOut);
 
-		struct set_of_vertex_shader_and_input_layout
-		{
-			set_of_vertex_shader_and_input_layout(ID3D11VertexShader* vertex_shader, ID3D11InputLayout* input_layout) : vertex_shader(vertex_shader), input_layout(input_layout) {}
-			ID3D11VertexShader* vertex_shader;
-			ID3D11InputLayout* input_layout;
-		};
+		static std::unordered_map<std::string, std::pair<ID3D11VertexShader*, ID3D11InputLayout*>> cache_vertex;
+		static std::unordered_map<std::string, ID3D11PixelShader*> cache_pixel;
+		static std::unordered_map<std::string, std::shared_ptr<BeastEngine::Shader>> cache_shader;
 
-		static std::unordered_map<std::wstring, set_of_vertex_shader_and_input_layout> vertex_cache;
-		static std::unordered_map<std::wstring, ID3D11PixelShader*> pixel_cache;
+		bool Create_VS(std::string filename);
+		bool Create_PS(std::string filename);
+		//bool Create_GS(std::string filename);
+		//bool Create_HS(std::string filename);
+		//bool Create_DS(std::string filename);
+
 	public:
-
 		enum Render_Type
 		{
 			Opaque,
@@ -41,17 +42,9 @@ namespace BeastEngine
 			Overlay
 		};
 
-		ComPtr<ID3D11InputLayout>		vertex_layout;
+		Microsoft::WRL::ComPtr<ID3D11InputLayout> vertex_layout;
 
-		Shader() { /*ZeroMemory(this, sizeof(Shader));*/ }
-		virtual ~Shader();
-
-		bool Create_VS(WCHAR* filename, LPCSTR VSName);
-		bool Create_PS(WCHAR* filename, LPCSTR PSName);
-
-		bool Create(WCHAR* filename, LPCSTR VSName, LPCSTR PSName);
-		bool Create(WCHAR* filename, LPCSTR VSName, LPCSTR PSName, LPCSTR GSName);
-		bool Create(WCHAR* filename, LPCSTR VSName, LPCSTR PSName, LPCSTR GSName, LPCSTR HSName, LPCSTR DSName);
+		static std::shared_ptr<BeastEngine::Shader> Create(std::string VSName, std::string PSName);
 
 		void Activate();
 
@@ -60,6 +53,5 @@ namespace BeastEngine
 		void Activate_GS();
 		void Activate_HS();
 		void Activate_DS();
-
 	};
 }

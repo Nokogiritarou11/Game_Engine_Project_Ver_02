@@ -23,7 +23,7 @@ namespace BeastEngine
 		bool Get_Enabled();			 //現在アクティブか
 
 		std::vector<std::shared_ptr<BeastEngine::Material>> material; //使用するマテリアル
-		std::vector<Bounds> bounds;
+		BeastEngine::Bounds bounds;
 
 	protected:
 		bool is_called = false;

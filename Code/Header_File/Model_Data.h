@@ -1,73 +1,26 @@
 #pragma once
-#include "Texture.h"
 #include "Bounds.h"
-#include <unordered_map>
+#include "Mesh.h"
+#include "Object.h"
 #include <vector>
 #include <wrl.h>
-#include <Original_Math.h>
 #include <tchar.h>
 #include "fbxsdk.h"
-#include "cereal/cereal.hpp"
-#include "cereal/access.hpp"
-#include "cereal/archives/binary.hpp"
-#include "cereal/types/vector.hpp"
-#include "cereal/types/string.hpp"
-#include "cereal/types/memory.hpp"
 
 namespace BeastEngine
 {
-	class Model_Data
+	class Material;
+
+	class Model_Data : public BeastEngine::Object
 	{
 	public:
-		struct Node
+		struct Skeleton
 		{
 			std::string			name;
 			int					parentIndex;
 			BeastEngine::Vector3	scale;
 			BeastEngine::Quaternion	rotation;
 			BeastEngine::Vector3	position;
-
-			template<class Archive>
-			void serialize(Archive& archive)
-			{
-				archive
-				(
-					position, scale, rotation, parentIndex, name
-				);
-			}
-		};
-
-		struct vertex
-		{
-			BeastEngine::Vector3 position;
-			BeastEngine::Vector3 normal;
-			BeastEngine::Vector3 tangent;
-			BeastEngine::Vector2 texcoord;
-			float   bone_weights[4] = { 1, 0, 0, 0 };
-			int     bone_indices[4] = {};
-
-			template<class Archive>
-			void serialize(Archive& archive)
-			{
-				archive
-				(
-					position, normal, tangent, texcoord, bone_weights, bone_indices
-				);
-			}
-		};
-
-		struct subset
-		{
-			u_int index_start = 0; // start number of index buffer
-			u_int index_count = 0; // number of vertices (indices)
-			BeastEngine::Vector4 color;
-			u_int material_ID;
-
-			template<class Archive>
-			void serialize(Archive& archive)
-			{
-				archive(index_start, index_count, color, material_ID);
-			}
 		};
 
 		struct NodeKeyData
@@ -75,72 +28,32 @@ namespace BeastEngine
 			BeastEngine::Vector3	scale;
 			BeastEngine::Quaternion rotation;
 			BeastEngine::Vector3	position;
-
-			template<class Archive>
-			void serialize(Archive& archive)
-			{
-				archive(scale, rotation, position);
-			}
 		};
 
 		struct Keyframe
 		{
 			float						seconds;
 			std::vector<NodeKeyData>	nodeKeys;
-
-			template<class Archive>
-			void serialize(Archive& archive)
-			{
-				archive(seconds, nodeKeys);
-			}
 		};
 		struct Animation
 		{
 			std::string					name;
 			float						secondsLength;
 			std::vector<Keyframe>		keyframes;
-
-			template<class Archive>
-			void serialize(Archive& archive)
-			{
-				archive(name, secondsLength, keyframes);
-			}
-		};
-
-		struct mesh
-		{
-			Microsoft::WRL::ComPtr<ID3D11Buffer> vertex_buffer;
-			Microsoft::WRL::ComPtr<ID3D11Buffer> index_buffer;
-			std::vector<subset>					 subsets;
-
-			BeastEngine::Bounds boundingbox;
-
-			int									 nodeIndex;
-			std::vector<int>					 nodeIndices;
-			std::vector<BeastEngine::Matrix>	 inverseTransforms;
-
-			std::vector<vertex> vertices;
-			std::vector<u_int> indices;
-
-			template<class Archive>
-			void serialize(Archive& archive)
-			{
-				archive(vertices, indices, subsets, nodeIndex, nodeIndices, inverseTransforms, boundingbox);
-			}
 		};
 
 		std::string name;
 		std::string file_path;
 
-		std::vector<Node>		nodes;
-		std::vector<mesh>		meshes;
-		std::vector<Animation>	animations;
+		std::vector<Skeleton> nodes;
+		std::vector<std::shared_ptr<BeastEngine::Mesh>>	meshes;
+		std::vector<Animation> animations;
 		std::vector<std::string> default_material_passes;
 
 		//指定したパスのメッシュを読み込む
 		//第1引数にメッシュまでのパス
 		//第2引数にファイル名(拡張子はいらない)を入力する
-		static std::shared_ptr<BeastEngine::Mesh> Load_Mesh(const char* file_path, const char* fbx_filename, const char* ignoreRootMotionNodeName = nullptr);
+		static std::shared_ptr<BeastEngine::Model_Data> Load_Model(const char* file_path, const char* fbx_filename, const char* ignoreRootMotionNodeName = nullptr);
 
 	private:
 		// ノードデータを構築
@@ -159,13 +72,6 @@ namespace BeastEngine
 
 		int rootMotionNodeIndex = -1;
 
-		void GetTexture(const FbxSurfaceMaterial* fbx_mat, const char* fbx_tex_type, std::shared_ptr<BeastEngine::Material> mat, Texture::Texture_Type tex_type);
-
-		friend class cereal::access;
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(nodes, meshes, animations, default_material_passes);
-		}
+		void GetTexture(const FbxSurfaceMaterial* fbx_mat, const char* fbx_tex_type, std::shared_ptr<BeastEngine::Material> mat);
 	};
 }

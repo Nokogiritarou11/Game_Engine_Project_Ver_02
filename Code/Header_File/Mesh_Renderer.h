@@ -12,7 +12,7 @@ namespace BeastEngine
 		void Set_Mesh(std::shared_ptr<BeastEngine::Mesh> Mesh_Data); //メッシュデータを設定する
 
 	private:
-		std::shared_ptr<BeastEngine::Mesh> mesh_data;
+		std::shared_ptr<BeastEngine::Mesh> mesh;
 
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
 		void Render(BeastEngine::Matrix V, BeastEngine::Matrix P) override;
@@ -32,16 +32,16 @@ namespace BeastEngine
 
 		Constant_Buffer_Mesh buffer_mesh;
 
-		static ComPtr <ID3D11Buffer> constant_buffer_mesh;  //コンスタントバッファ(メッシュデータ)
-		static ComPtr <ID3D11Buffer> constant_buffer_color; //コンスタントバッファ(カラー)
+		static Microsoft::WRL::ComPtr <ID3D11Buffer> constant_buffer_mesh;  //コンスタントバッファ(メッシュデータ)
+		static Microsoft::WRL::ComPtr <ID3D11Buffer> constant_buffer_color; //コンスタントバッファ(カラー)
 
 		void Reset();
 
 		std::string file_name;
 		std::string file_path;
 
-		static std::unique_ptr<BeastEngine::Shader> shadow_shader;
-		static std::unique_ptr<BeastEngine::Shader> vertex_shader;
+		static std::shared_ptr<BeastEngine::Shader> shadow_shader;
+		static std::shared_ptr<BeastEngine::Shader> vertex_shader;
 
 		friend class FBX_Converter;
 		friend class cereal::access;

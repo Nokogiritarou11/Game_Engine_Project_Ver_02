@@ -7,6 +7,8 @@
 namespace BeastEngine
 {
 	class Scene;
+	class Editor;
+	class Engine;
 
 	class Scene_Manager
 	{
@@ -18,10 +20,11 @@ namespace BeastEngine
 		bool run = false;   //çƒê∂íÜÇ©
 		bool pause = false; //É|Å[ÉYíÜÇ©
 
+		~Scene_Manager();
 	private:
 
-		friend class Editor;
-		friend class Engine;
+		friend class BeastEngine::Editor;
+		friend class BeastEngine::Engine;
 
 		std::unique_ptr<BeastEngine::Scene> CreateScene_From_File();
 		std::unique_ptr<BeastEngine::Scene> CreateScene_From_File(std::string file_path);
@@ -31,8 +34,6 @@ namespace BeastEngine
 		void Save_Scene(std::string Save_Path);
 		void Start_Debug_Scene();
 		void End_Debug_Scene();
-
-		void Release();
 
 		static std::unique_ptr<BeastEngine::Scene> active_scene;
 		std::unique_ptr<BeastEngine::Scene> behind_scene;

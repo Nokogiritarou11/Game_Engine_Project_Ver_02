@@ -190,7 +190,7 @@ bool Particle::Draw_ImGui()
 		ImGui::Text(file_name.c_str());
 		if (ImGui::Button(u8"パーティクルを選択"))
 		{
-			string path = System_Function::Get_Open_File_Name();
+			string path = System_Function::Get_Open_File_Name("","\\Resouces\\Effect");
 			//Debug::Log(path);
 			if (path != "")
 			{

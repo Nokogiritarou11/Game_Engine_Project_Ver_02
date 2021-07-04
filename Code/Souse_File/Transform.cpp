@@ -862,6 +862,21 @@ int Transform::Get_Sibling_Index() const
 	return -1;
 }
 
+weak_ptr<Transform> Transform::Find(std::string n)
+{
+	shared_ptr<Transform> child;
+	for (int i = 0; i < (int)children.size(); ++i)
+	{
+		child = children[i].lock();
+		if (child->gameobject->name == n)
+		{
+			return child;
+		}
+	}
+
+	return child;
+}
+
 void Transform::Set_Sibling_Index(int index)
 {
 	if (Get_Sibling_Index() != index)

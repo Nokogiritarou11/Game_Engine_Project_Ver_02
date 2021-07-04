@@ -200,7 +200,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Code\Souse_File\Animation.cpp" />
+    <ClCompile Include="Code\Souse_File\Animation_Clip.cpp" />
     <ClCompile Include="Code\Souse_File\Animator.cpp" />
     <ClCompile Include="Code\Souse_File\Animator_Manager.cpp" />
     <ClCompile Include="Code\Souse_File\Asset_Manager.cpp" />
@@ -287,9 +287,10 @@
     <ClCompile Include="Script\Souse\All_Component_List.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Code\Header_File\Animation.h" />
+    <ClInclude Include="Code\Header_File\Animation_Clip.h" />
     <ClInclude Include="Code\Header_File\Animator.h" />
     <ClInclude Include="Code\Header_File\Animator_Manager.h" />
+    <ClInclude Include="Code\Header_File\Asset_Manager.h" />
     <ClInclude Include="Code\Header_File\AudioSource.h" />
     <ClInclude Include="Code\Header_File\Audio_Manager.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -348,7 +349,6 @@
     <ClInclude Include="Code\Header_File\View_Game.h" />
     <ClInclude Include="Code\Header_File\View_Scene.h" />
     <ClInclude Include="Code\Header_File\View_Texture.h" />
-    <ClInclude Include="Code\Header_File\Asset_Manager.h" />
     <ClInclude Include="Code\Libraries\cereal\access.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>

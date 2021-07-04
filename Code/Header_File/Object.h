@@ -11,6 +11,7 @@
 #include "cereal/types/vector.hpp"
 #include "cereal/types/list.hpp"
 #include "cereal/types/string.hpp"
+#include "cereal/types/utility.hpp"
 #include "cereal/types/polymorphic.hpp"
 #include "cereal/types/base_class.hpp"
 #include "cereal/types/memory.hpp"
@@ -31,7 +32,8 @@ namespace BeastEngine
 		Object(const Object& obj);
 		virtual ~Object() {};
 
-		std::string To_String(); //名前を返す
+		std::string To_String(){ return name; }; //名前を返す
+		std::string Get_Instance_ID(){ return instance_id; }; //名前を返す
 		static void Destroy(std::shared_ptr<BeastEngine::GameObject> obj); //オブジェクトを削除する
 		static void Destroy(std::shared_ptr<BeastEngine::Component> comp); //オブジェクトを削除する
 

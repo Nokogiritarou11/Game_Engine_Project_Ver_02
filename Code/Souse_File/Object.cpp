@@ -24,11 +24,6 @@ Object::Object(const Object& obj)
 	}
 }
 
-string Object::To_String()
-{
-	return name;
-}
-
 void Object::Destroy(shared_ptr<GameObject> obj)
 {
 	Scene_Manager::Get_Active_Scene()->Destroy_GameObject(obj);

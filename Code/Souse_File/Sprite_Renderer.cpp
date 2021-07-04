@@ -15,9 +15,10 @@
 #include <fstream>
 #include "System_Function.h"
 using namespace std;
+using namespace DirectX;
 using namespace BeastEngine;
 
-unique_ptr<Shader> Sprite_Renderer::default_shader;
+shared_ptr<Shader> Sprite_Renderer::default_shader;
 
 void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 {
@@ -26,11 +27,11 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 	gameobject = obj;
 	transform = obj->transform;
 
-	VERTEX v[] = {
-		XMFLOAT3(-0.5f, 0.5f,0),  XMFLOAT2(0,0), XMFLOAT4(1,1,1,1), //左上
-		XMFLOAT3(0.5f, 0.5f,0),  XMFLOAT2(1,0), XMFLOAT4(1,1,1,1), //右上
-		XMFLOAT3(-0.5f,-0.5f,0),  XMFLOAT2(0,1), XMFLOAT4(1,1,1,1), //左下
-		XMFLOAT3(0.5f,-0.5f,0),  XMFLOAT2(1,1), XMFLOAT4(1,1,1,1), //右下
+	Vertex v[] = {
+		Vector3(-0.5f, 0.5f,0),  Vector2(0,0), Vector4(1,1,1,1), //左上
+		Vector3(0.5f, 0.5f,0),  Vector2(1,0), Vector4(1,1,1,1), //右上
+		Vector3(-0.5f,-0.5f,0),  Vector2(0,1), Vector4(1,1,1,1), //左下
+		Vector3(0.5f,-0.5f,0),  Vector2(1,1), Vector4(1,1,1,1), //右下
 	};
 
 	//	頂点バッファ作成
@@ -45,22 +46,19 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 	res.pSysMem = v;
 
 	DxSystem::device->CreateBuffer(&bd, &res, vertex_buffer.GetAddressOf());
-	texture = make_shared<Texture>();
 
 	if (!default_shader)
 	{
-		default_shader = make_unique<Shader>();
-		default_shader->Create_VS(L"Shader/2D_Shader_VS.hlsl", "VSMain");
-		default_shader->Create_PS(L"Shader/2D_Shader_PS.hlsl", "PSMain");
+		default_shader = Shader::Create("Shader/2D_Shader_VS.hlsl", "Shader/2D_Shader_PS.hlsl");
 	}
 
 	if (file_path != "")
 	{
-		texture->load(file_path + file_name);
+		texture = Texture::Load(file_path + file_name);
 	}
 	else
 	{
-		texture->load("Default_Resource\\Image\\Default_Texture.png");
+		texture = Texture::Load("Default_Resource\\Image\\Default_Texture.png");
 	}
 
 	Set_Active(Get_Enabled());
@@ -98,7 +96,7 @@ void Sprite_Renderer::Render(Matrix V, Matrix P)
 			material[0]->shader->Activate();
 		}
 		//頂点データ設定
-		VERTEX data[4];
+		Vertex data[4];
 
 		Vector3 trans_pos = gameobject->transform->Get_Position();
 
@@ -201,7 +199,7 @@ void Sprite_Renderer::Render(Matrix V, Matrix P)
 			DxSystem::device_context->IASetInputLayout(material[0]->shader->vertex_layout.Get());
 		}
 		//	頂点バッファの指定
-		UINT stride = sizeof(VERTEX);
+		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
 		DxSystem::device_context->IASetVertexBuffers(
 			0, 1, vertex_buffer.GetAddressOf(), // スロット, 数, バッファ
@@ -253,7 +251,7 @@ bool Sprite_Renderer::Draw_ImGui()
 		ImGui::SameLine();
 		if (ImGui::Button(u8"テクスチャを選択"))
 		{
-			string path = System_Function::Get_Open_File_Name();
+			string path = System_Function::Get_Open_File_Name("png","\\Resouces\\Image");
 			if (path != "")
 			{
 				int path_i = path.find_last_of("\\") + 1;//7
@@ -261,7 +259,7 @@ bool Sprite_Renderer::Draw_ImGui()
 				string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
 				string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
 				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
-				texture->load(path);
+				texture = Texture::Load(path);
 				file_path = pathname;
 				file_name = filename + extname;
 			}
@@ -271,25 +269,28 @@ bool Sprite_Renderer::Draw_ImGui()
 			}
 		}
 
-		static float size[2] = { 0,0 };
-		static int uv_origin[2] = { 0,0 };
-		static int uv_size[2] = { 0,0 };
+		static float edit_size[2] = { 0,0 };
+		static int edit_uv_origin[2] = { 0,0 };
+		static int edit_uv_size[2] = { 0,0 };
 
-		size[0] = size.x; size[1] = size.y;
-		uv_origin[0] = (int)uv_origin.x; uv_origin[1] = (int)uv_origin.y;
-		uv_size[0] = (int)uv_size.x; uv_size[1] = (int)uv_size.y;
+		edit_size[0] = size.x;
+		edit_size[1] = size.y;
+		edit_uv_origin[0] = (int)uv_origin.x;
+		edit_uv_origin[1] = (int)uv_origin.y;
+		edit_uv_size[0] = (int)uv_size.x;
+		edit_uv_size[1] = (int)uv_size.y;
 
-		ImGui::DragFloat2(u8"表示サイズ", size, 0.1f, -FLT_MAX, FLT_MAX);
-		ImGui::DragInt2(u8"UV始点", uv_origin, 0, INT_MAX);
-		ImGui::DragInt2(u8"UVサイズ", uv_size, 0, INT_MAX);
+		ImGui::DragFloat2(u8"表示サイズ", edit_size, 0.1f, -FLT_MAX, FLT_MAX);
+		ImGui::DragInt2(u8"UV始点", edit_uv_origin, 0, INT_MAX);
+		ImGui::DragInt2(u8"UVサイズ", edit_uv_size, 0, INT_MAX);
 
-		size = { (float)size[0],(float)size[1] };
-		uv_origin = { (float)uv_origin[0],(float)uv_origin[1] };
-		uv_size = { (float)uv_size[0],(float)uv_size[1] };
+		size = { edit_size[0],edit_size[1] };
+		uv_origin = { (float)edit_uv_origin[0],(float)edit_uv_origin[1] };
+		uv_size = { (float)edit_uv_size[0],(float)edit_uv_size[1] };
 
-		float out_color[4] = { color.x,color.y,color.z,color.w };
-		ImGui::ColorEdit4("Color", out_color);
-		color = { out_color[0],out_color[1] ,out_color[2] ,out_color[3] };
+		float edit_color[4] = { color.x,color.y,color.z,color.w };
+		ImGui::ColorEdit4("Color", edit_color);
+		color = { edit_color[0],edit_color[1] ,edit_color[2] ,edit_color[3] };
 	}
 	return true;
 }
@@ -302,10 +303,10 @@ Sprite_Renderer_batch::Sprite_Renderer_batch(ID3D11Device* device, const wchar_t
 
 	vertex vertices[] =
 	{
-		{ XMFLOAT3(0, 0, 0), XMFLOAT2(0, 0) },
-		{ XMFLOAT3(1, 0, 0), XMFLOAT2(1, 0) },
-		{ XMFLOAT3(0, 1, 0), XMFLOAT2(0, 1) },
-		{ XMFLOAT3(1, 1, 0), XMFLOAT2(1, 1) },
+		{ Vector3(0, 0, 0), Vector2(0, 0) },
+		{ Vector3(1, 0, 0), Vector2(1, 0) },
+		{ Vector3(0, 1, 0), Vector2(0, 1) },
+		{ Vector3(1, 1, 0), Vector2(1, 1) },
 	};
 
 	D3D11_BUFFER_DESC bd = {};
@@ -379,7 +380,7 @@ Sprite_Renderer_batch::Sprite_Renderer_batch(ID3D11Device* device, const wchar_t
 	sampler_desc.MipLODBias = 0;
 	sampler_desc.MaxAnisotropy = 16;
 	sampler_desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	memcpy(sampler_desc.BorderColor, &XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f), sizeof(XMFLOAT4));
+	memcpy(sampler_desc.BorderColor, &Vector4(0.0f, 0.0f, 0.0f, 0.0f), sizeof(Vector4));
 	sampler_desc.MinLOD = 0;
 	sampler_desc.MaxLOD = D3D11_FLOAT32_MAX;
 	hr = device->CreateSamplerState(&sampler_desc, g_pSamplerState.GetAddressOf());
@@ -466,8 +467,8 @@ void Sprite_Renderer_batch::render(ID3D11DeviceContext* g_pImmediateContext,
 
 	float tw = static_cast<float>(g_TEXTURE2D_DESC.Width);
 	float th = static_cast<float>(g_TEXTURE2D_DESC.Height);
-	instances[count_instance].texcoord_transform = XMFLOAT4(sx / tw, sy / th, sw / tw, sh / th);
-	instances[count_instance].color = XMFLOAT4(r, g, b, a);
+	instances[count_instance].texcoord_transform = Vector4(sx / tw, sy / th, sw / tw, sh / th);
+	instances[count_instance].color = Vector4(r, g, b, a);
 
 	count_instance++;
 }

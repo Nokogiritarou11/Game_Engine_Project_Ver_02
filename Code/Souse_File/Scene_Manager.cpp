@@ -29,15 +29,15 @@ string Scene_Manager::next_scene_path;
 
 unique_ptr<Scene> Scene_Manager::CreateScene_From_File()
 {
-	string load_path = System_Function::Get_Open_File_Name();
+	string path = System_Function::Get_Open_File_Name("bin","\\Resouces\\Scene");
 
-	if (load_path != "")
+	if (path != "")
 	{
-		int path_i = load_path.find_last_of("\\") + 1;//7
-		int ext_i = load_path.find_last_of(".");//10
-		string file_name = load_path.substr(path_i, ext_i - path_i); //ファイル名
+		int path_i = path.find_last_of("\\") + 1;//7
+		int ext_i = path.find_last_of(".");//10
+		string file_name = path.substr(path_i, ext_i - path_i); //ファイル名
 
-		ifstream in_bin(load_path, ios::binary);
+		ifstream in_bin(path, ios::binary);
 		if (in_bin.is_open())
 		{
 			unique_ptr<Scene> New_Scene = make_unique<Scene>();
@@ -47,7 +47,7 @@ unique_ptr<Scene> Scene_Manager::CreateScene_From_File()
 			binaryInputArchive(New_Scene);
 			New_Scene->name = file_name;
 
-			last_save_path = load_path;
+			last_save_path = path;
 			return move(New_Scene);
 		}
 		else
@@ -195,7 +195,7 @@ unique_ptr<Scene>& Scene_Manager::Get_Active_Scene()
 	return active_scene;
 }
 
-void Scene_Manager::Release()
+Scene_Manager::~Scene_Manager()
 {
 	if (active_scene) active_scene->Reset();
 }

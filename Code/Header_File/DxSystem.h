@@ -8,8 +8,6 @@
 #include <string.h>
 #include <DirectXMath.h>
 #include "Misc.h"
-using Microsoft::WRL::ComPtr;
-
 #include <assert.h>
 #define SAFE_RELEASE(x) if((x)){(x)->Release();(x)=NULL;}
 #define SAFE_DELETE(x) if((x)){delete (x);(x)=NULL;}
@@ -36,30 +34,30 @@ namespace BeastEngine
 	private:
 		static int screen_width;
 		static int screen_height;
-		static ComPtr<IDXGISwapChain>			swap_chain;
-		static ComPtr<ID3D11RenderTargetView>	render_target_view;
-		static ComPtr<ID3D11Texture2D>			depth_stencil_texture;
-		static ComPtr<ID3D11DepthStencilView>	depth_stencil_view;
-		static ComPtr<ID3D11ShaderResourceView>	shader_resource_view;
-		static ComPtr<ID3D11DepthStencilState>	depth_stencil_state[16];
+		static Microsoft::WRL::ComPtr<IDXGISwapChain>			swap_chain;
+		static Microsoft::WRL::ComPtr<ID3D11RenderTargetView>	render_target_view;
+		static Microsoft::WRL::ComPtr<ID3D11Texture2D>			depth_stencil_texture;
+		static Microsoft::WRL::ComPtr<ID3D11DepthStencilView>	depth_stencil_view;
+		static Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	shader_resource_view;
+		static Microsoft::WRL::ComPtr<ID3D11DepthStencilState>	depth_stencil_state[16];
 
-		static ComPtr<IDXGIDebug>               DXGI_debug;
+		static Microsoft::WRL::ComPtr<IDXGIDebug>               DXGI_debug;
 
 		static HRESULT Create_Device();
 		static bool Create_Depth_Stencil();
 		static bool Initialize_Render_Target();
 
 		static const int RASTERIZE_TYPE = 5;
-		static ComPtr<ID3D11RasterizerState> rasterizer_state[RASTERIZE_TYPE];
+		static Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizer_state[RASTERIZE_TYPE];
 		static bool Create_Rasterizer_State();
 
 		static const int BLEND_TYPE = 8;
-		static ComPtr<ID3D11BlendState>	blend_state[BLEND_TYPE];
+		static Microsoft::WRL::ComPtr<ID3D11BlendState>	blend_state[BLEND_TYPE];
 		static bool Create_Blend_State();
 
 	public:
-		static ComPtr<ID3D11Device>			device;
-		static ComPtr<ID3D11DeviceContext>	device_context;
+		static Microsoft::WRL::ComPtr<ID3D11Device>			device;
+		static Microsoft::WRL::ComPtr<ID3D11DeviceContext>	device_context;
 		static HWND hwnd;
 		static DXGI_SAMPLE_DESC MSAA;
 

@@ -50,7 +50,7 @@ void Resources::Create_Prefab(shared_ptr<GameObject> gameobject)
 		gameobject->transform->Set_Parent(parent.lock());
 	}
 
-	Debug::Log(u8"Resouces\\Prefab\\以下に" + gameobject->name + u8"をプレハブ化しました");
+	//Debug::Log(u8"Resouces\\Prefab\\以下に" + gameobject->name + u8"をプレハブ化しました");
 }
 
 shared_ptr<GameObject> Resources::Load_Prefab(string file_path)

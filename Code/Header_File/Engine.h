@@ -6,6 +6,7 @@ namespace BeastEngine
 {
 	class Input;
 	class Cursor;
+	class Asset_Manager;
 	class Scene_Manager;
 	class Audio_Manager;
 	class Render_Manager;
@@ -27,9 +28,10 @@ namespace BeastEngine
 
 		static void Get_Hundle(UINT msg, WPARAM wParam, LPARAM lParam);
 
-		static std::unique_ptr<BeastEngine::Scene_Manager> scene_manager;
 		static std::unique_ptr<BeastEngine::Input> input_manager;
 		static std::unique_ptr<BeastEngine::Cursor> cursor_manager;
+		static std::unique_ptr<BeastEngine::Asset_Manager> asset_manager;
+		static std::unique_ptr<BeastEngine::Scene_Manager> scene_manager;
 		static std::unique_ptr<BeastEngine::Audio_Manager> audio_manager;
 		static std::unique_ptr<BeastEngine::Render_Manager> render_manager;
 		static std::unique_ptr<BeastEngine::Animator_Manager> animator_manager;

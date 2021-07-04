@@ -1,4 +1,5 @@
 #include "DxSystem.h"
+using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 using namespace BeastEngine;
 
@@ -478,7 +479,7 @@ bool DxSystem::Create_Rasterizer_State()
 				rd.AntialiasedLineEnable = TRUE;
 				break;
 		}
-		HRESULT hr = device->Create_Rasterizer_State(&rd, rasterizer_state[state].GetAddressOf());
+		HRESULT hr = device->CreateRasterizerState(&rd, rasterizer_state[state].GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
 
@@ -623,7 +624,7 @@ bool DxSystem::Create_Blend_State()
 				break;
 		}
 		//ブレンドステートの作成
-		HRESULT hr = device->Create_Blend_State(&bd, blend_state[state].GetAddressOf());
+		HRESULT hr = device->CreateBlendState(&bd, blend_state[state].GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
 	return true;

@@ -33,8 +33,10 @@ View_Texture::View_Texture()
 		hr = DxSystem::device->CreateBuffer(&bd, nullptr, constant_buffer_scene.GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
-
-	skybox = make_unique<SkyBox>();
+	if (!skybox)
+	{
+		skybox = make_unique<SkyBox>();
+	}
 }
 
 void View_Texture::Clear()

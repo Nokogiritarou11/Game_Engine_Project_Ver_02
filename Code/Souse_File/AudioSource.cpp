@@ -195,7 +195,7 @@ bool AudioSource::Draw_ImGui()
 		ImGui::Text(file_name.c_str());
 		if (ImGui::Button(u8"Wavファイルを選択"))
 		{
-			string path = System_Function::Get_Open_File_Name();
+			string path = System_Function::Get_Open_File_Name("wav","\\Resouces\\Audio");
 			if (path != "")
 			{
 				int path_i = path.find_last_of("\\") + 1;

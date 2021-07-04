@@ -1,9 +1,13 @@
-#include "SkyBox.h"
-#include "Shader.h"
 #include <sstream>
 #include <functional>
 #include <iostream>
 #include <fstream>
+#include "SkyBox.h"
+#include "Shader.h"
+#include "Material.h"
+#include "Texture.h"
+#include "Mesh.h"
+#include "FBX_Converter.h"
 using namespace std;
 using namespace BeastEngine;
 
@@ -22,7 +26,7 @@ SkyBox::SkyBox()
 	else
 	{
 		shared_ptr<Material> mat = Material::Create("Default_Resource\\Model\\sphere\\SkyBoxes\\envmap_miramar\\", "envmap_miramar", L"Shader/SkyBox_Shader_PS.hlsl");
-		mat->Set_Texture(Texture::Texture_Type::Main, "Default_Resource\\Model\\sphere\\skyboxes\\envmap_miramar\\", "envmap_miramar.dds");
+		mat->Set_Texture(Material::Texture_Type::Main, "Default_Resource\\Model\\sphere\\skyboxes\\envmap_miramar\\", "envmap_miramar.dds");
 		mat->Save();
 		ifstream bin("Default_Resource\\Model\\sphere\\SkyBoxes\\envmap_miramar\\envmap_miramar.mat", ios::binary);
 		if (bin.is_open())
@@ -35,7 +39,8 @@ SkyBox::SkyBox()
 		}
 	}
 
-	mesh_data = Mesh::Load_Mesh("Default_Resource\\Model\\sphere\\", "sphere");
+	//FBX_Converter::Convert_From_FBX("Default_Resource\\Model\\sphere\\", "sphere");
+	mesh = Mesh::Load_Mesh("Default_Resource\\Model\\sphere\\sphere");
 
 	// 定数バッファの生成
 	if (!constant_buffer_skybox)
@@ -53,8 +58,7 @@ SkyBox::SkyBox()
 
 	if (!vertex_shader)
 	{
-		vertex_shader = make_unique<Shader>();
-		vertex_shader->Create_VS(L"Shader/SkyBox_Shader_VS.hlsl", "VSMain");
+		vertex_shader = Shader::Create("Shader/SkyBox_Shader_VS.hlsl", "");
 	}
 }
 
@@ -62,7 +66,7 @@ void SkyBox::Render(Vector3 pos)
 {
 	DxSystem::device_context->IASetInputLayout(material->shader->vertex_layout.Get());
 	//シェーダーリソースのバインド
-	material->texture[static_cast<int>(Texture::Texture_Type::Main)]->Set(1); //PSSetSamplar PSSetShaderResources
+	material->texture[static_cast<int>(Material::Texture_Type::Main)]->Set(1); //PSSetSamplar PSSetShaderResources
 
 	vertex_shader->Activate_VS();
 	material->shader->Activate_PS(); //PS,VSSetShader
@@ -91,18 +95,15 @@ void SkyBox::Render(Vector3 pos)
 	DxSystem::device_context->PSSetConstantBuffers(1, 1, constant_buffer_skybox.GetAddressOf());
 	DxSystem::device_context->UpdateSubresource(constant_buffer_skybox.Get(), 0, 0, &cbSkyBox, 0, 0);
 
-	for (auto& mesh : mesh_data->meshes)
-	{
-		// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
-		UINT stride = sizeof(Mesh::vertex);
-		UINT offset = 0;
-		DxSystem::device_context->IASetVertexBuffers(0, 1, mesh.vertex_buffer.GetAddressOf(), &stride, &offset);
-		DxSystem::device_context->IASetIndexBuffer(mesh.index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+	// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
+	UINT stride = sizeof(Mesh::vertex);
+	UINT offset = 0;
+	DxSystem::device_context->IASetVertexBuffers(0, 1, mesh->vertex_buffer.GetAddressOf(), &stride, &offset);
+	DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
-		for (auto& subset : mesh.subsets)
-		{
-			// ↑で設定したリソースを利用してポリゴンを描画する。
-			DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
-		}
+	for (auto& subset : mesh->subsets)
+	{
+		// ↑で設定したリソースを利用してポリゴンを描画する。
+		DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
 	}
 }

@@ -1,5 +1,7 @@
 #include "Shadow_Manager.h"
 using namespace BeastEngine;
+using namespace DirectX;
+using namespace std;
 
 Shadow_Manager::Shadow_Manager()
 {

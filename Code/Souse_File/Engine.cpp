@@ -1,6 +1,7 @@
 #include "Engine.h"
 #include "Input.h"
 #include "Cursor.h"
+#include "Asset_Manager.h"
 #include "Scene_Manager.h"
 #include "Scene.h"
 #include "Audio_Manager.h"
@@ -20,9 +21,10 @@
 using namespace std;
 using namespace BeastEngine;
 
-unique_ptr<Scene_Manager>	 Engine::scene_manager;
 unique_ptr<Input>			 Engine::input_manager;
 unique_ptr<Cursor>			 Engine::cursor_manager;
+unique_ptr<Asset_Manager>	 Engine::asset_manager;
+unique_ptr<Scene_Manager>	 Engine::scene_manager;
 unique_ptr<Audio_Manager>	 Engine::audio_manager;
 unique_ptr<Render_Manager>	 Engine::render_manager;
 unique_ptr<Animator_Manager> Engine::animator_manager;
@@ -35,22 +37,21 @@ unique_ptr<View_Scene>		 Engine::view_scene;
 
 Engine::Engine()
 {
-	audio_manager	 = make_unique<Audio_Manager>();
-	input_manager    = make_unique<Input>();
-	cursor_manager	 = make_unique<Cursor>();
-	scene_manager    = make_unique<Scene_Manager>();
-	render_manager   = make_unique<Render_Manager>();
+	input_manager = make_unique<Input>();
+	cursor_manager = make_unique<Cursor>();
+	asset_manager = make_unique<Asset_Manager>();
+	scene_manager = make_unique<Scene_Manager>();
+	audio_manager = make_unique<Audio_Manager>();
+	render_manager = make_unique<Render_Manager>();
 	animator_manager = make_unique<Animator_Manager>();
-	light_manager    = make_unique<Light_Manager>();
+	light_manager = make_unique<Light_Manager>();
 	particle_manager = make_unique<Particle_Manager>();
-	shadow_manager   = make_unique<Shadow_Manager>();
-
+	shadow_manager = make_unique<Shadow_Manager>();
 	view_game = make_unique<View_Game>();
 
 #if _DEBUG
 	view_scene = make_unique<View_Scene>();
 	editor = make_unique<Editor>();
-	//scene_manager->Create_Scene_Default("Default_Scene");
 	string load_path;
 	ifstream iIfstream("Default_Resource\\System\\last_save.bin");
 	if (iIfstream.is_open())
@@ -112,7 +113,19 @@ Engine::Engine()
 Engine::~Engine()
 {
 	DxSystem::Release();
-	scene_manager->Release();
+	scene_manager.reset();
+	input_manager.reset();
+	cursor_manager.reset();
+	asset_manager.reset();
+	audio_manager.reset();
+	render_manager.reset();
+	animator_manager.reset();
+	light_manager.reset();
+	particle_manager.reset();
+	shadow_manager.reset();
+	editor.reset();
+	view_game.reset();
+	view_scene.reset();
 }
 
 void Engine::Update()
