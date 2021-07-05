@@ -8,6 +8,7 @@
 
 namespace BeastEngine
 {
+
 	class Mesh : public BeastEngine::Object
 	{
 	public:
@@ -54,18 +55,17 @@ namespace BeastEngine
 		std::vector<u_int> indices;
 
 		std::vector<subset>	subsets;
-		std::vector<std::string> default_material_passes;
 
 		BeastEngine::Bounds boundingbox;
 		std::vector<BeastEngine::Matrix> inverse_matrixes;
 		std::vector<int> nodeIndices;
 
+		std::vector<std::string> default_material_passes;
 		std::string file_path;
 
 		static std::shared_ptr<BeastEngine::Mesh> Load_Mesh(std::string fullpath);
 
 	private:
-
 		static std::unordered_map<std::string, std::shared_ptr<BeastEngine::Mesh>> cache_mesh;
 
 		friend class cereal::access;

@@ -207,7 +207,7 @@ void Model_Data::BuildNodes(FbxNode* fbxNode, int parentNodeIndex)
 // FBXノードからノードデータを構築する
 void Model_Data::BuildNode(FbxNode* fbxNode, int parentNodeIndex)
 {
-	FbxAMatrix& fbxLocalTransform = fbxNode->EvaluateLocalTransform();
+	FbxAMatrix& fbxLocalTransform = fbxNode->EvaluateLocalTransform(0);
 
 	Skeleton node;
 	node.name = fbxNode->GetName();
@@ -269,13 +269,15 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 		string new_mat_path = file_path + material_name + ".mat";
 		mesh->default_material_passes.push_back(new_mat_path);
 
+		subset.material_ID = mesh->default_material_passes.size() - 1;
+
 		bool cashed = false;
 		for (u_int i = 0; i < default_material_passes.size(); i++)
 		{
 			if (default_material_passes[i] == new_mat_path)
 			{
-				subset.material_ID = i;
 				cashed = true;
+				break;
 			}
 		}
 		if (cashed) continue;
@@ -292,8 +294,6 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 		GetTexture(surface_material, FbxSurfaceMaterial::sBump, mat);
 		//EmissionTexture
 		GetTexture(surface_material, FbxSurfaceMaterial::sEmissive, mat);
-
-		subset.material_ID = default_material_passes.size();
 
 		mat->Save();
 		default_material_passes.push_back(new_mat_path);

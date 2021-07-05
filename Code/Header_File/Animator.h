@@ -1,11 +1,10 @@
 #pragma once
 #include "Behaviour.h"
-#include "Animation_Clip.h"
 
 namespace BeastEngine
 {
 	class GameObject;
-	class Transform;
+	class Animator_Controller;
 
 	class Animator : public BeastEngine::Behaviour
 	{
@@ -23,6 +22,8 @@ namespace BeastEngine
 		float animation_speed = 1;   //再生速度
 		bool  loopAnimation = false; //ループするか
 
+		std::shared_ptr<BeastEngine::Animator_Controller> animator_controller;
+
 	private:
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
 		bool Draw_ImGui() override;
@@ -30,32 +31,20 @@ namespace BeastEngine
 
 		void Update(); //更新
 
-		struct Animation_Target
-		{
-			std::weak_ptr<BeastEngine::Transform> target_transform;
-			BeastEngine::Animation_Clip::Animation& animation;
-		};
-
-		struct Clip_Data
-		{
-			std::shared_ptr<BeastEngine::Animation_Clip> clip;
-			std::vector<Animation_Target> targets;
-		};
-
-		std::vector<Clip_Data> clips;
-		std::vector<std::string>  pathes;
+		std::string controller_path;
 
 		int			currentAnimation = -1;
 		float		currentSeconds = 0.0f;
 		bool		endAnimation = false;
 		bool        playing = false;
 
-		friend class Animator_Manager;
+		friend class BeastEngine::Animator_Controller;
+		friend class BeastEngine::Animator_Manager;
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(cereal::base_class<BeastEngine::Behaviour>(this), pathes);
+			archive(cereal::base_class<BeastEngine::Behaviour>(this), controller_path, loopAnimation, animation_speed);
 		}
 	};
 }

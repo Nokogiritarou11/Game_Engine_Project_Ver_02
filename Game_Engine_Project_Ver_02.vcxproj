@@ -202,7 +202,10 @@
     </ClCompile>
     <ClCompile Include="Code\Souse_File\Animation_Clip.cpp" />
     <ClCompile Include="Code\Souse_File\Animator.cpp" />
+    <ClCompile Include="Code\Souse_File\Animator_Controller.cpp" />
     <ClCompile Include="Code\Souse_File\Animator_Manager.cpp" />
+    <ClCompile Include="Code\Souse_File\Animator_State_Machine.cpp" />
+    <ClCompile Include="Code\Souse_File\Animator_State_Transition.cpp" />
     <ClCompile Include="Code\Souse_File\Asset_Manager.cpp" />
     <ClCompile Include="Code\Souse_File\AudioSource.cpp" />
     <ClCompile Include="Code\Souse_File\Audio_Manager.cpp">
@@ -289,7 +292,10 @@
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Animation_Clip.h" />
     <ClInclude Include="Code\Header_File\Animator.h" />
+    <ClInclude Include="Code\Header_File\Animator_Controller.h" />
     <ClInclude Include="Code\Header_File\Animator_Manager.h" />
+    <ClInclude Include="Code\Header_File\Animator_State_Machine.h" />
+    <ClInclude Include="Code\Header_File\Animator_State_Transition.h" />
     <ClInclude Include="Code\Header_File\Asset_Manager.h" />
     <ClInclude Include="Code\Header_File\AudioSource.h" />
     <ClInclude Include="Code\Header_File\Audio_Manager.h">
