@@ -67,8 +67,6 @@ namespace BeastEngine
 		RS_State rasterizer_state = RS_State::Cull_Back;
 		DS_State depth_stencil_state = DS_State::LEqual;
 
-		static std::unordered_map<std::string, std::shared_ptr<BeastEngine::Material>> cache_material;
-
 		static void Initialize(std::shared_ptr<Material>& mat, std::string Material_FullPass);
 		void Set_Texture_All();
 		void Active_Texture(bool Use_Material = true);

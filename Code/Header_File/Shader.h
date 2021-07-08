@@ -11,7 +11,7 @@
 
 namespace BeastEngine
 {
-	class Shader : public BeastEngine::Object
+	class Shader
 	{
 	private:
 		Microsoft::WRL::ComPtr<ID3D11VertexShader>		vs = nullptr; // 頂点シェーダ
@@ -21,10 +21,6 @@ namespace BeastEngine
 		Microsoft::WRL::ComPtr<ID3D11DomainShader>		ds = nullptr; // ドメインネームシェーダ
 
 		HRESULT Compile(WCHAR* filename, LPCSTR method, LPCSTR shaderModel, ID3DBlob** ppBlobOut);
-
-		static std::unordered_map<std::string, std::pair<ID3D11VertexShader*, ID3D11InputLayout*>> cache_vertex;
-		static std::unordered_map<std::string, ID3D11PixelShader*> cache_pixel;
-		static std::unordered_map<std::string, std::shared_ptr<BeastEngine::Shader>> cache_shader;
 
 		bool Create_VS(std::string filename);
 		bool Create_PS(std::string filename);

@@ -13,8 +13,6 @@ using namespace std;
 using namespace DirectX;
 using namespace BeastEngine;
 
-unordered_map<string, shared_ptr<Texture>> Texture::cache_texture;
-
 shared_ptr<Texture> Texture::Load(string filename)
 {
 	HRESULT hr = S_OK;
@@ -27,8 +25,8 @@ shared_ptr<Texture> Texture::Load(string filename)
 	size_t ret = 0;
 	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
 
-	auto it = cache_texture.find(filename);
-	if (it != cache_texture.end())
+	auto it = Engine::asset_manager->cache_texture.find(filename);
+	if (it != Engine::asset_manager->cache_texture.end())
 	{
 		return it->second;
 	}
@@ -123,7 +121,7 @@ shared_ptr<Texture> Texture::Load(string filename)
 			&sd, texture->sampler.GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
-		cache_texture.insert(make_pair(filename, texture));
+		Engine::asset_manager->cache_texture.insert(make_pair(filename, texture));
 		Engine::asset_manager->Registration_Asset(texture);
 		return texture;
 	}

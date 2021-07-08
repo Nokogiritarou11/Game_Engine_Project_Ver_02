@@ -14,6 +14,7 @@ namespace BeastEngine
 	{
 	public:
 		SkyBox();
+		~SkyBox();
 
 		void Render(BeastEngine::Vector3 pos);
 

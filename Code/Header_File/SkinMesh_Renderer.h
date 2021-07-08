@@ -29,7 +29,7 @@ namespace BeastEngine
 		Constant_Buffer_Mesh buffer_mesh;
 		std::vector<std::weak_ptr<BeastEngine::Transform>> bones;
 
-		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj);
+		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
 		void Render(BeastEngine::Matrix V, BeastEngine::Matrix P) override;
 		void Render_Shadow(BeastEngine::Matrix V, BeastEngine::Matrix P) override;
 		bool Draw_ImGui() override;

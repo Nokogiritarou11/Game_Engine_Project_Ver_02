@@ -4,6 +4,7 @@
 #include "Original_Math.h"
 #include "Scene_Manager.h"
 #include "Engine.h"
+#include "Asset_Manager.h"
 #include "Particle_Manager.h"
 #include "View_Scene.h"
 #include "View_Game.h"
@@ -70,7 +71,8 @@ Editor::Editor()
 
 	Vector3 p = { 0, 1.5f, -3 };
 	Vector3 e = { 15, 0, 0 };
-	debug_camera_transform = make_unique<Transform>(p, e);
+	debug_camera_transform = make_shared<Transform>(p, e);
+	Engine::asset_manager->Registration_Asset(debug_camera_transform);
 
 	//ƒJƒƒ‰s—ñ‰‰ñŒvZ
 	{

@@ -1,11 +1,14 @@
 #include "GameObject.h"
 #include "Scene_Manager.h"
 #include "Scene.h"
+#include "Engine.h"
+#include "Asset_Manager.h"
 using namespace std;
 using namespace BeastEngine;
 
 void GameObject::Initialize()
 {
+	Engine::asset_manager->Registration_Asset(shared_from_this());
 	for (shared_ptr<Component> c : component_list)
 	{
 		c->Initialize(dynamic_pointer_cast<GameObject>(shared_from_this()));

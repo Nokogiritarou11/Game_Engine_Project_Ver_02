@@ -14,6 +14,7 @@
 #include <iostream>
 #include <fstream>
 #include "System_Function.h"
+#include "Asset_Manager.h"
 using namespace std;
 using namespace DirectX;
 using namespace BeastEngine;
@@ -25,6 +26,7 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 	enabled_old = enabled;
 
 	gameobject = obj;
+	Engine::asset_manager->Registration_Asset(shared_from_this());
 	transform = obj->transform;
 
 	Vertex v[] = {

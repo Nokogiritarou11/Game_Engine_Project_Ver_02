@@ -7,6 +7,7 @@
 #include "Particle_Manager.h"
 #include "System_Function.h"
 #include "Debug.h"
+#include "Asset_Manager.h"
 using namespace std;
 using namespace BeastEngine;
 
@@ -27,6 +28,7 @@ Particle::~Particle()
 void Particle::Initialize(shared_ptr<GameObject> obj)
 {
 	gameobject = obj;
+	Engine::asset_manager->Registration_Asset(shared_from_this());
 	transform = obj->transform;
 	if (file_path != "")
 	{

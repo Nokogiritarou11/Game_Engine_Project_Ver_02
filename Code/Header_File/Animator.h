@@ -5,22 +5,22 @@ namespace BeastEngine
 {
 	class GameObject;
 	class Animator_Controller;
+	class Animator_State_Machine;
+	class Animator_Manager;
 
 	class Animator : public BeastEngine::Behaviour
 	{
 	public:
+		void  Play();  //Ä¶
+		void  Stop();  //’â~
+		void  Pause(); //ˆê’â~
 
-		bool  Is_PlayAnimation() const { return currentAnimation >= 0; } //Ä¶’†‚©
-		int	  Get_PlayingAnimation() const { return currentAnimation; }
-		float Get_PlayingSeconds() const { return currentSeconds; }
-		void  Play(int animationIndex); //Ä¶
-		void  Stop();                   //’â~
-		void  Pause();                  //ˆê’â~
+		void Set_Int(std::string key, int value);
+		void Set_Float(std::string key, float value);
+		void Set_Bool(std::string key, bool value);
+		void Set_Trigger(std::string key);
+		void Reset_Trigger(std::string key);
 
-		void Add_Clip(std::string path);
-
-		float animation_speed = 1;   //Ä¶‘¬“x
-		bool  loopAnimation = false; //ƒ‹[ƒv‚·‚é‚©
 
 		std::shared_ptr<BeastEngine::Animator_Controller> animator_controller;
 
@@ -31,20 +31,16 @@ namespace BeastEngine
 
 		void Update(); //XV
 
+		bool playing = false;
+
 		std::string controller_path;
 
-		int			currentAnimation = -1;
-		float		currentSeconds = 0.0f;
-		bool		endAnimation = false;
-		bool        playing = false;
-
-		friend class BeastEngine::Animator_Controller;
 		friend class BeastEngine::Animator_Manager;
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(cereal::base_class<BeastEngine::Behaviour>(this), controller_path, loopAnimation, animation_speed);
+			archive(cereal::base_class<BeastEngine::Behaviour>(this), controller_path);
 		}
 	};
 }

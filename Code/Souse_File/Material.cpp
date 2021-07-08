@@ -14,12 +14,10 @@
 using namespace std;
 using namespace BeastEngine;
 
-unordered_map<string, shared_ptr<Material>> Material::cache_material;
-
 shared_ptr<Material> Material::Create(const string& Material_Pass, const string& Material_Name, WCHAR* PS_Name)
 {
-	auto it = cache_material.find(Material_Pass + Material_Name + ".mat");
-	if (it != cache_material.end())
+	auto it = Engine::asset_manager->cache_material.find(Material_Pass + Material_Name + ".mat");
+	if (it != Engine::asset_manager->cache_material.end())
 	{
 		return it->second;
 	}
@@ -46,8 +44,8 @@ shared_ptr<Material> Material::Create(const string& Material_Pass, const string&
 
 void Material::Initialize(shared_ptr<Material>& mat, string Material_FullPass)
 {
-	auto it = cache_material.find(Material_FullPass);
-	if (it != cache_material.end())
+	auto it = Engine::asset_manager->cache_material.find(Material_FullPass);
+	if (it != Engine::asset_manager->cache_material.end())
 	{
 		mat = it->second;
 	}
@@ -57,7 +55,7 @@ void Material::Initialize(shared_ptr<Material>& mat, string Material_FullPass)
 		mat->shader = Shader::Create("", mat->shader_info[static_cast<int>(Shader_Type::PS)].shader_fullpass);
 
 		mat->self_save_pass = Material_FullPass;
-		cache_material.insert(make_pair(Material_FullPass, mat));
+		Engine::asset_manager->cache_material.insert(make_pair(Material_FullPass, mat));
 	}
 }
 

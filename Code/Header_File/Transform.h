@@ -3,6 +3,7 @@
 #include <DirectXMath.h>
 #include <Original_Math.h>
 #include <memory>
+#include <unordered_map>
 #include "GameObject.h"
 
 namespace BeastEngine

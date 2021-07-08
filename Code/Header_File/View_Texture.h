@@ -8,12 +8,12 @@
 #include <assert.h>
 #include <DirectXMath.h>
 #include "Original_Math.h"
+#include "SkyBox.h"
 using Microsoft::WRL::ComPtr;
 
 namespace BeastEngine
 {
 	class Transform;
-	class SkyBox;
 
 	class View_Texture
 	{
@@ -45,7 +45,7 @@ namespace BeastEngine
 		bool Create_Render_Tartget_View(int x, int y);
 		void Clear();
 
-		static std::unique_ptr<BeastEngine::SkyBox> skybox;
+		std::unique_ptr<BeastEngine::SkyBox> skybox;
 
 		struct Constant_Buffer_Scene
 		{

@@ -4,17 +4,29 @@
 using namespace std;
 using namespace BeastEngine;
 
-void Asset_Manager::Registration_Asset(shared_ptr<Object> obj)
+void Asset_Manager::Clear_Manager()
 {
-	auto it = cache_asset.find(obj->Get_Instance_ID());
-	if (it == cache_asset.end())
-	{
-		cache_asset.insert(make_pair(obj->Get_Instance_ID(), obj));
-	}
+	cache_vertex.clear();
+	cache_pixel.clear();
+	cache_mesh.clear();
+	cache_shader.clear();
+	cache_texture.clear();
+	cache_material.clear();
+	cache_asset.clear();
 }
 
-shared_ptr<Object> Asset_Manager::Get_Asset_From_ID(string id)
+void Asset_Manager::Registration_Asset(shared_ptr<Object> obj)
 {
+	cache_asset[obj->Get_Instance_ID()] = obj;
+}
+void Asset_Manager::Erase_Asset(std::string id)
+{
+	cache_asset.erase(id);
+}
+
+weak_ptr<Object> Asset_Manager::Get_Asset_From_ID(string id)
+{
+	weak_ptr<Object> obj;
 	auto it = cache_asset.find(id);
 	if (it != cache_asset.end())
 	{
@@ -22,7 +34,7 @@ shared_ptr<Object> Asset_Manager::Get_Asset_From_ID(string id)
 	}
 	else
 	{
-		return nullptr;
+		return obj;
 	}
-	return nullptr;
+	return obj;
 }

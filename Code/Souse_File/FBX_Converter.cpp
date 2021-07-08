@@ -74,9 +74,6 @@ void FBX_Converter::Convert_From_FBX(const char* file_path, const char* fbx_file
 		for (size_t i = 0; i < res_nodes.size(); ++i)
 		{
 			shared_ptr<GameObject> bone = Create_GameObject(res_nodes[i].name);
-			bone->transform->Set_Local_Position(res_nodes[i].position);
-			bone->transform->Set_Local_Rotation(res_nodes[i].rotation);
-			bone->transform->Set_Local_Scale(res_nodes[i].scale);
 			bone_list.emplace_back(bone);
 			bone->transform->Set_Parent(root->transform);
 		}
@@ -89,6 +86,9 @@ void FBX_Converter::Convert_From_FBX(const char* file_path, const char* fbx_file
 			}
 		}
 
+		vector<Matrix> bone_matrixes;
+		bone_matrixes.resize(model->nodes.size());
+
 		for (size_t i = 0; i < rend_list.size(); ++i)
 		{
 			shared_ptr<SkinMesh_Renderer> rend = rend_list[i]->Get_Component<SkinMesh_Renderer>();
@@ -97,7 +97,13 @@ void FBX_Converter::Convert_From_FBX(const char* file_path, const char* fbx_file
 			for (size_t t = 0; t < mesh->nodeIndices.size(); ++t)
 			{
 				rend->bones.push_back(bone_list[mesh->nodeIndices[t]]->transform);
+				bone_matrixes[mesh->nodeIndices[t]] = mesh->inverse_matrixes[t].Invert();
 			}
+		}
+
+		for (int i = 0; i < root->transform->Get_Child_Count(); ++i)
+		{
+			Bone_Decompose(bone_matrixes, bone_list, root->transform->Get_Child(i).lock());
 		}
 
 		obj->transform->Set_Scale(0.01f, 0.01f, 0.01f);
@@ -138,7 +144,31 @@ void FBX_Converter::Convert_From_FBX(const char* file_path, const char* fbx_file
 	}
 }
 
-void FBX_Converter::Convert_Animation(shared_ptr<Model_Data> model, vector<shared_ptr<GameObject>>& objects)
+void FBX_Converter::Bone_Decompose(vector<Matrix>& matrixes, vector<shared_ptr<GameObject>>& bones, shared_ptr<Transform> trans)
+{
+	{
+		size_t i = 0;
+		for (;i < bones.size(); ++i)
+		{
+			if (bones[i]->transform == trans) break;
+		}
+		Matrix m = matrixes[i];
+		Vector3 translate;
+		Quaternion rotation;
+		Vector3 scale;
+		m.Decompose(scale, rotation, translate);
+		trans->Set_Position(translate);
+		trans->Set_Rotation(rotation);
+		trans->Set_Scale(scale);
+	}
+
+	for (int i = 0; i < trans->Get_Child_Count(); ++i)
+	{
+		Bone_Decompose(matrixes, bones, trans->Get_Child(i).lock());
+	}
+}
+
+void FBX_Converter::Convert_Animation(shared_ptr<Model_Data> model, vector<shared_ptr<GameObject>>& bones)
 {
 	for (size_t i = 0; i < model->animations.size(); ++i)
 	{
@@ -162,8 +192,8 @@ void FBX_Converter::Convert_Animation(shared_ptr<Model_Data> model, vector<share
 			}
 			else
 			{
-				path = objects[t]->name;
-				weak_ptr<Transform> trans = objects[t]->transform->Get_Parent();
+				path = bones[t]->name;
+				weak_ptr<Transform> trans = bones[t]->transform->Get_Parent();
 				shared_ptr<Transform> target;
 				while (target = trans.lock())
 				{

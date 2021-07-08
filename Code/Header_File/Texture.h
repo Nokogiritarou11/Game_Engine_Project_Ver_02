@@ -23,7 +23,5 @@ namespace BeastEngine
 
 		// テクスチャ情報
 		D3D11_TEXTURE2D_DESC texture2d_desc;
-
-		static std::unordered_map<std::string, std::shared_ptr<BeastEngine::Texture>> cache_texture;
 	};
 }

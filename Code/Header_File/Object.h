@@ -30,7 +30,7 @@ namespace BeastEngine
 
 		Object();
 		Object(const Object& obj);
-		virtual ~Object() {};
+		virtual ~Object();
 
 		std::string To_String(){ return name; }; //–¼‘O‚ð•Ô‚·
 		std::string Get_Instance_ID(){ return instance_id; }; //–¼‘O‚ð•Ô‚·

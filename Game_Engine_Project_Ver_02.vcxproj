@@ -292,6 +292,7 @@
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Animation_Clip.h" />
     <ClInclude Include="Code\Header_File\Animator.h" />
+    <ClInclude Include="Code\Header_File\Animator_Condition.h" />
     <ClInclude Include="Code\Header_File\Animator_Controller.h" />
     <ClInclude Include="Code\Header_File\Animator_Manager.h" />
     <ClInclude Include="Code\Header_File\Animator_State_Machine.h" />
@@ -741,6 +742,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Code\Header_File\Humanoid_Avatar.h" />
     <ClInclude Include="Librarys\ImGui\IconsFontAwesome4.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

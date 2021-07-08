@@ -1,14 +1,12 @@
 #include <locale.h>
 #include "DxSystem.h"
 #include "Shader.h"
+#include "Engine.h"
+#include "Asset_Manager.h"
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 using namespace std;
 using namespace BeastEngine;
-
-unordered_map<string, pair<ID3D11VertexShader*, ID3D11InputLayout*>> Shader::cache_vertex;
-unordered_map<string, ID3D11PixelShader*> Shader::cache_pixel;
-unordered_map<string, shared_ptr<Shader>> Shader::cache_shader;
 
 //	シェーダーコンパイル
 HRESULT Shader::Compile(WCHAR* filename, LPCSTR method, LPCSTR shaderModel, ID3DBlob** ppBlobOut)
@@ -50,8 +48,8 @@ shared_ptr<Shader> Shader::Create(string VSName, string PSName)
 	{
 		string hash = VSName + "*" + PSName;
 
-		auto it = cache_shader.find(hash);
-		if (it != cache_shader.end())
+		auto it = Engine::asset_manager->cache_shader.find(hash);
+		if (it != Engine::asset_manager->cache_shader.end())
 		{
 			return it->second;
 		}
@@ -66,7 +64,7 @@ shared_ptr<Shader> Shader::Create(string VSName, string PSName)
 			{
 				shader->Create_PS(PSName);
 			}
-			cache_shader.insert(make_pair(hash, shader));
+			Engine::asset_manager->cache_shader.insert(make_pair(hash, shader));
 			return shader;
 		}
 	}
@@ -82,8 +80,8 @@ bool Shader::Create_VS(string filename)
 	ComPtr<ID3DBlob> VSBlob = NULL;
 	// 頂点シェーダ
 
-	auto it = cache_vertex.find(filename);
-	if (it != cache_vertex.end())
+	auto it = Engine::asset_manager->cache_vertex.find(filename);
+	if (it != Engine::asset_manager->cache_vertex.end())
 	{
 		vs = it->second.first;
 		vertex_layout = it->second.second;
@@ -161,7 +159,7 @@ bool Shader::Create_VS(string filename)
 		hr = DxSystem::device->CreateInputLayout(&inputLayoutDesc[0], inputLayoutDesc.size(), VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), vertex_layout.GetAddressOf());
 		assert(SUCCEEDED(hr));
 
-		cache_vertex.insert(make_pair(filename, make_pair(vs.Get(), vertex_layout.Get())));
+		Engine::asset_manager->cache_vertex.insert(make_pair(filename, make_pair(vs.Get(), vertex_layout.Get())));
 		// 入力レイアウト設定
 		DxSystem::device_context->IASetInputLayout(vertex_layout.Get());
 		//Free allocation shader reflection memory
@@ -174,8 +172,8 @@ bool Shader::Create_PS(string filename)
 	HRESULT hr = S_OK;
 
 	// ピクセルシェーダ
-	auto itr = cache_pixel.find(filename);
-	if (itr != cache_pixel.end())
+	auto itr = Engine::asset_manager->cache_pixel.find(filename);
+	if (itr != Engine::asset_manager->cache_pixel.end())
 	{
 		ps = itr->second;
 	}
@@ -194,7 +192,7 @@ bool Shader::Create_PS(string filename)
 		}
 		// ピクセルシェーダ生成
 		hr = DxSystem::device->CreatePixelShader(PSBlob->GetBufferPointer(), PSBlob->GetBufferSize(), NULL, ps.GetAddressOf());
-		cache_pixel.insert(make_pair(filename, ps.Get()));
+		Engine::asset_manager->cache_pixel.insert(make_pair(filename, ps.Get()));
 		//PSBlob->Release();
 		assert(SUCCEEDED(hr));
 	}

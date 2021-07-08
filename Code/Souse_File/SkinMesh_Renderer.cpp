@@ -12,6 +12,8 @@
 #include <functional>
 #include <iostream>
 #include <fstream>
+#include "Engine.h"
+#include "Asset_Manager.h"
 #include "System_Function.h"
 using Microsoft::WRL::ComPtr;
 using namespace std;
@@ -28,6 +30,7 @@ void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 	enabled_old = enabled;
 
 	gameobject = obj;
+	Engine::asset_manager->Registration_Asset(shared_from_this());
 	transform = obj->transform;
 	// 定数バッファの生成
 	if (!constant_buffer_mesh)

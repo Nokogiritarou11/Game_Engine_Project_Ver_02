@@ -3,6 +3,7 @@
 #include "GameObject.h"
 #include "Include_ImGui.h"
 #include "Engine.h"
+#include "Asset_Manager.h"
 #include "Render_Manager.h"
 using namespace DirectX;
 using namespace BeastEngine;
@@ -11,6 +12,7 @@ using namespace std;
 void Camera::Initialize(std::shared_ptr<GameObject> obj)
 {
 	gameobject = obj;
+	Engine::asset_manager->Registration_Asset(shared_from_this());
 	transform = obj->transform;
 	Engine::render_manager->Add(static_pointer_cast<Camera>(shared_from_this()));
 	DxSystem::device_context->RSGetViewports(&num_viewports, &viewport);

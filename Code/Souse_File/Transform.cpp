@@ -2,6 +2,8 @@
 #include "Scene_Manager.h"
 #include "Scene.h"
 #include "Include_ImGui.h"
+#include "Engine.h"
+#include "Asset_Manager.h"
 using namespace DirectX;
 using namespace std;
 using namespace BeastEngine;
@@ -155,6 +157,7 @@ Transform::~Transform()
 void Transform::Initialize(shared_ptr<GameObject> obj)
 {
 	gameobject = obj;
+	Engine::asset_manager->Registration_Asset(shared_from_this());
 	obj->transform = static_pointer_cast<Transform>(shared_from_this());
 	transform = static_pointer_cast<Transform>(shared_from_this());
 }
@@ -862,19 +865,52 @@ int Transform::Get_Sibling_Index() const
 	return -1;
 }
 
+//Žw’è•¶Žš‚Å‚Ì•ªŠ„
+vector<string> split(const string& s, char delim)
+{
+	vector<string> elems;
+	stringstream ss(s);
+	string item;
+	while (getline(ss, item, delim))
+	{
+		if (!item.empty())
+		{
+			elems.push_back(item);
+		}
+	}
+	return elems;
+}
+
 weak_ptr<Transform> Transform::Find(std::string n)
 {
-	shared_ptr<Transform> child;
-	for (int i = 0; i < (int)children.size(); ++i)
+	weak_ptr<Transform> t_trans;
+	if (!n.empty())
 	{
-		child = children[i].lock();
-		if (child->gameobject->name == n)
+		t_trans = transform;
+		vector<string> s = split(n, '/');
+		for (size_t i = 0; i < s.size(); ++i)
 		{
-			return child;
+			shared_ptr<Transform> trans = t_trans.lock();
+			bool found = false;
+			for (size_t t = 0; t < trans->children.size(); ++t)
+			{
+				shared_ptr<Transform> child = children[t].lock();
+				if (child->gameobject->name == s[i])
+				{
+					found = true;
+					t_trans = child;
+					break;
+				}
+			}
+			if (!found)
+			{
+				weak_ptr<Transform> t;
+				return t;
+			}
 		}
 	}
 
-	return child;
+	return t_trans;
 }
 
 void Transform::Set_Sibling_Index(int index)

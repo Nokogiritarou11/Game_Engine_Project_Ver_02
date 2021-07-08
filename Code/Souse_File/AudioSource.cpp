@@ -7,6 +7,8 @@
 #include "System_Function.h"
 #include "Mathf.h"
 #include "Debug.h"
+#include "Engine.h"
+#include "Asset_Manager.h"
 using namespace std;
 using namespace DirectX;
 using namespace BeastEngine;
@@ -26,6 +28,7 @@ AudioSource::~AudioSource()
 
 void AudioSource::Initialize(shared_ptr<GameObject> obj)
 {
+	Engine::asset_manager->Registration_Asset(shared_from_this());
 	gameobject = obj;
 	transform = obj->transform;
 

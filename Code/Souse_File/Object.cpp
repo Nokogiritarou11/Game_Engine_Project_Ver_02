@@ -4,6 +4,8 @@
 #include "Scene_Manager.h"
 #include "Scene.h"
 #include "System_Function.h"
+#include "Engine.h"
+#include "Asset_Manager.h"
 using namespace DirectX;
 using namespace std;
 using namespace BeastEngine;
@@ -22,6 +24,11 @@ Object::Object(const Object& obj)
 	{
 		instance_id = System_Function::Create_ID();
 	}
+}
+
+Object::~Object()
+{
+	Engine::asset_manager->Erase_Asset(instance_id);
 }
 
 void Object::Destroy(shared_ptr<GameObject> obj)

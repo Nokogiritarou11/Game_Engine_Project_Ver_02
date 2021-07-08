@@ -3,12 +3,14 @@
 #include "Engine.h"
 #include "Scene_Manager.h"
 #include "Scene.h"
+#include "Asset_Manager.h"
 using namespace std;
 using namespace BeastEngine;
 
 void MonoBehaviour::Initialize(shared_ptr<GameObject> obj)
 {
 	gameobject = obj;
+	Engine::asset_manager->Registration_Asset(shared_from_this());
 	transform = obj->transform;
 	is_called_Awake = false;
 	is_called_Start = false;

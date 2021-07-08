@@ -11,6 +11,7 @@
 #include "Particle_Manager.h"
 #include "Shadow_Manager.h"
 #include "Editor.h"
+#include "SkyBox.h"
 #include "View_Game.h"
 #include "View_Scene.h"
 #include "System_Function.h"
@@ -116,7 +117,6 @@ Engine::~Engine()
 	scene_manager.reset();
 	input_manager.reset();
 	cursor_manager.reset();
-	asset_manager.reset();
 	audio_manager.reset();
 	render_manager.reset();
 	animator_manager.reset();
@@ -126,6 +126,8 @@ Engine::~Engine()
 	editor.reset();
 	view_game.reset();
 	view_scene.reset();
+	asset_manager->Clear_Manager();
+	asset_manager.reset();
 }
 
 void Engine::Update()

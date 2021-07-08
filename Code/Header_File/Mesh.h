@@ -66,8 +66,6 @@ namespace BeastEngine
 		static std::shared_ptr<BeastEngine::Mesh> Load_Mesh(std::string fullpath);
 
 	private:
-		static std::unordered_map<std::string, std::shared_ptr<BeastEngine::Mesh>> cache_mesh;
-
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive)

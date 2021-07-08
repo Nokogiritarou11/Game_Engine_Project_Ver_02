@@ -1,6 +1,7 @@
 #include "Light.h"
 #include "Engine.h"
 #include "Light_Manager.h"
+#include "Asset_Manager.h"
 #include "GameObject.h"
 #include "Object.h"
 #include "Transform.h"
@@ -13,6 +14,7 @@ void Light::Initialize(std::shared_ptr<GameObject> obj)
 {
 	Engine::light_manager->Add(static_pointer_cast<Light>(shared_from_this()));
 
+	Engine::asset_manager->Registration_Asset(shared_from_this());
 	gameobject = obj;
 	transform = obj->transform;
 }

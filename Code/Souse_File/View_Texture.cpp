@@ -12,8 +12,6 @@ using namespace BeastEngine;
 using namespace std;
 using namespace DirectX;
 
-unique_ptr<SkyBox> View_Texture::skybox;
-
 View_Texture::View_Texture()
 {
 	Create_Render_Tartget_View(800, 600);

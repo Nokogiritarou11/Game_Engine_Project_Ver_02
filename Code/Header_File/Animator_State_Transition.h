@@ -1,9 +1,9 @@
 #pragma once
 #include <vector>
-#include <string>
 #include <unordered_map>
 #include <utility>
-#include "Object.h"
+#include <memory>
+#include "Animator_Condition.h"
 
 namespace BeastEngine
 {
@@ -12,21 +12,6 @@ namespace BeastEngine
 	class Animator_State_Transition
 	{
 	public:
-		struct Condition_Base //ëJà⁄èåèåpè≥å≥
-		{
-			bool can_exit;
-			template <class... Args>
-			std::tuple<Args...> values;
-			virtual int Get_Condition_Type() = 0;
-			virtual void Update() = 0;
-		};
-
-		struct Condition_int : public Condition_Base
-		{
-			int Get_Condition_Type() override { return 0; };
-			void Update() override;
-		};
-
 		enum class Interruption_Source
 		{
 			None,
@@ -34,21 +19,28 @@ namespace BeastEngine
 			Next_State,
 		};
 
-		bool has_exit_time;
-		float exit_time;
-		float transition_duration;
-		float transition_offset;
-		Interruption_Source interruption_source;
-		std::unordered_map<std::string, Condition_Base> conditions;
-		std::shared_ptr<Animator_State_Machine> next_state;
+		bool has_exit_time = false;
+		float exit_time = 1.0f;
+		float transition_duration = 0;
+		float transition_offset = 0;
+		Interruption_Source interruption_source = Interruption_Source::None;
+		std::vector<BeastEngine::Condition> conditions;
+		std::shared_ptr<BeastEngine::Animator_State_Machine> next_state;
+		std::string next_state_path;
+
+		bool Check_Transition(const std::unordered_map<std::string, Controller_Parameter>& parameter_map);
+		void Add_Condition(std::string key, BeastEngine::Condition_Type type, BeastEngine::Condition_Mode mode, float threshold);
+		void Remove_Condition(int index);
+		bool Get_Can_Transition() { return can_transition; }
 
 	private:
+		bool can_transition;
 
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(has_exit_time, exit_time, transition_duration, transition_offset, interruption_source, conditions, next_state);
+			archive(has_exit_time, exit_time, transition_duration, transition_offset, interruption_source, conditions, next_state_path);
 		}
 	};
 }

@@ -62,6 +62,8 @@ SkyBox::SkyBox()
 	}
 }
 
+SkyBox::~SkyBox(){}
+
 void SkyBox::Render(Vector3 pos)
 {
 	DxSystem::device_context->IASetInputLayout(material->shader->vertex_layout.Get());

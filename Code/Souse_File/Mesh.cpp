@@ -10,12 +10,10 @@
 using namespace std;
 using namespace BeastEngine;
 
-unordered_map<std::string, std::shared_ptr<BeastEngine::Mesh>> Mesh::cache_mesh;
-
 shared_ptr<Mesh> Mesh::Load_Mesh(string fullpath)
 {
-	auto it = cache_mesh.find(fullpath);
-	if (it != cache_mesh.end())
+	auto it = Engine::asset_manager->cache_mesh.find(fullpath);
+	if (it != Engine::asset_manager->cache_mesh.end())
 	{
 		shared_ptr<Mesh> mesh = it->second;
 		return mesh;
@@ -80,7 +78,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(string fullpath)
 			}
 
 			Engine::asset_manager->Registration_Asset(mesh);
-			cache_mesh.insert(make_pair(fullpath, mesh));
+			Engine::asset_manager->cache_mesh.insert(make_pair(fullpath, mesh));
 
 			return mesh;
 		}
