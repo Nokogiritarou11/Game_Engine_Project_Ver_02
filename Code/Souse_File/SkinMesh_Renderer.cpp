@@ -129,17 +129,17 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 			file_name = mesh->name;
 			file_path = mesh->file_path;
 			//ƒ}ƒeƒŠƒAƒ‹
-			for (size_t i = 0; i < mesh->default_material_passes.size(); i++)
+			for (auto pass : mesh->default_material_passes)
 			{
 				shared_ptr<Material> Mat = make_shared<Material>();
-				ifstream in_bin(mesh->default_material_passes[i], ios::binary);
+				ifstream in_bin(pass, ios::binary);
 				if (in_bin.is_open())
 				{
 					stringstream bin_s_stream;
 					bin_s_stream << in_bin.rdbuf();
 					cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
 					binaryInputArchive(Mat);
-					Material::Initialize(Mat, mesh->default_material_passes[i]);
+					Material::Initialize(Mat, pass);
 					material.push_back(Mat);
 				}
 			}

@@ -123,17 +123,17 @@ void Mesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 			file_name = mesh->name;
 			file_path = mesh->file_path;
 			//マテリアル
-			for (size_t i = 0; i < mesh->default_material_passes.size(); i++)
+			for (auto pass : mesh->default_material_passes)
 			{
 				shared_ptr<Material> Mat = make_shared<Material>();
-				ifstream in_bin(mesh->default_material_passes[i], ios::binary);
+				ifstream in_bin(pass, ios::binary);
 				if (in_bin.is_open())
 				{
 					stringstream bin_s_stream;
 					bin_s_stream << in_bin.rdbuf();
 					cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
 					binaryInputArchive(Mat);
-					Material::Initialize(Mat, mesh->default_material_passes[i]);
+					Material::Initialize(Mat, pass);
 					material.push_back(Mat);
 				}
 			}
@@ -148,7 +148,10 @@ void Mesh_Renderer::Render(Matrix V, Matrix P)
 {
 	if (mesh)
 	{
-		Recalculate_Frame();
+		if (!recalculated_frame)
+		{
+			Recalculate_Frame();
+		}
 
 		// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
 		UINT stride = sizeof(Mesh::vertex);
@@ -202,7 +205,10 @@ void Mesh_Renderer::Render_Shadow(Matrix V, Matrix P)
 {
 	if (mesh)
 	{
-		Recalculate_Frame();
+		if (!recalculated_frame)
+		{
+			Recalculate_Frame();
+		}
 
 		// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
 		UINT stride = sizeof(Mesh::vertex);

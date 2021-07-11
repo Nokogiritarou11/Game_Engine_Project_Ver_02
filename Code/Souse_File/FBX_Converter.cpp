@@ -19,16 +19,25 @@ void FBX_Converter::Convert_From_FBX(const char* file_path, const char* fbx_file
 
 	shared_ptr<GameObject> obj = Create_GameObject(fbx_filename);
 
-	if (model->nodes.empty())
+	if (model->bones.empty())
 	{
 		vector<shared_ptr<GameObject>> rend_list;
-		for (size_t i = 0; i < model->meshes.size(); ++i)
+		for (auto mesh : model->meshes)
 		{
-			shared_ptr<GameObject> g = Create_GameObject(model->meshes[i]->name);
+			shared_ptr<GameObject> g = Create_GameObject(mesh->name);
 			g->transform->Set_Parent(obj->transform);
 			shared_ptr<Mesh_Renderer> renderer = g->Add_Component<Mesh_Renderer>();
-			renderer->file_name = model->meshes[i]->name;
+			renderer->file_name = mesh->name;
 			renderer->file_path = model->file_path;
+
+			Vector3 translate;
+			Quaternion rotation;
+			Vector3 scale;
+			mesh->inverse_matrixes[0].Decompose(scale, rotation, translate);
+			g->transform->Set_Position(translate);
+			g->transform->Set_Rotation(rotation);
+			g->transform->Set_Scale(scale);
+
 			rend_list.push_back(g);
 		}
 
@@ -69,25 +78,25 @@ void FBX_Converter::Convert_From_FBX(const char* file_path, const char* fbx_file
 		root->transform->Set_Parent(obj->transform);
 
 		vector<shared_ptr<GameObject>> bone_list;
-		const vector<Model_Data::Skeleton>& res_nodes = model->nodes;
+		const vector<Model_Data::Skeleton>& bones = model->bones;
 
-		for (size_t i = 0; i < res_nodes.size(); ++i)
+		for (size_t i = 0; i < bones.size(); ++i)
 		{
-			shared_ptr<GameObject> bone = Create_GameObject(res_nodes[i].name);
+			shared_ptr<GameObject> bone = Create_GameObject(bones[i].name);
 			bone_list.emplace_back(bone);
 			bone->transform->Set_Parent(root->transform);
 		}
 
-		for (size_t i = 0; i < res_nodes.size(); ++i)
+		for (size_t i = 0; i < bones.size(); ++i)
 		{
-			if (res_nodes[i].parentIndex != -1)
+			if (bones[i].parentIndex != -1)
 			{
-				bone_list[i]->transform->Set_Parent(bone_list[res_nodes[i].parentIndex]->transform);
+				bone_list[i]->transform->Set_Parent(bone_list[bones[i].parentIndex]->transform);
 			}
 		}
 
 		vector<Matrix> bone_matrixes;
-		bone_matrixes.resize(model->nodes.size());
+		bone_matrixes.resize(model->bones.size());
 
 		for (size_t i = 0; i < rend_list.size(); ++i)
 		{
@@ -178,7 +187,7 @@ void FBX_Converter::Convert_Animation(shared_ptr<Model_Data> model, vector<share
 		clip->name = animation.name;
 		clip->length = animation.secondsLength;
 
-		clip->animations.resize(model->nodes.size());
+		clip->animations.resize(model->bones.size());
 
 		for (size_t t = 0; t < clip->animations.size(); ++t)
 		{
@@ -186,9 +195,9 @@ void FBX_Converter::Convert_Animation(shared_ptr<Model_Data> model, vector<share
 
 			//アニメーション対象のボーン名を登録する
 			string path;
-			if (model->nodes[t].parentIndex == -1)
+			if (model->bones[t].parentIndex == -1)
 			{
-				path = "RootBone/" + model->nodes[t].name;
+				path = "RootBone/" + model->bones[t].name;
 			}
 			else
 			{

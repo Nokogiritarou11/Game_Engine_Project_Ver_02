@@ -4,61 +4,97 @@
 using namespace std;
 using namespace BeastEngine;
 
-void Animator_State_Machine::Initialize(shared_ptr<Transform> root)
+template<class Archive>
+void Animator_State_Machine::serialize(Archive& archive)
 {
-	shared_ptr<Animation_Clip> clip = Animation_Clip::Load_Clip(path);
+	archive(path, animation_speed, loopAnimation, is_default_state, transitions);
+}
 
-	Clip_Data data;
-	data.clip = clip;
-
-	for (size_t i = 0; i < clip->animations.size(); ++i)
+void Animator_State_Machine::Initialize(shared_ptr<unordered_map<string, Controller_Parameter>> parameter)
+{
+	parameters = parameter;
+	if (!path.empty())
 	{
-		Animation_Clip::Animation& anim = clip->animations[i];
-		std::weak_ptr<Transform> t_trans;
-		Humanoid_Rig humanoid_type = Humanoid_Rig::None;
-		if (!clip->is_humanoid)
-		{
-			t_trans = root->Find(anim.Target_Path);
-		}
-		else
-		{
-			humanoid_type = anim.humanoid_type;
-		}
-		Animation_Target target = { humanoid_type, t_trans, anim };
-		data.targets.push_back(target);
+		Set_Clip(path);
 	}
 }
 
-void Animator_State_Machine::Update(const unordered_map<string, Controller_Parameter>& parameter_map)
+void Animator_State_Machine::Set_Clip(string fullpath)
+{
+	if (clip = Animation_Clip::Load_Clip(fullpath))
+	{
+		path = fullpath;
+	}
+}
+
+void Animator_State_Machine::Set_Active(float transition_offset)
+{
+	endAnimation = false;
+	currentSeconds = transition_offset * clip->Get_Length();
+}
+
+void Animator_State_Machine::Exit()
+{
+	transition_trigger = false;
+	active_transition.reset();
+	endAnimation = false;
+	currentSeconds = 0;
+}
+
+void Animator_State_Machine::Update_Transition()
 {
 	bool exit = false;
-	for (size_t i = 0; i < transitions.size(); ++i)
+	size_t i = 0;
+	for (auto transition : transitions)
 	{
-		exit = transitions[i].Check_Transition(parameter_map);
-		if(!exit) break;
+		if (transition->has_exit_time)
+		{
+			if (!transition->exit_trigger && currentSeconds >= clip->Get_Length() * transition->exit_time)
+			{
+				exit = transition->Check_Transition();
+				transition->exit_trigger = false;
+				if (exit) break;
+			}
+		}
+		else
+		{
+			exit = transition->Check_Transition();
+			if (exit) break;
+		}
+		++i;
 	}
 
 	if (exit)
 	{
-
+		transition_trigger = true;
+		active_transition = transitions[i];
 	}
 
+}
+
+void Animator_State_Machine::Update_Time()
+{
 	// 最終フレーム処理
 	if (endAnimation)
 	{
 		endAnimation = false;
-		currentSeconds = 0;
+		currentSeconds = clip->Get_Length();
 		return;
 	}
 
 	// 時間経過
 	currentSeconds += Time::delta_time * animation_speed;
-	float length = clip_data.clip->Get_Length();
+	float length = clip->Get_Length();
 	if (currentSeconds >= length)
 	{
+		for (size_t i = 0; i < transitions.size(); ++i)
+		{
+			transitions[i]->exit_trigger = false;
+		}
+
 		if (loopAnimation)
 		{
-			currentSeconds -= length;
+			currentSeconds = 0;
 		}
 		else
 		{
@@ -70,8 +106,9 @@ void Animator_State_Machine::Update(const unordered_map<string, Controller_Param
 
 void Animator_State_Machine::Add_Transition(shared_ptr<Animator_State_Machine> next_state)
 {
-	Animator_State_Transition transition;
-	transition.next_state = next_state;
+	shared_ptr<Animator_State_Transition> transition = make_shared<Animator_State_Transition>();
+	transition->parameters = parameters;
+	transition->next_state = next_state;
 	transitions.push_back(transition);
 }
 

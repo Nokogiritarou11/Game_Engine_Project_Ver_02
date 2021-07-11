@@ -1,16 +1,22 @@
 #include "Animator_State_Transition.h"
 #include "Animator_State_Machine.h"
+#include "Transform.h"
 using namespace std;
 using namespace BeastEngine;
 
-bool Animator_State_Transition::Check_Transition(const unordered_map<string, Controller_Parameter>& parameter_map)
+template<class Archive>
+void Animator_State_Transition::serialize(Archive& archive)
+{
+	archive(has_exit_time, exit_time, transition_duration, transition_offset, interruption_source, conditions, next_state);
+}
+
+bool Animator_State_Transition::Check_Transition()
 {
 	bool exit = true;
-	for (size_t i = 0; i < conditions.size(); ++i)
+	for (auto condition : conditions)
 	{
-		Condition condition = conditions[i];
-		auto it = parameter_map.find(condition.key);
-		if (it != parameter_map.end())
+		auto it = parameters->find(condition.key);
+		if (it != parameters->end())
 		{
 			switch (condition.mode)
 			{
@@ -80,6 +86,21 @@ bool Animator_State_Transition::Check_Transition(const unordered_map<string, Con
 
 	can_transition = exit;
 	return can_transition;
+}
+
+void Animator_State_Transition::Active()
+{
+	for (auto condition : conditions)
+	{
+		if (condition.type == Condition_Type::Trigger)
+		{
+			auto it = parameters->find(condition.key);
+			if (it != parameters->end())
+			{
+				it->second.value.value_bool = false;
+			}
+		}
+	}
 }
 
 void Animator_State_Transition::Add_Condition(string key, BeastEngine::Condition_Type type, Condition_Mode mode, float threshold)

@@ -229,60 +229,67 @@ Vector3 Transform::Get_Position() const
 
 void Transform::Set_Position(Vector3 V)
 {
-	position = V;
-	translation_matrix = Matrix::CreateTranslation(position);
-	world_matrix = scale_matrix * rotation_matrix * translation_matrix;
-
-	if (shared_ptr<Transform> p = parent.lock())
+	if (position != V)
 	{
-		Matrix m;
-		p->Get_World_Matrix().Invert(m);
-		local_matrix = world_matrix * m;
+		position = V;
+		translation_matrix = Matrix::CreateTranslation(position);
+		world_matrix = scale_matrix * rotation_matrix * translation_matrix;
 
-		local_matrix.Decompose(local_scale, local_rotation, local_position);
-		local_translation_matrix = Matrix::CreateTranslation(local_position);
-		local_rotation_matrix = Matrix::CreateFromQuaternion(local_rotation);
-		local_scale_matrix = Matrix::CreateScale(local_scale);
-	}
-	else
-	{
-		local_matrix = world_matrix;
-		local_translation_matrix = translation_matrix;
-		local_position = position;
-	}
+		if (shared_ptr<Transform> p = parent.lock())
+		{
+			Matrix m;
+			p->Get_World_Matrix().Invert(m);
+			local_matrix = world_matrix * m;
 
-	Change_Children();
-	has_changed = true;
-	update_GUI = true;
+			local_matrix.Decompose(local_scale, local_rotation, local_position);
+			local_translation_matrix = Matrix::CreateTranslation(local_position);
+			local_rotation_matrix = Matrix::CreateFromQuaternion(local_rotation);
+			local_scale_matrix = Matrix::CreateScale(local_scale);
+		}
+		else
+		{
+			local_matrix = world_matrix;
+			local_translation_matrix = translation_matrix;
+			local_position = position;
+		}
+
+		Change_Children();
+		has_changed = true;
+		update_GUI = true;
+	}
 }
 
 void Transform::Set_Position(float f1, float f2, float f3)
 {
-	position = { f1,f2,f3 };
-	translation_matrix = Matrix::CreateTranslation(position);
-	world_matrix = scale_matrix * rotation_matrix * translation_matrix;
-
-	if (shared_ptr<Transform> p = parent.lock())
+	const Vector3 V = { f1,f2,f3 };
+	if (position != V)
 	{
-		Matrix m;
-		p->Get_World_Matrix().Invert(m);
-		local_matrix = world_matrix * m;
+		position = V;
+		translation_matrix = Matrix::CreateTranslation(position);
+		world_matrix = scale_matrix * rotation_matrix * translation_matrix;
 
-		local_matrix.Decompose(local_scale, local_rotation, local_position);
-		local_translation_matrix = Matrix::CreateTranslation(local_position);
-		local_rotation_matrix = Matrix::CreateFromQuaternion(local_rotation);
-		local_scale_matrix = Matrix::CreateScale(local_scale);
-	}
-	else
-	{
-		local_matrix = world_matrix;
-		local_translation_matrix = translation_matrix;
-		local_position = position;
-	}
+		if (shared_ptr<Transform> p = parent.lock())
+		{
+			Matrix m;
+			p->Get_World_Matrix().Invert(m);
+			local_matrix = world_matrix * m;
 
-	Change_Children();
-	has_changed = true;
-	update_GUI = true;
+			local_matrix.Decompose(local_scale, local_rotation, local_position);
+			local_translation_matrix = Matrix::CreateTranslation(local_position);
+			local_rotation_matrix = Matrix::CreateFromQuaternion(local_rotation);
+			local_scale_matrix = Matrix::CreateScale(local_scale);
+		}
+		else
+		{
+			local_matrix = world_matrix;
+			local_translation_matrix = translation_matrix;
+			local_position = position;
+		}
+
+		Change_Children();
+		has_changed = true;
+		update_GUI = true;
+	}
 }
 
 Quaternion Transform::Get_Rotation() const
@@ -292,77 +299,84 @@ Quaternion Transform::Get_Rotation() const
 
 void Transform::Set_Rotation(Quaternion Q)
 {
-	rotation = Q;
-	rotation_matrix = Matrix::CreateFromQuaternion(rotation);
-	world_matrix = scale_matrix * rotation_matrix * translation_matrix;
-
-	if (shared_ptr<Transform> p = parent.lock())
+	if (rotation != Q)
 	{
-		Matrix m;
-		p->Get_World_Matrix().Invert(m);
-		local_matrix = world_matrix * m;
+		rotation = Q;
+		rotation_matrix = Matrix::CreateFromQuaternion(rotation);
+		world_matrix = scale_matrix * rotation_matrix * translation_matrix;
 
-		local_matrix.Decompose(local_scale, local_rotation, local_position);
-		local_translation_matrix = Matrix::CreateTranslation(local_position);
-		local_rotation_matrix = Matrix::CreateFromQuaternion(local_rotation);
-		local_scale_matrix = Matrix::CreateScale(local_scale);
+		if (shared_ptr<Transform> p = parent.lock())
+		{
+			Matrix m;
+			p->Get_World_Matrix().Invert(m);
+			local_matrix = world_matrix * m;
+
+			local_matrix.Decompose(local_scale, local_rotation, local_position);
+			local_translation_matrix = Matrix::CreateTranslation(local_position);
+			local_rotation_matrix = Matrix::CreateFromQuaternion(local_rotation);
+			local_scale_matrix = Matrix::CreateScale(local_scale);
+		}
+		else
+		{
+			local_rotation = rotation;
+			local_rotation_matrix = rotation_matrix;
+			local_matrix = world_matrix;
+		}
+
+		forward = Vector3::Transform(Vector3::Forward, rotation_matrix);
+		forward.Normalize();
+
+		right = Vector3::Transform(Vector3::Right, rotation_matrix);
+		right.Normalize();
+
+		up = Vector3::Transform(Vector3::Up, rotation_matrix);
+		up.Normalize();
+
+		Change_Children();
+		has_changed = true;
+		update_GUI = true;
 	}
-	else
-	{
-		local_rotation = rotation;
-		local_rotation_matrix = rotation_matrix;
-		local_matrix = world_matrix;
-	}
-
-	forward = Vector3::Transform(Vector3::Forward, rotation_matrix);
-	forward.Normalize();
-
-	right = Vector3::Transform(Vector3::Right, rotation_matrix);
-	right.Normalize();
-
-	up = Vector3::Transform(Vector3::Up, rotation_matrix);
-	up.Normalize();
-
-	Change_Children();
-	has_changed = true;
-	update_GUI = true;
 }
 void Transform::Set_Rotation(float f1, float f2, float f3, float f4)
 {
-	rotation = { f1,f2,f3,f4 };
-	rotation_matrix = Matrix::CreateFromQuaternion(rotation);
-	world_matrix = scale_matrix * rotation_matrix * translation_matrix;
-
-	if (shared_ptr<Transform> p = parent.lock())
+	const Quaternion Q = { f1,f2,f3,f4 };
+	if (rotation != Q)
 	{
-		Matrix m;
-		p->Get_World_Matrix().Invert(m);
-		local_matrix = world_matrix * m;
+		rotation = Q;
+		rotation_matrix = Matrix::CreateFromQuaternion(rotation);
+		world_matrix = scale_matrix * rotation_matrix * translation_matrix;
 
-		local_matrix.Decompose(local_scale, local_rotation, local_position);
-		local_translation_matrix = Matrix::CreateTranslation(local_position);
-		local_rotation_matrix = Matrix::CreateFromQuaternion(local_rotation);
-		local_scale_matrix = Matrix::CreateScale(local_scale);
+		if (shared_ptr<Transform> p = parent.lock())
+		{
+			Matrix m;
+			p->Get_World_Matrix().Invert(m);
+			local_matrix = world_matrix * m;
+
+			local_matrix.Decompose(local_scale, local_rotation, local_position);
+			local_translation_matrix = Matrix::CreateTranslation(local_position);
+			local_rotation_matrix = Matrix::CreateFromQuaternion(local_rotation);
+			local_scale_matrix = Matrix::CreateScale(local_scale);
+		}
+		else
+		{
+			local_rotation = rotation;
+			local_rotation_matrix = rotation_matrix;
+			local_matrix = world_matrix;
+		}
+
+		forward = Vector3::Transform(Vector3::Forward, rotation_matrix);
+		forward.Normalize();
+
+		right = Vector3::Transform(Vector3::Right, rotation_matrix);
+		right.Normalize();
+
+		up = Vector3::Transform(Vector3::Up, rotation_matrix);
+		up.Normalize();
+
+		Change_Children();
+		has_changed = true;
+		update_GUI = true;
 	}
-	else
-	{
-		local_rotation = rotation;
-		local_rotation_matrix = rotation_matrix;
-		local_matrix = world_matrix;
-	}
-
-	forward = Vector3::Transform(Vector3::Forward, rotation_matrix);
-	forward.Normalize();
-
-	right = Vector3::Transform(Vector3::Right, rotation_matrix);
-	right.Normalize();
-
-	up = Vector3::Transform(Vector3::Up, rotation_matrix);
-	up.Normalize();
-
-	Change_Children();
-	has_changed = true;
-	update_GUI = true;
 }
 
 Vector3 Transform::Get_Scale() const
@@ -372,57 +386,64 @@ Vector3 Transform::Get_Scale() const
 
 void Transform::Set_Scale(Vector3 V)
 {
-	scale = V;
-	scale_matrix = Matrix::CreateScale(scale);
-	world_matrix = scale_matrix * rotation_matrix * translation_matrix;
-
-	if (shared_ptr<Transform> p = parent.lock())
+	if (scale != V)
 	{
-		Matrix m;
-		p->Get_World_Matrix().Invert(m);
-		local_matrix = world_matrix * m;
+		scale = V;
+		scale_matrix = Matrix::CreateScale(scale);
+		world_matrix = scale_matrix * rotation_matrix * translation_matrix;
 
-		local_matrix.Decompose(local_scale, local_rotation, local_position);
-		local_translation_matrix = Matrix::CreateTranslation(local_position);
-		local_rotation_matrix = Matrix::CreateFromQuaternion(local_rotation);
-		local_scale_matrix = Matrix::CreateScale(local_scale);
+		if (shared_ptr<Transform> p = parent.lock())
+		{
+			Matrix m;
+			p->Get_World_Matrix().Invert(m);
+			local_matrix = world_matrix * m;
+
+			local_matrix.Decompose(local_scale, local_rotation, local_position);
+			local_translation_matrix = Matrix::CreateTranslation(local_position);
+			local_rotation_matrix = Matrix::CreateFromQuaternion(local_rotation);
+			local_scale_matrix = Matrix::CreateScale(local_scale);
+		}
+		else
+		{
+			local_scale = scale;
+			local_scale_matrix = scale_matrix;
+			local_matrix = world_matrix;
+		}
+		Change_Children();
+		has_changed = true;
+		update_GUI = true;
 	}
-	else
-	{
-		local_scale = scale;
-		local_scale_matrix = scale_matrix;
-		local_matrix = world_matrix;
-	}
-	Change_Children();
-	has_changed = true;
-	update_GUI = true;
 }
 void Transform::Set_Scale(float f1, float f2, float f3)
 {
-	scale = { f1,f2,f3 };
-	scale_matrix = Matrix::CreateScale(scale);
-	world_matrix = scale_matrix * rotation_matrix * translation_matrix;
-
-	if (shared_ptr<Transform> p = parent.lock())
+	const Vector3 V = { f1,f2,f3 };
+	if (scale != V)
 	{
-		Matrix m;
-		p->Get_World_Matrix().Invert(m);
-		local_matrix = world_matrix * m;
+		scale = V;
+		scale_matrix = Matrix::CreateScale(scale);
+		world_matrix = scale_matrix * rotation_matrix * translation_matrix;
 
-		local_matrix.Decompose(local_scale, local_rotation, local_position);
-		local_translation_matrix = Matrix::CreateTranslation(local_position);
-		local_rotation_matrix = Matrix::CreateFromQuaternion(local_rotation);
-		local_scale_matrix = Matrix::CreateScale(local_scale);
+		if (shared_ptr<Transform> p = parent.lock())
+		{
+			Matrix m;
+			p->Get_World_Matrix().Invert(m);
+			local_matrix = world_matrix * m;
+
+			local_matrix.Decompose(local_scale, local_rotation, local_position);
+			local_translation_matrix = Matrix::CreateTranslation(local_position);
+			local_rotation_matrix = Matrix::CreateFromQuaternion(local_rotation);
+			local_scale_matrix = Matrix::CreateScale(local_scale);
+		}
+		else
+		{
+			local_scale = scale;
+			local_scale_matrix = scale_matrix;
+			local_matrix = world_matrix;
+		}
+		Change_Children();
+		has_changed = true;
+		update_GUI = true;
 	}
-	else
-	{
-		local_scale = scale;
-		local_scale_matrix = scale_matrix;
-		local_matrix = world_matrix;
-	}
-	Change_Children();
-	has_changed = true;
-	update_GUI = true;
 }
 
 Vector3 Transform::Get_Local_Position() const
@@ -432,47 +453,54 @@ Vector3 Transform::Get_Local_Position() const
 
 void Transform::Set_Local_Position(Vector3 V)
 {
-	local_position = V;
-	local_translation_matrix = Matrix::CreateTranslation(local_position);
-	local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
-	if (shared_ptr<Transform> p = parent.lock())
+	if (local_position != V)
 	{
-		world_matrix = local_matrix * p->Get_World_Matrix();
-		world_matrix.Decompose(scale, rotation, position);
-		translation_matrix = Matrix::CreateTranslation(position);
-	}
-	else
-	{
-		world_matrix = local_matrix;
-		position = local_position;
-		translation_matrix = local_translation_matrix;
-	}
+		local_position = V;
+		local_translation_matrix = Matrix::CreateTranslation(local_position);
+		local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
+		if (shared_ptr<Transform> p = parent.lock())
+		{
+			world_matrix = local_matrix * p->Get_World_Matrix();
+			world_matrix.Decompose(scale, rotation, position);
+			translation_matrix = Matrix::CreateTranslation(position);
+		}
+		else
+		{
+			world_matrix = local_matrix;
+			position = local_position;
+			translation_matrix = local_translation_matrix;
+		}
 
-	Change_Children();
-	has_changed = true;
-	update_GUI = true;
+		Change_Children();
+		has_changed = true;
+		update_GUI = true;
+	}
 }
 void Transform::Set_Local_Position(float f1, float f2, float f3)
 {
-	local_position = { f1,f2,f3 };
-	local_translation_matrix = Matrix::CreateTranslation(local_position);
-	local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
-	if (shared_ptr<Transform> p = parent.lock())
+	const Vector3 V = { f1,f2,f3 };
+	if (local_position != V)
 	{
-		world_matrix = local_matrix * p->Get_World_Matrix();
-		world_matrix.Decompose(scale, rotation, position);
-		translation_matrix = Matrix::CreateTranslation(position);
-	}
-	else
-	{
-		world_matrix = local_matrix;
-		position = local_position;
-		translation_matrix = local_translation_matrix;
-	}
+		local_position = V;
+		local_translation_matrix = Matrix::CreateTranslation(local_position);
+		local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
+		if (shared_ptr<Transform> p = parent.lock())
+		{
+			world_matrix = local_matrix * p->Get_World_Matrix();
+			world_matrix.Decompose(scale, rotation, position);
+			translation_matrix = Matrix::CreateTranslation(position);
+		}
+		else
+		{
+			world_matrix = local_matrix;
+			position = local_position;
+			translation_matrix = local_translation_matrix;
+		}
 
-	Change_Children();
-	has_changed = true;
-	update_GUI = true;
+		Change_Children();
+		has_changed = true;
+		update_GUI = true;
+	}
 }
 
 Quaternion Transform::Get_Local_Rotation() const
@@ -482,63 +510,70 @@ Quaternion Transform::Get_Local_Rotation() const
 
 void Transform::Set_Local_Rotation(Quaternion Q)
 {
-	local_rotation = Q;
-	local_rotation_matrix = Matrix::CreateFromQuaternion(local_rotation);
-	local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
-	if (shared_ptr<Transform> p = parent.lock())
+	if (local_rotation != Q)
 	{
-		world_matrix = local_matrix * p->Get_World_Matrix();
-		world_matrix.Decompose(scale, rotation, position);
-		rotation_matrix = Matrix::CreateFromQuaternion(rotation);
-	}
-	else
-	{
-		world_matrix = local_matrix;
-		rotation = local_rotation;
-		rotation_matrix = local_rotation_matrix;
-	}
+		local_rotation = Q;
+		local_rotation_matrix = Matrix::CreateFromQuaternion(local_rotation);
+		local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
+		if (shared_ptr<Transform> p = parent.lock())
+		{
+			world_matrix = local_matrix * p->Get_World_Matrix();
+			world_matrix.Decompose(scale, rotation, position);
+			rotation_matrix = Matrix::CreateFromQuaternion(rotation);
+		}
+		else
+		{
+			world_matrix = local_matrix;
+			rotation = local_rotation;
+			rotation_matrix = local_rotation_matrix;
+		}
 
-	forward = Vector3::Transform(Vector3::Forward, rotation_matrix);
-	forward.Normalize();
-	right = Vector3::Transform(Vector3::Right, rotation_matrix);
-	right.Normalize();
-	up = Vector3::Transform(Vector3::Up, rotation_matrix);
-	up.Normalize();
+		forward = Vector3::Transform(Vector3::Forward, rotation_matrix);
+		forward.Normalize();
+		right = Vector3::Transform(Vector3::Right, rotation_matrix);
+		right.Normalize();
+		up = Vector3::Transform(Vector3::Up, rotation_matrix);
+		up.Normalize();
 
-	Change_Children();
-	has_changed = true;
-	update_GUI = true;
+		Change_Children();
+		has_changed = true;
+		update_GUI = true;
+	}
 }
 void Transform::Set_Local_Rotation(float f1, float f2, float f3, float f4)
 {
-	local_rotation = { f1,f2,f3,f4 };
-	local_rotation_matrix = Matrix::CreateFromQuaternion(local_rotation);
-	local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
-	if (shared_ptr<Transform> p = parent.lock())
+	const Quaternion Q = { f1,f2,f3,f4 };
+	if (local_rotation != Q)
 	{
-		world_matrix = local_matrix * p->Get_World_Matrix();
-		world_matrix.Decompose(scale, rotation, position);
-		rotation_matrix = Matrix::CreateFromQuaternion(rotation);
+		local_rotation = Q;
+		local_rotation_matrix = Matrix::CreateFromQuaternion(local_rotation);
+		local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
+		if (shared_ptr<Transform> p = parent.lock())
+		{
+			world_matrix = local_matrix * p->Get_World_Matrix();
+			world_matrix.Decompose(scale, rotation, position);
+			rotation_matrix = Matrix::CreateFromQuaternion(rotation);
+		}
+		else
+		{
+			world_matrix = local_matrix;
+			rotation = local_rotation;
+			rotation_matrix = local_rotation_matrix;
+		}
+
+		forward = Vector3::Transform(Vector3::Forward, rotation_matrix);
+		forward.Normalize();
+
+		right = Vector3::Transform(Vector3::Right, rotation_matrix);
+		right.Normalize();
+
+		up = Vector3::Transform(Vector3::Up, rotation_matrix);
+		up.Normalize();
+
+		Change_Children();
+		has_changed = true;
+		update_GUI = true;
 	}
-	else
-	{
-		world_matrix = local_matrix;
-		rotation = local_rotation;
-		rotation_matrix = local_rotation_matrix;
-	}
-
-	forward = Vector3::Transform(Vector3::Forward, rotation_matrix);
-	forward.Normalize();
-
-	right = Vector3::Transform(Vector3::Right, rotation_matrix);
-	right.Normalize();
-
-	up = Vector3::Transform(Vector3::Up, rotation_matrix);
-	up.Normalize();
-
-	Change_Children();
-	has_changed = true;
-	update_GUI = true;
 }
 
 Vector3 Transform::Get_Local_Scale() const
@@ -548,47 +583,54 @@ Vector3 Transform::Get_Local_Scale() const
 
 void Transform::Set_Local_Scale(Vector3 V)
 {
-	local_scale = V;
-	local_scale_matrix = Matrix::CreateScale(local_scale);
-	local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
-	if (shared_ptr<Transform> p = parent.lock())
+	if (local_scale != V)
 	{
-		world_matrix = local_matrix * p->Get_World_Matrix();
-		world_matrix.Decompose(scale, rotation, position);
-		scale_matrix = Matrix::CreateScale(scale);
-	}
-	else
-	{
-		world_matrix = local_matrix;
-		scale = local_scale;
-		scale_matrix = local_scale_matrix;
-	}
+		local_scale = V;
+		local_scale_matrix = Matrix::CreateScale(local_scale);
+		local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
+		if (shared_ptr<Transform> p = parent.lock())
+		{
+			world_matrix = local_matrix * p->Get_World_Matrix();
+			world_matrix.Decompose(scale, rotation, position);
+			scale_matrix = Matrix::CreateScale(scale);
+		}
+		else
+		{
+			world_matrix = local_matrix;
+			scale = local_scale;
+			scale_matrix = local_scale_matrix;
+		}
 
-	Change_Children();
-	has_changed = true;
-	update_GUI = true;
+		Change_Children();
+		has_changed = true;
+		update_GUI = true;
+	}
 }
 void Transform::Set_Local_Scale(float f1, float f2, float f3)
 {
-	local_scale = { f1,f2,f3 };
-	local_scale_matrix = Matrix::CreateScale(local_scale);
-	local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
-	if (shared_ptr<Transform> p = parent.lock())
+	const Vector3 V = { f1,f2,f3 };
+	if (local_scale != V)
 	{
-		world_matrix = local_matrix * p->Get_World_Matrix();
-		world_matrix.Decompose(scale, rotation, position);
-		scale_matrix = Matrix::CreateScale(scale);
-	}
-	else
-	{
-		world_matrix = local_matrix;
-		scale = local_scale;
-		scale_matrix = local_scale_matrix;
-	}
+		local_scale = V;
+		local_scale_matrix = Matrix::CreateScale(local_scale);
+		local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
+		if (shared_ptr<Transform> p = parent.lock())
+		{
+			world_matrix = local_matrix * p->Get_World_Matrix();
+			world_matrix.Decompose(scale, rotation, position);
+			scale_matrix = Matrix::CreateScale(scale);
+		}
+		else
+		{
+			world_matrix = local_matrix;
+			scale = local_scale;
+			scale_matrix = local_scale_matrix;
+		}
 
-	Change_Children();
-	has_changed = true;
-	update_GUI = true;
+		Change_Children();
+		has_changed = true;
+		update_GUI = true;
+	}
 }
 
 Vector3 Transform::Get_Forward() const

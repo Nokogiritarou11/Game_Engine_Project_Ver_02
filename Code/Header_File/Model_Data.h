@@ -23,7 +23,7 @@ namespace BeastEngine
 			BeastEngine::Vector3	position;
 		};
 
-		struct NodeKeyData
+		struct Key_Pose
 		{
 			BeastEngine::Vector3	scale;
 			BeastEngine::Quaternion rotation;
@@ -33,7 +33,7 @@ namespace BeastEngine
 		struct Keyframe
 		{
 			float						seconds;
-			std::vector<NodeKeyData>	nodeKeys;
+			std::vector<Key_Pose>	nodeKeys;
 		};
 		struct Animation
 		{
@@ -45,7 +45,7 @@ namespace BeastEngine
 		std::string name;
 		std::string file_path;
 
-		std::vector<Skeleton> nodes;
+		std::vector<Skeleton> bones;
 		std::vector<std::shared_ptr<BeastEngine::Mesh>>	meshes;
 		std::vector<Animation> animations;
 		std::vector<std::string> default_material_passes;

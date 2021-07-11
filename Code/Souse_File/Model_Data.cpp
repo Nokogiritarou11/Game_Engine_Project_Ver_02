@@ -151,9 +151,9 @@ shared_ptr<Model_Data> Model_Data::Load_Model(const char* file_path, const char*
 	if (ignoreRootMotionNodeName != nullptr)
 	{
 		model_ptr->rootMotionNodeIndex = -1;
-		for (size_t i = 0; i < model_ptr->nodes.size(); ++i)
+		for (size_t i = 0; i < model_ptr->bones.size(); ++i)
 		{
-			if (model_ptr->nodes.at(i).name == ignoreRootMotionNodeName)
+			if (model_ptr->bones.at(i).name == ignoreRootMotionNodeName)
 			{
 				model_ptr->rootMotionNodeIndex = static_cast<int>(i);
 				break;
@@ -197,7 +197,7 @@ void Model_Data::BuildNodes(FbxNode* fbxNode, int parentNodeIndex)
 	}
 
 	// 再帰的に子ノードを処理する
-	parentNodeIndex = static_cast<int>(nodes.size() - 1);
+	parentNodeIndex = static_cast<int>(bones.size() - 1);
 	for (int i = 0; i < fbxNode->GetChildCount(); ++i)
 	{
 		BuildNodes(fbxNode->GetChild(i), parentNodeIndex);
@@ -207,16 +207,11 @@ void Model_Data::BuildNodes(FbxNode* fbxNode, int parentNodeIndex)
 // FBXノードからノードデータを構築する
 void Model_Data::BuildNode(FbxNode* fbxNode, int parentNodeIndex)
 {
-	FbxAMatrix& fbxLocalTransform = fbxNode->EvaluateLocalTransform(0);
-
 	Skeleton node;
 	node.name = fbxNode->GetName();
 	node.parentIndex = parentNodeIndex;
-	node.scale = FbxDouble4ToFloat3(fbxLocalTransform.GetS());
-	node.rotation = FbxDouble4ToFloat4(fbxLocalTransform.GetQ());
-	node.position = FbxDouble4ToFloat3(fbxLocalTransform.GetT());
 
-	nodes.emplace_back(node);
+	bones.emplace_back(node);
 }
 
 // FBXノードを再帰的に辿ってメッシュデータを構築する
@@ -345,7 +340,6 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 			fbxNode->GetGeometricRotation(FbxNode::eSourcePivot),
 			fbxNode->GetGeometricScaling(FbxNode::eSourcePivot)
 		);
-
 		// スキニングに必要な情報を取得する
 		int fbxDeformerCount = fbxMesh->GetDeformerCount(FbxDeformer::eSkin);
 		for (int fbxDeformerIndex = 0; fbxDeformerIndex < fbxDeformerCount; ++fbxDeformerIndex)
@@ -391,6 +385,12 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 					mesh->nodeIndices.emplace_back(nodeIndex);
 				}
 			}
+		}
+		if (fbxDeformerCount == 0)
+		{
+			FbxAMatrix localMatrix = fbxNode->EvaluateLocalTransform();
+			Matrix inverseTransform = FbxAMatrixToFloat4x4(localMatrix);
+			mesh->inverse_matrixes.emplace_back(inverseTransform);
 		}
 	}
 
@@ -699,7 +699,7 @@ void Model_Data::BuildAnimations(FbxScene* fbxScene)
 		// アニメーションの対象となるノード(ボーン)を列挙する
 		std::vector<FbxNode*> fbxNodes;
 		FbxNode* fbxRootNode = fbxScene->GetRootNode();
-		for (Skeleton& node : nodes)
+		for (Skeleton& node : bones)
 		{
 			FbxNode* fbxNode = fbxRootNode->FindChild(node.name.c_str());
 			fbxNodes.emplace_back(fbxNode);
@@ -720,12 +720,12 @@ void Model_Data::BuildAnimations(FbxScene* fbxScene)
 			keyframe->nodeKeys.resize(fbxNodeCount);
 			for (size_t fbxNodeIndex = 0; fbxNodeIndex < fbxNodeCount; ++fbxNodeIndex)
 			{
-				NodeKeyData& keyData = keyframe->nodeKeys.at(fbxNodeIndex);
+				Key_Pose& keyData = keyframe->nodeKeys.at(fbxNodeIndex);
 				FbxNode* fbxNode = fbxNodes.at(fbxNodeIndex);
 				if (fbxNode == nullptr)
 				{
 					// アニメーション対象のノードがなかったのでダミーデータを設定
-					Skeleton& node = nodes.at(fbxNodeIndex);
+					Skeleton& node = bones.at(fbxNodeIndex);
 					keyData.scale = node.scale;
 					keyData.rotation = node.rotation;
 					keyData.position = node.position;
@@ -733,7 +733,7 @@ void Model_Data::BuildAnimations(FbxScene* fbxScene)
 				else if (fbxNodeIndex == rootMotionNodeIndex)
 				{
 					// ルートモーションは無視する
-					Skeleton& node = nodes.at(fbxNodeIndex);
+					Skeleton& node = bones.at(fbxNodeIndex);
 					keyData.scale = DirectX::XMFLOAT3(1, 1, 1);
 					keyData.rotation = DirectX::XMFLOAT4(0, 0, 0, 1);
 					keyData.position = DirectX::XMFLOAT3(0, 0, 0);
@@ -762,9 +762,9 @@ void Model_Data::BuildAnimations(FbxScene* fbxScene)
 // ノードインデックスを取得する
 int Model_Data::FindNodeIndex(const char* name)
 {
-	for (size_t i = 0; i < nodes.size(); ++i)
+	for (size_t i = 0; i < bones.size(); ++i)
 	{
-		if (nodes[i].name == name)
+		if (bones[i].name == name)
 		{
 			return static_cast<int>(i);
 		}

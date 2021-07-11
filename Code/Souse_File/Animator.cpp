@@ -21,38 +21,73 @@ void Animator::Initialize(shared_ptr<GameObject> obj)
 	transform = obj->transform;
 	Engine::animator_manager->Add(static_pointer_cast<Animator>(shared_from_this()));
 
-	if (animator_controller)
+	if (controller)
 	{
-		animator_controller->Initialize(transform);
+		controller->Initialize(transform);
 	}
 }
 
 void Animator::Set_Int(string key, int value)
 {
-
+	auto it = controller->parameters->find(key);
+	if (it != controller->parameters->end())
+	{
+		it->second.value.value_int = value;
+	}
 }
 void Animator::Set_Float(string key, float value)
 {
-
+	auto it = controller->parameters->find(key);
+	if (it != controller->parameters->end())
+	{
+		it->second.value.value_float = value;
+	}
 }
 void Animator::Set_Bool(string key, bool value)
 {
-
+	auto it = controller->parameters->find(key);
+	if (it != controller->parameters->end())
+	{
+		it->second.value.value_bool = value;
+	}
 }
 void Animator::Set_Trigger(string key)
 {
-
+	auto it = controller->parameters->find(key);
+	if (it != controller->parameters->end())
+	{
+		it->second.value.value_bool = true;
+	}
 }
 void Animator::Reset_Trigger(string key)
 {
-
+	auto it = controller->parameters->find(key);
+	if (it != controller->parameters->end())
+	{
+		it->second.value.value_bool = false;
+	}
 }
 
 void Animator::Update()
 {
 	if (!playing) return;
 
-	animator_controller->Update();
+	controller->Update();
+	for (auto data : controller->animation_data)
+	{
+		Animator_Controller::Animation_Target& anim = data.second;
+		if (anim.humanoid_rig == Humanoid_Rig::None)
+		{
+			shared_ptr<Transform> target = anim.target.lock();
+			target->Set_Local_Position(anim.position);
+			target->Set_Local_Rotation(anim.rotation);
+			target->Set_Local_Scale(anim.scale);
+		}
+		else
+		{
+			//TODO:Avater完成後に追加
+		}
+	}
 }
 
 // アニメーション再生
@@ -101,7 +136,7 @@ bool Animator::Draw_ImGui()
 
 	if (open)
 	{
-		if (animator_controller)
+		if (controller)
 		{
 			if (ImGui::Button(ICON_FA_PLAY))
 			{

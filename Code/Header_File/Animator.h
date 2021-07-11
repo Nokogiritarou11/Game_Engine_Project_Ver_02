@@ -1,11 +1,10 @@
 #pragma once
 #include "Behaviour.h"
+#include "Animator_Controller.h"
 
 namespace BeastEngine
 {
 	class GameObject;
-	class Animator_Controller;
-	class Animator_State_Machine;
 	class Animator_Manager;
 
 	class Animator : public BeastEngine::Behaviour
@@ -21,8 +20,7 @@ namespace BeastEngine
 		void Set_Trigger(std::string key);
 		void Reset_Trigger(std::string key);
 
-
-		std::shared_ptr<BeastEngine::Animator_Controller> animator_controller;
+		std::unique_ptr<BeastEngine::Animator_Controller> controller;
 
 	private:
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
@@ -30,6 +28,7 @@ namespace BeastEngine
 		bool Can_Multiple() override { return false; };
 
 		void Update(); //çXêV
+		void Set_Controller();
 
 		bool playing = false;
 
