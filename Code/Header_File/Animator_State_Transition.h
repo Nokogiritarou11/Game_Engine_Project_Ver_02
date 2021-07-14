@@ -26,9 +26,10 @@ namespace BeastEngine
 		float transition_offset = 0;
 		Interruption_Source interruption_source = Interruption_Source::None;
 		std::vector<BeastEngine::Condition> conditions;
-		std::shared_ptr<BeastEngine::Animator_State_Machine> next_state;
-		std::shared_ptr<std::unordered_map<std::string, Controller_Parameter>> parameters;
+		std::weak_ptr<BeastEngine::Animator_State_Machine> next_state;
+		std::shared_ptr<std::unordered_map<std::string, BeastEngine::Controller_Parameter>> parameters;
 
+		void Initialize(std::shared_ptr<std::unordered_map<std::string, BeastEngine::Controller_Parameter>>& p_parameters, std::shared_ptr<BeastEngine::Animator_State_Machine>& next);
 		bool Check_Transition();
 		void Active();
 		void Add_Condition(std::string key, BeastEngine::Condition_Type type, BeastEngine::Condition_Mode mode, float threshold);
@@ -40,6 +41,9 @@ namespace BeastEngine
 
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive);
+		void serialize(Archive& archive)
+		{
+			archive(has_exit_time, exit_time, transition_duration, transition_offset, interruption_source, conditions, next_state);
+		}
 	};
 }

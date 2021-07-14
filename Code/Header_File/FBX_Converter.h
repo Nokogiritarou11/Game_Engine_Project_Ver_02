@@ -12,11 +12,13 @@ namespace BeastEngine
 	class FBX_Converter
 	{
 	public:
-		static void Convert_From_FBX(const char* file_path, const char* fbx_filename);
+		void Draw_ImGui();
 	private:
-		static void Convert_Animation(std::shared_ptr<BeastEngine::Model_Data> model, std::vector<std::shared_ptr<BeastEngine::GameObject>>& bones);
-		static void Convert_Mesh(std::shared_ptr<BeastEngine::Model_Data> model);
-		static std::shared_ptr<BeastEngine::GameObject> Create_GameObject(std::string n);
-		static void Bone_Decompose(std::vector<BeastEngine::Matrix>& matrixes, std::vector<std::shared_ptr<BeastEngine::GameObject>>& bones, std::shared_ptr<Transform> trans);
+		std::shared_ptr<BeastEngine::Model_Data> model;
+		void Load_From_FBX(bool& convert_mesh, bool& convert_animation, bool& convert_prefab);
+		void Convert_Animation(std::vector<std::shared_ptr<BeastEngine::GameObject>>& bones);
+		void Convert_Mesh();
+		void Bone_Decompose(std::vector<BeastEngine::Matrix>& matrixes, std::vector<std::shared_ptr<BeastEngine::GameObject>>& bones, std::shared_ptr<Transform>& trans);
+		std::shared_ptr<BeastEngine::GameObject> Create_GameObject(std::string n);
 	};
 }

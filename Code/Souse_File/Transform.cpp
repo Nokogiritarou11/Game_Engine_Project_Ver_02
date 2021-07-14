@@ -822,7 +822,7 @@ void Transform::On_Parent_Changed()
 void Transform::Change_Children()
 {
 	shared_ptr<Transform> C;
-	for (weak_ptr<Transform> child : children)
+	for (weak_ptr<Transform>& child : children)
 	{
 		if (!child.expired())
 		{

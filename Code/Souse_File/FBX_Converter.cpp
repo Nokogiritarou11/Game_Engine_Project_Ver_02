@@ -10,19 +10,85 @@
 #include "SkinMesh_Renderer.h"
 #include "Animation_Clip.h"
 #include "Animator.h"
+#include "Include_ImGui.h"
+#include "System_Function.h"
+#include "Debug.h"
 using namespace std;
 using namespace BeastEngine;
 
-void FBX_Converter::Convert_From_FBX(const char* file_path, const char* fbx_filename)
+void FBX_Converter::Draw_ImGui()
 {
-	shared_ptr<Model_Data> model = Model_Data::Load_Model(file_path, fbx_filename);
+	ImGuiWindowFlags window_flags = 0;
+	window_flags |= ImGuiWindowFlags_NoCollapse;
+	ImGui::Begin(u8"FBXコンバート", NULL, window_flags);
 
-	shared_ptr<GameObject> obj = Create_GameObject(fbx_filename);
+	static int load_state = 0;
+	if (load_state == 0)
+	{
+		if (ImGui::Button(u8"FBX読み込み"))
+		{
+			string path = System_Function::Get_Open_File_Name("fbx", "\\Resouces\\Model");
+			if (path != "")
+			{
+				int path_i = path.find_last_of("\\") + 1;//7
+				int ext_i = path.find_last_of(".");//10
+				string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
+				string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
+				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+				if (extname == ".fbx")
+				{
+					model = Model_Data::Load_Model(pathname.c_str(), filename.c_str());
+					++load_state;
+				}
+				else
+				{
+					Debug::Log(u8"ファイル形式が対応していません");
+				}
+			}
+		}
+	}
+	else if (load_state == 1)
+	{
+		ImGui::Text(model->name.c_str());
+		static bool convert_mesh = true;
+		static bool convert_animation = true;
+		static bool convert_prefab = true;
+		ImGui::Checkbox(u8"メッシュデータに変換する", &convert_mesh);
+		if (!model->bones.empty())
+		{
+			ImGui::Checkbox(u8"アニメーションデータに変換する", &convert_animation);
+		}
+		ImGui::Checkbox(u8"プレハブデータに変換する", &convert_prefab);
+
+		if (convert_mesh || convert_animation || convert_prefab)
+		{
+			if (ImGui::Button(u8"変換開始"))
+			{
+				Load_From_FBX(convert_mesh, convert_animation, convert_prefab);
+				Debug::Log(u8"FBXの変換が完了しました");
+				load_state = 0;
+			}
+		}
+		else
+		{
+			if (ImGui::Button(u8"キャンセル"))
+			{
+				load_state = 0;
+			}
+		}
+	}
+
+	ImGui::End();
+}
+
+void FBX_Converter::Load_From_FBX(bool& convert_mesh, bool& convert_animation, bool& convert_prefab)
+{
+	shared_ptr<GameObject> obj = Create_GameObject(model->name);
 
 	if (model->bones.empty())
 	{
 		vector<shared_ptr<GameObject>> rend_list;
-		for (auto mesh : model->meshes)
+		for (auto& mesh : model->meshes)
 		{
 			shared_ptr<GameObject> g = Create_GameObject(mesh->name);
 			g->transform->Set_Parent(obj->transform);
@@ -41,9 +107,15 @@ void FBX_Converter::Convert_From_FBX(const char* file_path, const char* fbx_file
 			rend_list.push_back(g);
 		}
 
-		Convert_Mesh(model);
-		Resources::Create_Prefab(obj);
-
+		obj->transform->Set_Scale(0.01f, 0.01f, 0.01f);
+		if (convert_mesh)
+		{
+			Convert_Mesh();
+		}
+		if (convert_prefab)
+		{
+			Resources::Create_Prefab(obj);
+		}
 		for each (shared_ptr<GameObject> g in rend_list)
 		{
 			g->transform->gameobject.reset();
@@ -116,10 +188,18 @@ void FBX_Converter::Convert_From_FBX(const char* file_path, const char* fbx_file
 		}
 
 		obj->transform->Set_Scale(0.01f, 0.01f, 0.01f);
-		Convert_Animation(model, bone_list);
-		Convert_Mesh(model);
-
-		Resources::Create_Prefab(obj);
+		if (convert_animation)
+		{
+			Convert_Animation(bone_list);
+		}
+		if (convert_mesh)
+		{
+			Convert_Mesh();
+		}
+		if (convert_prefab)
+		{
+			Resources::Create_Prefab(obj);
+		}
 
 		for each (shared_ptr<GameObject> g in rend_list)
 		{
@@ -153,7 +233,7 @@ void FBX_Converter::Convert_From_FBX(const char* file_path, const char* fbx_file
 	}
 }
 
-void FBX_Converter::Bone_Decompose(vector<Matrix>& matrixes, vector<shared_ptr<GameObject>>& bones, shared_ptr<Transform> trans)
+void FBX_Converter::Bone_Decompose(vector<Matrix>& matrixes, vector<shared_ptr<GameObject>>& bones, shared_ptr<Transform>& trans)
 {
 	{
 		size_t i = 0;
@@ -177,7 +257,7 @@ void FBX_Converter::Bone_Decompose(vector<Matrix>& matrixes, vector<shared_ptr<G
 	}
 }
 
-void FBX_Converter::Convert_Animation(shared_ptr<Model_Data> model, vector<shared_ptr<GameObject>>& bones)
+void FBX_Converter::Convert_Animation(vector<shared_ptr<GameObject>>& bones)
 {
 	for (size_t i = 0; i < model->animations.size(); ++i)
 	{
@@ -241,7 +321,7 @@ void FBX_Converter::Convert_Animation(shared_ptr<Model_Data> model, vector<share
 	}
 }
 
-void FBX_Converter::Convert_Mesh(std::shared_ptr<BeastEngine::Model_Data> model)
+void FBX_Converter::Convert_Mesh()
 {
 	for each (shared_ptr<Mesh> mesh in model->meshes)
 	{

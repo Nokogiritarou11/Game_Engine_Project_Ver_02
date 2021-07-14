@@ -47,7 +47,7 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Object, BeastEngine::Component
 template<class T>
 std::shared_ptr<T> BeastEngine::Component::Get_Component()
 {
-	for (std::shared_ptr<BeastEngine::Component> com : gameobject->component_list)
+	for (std::shared_ptr<BeastEngine::Component>& com : gameobject->component_list)
 	{
 		std::shared_ptr<T> buff = std::dynamic_pointer_cast<T>(com);
 		if (buff != nullptr)
@@ -70,7 +70,7 @@ std::shared_ptr<T> BeastEngine::Component::Add_Component()
 	if (!can_multiple)
 	{
 		bool already_attach = false;
-		for (std::shared_ptr<BeastEngine::Component> com : gameobject->component_list)
+		for (std::shared_ptr<BeastEngine::Component>& com : gameobject->component_list)
 		{
 			std::shared_ptr<T> _buff = std::dynamic_pointer_cast<T>(com);
 			if (_buff != nullptr)

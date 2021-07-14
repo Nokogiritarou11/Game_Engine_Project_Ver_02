@@ -12,6 +12,7 @@ namespace BeastEngine
 	class Shader;
 	class Texture;
 	class Material;
+	class Animation_Clip;
 
 	class Asset_Manager
 	{
@@ -26,6 +27,7 @@ namespace BeastEngine
 		std::unordered_map<std::string, std::shared_ptr<BeastEngine::Material>> cache_material;
 		std::unordered_map<std::string, std::shared_ptr<BeastEngine::Shader>> cache_shader;
 		std::unordered_map<std::string, std::shared_ptr<BeastEngine::Texture>> cache_texture;
+		std::unordered_map<std::string, std::shared_ptr<BeastEngine::Animation_Clip>> cache_clip;
 
 		void Clear_Manager();
 	private:

@@ -20,7 +20,7 @@ namespace BeastEngine
 		void Set_Trigger(std::string key);
 		void Reset_Trigger(std::string key);
 
-		std::unique_ptr<BeastEngine::Animator_Controller> controller;
+		std::shared_ptr<BeastEngine::Animator_Controller> controller;
 
 	private:
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
@@ -28,7 +28,6 @@ namespace BeastEngine
 		bool Can_Multiple() override { return false; };
 
 		void Update(); //XV
-		void Set_Controller();
 
 		bool playing = false;
 

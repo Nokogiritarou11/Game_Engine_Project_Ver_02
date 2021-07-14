@@ -55,8 +55,6 @@ namespace BeastEngine
 		friend class BeastEngine::FBX_Converter;
 		friend class cereal::access;
 
-		static std::unordered_map<std::string, std::shared_ptr<Animation_Clip>> cache_clip;
-
 		float length;
 
 		template<class Archive>

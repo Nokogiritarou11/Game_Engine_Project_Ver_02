@@ -12,6 +12,7 @@ void Asset_Manager::Clear_Manager()
 	cache_shader.clear();
 	cache_texture.clear();
 	cache_material.clear();
+	cache_clip.clear();
 	cache_asset.clear();
 }
 

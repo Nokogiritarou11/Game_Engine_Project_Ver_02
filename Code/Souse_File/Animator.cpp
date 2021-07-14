@@ -21,8 +21,9 @@ void Animator::Initialize(shared_ptr<GameObject> obj)
 	transform = obj->transform;
 	Engine::animator_manager->Add(static_pointer_cast<Animator>(shared_from_this()));
 
-	if (controller)
+	if (!controller_path.empty())
 	{
+		controller = Animator_Controller::Load_Animator_Controller(controller_path);
 		controller->Initialize(transform);
 	}
 }
@@ -32,7 +33,7 @@ void Animator::Set_Int(string key, int value)
 	auto it = controller->parameters->find(key);
 	if (it != controller->parameters->end())
 	{
-		it->second.value.value_int = value;
+		it->second.value_int = value;
 	}
 }
 void Animator::Set_Float(string key, float value)
@@ -40,7 +41,7 @@ void Animator::Set_Float(string key, float value)
 	auto it = controller->parameters->find(key);
 	if (it != controller->parameters->end())
 	{
-		it->second.value.value_float = value;
+		it->second.value_float = value;
 	}
 }
 void Animator::Set_Bool(string key, bool value)
@@ -48,7 +49,7 @@ void Animator::Set_Bool(string key, bool value)
 	auto it = controller->parameters->find(key);
 	if (it != controller->parameters->end())
 	{
-		it->second.value.value_bool = value;
+		it->second.value_bool = value;
 	}
 }
 void Animator::Set_Trigger(string key)
@@ -56,7 +57,7 @@ void Animator::Set_Trigger(string key)
 	auto it = controller->parameters->find(key);
 	if (it != controller->parameters->end())
 	{
-		it->second.value.value_bool = true;
+		it->second.value_bool = true;
 	}
 }
 void Animator::Reset_Trigger(string key)
@@ -64,7 +65,7 @@ void Animator::Reset_Trigger(string key)
 	auto it = controller->parameters->find(key);
 	if (it != controller->parameters->end())
 	{
-		it->second.value.value_bool = false;
+		it->second.value_bool = false;
 	}
 }
 
@@ -73,7 +74,7 @@ void Animator::Update()
 	if (!playing) return;
 
 	controller->Update();
-	for (auto data : controller->animation_data)
+	for (auto& data : controller->animation_data)
 	{
 		Animator_Controller::Animation_Target& anim = data.second;
 		if (anim.humanoid_rig == Humanoid_Rig::None)
@@ -138,26 +139,33 @@ bool Animator::Draw_ImGui()
 	{
 		if (controller)
 		{
-			if (ImGui::Button(ICON_FA_PLAY))
-			{
-				Play();
-			}
-
-			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_STOP))
-			{
-				Stop();
-			}
-
-			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_PAUSE))
-			{
-				Pause();
-			}
+			static string controller_name;
+			controller_name = controller->name + ".controller";
+			ImGui::Text(controller_name.c_str());
 		}
 		else
 		{
 			ImGui::Text(u8"アニメーターコントローラーが登録されていません");
+		}
+		ImGui::Spacing();
+		if (ImGui::Button(u8"新規作成"))
+		{
+			controller = Animator_Controller::Create_New_Controller();
+			if (controller)
+			{
+				controller_path = controller->save_path;
+				controller->Initialize(transform);
+			}
+		}
+		ImGui::SameLine();
+		if (ImGui::Button(u8"読み込む"))
+		{
+			controller = Animator_Controller::Load_Animator_Controller();
+			if (controller)
+			{
+				controller_path = controller->save_path;
+				controller->Initialize(transform);
+			}
 		}
 	}
 	return true;

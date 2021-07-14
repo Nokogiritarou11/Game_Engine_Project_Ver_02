@@ -10,6 +10,7 @@
 #include "Light_Manager.h"
 #include "Particle_Manager.h"
 #include "Shadow_Manager.h"
+#include "FBX_Converter.h"
 #include "Editor.h"
 #include "SkyBox.h"
 #include "View_Game.h"
@@ -32,6 +33,7 @@ unique_ptr<Animator_Manager> Engine::animator_manager;
 unique_ptr<Light_Manager>	 Engine::light_manager;
 unique_ptr<Particle_Manager> Engine::particle_manager;
 unique_ptr<Shadow_Manager>	 Engine::shadow_manager;
+unique_ptr<FBX_Converter>	 Engine::fbx_converter;
 unique_ptr<Editor>			 Engine::editor;
 unique_ptr<View_Game>		 Engine::view_game;
 unique_ptr<View_Scene>		 Engine::view_scene;
@@ -51,6 +53,7 @@ Engine::Engine()
 	view_game = make_unique<View_Game>();
 
 #if _DEBUG
+	fbx_converter = make_unique<FBX_Converter>();
 	view_scene = make_unique<View_Scene>();
 	editor = make_unique<Editor>();
 	string load_path;
@@ -123,6 +126,7 @@ Engine::~Engine()
 	light_manager.reset();
 	particle_manager.reset();
 	shadow_manager.reset();
+	fbx_converter.reset();
 	editor.reset();
 	view_game.reset();
 	view_scene.reset();

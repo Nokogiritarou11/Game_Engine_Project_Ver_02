@@ -13,6 +13,8 @@
 #include "Resources.h"
 #include "Cursor.h"
 #include "Transform.h"
+#include "Animator.h"
+#include "Animator_Controller.h"
 #include "Scene.h"
 #include "Include_ImGui.h"
 #include <ImGuizmo.h>
@@ -135,8 +137,11 @@ void Editor::Update(const unique_ptr<Scene>& scene)
 	//シーン再生UI
 	ScenePlayer_Render();
 
-	//アセットマネージャー
-	FileResource_Render();
+	//FBX読み込みメニュー
+	Engine::fbx_converter->Draw_ImGui();
+
+	//AnimatorController編集画面描画
+	Controller_Render();
 
 	//描画
 	{
@@ -230,28 +235,26 @@ struct Debug_Logger
 				LineOffsets.push_back(old_size + 1);
 	}
 
-	void Draw(const char* title, bool* p_open = NULL)
+	void Draw(const char* title)
 	{
-		if (!ImGui::Begin(title, p_open))
-		{
-			ImGui::End();
-			return;
-		}
+		ImGuiWindowFlags window_flags = 0;
+		window_flags |= ImGuiWindowFlags_NoCollapse;
+		ImGui::Begin(title, NULL, window_flags);
 
 		// Options menu
 		if (ImGui::BeginPopup("Options"))
 		{
-			ImGui::Checkbox("Auto-scroll", &AutoScroll);
+			ImGui::Checkbox(u8"自動スクロール", &AutoScroll);
 			ImGui::EndPopup();
 		}
 
 		// Main window
-		if (ImGui::Button("Options"))
+		if (ImGui::Button(u8"オプション"))
 			ImGui::OpenPopup("Options");
 		ImGui::SameLine();
-		bool clear = ImGui::Button("Clear");
+		bool clear = ImGui::Button(u8"消去");
 		ImGui::SameLine();
-		bool copy = ImGui::Button("Copy");
+		bool copy = ImGui::Button(u8"コピー");
 
 		//ImGui::Separator();
 		ImGui::BeginChild("scrolling", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
@@ -290,7 +293,6 @@ struct Debug_Logger
 void Editor::Debug_Log_Render()
 {
 	ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
-	static bool Open_Log = true;
 	ImGui::SetNextWindowPos(ImVec2(0, 900), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(400, 100), ImGuiCond_FirstUseEver);
 	static Debug_Logger logger;
@@ -302,7 +304,7 @@ void Editor::Debug_Log_Render()
 		}
 		debug_log.clear();
 	}
-	logger.Draw((u8"コンソール"), &Open_Log);
+	logger.Draw((u8"コンソール"));
 }
 
 //ヒエラルキー描画
@@ -325,11 +327,11 @@ void Editor::Hierarchy_Render(const unique_ptr<Scene>& scene)
 		static int selecting = -1;
 		bool Item_Clicked = false;
 
-		for (size_t i = 0; i < scene->gameobject_list.size();++i)
+		for (auto& obj_list : scene->gameobject_list)
 		{
-			if (scene->gameobject_list[i]->transform->parent.expired())
+			if (obj_list->transform->parent.expired())
 			{
-				GameObject_Tree_Render(ID, scene->gameobject_list[i], selecting, base_flags, Item_Clicked);
+				GameObject_Tree_Render(ID, obj_list, selecting, base_flags, Item_Clicked);
 			}
 		}
 
@@ -348,7 +350,7 @@ void Editor::Hierarchy_Render(const unique_ptr<Scene>& scene)
 			}
 			if (ImGui::Selectable(u8"プレハブを読み込む"))
 			{
-				string path = System_Function::Get_Open_File_Name("prefab","\\Resouces\\Prefab");
+				string path = System_Function::Get_Open_File_Name("prefab", "\\Resouces\\Prefab");
 				if (path != "")
 				{
 					Resources::Load_Prefab(path);
@@ -462,16 +464,16 @@ void Editor::Inspector_Render()
 {
 	ImGui::SetNextWindowPos(ImVec2(1500, 0), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
-	shared_ptr<GameObject> obj = active_object.lock();
-	shared_ptr<GameObject> obj_old = active_object_old.lock();
 
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_NoCollapse;
 	ImGui::Begin(u8"インスペクタ", NULL, window_flags);
+
+	shared_ptr<GameObject> obj = active_object.lock();
 	if (obj)
 	{
 		static bool active = false;
-		if (obj_old != obj)
+		if (active_object_old.lock() != obj)
 		{
 			active = obj->Get_Active();
 			active_object_old = active_object;
@@ -489,7 +491,7 @@ void Editor::Inspector_Render()
 		while (removed)
 		{
 			bool removed_comp = false;
-			for (shared_ptr<Component> c : obj->component_list)
+			for (auto& c : obj->component_list)
 			{
 				ImGui::PushID(ID);
 				if (!c->Draw_ImGui())
@@ -738,7 +740,7 @@ void Editor::GameView_Render()
 	const ImVec2 pos = ImGui::GetCursorScreenPos();
 	game_view_position = { pos.x,pos.y + game_view_size.y };
 
-	Engine::view_game->Set_Screen_Size(static_cast<int>(game_view_size.x), static_cast<int>(game_view_size.y));
+	Engine::view_game->Set_Screen_Size(1920, 1080);
 	ImGui::Image((void*)Engine::view_game->shader_resource_view_render.Get(), ImVec2(game_view_size.x, game_view_size.y));
 
 	game_view_center_position = { pos.x + game_view_size.x / 2 ,pos.y + game_view_size.y / 2 };
@@ -758,31 +760,19 @@ void Editor::GameView_Render()
 	ImGui::End();
 }
 
-void Editor::FileResource_Render()
+void Editor::Controller_Render()
 {
 	ImGuiWindowFlags window_flags = 0;
-	window_flags |= ImGuiWindowFlags_NoCollapse;
-	ImGui::Begin(u8"アセット(仮)", NULL, window_flags);
+	window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
+	ImGui::Begin(u8"アニメーター", NULL, window_flags);
 
-	if (ImGui::Button(u8"FBX読み込み"))
+	if (shared_ptr<Animator_Controller> c = controller.lock())
 	{
-		string path = System_Function::Get_Open_File_Name("fbx","\\Resouces\\Model");
-		if (path != "")
-		{
-			int path_i = path.find_last_of("\\") + 1;//7
-			int ext_i = path.find_last_of(".");//10
-			string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
-			string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
-			string filename = path.substr(path_i, ext_i - path_i); //ファイル名
-			if (extname == ".fbx" || extname == ".mesh")
-			{
-				FBX_Converter::Convert_From_FBX(pathname.c_str(), filename.c_str());
-			}
-			else
-			{
-				Debug::Log("ファイル形式が対応していません");
-			}
-		}
+		c->Render_ImGui();
+	}
+	else
+	{
+		ImGui::Text(u8"アニメーションコントローラーがありません");
 	}
 
 	ImGui::End();
@@ -823,7 +813,7 @@ void Editor::Scene_File_Menu_Render()
 		{
 			if (!Engine::scene_manager->run && !Engine::scene_manager->pause)
 			{
-				string path = System_Function::Get_Open_File_Name("bin","\\Resouces\\Scene");
+				string path = System_Function::Get_Open_File_Name("bin", "\\Resouces\\Scene");
 				if (path != "")
 				{
 					Engine::scene_manager->last_save_path = path;
@@ -928,6 +918,13 @@ void Editor::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj, 
 		{
 			selecting = ID;
 			active_object = obj;
+			if (shared_ptr<Animator> animator = obj->Get_Component<Animator>())
+			{
+				if (animator->controller)
+				{
+					controller = animator->controller;
+				}
+			}
 		}
 		if (ImGui::IsItemClicked())
 		{
@@ -957,6 +954,13 @@ void Editor::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj, 
 		{
 			selecting = ID;
 			active_object = obj;
+			if (shared_ptr<Animator> animator = obj->Get_Component<Animator>())
+			{
+				if (animator->controller)
+				{
+					controller = animator->controller;
+				}
+			}
 		}
 
 		GameObject_DragMenu_Render(obj);

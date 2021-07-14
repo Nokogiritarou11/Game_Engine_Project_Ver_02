@@ -48,7 +48,6 @@ void View_Texture::Set_Screen_Size(int x, int y)
 {
 	if (screen_x != x || screen_y != y)
 	{
-
 		Create_Render_Tartget_View(x, y);
 		Create_Depth_Stencil(x, y);
 

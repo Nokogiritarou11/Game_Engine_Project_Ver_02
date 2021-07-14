@@ -20,7 +20,7 @@ shared_ptr<GameObject> Scene::Instance_GameObject(std::string name)
 
 void Scene::Initialize()
 {
-	for (shared_ptr<GameObject> g : gameobject_list)
+	for (auto& g : gameobject_list)
 	{
 		if (g->transform->Get_Parent().expired())
 		{
@@ -67,7 +67,7 @@ void Scene::Destroy_Component(shared_ptr<Component> component)
 
 weak_ptr<GameObject> Scene::Find(std::string Name)
 {
-	for (shared_ptr<GameObject> g : gameobject_list)
+	for (auto& g : gameobject_list)
 	{
 		if (g->name == Name)
 		{
@@ -80,7 +80,7 @@ weak_ptr<GameObject> Scene::Find(std::string Name)
 
 weak_ptr<GameObject> Scene::Find_With_Tag(std::string Tag)
 {
-	for (shared_ptr<GameObject> g : gameobject_list)
+	for (auto& g : gameobject_list)
 	{
 		if (g->Compare_Tag(Tag))
 		{
@@ -108,7 +108,7 @@ void Scene::Processing_Start()
 	}
 	if (!monobehaviour_Start_list.empty())
 	{
-		for (weak_ptr<MonoBehaviour> m : monobehaviour_Start_list)
+		for (auto& m : monobehaviour_Start_list)
 		{
 			if (!m.expired())
 			{
@@ -152,7 +152,7 @@ void Scene::Processing_Update(int state)
 
 	bool expired = false;
 	bool disabled = false;
-	for (weak_ptr<MonoBehaviour> m : monobehaviour_Update_list)
+	for (auto& m : monobehaviour_Update_list)
 	{
 		if (!m.expired())
 		{
@@ -206,14 +206,14 @@ void Scene::Reset()
 	monobehaviour_Start_next_list.clear();
 
 	vector<shared_ptr<GameObject>> no_parent_list;
-	for (shared_ptr<GameObject> g : gameobject_list)
+	for (auto& g : gameobject_list)
 	{
 		if (g->transform->Get_Parent().expired())
 		{
 			no_parent_list.emplace_back(g);
 		}
 	}
-	for (shared_ptr<GameObject> g : no_parent_list)
+	for (auto& g : no_parent_list)
 	{
 		g->Release();
 	}

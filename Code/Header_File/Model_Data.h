@@ -11,7 +11,7 @@ namespace BeastEngine
 {
 	class Material;
 
-	class Model_Data : public BeastEngine::Object
+	class Model_Data
 	{
 	public:
 		struct Skeleton

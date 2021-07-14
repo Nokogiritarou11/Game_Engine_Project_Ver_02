@@ -9,12 +9,10 @@
 using namespace std;
 using namespace BeastEngine;
 
-unordered_map<string, shared_ptr<Animation_Clip>> Animation_Clip::cache_clip;
-
 shared_ptr<Animation_Clip> Animation_Clip::Load_Clip(string fullpath)
 {
-	auto it = cache_clip.find(fullpath);
-	if (it != cache_clip.end())
+	auto it = Engine::asset_manager->cache_clip.find(fullpath);
+	if (it != Engine::asset_manager->cache_clip.end())
 	{
 		shared_ptr<Animation_Clip> clip = it->second;
 		return clip;
@@ -33,7 +31,7 @@ shared_ptr<Animation_Clip> Animation_Clip::Load_Clip(string fullpath)
 			binaryInputArchive(clip);
 
 			Engine::asset_manager->Registration_Asset(clip);
-			cache_clip.insert(make_pair(fullpath, clip));
+			Engine::asset_manager->cache_clip.insert(make_pair(fullpath, clip));
 
 			return clip;
 		}

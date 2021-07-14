@@ -1,5 +1,5 @@
 #pragma once
-#include <iostream>
+#include <string>
 #include "Original_Math.h"
 
 namespace BeastEngine
@@ -7,6 +7,7 @@ namespace BeastEngine
 	class Scene;
 	class GameObject;
 	class Transform;
+	class Animator_Controller;
 
 	class Editor
 	{
@@ -25,17 +26,21 @@ namespace BeastEngine
 		bool render_cursor = true;
 
 	private:
+		//Imgui設定
 		char* font_name = "Default_Resource/Font/mplus-1p-medium.ttf";
 		float font_size_pixels = 30.0f;
 		float font_size = 0.6f;
 		float ui_size = 0.6f;
+
 		std::vector<std::string> debug_log = {};
 		bool debug_log_changed = false;
 		std::weak_ptr<BeastEngine::GameObject> active_object;
 		std::weak_ptr<BeastEngine::GameObject> active_object_old;
-
 		std::weak_ptr<BeastEngine::GameObject> draging_object;
 
+		std::weak_ptr<BeastEngine::Animator_Controller> controller;
+
+		//デバッグカメラ関連
 		BeastEngine::Matrix debug_camera_view_matrix;
 		BeastEngine::Matrix debug_camera_projection_matrix;
 		std::shared_ptr<BeastEngine::Transform> debug_camera_transform;
@@ -51,7 +56,7 @@ namespace BeastEngine
 		void ScenePlayer_Render();
 		void SceneView_Render();
 		void GameView_Render();
-		void FileResource_Render();
+		void Controller_Render();
 
 		void MenuBar_Render();
 		void Scene_File_Menu_Render();

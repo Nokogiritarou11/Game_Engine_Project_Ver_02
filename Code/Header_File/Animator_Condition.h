@@ -21,23 +21,18 @@ namespace BeastEngine
 		Trigger
 	};
 
-	union Controller_Parameter_Value
+	struct Controller_Parameter
 	{
 		int value_int;
 		float value_float;
 		bool value_bool;
-	};
-
-	struct Controller_Parameter
-	{
-		Controller_Parameter_Value value;
 		Condition_Type type;
 	private:
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(value, type);
+			archive(value_int, value_float, value_bool, type);
 		}
 	};
 

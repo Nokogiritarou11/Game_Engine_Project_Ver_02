@@ -68,6 +68,10 @@ string System_Function::Get_Open_File_Name(string extension, string initial_dir)
 	{
 		ofn.lpstrFilter = TEXT("PNGファイル(*.png*)\0*.png*\0");
 	}
+	else if (extension == "controller")
+	{
+		ofn.lpstrFilter = TEXT("Controllerファイル(*.controller*)\0*.controller*\0");
+	}
 	ofn.lpstrTitle = TEXT("ファイル選択");
 	ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
@@ -146,6 +150,10 @@ string System_Function::Get_Save_File_Name(string extension, string initial_dir)
 	else if (extension == "png")
 	{
 		ofn.lpstrFilter = TEXT("PNGファイル(*.png*)\0*.png*\0");
+	}
+	else if (extension == "controller")
+	{
+		ofn.lpstrFilter = TEXT("Controllerファイル(*.controller*)\0*.controller*\0");
 	}
 	ofn.lpstrTitle = TEXT("ファイル選択");
 	ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;

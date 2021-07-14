@@ -9,7 +9,7 @@ using namespace BeastEngine;
 void GameObject::Initialize()
 {
 	Engine::asset_manager->Registration_Asset(shared_from_this());
-	for (shared_ptr<Component> c : component_list)
+	for (auto& c : component_list)
 	{
 		c->Initialize(dynamic_pointer_cast<GameObject>(shared_from_this()));
 	}
@@ -33,7 +33,7 @@ void GameObject::Release()
 		}
 	}
 
-	for (shared_ptr<Component> c : component_list)
+	for (auto& c : component_list)
 	{
 		c->gameobject.reset();
 		c->transform.reset();
@@ -78,7 +78,7 @@ void GameObject::Set_Active(bool value)
 	active = value;
 	if (active_old != active)
 	{
-		for (shared_ptr<Component> com : component_list)
+		for (auto& com : component_list)
 		{
 			com->Set_Active(active);
 		}
@@ -95,7 +95,7 @@ void GameObject::Set_Child_Active(bool value)
 		for (int i = 0; i < transform->Get_Child_Count(); ++i)
 		{
 			c_trans = transform->Get_Child(i).lock();
-			for (shared_ptr<Component> com : c_trans->gameobject->component_list)
+			for (auto& com : c_trans->gameobject->component_list)
 			{
 				com->Set_Active(value);
 			}

@@ -4,18 +4,16 @@
 using namespace std;
 using namespace BeastEngine;
 
-template<class Archive>
-void Animator_State_Machine::serialize(Archive& archive)
+void Animator_State_Machine::Initialize(shared_ptr<unordered_map<string, Controller_Parameter>>& p_parameters)
 {
-	archive(path, animation_speed, loopAnimation, is_default_state, transitions);
-}
-
-void Animator_State_Machine::Initialize(shared_ptr<unordered_map<string, Controller_Parameter>> parameter)
-{
-	parameters = parameter;
+	parameters = p_parameters;
 	if (!path.empty())
 	{
 		Set_Clip(path);
+	}
+	for (auto& transition : transitions)
+	{
+		transition->parameters = p_parameters;
 	}
 }
 
@@ -45,7 +43,7 @@ void Animator_State_Machine::Update_Transition()
 {
 	bool exit = false;
 	size_t i = 0;
-	for (auto transition : transitions)
+	for (auto& transition : transitions)
 	{
 		if (transition->has_exit_time)
 		{
@@ -82,10 +80,19 @@ void Animator_State_Machine::Update_Time()
 		return;
 	}
 
+	float multiplier = 1;
 	// ŽžŠÔŒo‰ß
-	currentSeconds += Time::delta_time * animation_speed;
-	float length = clip->Get_Length();
-	if (currentSeconds >= length)
+	if (!multiplier_hash.empty())
+	{
+		auto it = parameters->find(multiplier_hash);
+		if (it != parameters->end())
+		{
+			multiplier = (*parameters)[multiplier_hash].value_float;
+		}
+	}
+	currentSeconds += Time::delta_time * animation_speed * multiplier;
+
+	if (currentSeconds >= clip->Get_Length())
 	{
 		for (size_t i = 0; i < transitions.size(); ++i)
 		{
@@ -98,21 +105,26 @@ void Animator_State_Machine::Update_Time()
 		}
 		else
 		{
-			currentSeconds = length;
+			currentSeconds = clip->Get_Length();
 			endAnimation = true;
 		}
 	}
 }
 
-void Animator_State_Machine::Add_Transition(shared_ptr<Animator_State_Machine> next_state)
+void Animator_State_Machine::Add_Transition(shared_ptr<Animator_State_Machine>& next_state)
 {
 	shared_ptr<Animator_State_Transition> transition = make_shared<Animator_State_Transition>();
-	transition->parameters = parameters;
-	transition->next_state = next_state;
+	transition->Initialize(parameters, next_state);
 	transitions.push_back(transition);
 }
 
 void Animator_State_Machine::Remove_Transition(int index)
 {
 	transitions.erase(transitions.begin() + index);
+}
+
+shared_ptr<BeastEngine::Animator_State_Transition> Animator_State_Machine::Get_Active_Transition()
+{
+	active_transition->Active();
+	return active_transition;
 }

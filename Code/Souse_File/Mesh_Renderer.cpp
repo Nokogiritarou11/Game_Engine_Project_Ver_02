@@ -123,7 +123,7 @@ void Mesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 			file_name = mesh->name;
 			file_path = mesh->file_path;
 			//マテリアル
-			for (auto pass : mesh->default_material_passes)
+			for (auto& pass : mesh->default_material_passes)
 			{
 				shared_ptr<Material> Mat = make_shared<Material>();
 				ifstream in_bin(pass, ios::binary);
@@ -276,7 +276,7 @@ bool Mesh_Renderer::Draw_ImGui()
 		{
 			if (ImGui::TreeNode(u8"マテリアル"))
 			{
-				for (shared_ptr<Material> mat : material)
+				for (auto& mat : material)
 				{
 					ImGui::PushID(ID_mat);
 					mat->Draw_ImGui();
