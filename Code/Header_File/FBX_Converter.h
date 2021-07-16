@@ -20,5 +20,6 @@ namespace BeastEngine
 		void Convert_Mesh();
 		void Bone_Decompose(std::vector<BeastEngine::Matrix>& matrixes, std::vector<std::shared_ptr<BeastEngine::GameObject>>& bones, std::shared_ptr<Transform>& trans);
 		std::shared_ptr<BeastEngine::GameObject> Create_GameObject(std::string n);
+		int load_state;
 	};
 }

@@ -42,26 +42,6 @@ void All_Component_List::Add(shared_ptr<GameObject> obj)
 			ImGui::CloseCurrentPopup();
 		}
 
-		if (ImGui::Button("Mesh_Renderer", ImVec2(-FLT_MIN, 0.0f)))
-		{
-			if (!obj->Add_Component<Mesh_Renderer>())
-			{
-				Debug::Log(u8"このコンポーネントは一つのオブジェクトに複数アタッチできません");
-			}
-			ImGui::CloseCurrentPopup();
-		}
-
-		/*
-		if (ImGui::Button("SkinMesh_Renderer", ImVec2(-FLT_MIN, 0.0f)))
-		{
-			if (!obj->AddComponent<SkinMesh_Renderer>())
-			{
-				Debug::Log(u8"このコンポーネントは一つのオブジェクトに複数アタッチできません");
-			}
-			ImGui::CloseCurrentPopup();
-		}
-		*/
-
 		if (ImGui::Button("Sprite_Renderer", ImVec2(-FLT_MIN, 0.0f)))
 		{
 			if (!obj->Add_Component<Sprite_Renderer>())

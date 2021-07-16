@@ -257,8 +257,7 @@ bool Mesh_Renderer::Draw_ImGui()
 	}
 
 	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
-	static bool enable;
-	enable = Get_Enabled();
+	bool enable = Get_Enabled();
 	if (ImGui::Checkbox("##enable", &enable))
 	{
 		Set_Enabled(enable);
@@ -270,8 +269,8 @@ bool Mesh_Renderer::Draw_ImGui()
 		ImGui::SameLine();
 		ImGui::Text(file_name.c_str());
 
-		for (int i = 0; i < 5; ++i) ImGui::Spacing();
-		static int ID_mat = 0;
+		ImGui::Dummy(ImVec2(0, 5));
+		int ID_mat = 0;
 		if (mesh)
 		{
 			if (ImGui::TreeNode(u8"ƒ}ƒeƒŠƒAƒ‹"))

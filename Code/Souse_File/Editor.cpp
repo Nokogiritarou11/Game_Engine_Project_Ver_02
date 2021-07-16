@@ -126,13 +126,6 @@ void Editor::Update(const unique_ptr<Scene>& scene)
 	ImGuizmo::BeginFrame();
 
 	Main_Window_Render();
-	//ゲームオブジェクト関連
-	{
-		//ヒエラルキー
-		Hierarchy_Render(scene);
-		//インスペクタ
-		Inspector_Render();
-	}
 
 	//シーン再生UI
 	ScenePlayer_Render();
@@ -143,6 +136,13 @@ void Editor::Update(const unique_ptr<Scene>& scene)
 	//AnimatorController編集画面描画
 	Controller_Render();
 
+	//ゲームオブジェクト関連
+	{
+		//ヒエラルキー
+		Hierarchy_Render(scene);
+		//インスペクタ
+		Inspector_Render();
+	}
 	//描画
 	{
 		GameView_Render();
@@ -339,6 +339,7 @@ void Editor::Hierarchy_Render(const unique_ptr<Scene>& scene)
 		{
 			active_object.reset();
 			active_object_old.reset();
+			controller.reset();
 			selecting = -1;
 		}
 
@@ -364,6 +365,7 @@ void Editor::Hierarchy_Render(const unique_ptr<Scene>& scene)
 					GameObject::Destroy(active_object.lock());
 					active_object.reset();
 					active_object_old.reset();
+					controller.reset();
 					selecting = -1;
 				}
 
@@ -450,6 +452,7 @@ void Editor::Hierarchy_Render(const unique_ptr<Scene>& scene)
 				GameObject::Destroy(active_object.lock());
 				active_object.reset();
 				active_object_old.reset();
+				controller.reset();
 				selecting = -1;
 			}
 		}
@@ -822,6 +825,7 @@ void Editor::Scene_File_Menu_Render()
 					Scene_Manager::LoadScene(path);
 					active_object.reset();
 					active_object_old.reset();
+					controller.reset();
 					ofstream oOfstream("Default_Resource\\System\\last_save.bin");
 					if (oOfstream.is_open())
 					{
@@ -1103,6 +1107,7 @@ void Editor::ShortCut_Check()
 					render_cursor = true;
 					active_object.reset();
 					active_object_old.reset();
+					controller.reset();
 					Engine::scene_manager->run = false;
 					Engine::scene_manager->pause = false;
 					Engine::scene_manager->End_Debug_Scene();
@@ -1116,6 +1121,7 @@ void Editor::ShortCut_Check()
 						ImGui::SetWindowFocus(u8"ゲーム");
 						active_object.reset();
 						active_object_old.reset();
+						controller.reset();
 						Engine::scene_manager->Start_Debug_Scene();
 					}
 					else

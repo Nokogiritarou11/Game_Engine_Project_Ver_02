@@ -39,8 +39,7 @@ bool Camera::Draw_ImGui()
 	}
 
 	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
-	static bool enable;
-	enable = Get_Enabled();
+	bool enable = Get_Enabled();
 	if (ImGui::Checkbox("##enable", &enable))
 	{
 		Set_Enabled(enable);

@@ -22,7 +22,6 @@ void FBX_Converter::Draw_ImGui()
 	window_flags |= ImGuiWindowFlags_NoCollapse;
 	ImGui::Begin(u8"FBXコンバート", NULL, window_flags);
 
-	static int load_state = 0;
 	if (load_state == 0)
 	{
 		if (ImGui::Button(u8"FBX読み込み"))

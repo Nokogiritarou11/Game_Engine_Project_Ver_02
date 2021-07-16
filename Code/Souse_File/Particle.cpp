@@ -216,12 +216,14 @@ bool Particle::Draw_ImGui()
 				Debug::Log("ファイルを開けませんでした");
 			}
 		}
-		for (int i = 0; i < 5; ++i) ImGui::Spacing();
+		ImGui::Dummy(ImVec2(0,3));
 
 		ImGui::DragFloat(u8"再生速度", &play_speed, 0.01f, 0.0f, FLT_MAX);
-		for (int i = 0; i < 5; ++i) ImGui::Spacing();
+
+		ImGui::Dummy(ImVec2(0,3));
 		ImGui::Checkbox(u8"アクティブ時の自動再生", &play_on_awake);
-		for (int i = 0; i < 5; ++i) ImGui::Spacing();
+
+		ImGui::Dummy(ImVec2(0,3));
 		if (effect != nullptr)
 		{
 			if (ImGui::Button(ICON_FA_PLAY, ImVec2(30, 0)))

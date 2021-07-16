@@ -40,8 +40,7 @@ bool Light::Draw_ImGui()
 	}
 
 	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
-	static bool enable;
-	enable = Get_Enabled();
+	bool enable = Get_Enabled();
 	if (ImGui::Checkbox("##enable", &enable))
 	{
 		Set_Enabled(enable);
@@ -50,8 +49,10 @@ bool Light::Draw_ImGui()
 	if (open)
 	{
 		float out_color[4] = { color.x,color.y,color.z,color.w };
-		ImGui::ColorEdit3("Color", out_color);
-		color = { out_color[0],out_color[1] ,out_color[2] ,out_color[3] };
+		if (ImGui::ColorEdit3("Color", out_color))
+		{
+			color = { out_color[0],out_color[1] ,out_color[2] ,out_color[3] };
+		}
 		ImGui::DragFloat(u8"‹­“x", &intensity, 0.01f, 0, FLT_MAX);
 	}
 	return true;

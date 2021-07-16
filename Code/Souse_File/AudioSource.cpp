@@ -184,8 +184,7 @@ bool AudioSource::Draw_ImGui()
 	}
 
 	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
-	static bool enable;
-	enable = Get_Enabled();
+	bool enable = Get_Enabled();
 	if (ImGui::Checkbox("##enable", &enable))
 	{
 		Set_Enabled(enable);
@@ -218,13 +217,13 @@ bool AudioSource::Draw_ImGui()
 			}
 		}
 
-		for (int i = 0; i < 5; ++i) ImGui::Spacing();
+		ImGui::Dummy(ImVec2(0,3));
 		ImGui::Text(u8"音量　");
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50);
 		bool Input_volume = ImGui::DragFloat(u8"##音量", &volume, 0.01f, 0.0f, 5.0f, "%.2f");
 		ImGui::SameLine();
-		bool slide_volume = ImGui::SliderFloat("##音量", &volume, 0.0f, 5.0f, "%.2f");
+		bool slide_volume = ImGui::SliderFloat(u8"##音量", &volume, 0.0f, 5.0f, "%.2f");
 		if (Input_volume || slide_volume)
 		{
 			if (effect_instance)
@@ -241,7 +240,7 @@ bool AudioSource::Draw_ImGui()
 		ImGui::SetNextItemWidth(50);
 		bool Input_pitch = ImGui::DragFloat(u8"##ピッチ", &pitch, 0.01f, -1.0f, 1.0f, "%.2f");
 		ImGui::SameLine();
-		bool slide_pitch = ImGui::SliderFloat("##ピッチ", &pitch, -1.0f, 1.0f, "%.2f");
+		bool slide_pitch = ImGui::SliderFloat(u8"##ピッチ", &pitch, -1.0f, 1.0f, "%.2f");
 		if (Input_pitch || slide_pitch)
 		{
 			if (effect_instance)
@@ -253,12 +252,12 @@ bool AudioSource::Draw_ImGui()
 			}
 		}
 
-		for (int i = 0; i < 5; ++i) ImGui::Spacing();
+		ImGui::Dummy(ImVec2(0,3));
 		ImGui::Checkbox(u8"アクティブ時の自動再生", &play_on_awake);
-		for (int i = 0; i < 5; ++i) ImGui::Spacing();
+		ImGui::Dummy(ImVec2(0,3));
 		ImGui::Checkbox(u8"ループ再生", &loop);
 
-		for (int i = 0; i < 5; ++i) ImGui::Spacing();
+		ImGui::Dummy(ImVec2(0,3));
 		if (effect_instance)
 		{
 			if (ImGui::Button(ICON_FA_PLAY, ImVec2(30, 0)))

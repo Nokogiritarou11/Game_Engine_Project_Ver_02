@@ -128,8 +128,7 @@ bool Animator::Draw_ImGui()
 	}
 
 	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
-	static bool enable;
-	enable = Get_Enabled();
+	bool enable = Get_Enabled();
 	if (ImGui::Checkbox("##enable", &enable))
 	{
 		Set_Enabled(enable);
@@ -139,8 +138,7 @@ bool Animator::Draw_ImGui()
 	{
 		if (controller)
 		{
-			static string controller_name;
-			controller_name = controller->name + ".controller";
+			string controller_name = controller->name + ".controller";
 			ImGui::Text(controller_name.c_str());
 		}
 		else

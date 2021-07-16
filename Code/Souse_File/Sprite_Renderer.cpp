@@ -180,8 +180,8 @@ void Sprite_Renderer::Render(Matrix V, Matrix P)
 		data[3].tex.y = uv_origin.y + uv_size.y;
 
 		//UV座標
-		float w = (float)texture->Get_Width();
-		float h = (float)texture->Get_Height();
+		float w = static_cast<float>(texture->Get_Width());
+		float h = static_cast<float>(texture->Get_Height());
 		for (int i = 0; i < 4; i++)
 		{
 			data[i].tex.x = data[i].tex.x / w;
@@ -239,8 +239,7 @@ bool Sprite_Renderer::Draw_ImGui()
 	}
 
 	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
-	static bool enable;
-	enable = Get_Enabled();
+	bool enable = Get_Enabled();
 	if (ImGui::Checkbox("##enable", &enable))
 	{
 		Set_Enabled(enable);
@@ -266,34 +265,31 @@ bool Sprite_Renderer::Draw_ImGui()
 				file_path = pathname;
 				file_name = filename + extname;
 			}
-			else
-			{
-				Debug::Log("ファイルを開けませんでした");
-			}
 		}
 
-		static float edit_size[2] = { 0,0 };
-		static int edit_uv_origin[2] = { 0,0 };
-		static int edit_uv_size[2] = { 0,0 };
+		float edit_size[2] = { size.x, size.y };
+		int edit_uv_origin[2] = { static_cast<int>(uv_origin.x), static_cast<int>(uv_origin.y) };
+		int edit_uv_size[2] = { static_cast<int>(uv_size.x),static_cast<int>(uv_size.y) };
 
-		edit_size[0] = size.x;
-		edit_size[1] = size.y;
-		edit_uv_origin[0] = (int)uv_origin.x;
-		edit_uv_origin[1] = (int)uv_origin.y;
-		edit_uv_size[0] = (int)uv_size.x;
-		edit_uv_size[1] = (int)uv_size.y;
+		if (ImGui::DragFloat2(u8"表示サイズ", edit_size, 0.1f, -FLT_MAX, FLT_MAX))
+		{
+			size = { edit_size[0],edit_size[1] };
+		}
+		if (ImGui::DragInt2(u8"UV始点", edit_uv_origin, 0, INT_MAX))
+		{
+			uv_origin = { static_cast<float>(edit_uv_origin[0]),static_cast<float>(edit_uv_origin[1]) };
+		}
+		if (ImGui::DragInt2(u8"UVサイズ", edit_uv_size, 0, INT_MAX))
+		{
+			uv_size = { static_cast<float>(edit_uv_size[0]),static_cast<float>(edit_uv_size[1]) };
+		}
 
-		ImGui::DragFloat2(u8"表示サイズ", edit_size, 0.1f, -FLT_MAX, FLT_MAX);
-		ImGui::DragInt2(u8"UV始点", edit_uv_origin, 0, INT_MAX);
-		ImGui::DragInt2(u8"UVサイズ", edit_uv_size, 0, INT_MAX);
-
-		size = { edit_size[0],edit_size[1] };
-		uv_origin = { (float)edit_uv_origin[0],(float)edit_uv_origin[1] };
-		uv_size = { (float)edit_uv_size[0],(float)edit_uv_size[1] };
 
 		float edit_color[4] = { color.x,color.y,color.z,color.w };
-		ImGui::ColorEdit4("Color", edit_color);
-		color = { edit_color[0],edit_color[1] ,edit_color[2] ,edit_color[3] };
+		if (ImGui::ColorEdit4("Color", edit_color))
+		{
+			color = { edit_color[0],edit_color[1] ,edit_color[2] ,edit_color[3] };
+		}
 	}
 	return true;
 }

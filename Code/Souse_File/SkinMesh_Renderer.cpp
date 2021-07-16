@@ -264,8 +264,7 @@ bool SkinMesh_Renderer::Draw_ImGui()
 	}
 
 	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
-	static bool enable;
-	enable = Get_Enabled();
+	bool enable = Get_Enabled();
 	if (ImGui::Checkbox("##enable", &enable))
 	{
 		Set_Enabled(enable);
@@ -273,7 +272,11 @@ bool SkinMesh_Renderer::Draw_ImGui()
 
 	if (open)
 	{
-		static int ID_mat = 0;
+		ImGui::Text(u8"現在のメッシュ::");
+		ImGui::SameLine();
+		ImGui::Text(file_name.c_str());
+
+		int ID_mat = 0;
 		if (mesh)
 		{
 			if (ImGui::TreeNode(u8"マテリアル"))
