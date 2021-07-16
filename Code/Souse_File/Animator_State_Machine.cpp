@@ -101,7 +101,7 @@ void Animator_State_Machine::Update_Time()
 
 		if (loopAnimation)
 		{
-			currentSeconds = 0;
+			currentSeconds -= clip->Get_Length();
 		}
 		else
 		{

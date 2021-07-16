@@ -145,13 +145,11 @@ void Engine::Update()
 
 #if _DEBUG
 	editor->Update(scene_manager->Get_Active_Scene());
-	animator_manager->Update();
 	particle_manager->Update();
 	render_manager->Render();
 	editor->Render();
 #else
 	view_game->Set_Screen_Size(DxSystem::Get_Screen_Width(), DxSystem::Get_Screen_Height());
-	animator_manager->Update();
 	particle_manager->Update();
 	render_manager->Render();
 #endif

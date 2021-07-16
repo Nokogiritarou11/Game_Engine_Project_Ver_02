@@ -40,7 +40,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(path, animation_speed, multiplier_hash, loopAnimation, is_default_state, transitions);
+			archive(name, path, animation_speed, multiplier_hash, loopAnimation, is_default_state, transitions);
 		}
 	};
 }

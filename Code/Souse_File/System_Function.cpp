@@ -179,7 +179,7 @@ string System_Function::Create_ID()
 	UUID uuid = { 0 };
 	string guid;
 
-	UuidCreate(&uuid);
+	(void)UuidCreate(&uuid);
 
 	RPC_CSTR szUuid = NULL;
 	if (UuidToStringA(&uuid, &szUuid) == RPC_S_OK)

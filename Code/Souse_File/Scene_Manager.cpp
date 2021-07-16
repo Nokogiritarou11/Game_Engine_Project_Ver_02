@@ -29,7 +29,7 @@ string Scene_Manager::next_scene_path;
 
 unique_ptr<Scene> Scene_Manager::CreateScene_From_File()
 {
-	string path = System_Function::Get_Open_File_Name("bin","\\Resouces\\Scene");
+	string path = System_Function::Get_Open_File_Name("bin", "\\Resouces\\Scene");
 
 	if (path != "")
 	{
@@ -187,6 +187,7 @@ void Scene_Manager::Update()
 	if (run)
 	{
 		active_scene->Update();
+		Engine::animator_manager->Update();
 	}
 }
 

@@ -26,7 +26,7 @@ void Animator_Manager::Update()
 				animator->Update();
 			}
 		}
-		itr++;
+		++itr;
 	}
 }
 

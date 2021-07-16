@@ -29,7 +29,7 @@ namespace BeastEngine
 
 		void Update(); //XV
 
-		bool playing = false;
+		bool playing = true;
 
 		std::string controller_path;
 

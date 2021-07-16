@@ -544,6 +544,7 @@ void Editor::ScenePlayer_Render()
 				ImGui::SetWindowFocus(u8"ƒQ[ƒ€");
 				active_object.reset();
 				active_object_old.reset();
+				controller.reset();
 				Engine::scene_manager->Start_Debug_Scene();
 			}
 			else
@@ -593,6 +594,7 @@ void Editor::ScenePlayer_Render()
 			Cursor::visible = true;
 			active_object.reset();
 			active_object_old.reset();
+			controller.reset();
 			render_cursor = true;
 			Engine::scene_manager->run = false;
 			Engine::scene_manager->pause = false;

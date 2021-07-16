@@ -25,7 +25,7 @@ namespace BeastEngine
 		float transition_duration = 0;
 		float transition_offset = 0;
 		Interruption_Source interruption_source = Interruption_Source::None;
-		std::vector<BeastEngine::Condition> conditions;
+		std::vector<std::shared_ptr<BeastEngine::Condition>> conditions;
 		std::weak_ptr<BeastEngine::Animator_State_Machine> next_state;
 		std::shared_ptr<std::unordered_map<std::string, BeastEngine::Controller_Parameter>> parameters;
 

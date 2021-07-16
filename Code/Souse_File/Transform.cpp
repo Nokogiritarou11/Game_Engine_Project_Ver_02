@@ -930,13 +930,15 @@ weak_ptr<Transform> Transform::Find(std::string n)
 	{
 		t_trans = transform;
 		vector<string> s = split(n, '/');
-		for (size_t i = 0; i < s.size(); ++i)
+		size_t split_size = s.size();
+		for (size_t i = 0; i < split_size; ++i)
 		{
 			shared_ptr<Transform> trans = t_trans.lock();
 			bool found = false;
-			for (size_t t = 0; t < trans->children.size(); ++t)
+			size_t child_size = trans->children.size();
+			for (size_t t = 0; t < child_size; ++t)
 			{
-				shared_ptr<Transform> child = children[t].lock();
+				shared_ptr<Transform> child = trans->children[t].lock();
 				if (child->gameobject->name == s[i])
 				{
 					found = true;

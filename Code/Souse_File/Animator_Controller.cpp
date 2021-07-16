@@ -90,10 +90,14 @@ bool Animator_Controller::Remove_State_Machine(string& name)
 
 void Animator_Controller::Set_Animation_Target(shared_ptr<Animator_State_Machine>& state)
 {
-	shared_ptr<Animation_Clip>& clip = state->clip;
-
-	if (!clip->is_humanoid)
+	if (state->clip)
 	{
+		shared_ptr<Animation_Clip>& clip = state->clip;
+		pose_default.clear();
+		pose_playing.clear();
+		pose_next.clear();
+		pose_interrupt.clear();
+
 		for (auto& anim : clip->animations)
 		{
 			if (clip->is_humanoid)
@@ -110,12 +114,15 @@ void Animator_Controller::Set_Animation_Target(shared_ptr<Animator_State_Machine
 					auto it = pose_default.find(anim.Target_Path);
 					if (it == pose_default.end())
 					{
-						Animation_Target t = { Humanoid_Rig::None,t_trans, t_trans->Get_Local_Position(),t_trans->Get_Local_Euler_Angles(),t_trans->Get_Local_Scale() };
+						Animation_Target t = { Humanoid_Rig::None,t_trans, t_trans->Get_Local_Position(),t_trans->Get_Local_Rotation(),t_trans->Get_Local_Scale() };
 						pose_default[anim.Target_Path] = t;
 					}
 				}
 			}
 		}
+		pose_playing = pose_default;
+		pose_next = pose_default;
+		pose_interrupt.clear();
 	}
 }
 
@@ -129,6 +136,7 @@ void Animator_Controller::Update()
 		if (playing_state_machine->transition_trigger)
 		{
 			duration_timer = 0;
+			pose_interrupt.clear();
 			active_transition = playing_state_machine->Get_Active_Transition();
 			next_state_machine = active_transition->next_state.lock();
 			next_state_machine->Set_Active(active_transition->transition_offset);
@@ -188,9 +196,11 @@ void Animator_Controller::Update()
 
 	pose_playing = pose_default;
 	pose_next = pose_default;
+	animation_data = pose_default;
 
 	if (next_state_machine)
 	{
+		const float& current_sec = playing_state_machine->currentSeconds;
 		for (auto& animation : playing_state_machine->clip->animations)
 		{
 			const vector<Animation_Clip::Keyframe>& keyframes = animation.keys;
@@ -201,11 +211,10 @@ void Animator_Controller::Update()
 				// 現在の時間がどのキーフレームの間にいるか判定する
 				const Animation_Clip::Keyframe& keyframe0 = keyframes.at(keyIndex);
 				const Animation_Clip::Keyframe& keyframe1 = keyframes.at(keyIndex + 1);
-				const float& current_sec = playing_state_machine->currentSeconds;
 
 				if (current_sec >= keyframe0.time && current_sec < keyframe1.time)
 				{
-					const float rate = (current_sec - keyframe0.time / keyframe1.time - keyframe0.time);
+					const float rate = (current_sec - keyframe0.time) / (keyframe1.time - keyframe0.time);
 
 					Animation_Target& target = pose_playing[animation.Target_Path];
 					// ２つのキーフレーム間の補完計算
@@ -224,6 +233,8 @@ void Animator_Controller::Update()
 				}
 			}
 		}
+
+		const float& next_sec = next_state_machine->currentSeconds;
 		for (auto& animation : next_state_machine->clip->animations)
 		{
 			const vector<Animation_Clip::Keyframe>& keyframes = animation.keys;
@@ -234,11 +245,10 @@ void Animator_Controller::Update()
 				// 現在の時間がどのキーフレームの間にいるか判定する
 				const Animation_Clip::Keyframe& keyframe0 = keyframes.at(keyIndex);
 				const Animation_Clip::Keyframe& keyframe1 = keyframes.at(keyIndex + 1);
-				const float& current_sec = next_state_machine->currentSeconds;
 
-				if (current_sec >= keyframe0.time && current_sec < keyframe1.time)
+				if (next_sec >= keyframe0.time && next_sec < keyframe1.time)
 				{
-					const float rate = (current_sec - keyframe0.time / keyframe1.time - keyframe0.time);
+					const float rate = (next_sec - keyframe0.time) / (keyframe1.time - keyframe0.time);
 
 					Animation_Target& target = pose_next[animation.Target_Path];
 					// ２つのキーフレーム間の補完計算
@@ -258,7 +268,7 @@ void Animator_Controller::Update()
 			}
 		}
 
-		if (playing_state_machine->clip->is_humanoid)
+		if (!playing_state_machine->clip->is_humanoid)
 		{
 			const float rate = duration_timer / active_transition->transition_duration;
 			for (auto& data : animation_data)
@@ -284,6 +294,7 @@ void Animator_Controller::Update()
 	}
 	else
 	{
+		const float& current_sec = playing_state_machine->currentSeconds;
 		for (auto& animation : playing_state_machine->clip->animations)
 		{
 			const vector<Animation_Clip::Keyframe>& keyframes = animation.keys;
@@ -294,11 +305,10 @@ void Animator_Controller::Update()
 				// 現在の時間がどのキーフレームの間にいるか判定する
 				const Animation_Clip::Keyframe& keyframe0 = keyframes.at(keyIndex);
 				const Animation_Clip::Keyframe& keyframe1 = keyframes.at(keyIndex + 1);
-				const float& current_sec = playing_state_machine->currentSeconds;
 
 				if (current_sec >= keyframe0.time && current_sec < keyframe1.time)
 				{
-					const float rate = (current_sec - keyframe0.time / keyframe1.time - keyframe0.time);
+					const float rate = (current_sec - keyframe0.time) / (keyframe1.time - keyframe0.time);
 
 					Animation_Target& target = pose_playing[animation.Target_Path];
 					// ２つのキーフレーム間の補完計算
@@ -425,8 +435,7 @@ void Animator_Controller::Add_Parameter(string& p_name, Condition_Type type)
 
 void Animator_Controller::Render_ImGui()
 {
-	static string controller_name;
-	controller_name = name + ".controller";
+	string controller_name = name + ".controller";
 	ImGui::Text(controller_name.c_str());
 	ImGui::SameLine();
 	if (ImGui::Button(u8"別名で保存"))
@@ -438,13 +447,19 @@ void Animator_Controller::Render_ImGui()
 	{
 		Save_As();
 	}
+	static bool Auto_Save = true;
+	ImGui::SameLine();
+	ImGui::Checkbox(u8"オートセーブ", &Auto_Save);
 
+	ImGui::Dummy(ImVec2(0, 10.0f));
+	ImGui::Separator();
+	ImGui::Dummy(ImVec2(0, 10.0f));
 	{
-		ImGui::BeginChild("Parameters", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.2f, 0), true, ImGuiWindowFlags_MenuBar);
+		ImGui::BeginChild("Parameters", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.25f, 0), true, ImGuiWindowFlags_MenuBar);
 
 		if (ImGui::BeginMenuBar())
 		{
-			if (ImGui::BeginMenu(u8"追加"))
+			if (ImGui::BeginMenu(u8"パタメータ追加"))
 			{
 				static string parameter_name;
 				ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue;
@@ -455,6 +470,7 @@ void Animator_Controller::Render_ImGui()
 					{
 						Add_Parameter(parameter_name, Condition_Type::Int);
 						parameter_name.clear();
+						if (Auto_Save) Save_As();
 						ImGui::CloseCurrentPopup();
 					}
 					ImGui::EndMenu();
@@ -466,6 +482,7 @@ void Animator_Controller::Render_ImGui()
 					{
 						Add_Parameter(parameter_name, Condition_Type::Float);
 						parameter_name.clear();
+						if (Auto_Save) Save_As();
 						ImGui::CloseCurrentPopup();
 					}
 					ImGui::EndMenu();
@@ -477,6 +494,7 @@ void Animator_Controller::Render_ImGui()
 					{
 						Add_Parameter(parameter_name, Condition_Type::Bool);
 						parameter_name.clear();
+						if (Auto_Save) Save_As();
 						ImGui::CloseCurrentPopup();
 					}
 					ImGui::EndMenu();
@@ -488,6 +506,7 @@ void Animator_Controller::Render_ImGui()
 					{
 						Add_Parameter(parameter_name, Condition_Type::Trigger);
 						parameter_name.clear();
+						if (Auto_Save) Save_As();
 						ImGui::CloseCurrentPopup();
 					}
 					ImGui::EndMenu();
@@ -497,28 +516,40 @@ void Animator_Controller::Render_ImGui()
 			ImGui::EndMenuBar();
 		}
 
-		static bool erase_parameter;
-		static string erase_key;
+		bool erase_parameter = false;
+		string erase_key;
 		for (auto& parameter : (*parameters))
 		{
 			ImGui::Spacing();
 			ImGui::Text(parameter.first.c_str());
 			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x * 0.6f);
 			ImGui::PushID(parameter.first.c_str());
-			ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionMax().x * 0.25f);
+			ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionMax().x * 0.3f);
 			switch (parameter.second.type)
 			{
 				case Condition_Type::Int:
-					ImGui::InputInt("##int", &parameter.second.value_int);
+					if (ImGui::InputInt("##int", &parameter.second.value_int))
+					{
+						if (Auto_Save) Save_As();
+					}
 					break;
 				case Condition_Type::Float:
-					ImGui::InputFloat("##float", &parameter.second.value_float);
+					if (ImGui::InputFloat("##float", &parameter.second.value_float))
+					{
+						if (Auto_Save) Save_As();
+					}
 					break;
 				case Condition_Type::Bool:
-					ImGui::Checkbox("##bool", &parameter.second.value_bool);
+					if (ImGui::Checkbox("##bool", &parameter.second.value_bool))
+					{
+						if (Auto_Save) Save_As();
+					}
 					break;
 				case Condition_Type::Trigger:
-					ImGui::Checkbox("##trigger", &parameter.second.value_bool);
+					if (ImGui::Checkbox("##trigger", &parameter.second.value_bool))
+					{
+						if (Auto_Save) Save_As();
+					}
 					break;
 			}
 
@@ -535,8 +566,7 @@ void Animator_Controller::Render_ImGui()
 		if (erase_parameter)
 		{
 			parameters->erase(erase_key);
-			erase_parameter = false;
-			erase_key.clear();
+			if (Auto_Save) Save_As();
 		}
 		ImGui::EndChild();
 	}
@@ -546,17 +576,19 @@ void Animator_Controller::Render_ImGui()
 	{
 		ImGui::BeginChild("States", ImVec2(0, 0));
 
+		const float input_padding = ImGui::GetWindowContentRegionMax().x * 0.4f;
+		const float input_size = ImGui::GetWindowContentRegionMax().x - input_padding;
+
 		shared_ptr<Animator_State_Machine> current_state;
-		static bool has_state;
-		has_state = !state_machines.empty();
+		bool has_state = !state_machines.empty();
 
 		if (has_state)
 		{
 			current_state = state_machines[current_state_index];
+			ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionMax().x * 0.8f);
 			if (ImGui::BeginCombo("##State_Select", current_state->name.data()))
 			{
-				static size_t state_size;
-				state_size = state_machines.size();
+				const size_t state_size = state_machines.size();
 				for (size_t i = 0; i < state_size; ++i)
 				{
 					const bool is_selected = (current_state_index == i);
@@ -565,10 +597,7 @@ void Animator_Controller::Render_ImGui()
 						current_state_index = i;
 					}
 
-					if (is_selected)
-					{
-						ImGui::SetItemDefaultFocus();
-					}
+					if (is_selected) ImGui::SetItemDefaultFocus();
 				}
 				ImGui::EndCombo();
 			}
@@ -580,7 +609,7 @@ void Animator_Controller::Render_ImGui()
 		}
 
 		ImGui::SameLine();
-		if (ImGui::Button(u8"新規アニメーションステートを追加"))
+		if (ImGui::Button(u8"追加##ステート"))
 		{
 			ImGui::OpenPopup(u8"新規ステート作成メニュー");
 		}
@@ -594,6 +623,7 @@ void Animator_Controller::Render_ImGui()
 				state_name.clear();
 				current_state_index = static_cast<int>(state_machines.size()) - 1;
 				current_state = state_machines[current_state_index];
+				if (Auto_Save) Save_As();
 				ImGui::CloseCurrentPopup();
 			}
 			ImGui::EndPopup();
@@ -603,7 +633,7 @@ void Animator_Controller::Render_ImGui()
 		{
 			ImGui::SameLine();
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.0f, 0.0f, 1.0f });
-			if (ImGui::Button(u8"ステートを削除"))
+			if (ImGui::Button(u8"削除##ステート"))
 			{
 				ImGui::OpenPopup(u8"ステート削除確認");
 			}
@@ -627,6 +657,7 @@ void Animator_Controller::Render_ImGui()
 						current_state.reset();
 						has_state = false;
 					}
+					if (Auto_Save) Save_As();
 					ImGui::CloseCurrentPopup();
 				}
 				ImGui::SameLine();
@@ -638,64 +669,79 @@ void Animator_Controller::Render_ImGui()
 		if (has_state)
 		{
 			ImGui::Spacing();
+			ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 			if (ImGui::CollapsingHeader(u8"ステート設定", ImGuiTreeNodeFlags_AllowItemOverlap))
 			{
+				ImGui::Indent();
 				ImGui::Text(u8"クリップ");
-				ImGui::SameLine(ImGui::GetWindowContentRegionMax().x * 0.4f);
+				ImGui::SameLine(input_padding);
+				string clip_name;
 				if (current_state->clip)
 				{
-					ImGui::Text(current_state->clip->name.c_str());
+					clip_name = current_state->clip->name;
 				}
 				else
 				{
-					ImGui::Text(u8"クリップが選択されていません");
+					clip_name = u8"クリップが選択されていません";
 				}
-				ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 30.0f);
-				if (ImGui::Button(u8"選択"))
+				if (ImGui::Button(clip_name.c_str()))
 				{
 					string path = System_Function::Get_Open_File_Name("anim", "\\Resouces\\Model");
 					if (!path.empty())
 					{
 						current_state->Set_Clip(path);
 						Set_Animation_Target(current_state);
+						if (Auto_Save) Save_As();
 					}
 				}
 
 				ImGui::Text(u8"再生速度");
-				ImGui::SameLine(ImGui::GetWindowContentRegionMax().x * 0.4f);
-				ImGui::InputFloat("##Speed", &current_state->animation_speed);
+				ImGui::SameLine(input_padding);
+				ImGui::SetNextItemWidth(input_size);
+				if (ImGui::InputFloat("##Speed", &current_state->animation_speed))
+				{
+					if (Auto_Save) Save_As();
+				}
 
 				ImGui::Indent();
 				ImGui::Text(u8"乗数");
-				ImGui::SameLine(ImGui::GetWindowContentRegionMax().x * 0.4f);
+				ImGui::SameLine(input_padding);
+				ImGui::SetNextItemWidth(input_size);
 				ImGui::InputText("##Multiply", &current_state->multiplier_hash);
 				ImGui::Unindent();
 
 				ImGui::Text(u8"ループアニメーション");
-				ImGui::SameLine(ImGui::GetWindowContentRegionMax().x * 0.4f);
-				ImGui::Checkbox("##Loop", &current_state->loopAnimation);
+				ImGui::SameLine(input_padding);
+				if (ImGui::Checkbox("##Loop", &current_state->loopAnimation))
+				{
+					if (Auto_Save) Save_As();
+				}
 
 				ImGui::Text(u8"デフォルトステート");
-				ImGui::SameLine(ImGui::GetWindowContentRegionMax().x * 0.4f);
-				ImGui::Checkbox("##Default", &current_state->is_default_state);
+				ImGui::SameLine(input_padding);
+				if (ImGui::Checkbox("##Default", &current_state->is_default_state))
+				{
+					if (Auto_Save) Save_As();
+				}
+
+				ImGui::Dummy(ImVec2(0, 20.0f));
+				ImGui::Unindent();
 			}
 
-			ImGui::Spacing();
-
+			ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 			if (ImGui::CollapsingHeader(u8"遷移設定", ImGuiTreeNodeFlags_AllowItemOverlap))
 			{
+				ImGui::Indent();
 				static int current_transition_index = 0;
 				shared_ptr<Animator_State_Transition> current_transition;
-				static bool has_transition;
-				has_transition = !current_state->transitions.empty();
+				bool has_transition = !current_state->transitions.empty();
 
 				if (has_transition)
 				{
 					current_transition = current_state->transitions[current_transition_index];
 					if (ImGui::BeginCombo("##Transition_Select", current_transition->next_state.lock()->name.data()))
 					{
-						static size_t transitions_size;
-						transitions_size = current_state->transitions.size();
+						const size_t transitions_size = current_state->transitions.size();
 						for (size_t n = 0; n < transitions_size; ++n)
 						{
 							ImGui::PushID(to_string(n).c_str());
@@ -705,10 +751,8 @@ void Animator_Controller::Render_ImGui()
 								current_transition_index = n;
 							}
 
-							if (is_selected)
-							{
-								ImGui::SetItemDefaultFocus();
-							}
+							if (is_selected) ImGui::SetItemDefaultFocus();
+
 							ImGui::PopID();
 						}
 						ImGui::EndCombo();
@@ -723,7 +767,7 @@ void Animator_Controller::Render_ImGui()
 				if (state_machines.size() >= 2)
 				{
 					ImGui::SameLine();
-					if (ImGui::Button(u8"新規遷移設定を追加"))
+					if (ImGui::Button(u8"追加##遷移"))
 					{
 						ImGui::OpenPopup(u8"新規遷移作成メニュー");
 					}
@@ -754,11 +798,7 @@ void Animator_Controller::Render_ImGui()
 									{
 										next_state_index = i;
 									}
-
-									if (is_selected)
-									{
-										ImGui::SetItemDefaultFocus();
-									}
+									if (is_selected) ImGui::SetItemDefaultFocus();
 								}
 							}
 							ImGui::EndCombo();
@@ -767,6 +807,7 @@ void Animator_Controller::Render_ImGui()
 						{
 							current_state->Add_Transition(state_machines[next_state_index]);
 							next_state_index = 0;
+							if (Auto_Save) Save_As();
 							ImGui::CloseCurrentPopup();
 						}
 						ImGui::EndPopup();
@@ -776,7 +817,7 @@ void Animator_Controller::Render_ImGui()
 					{
 						ImGui::SameLine();
 						ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.0f, 0.0f, 1.0f });
-						if (ImGui::Button(u8"遷移を削除"))
+						if (ImGui::Button(u8"削除##遷移"))
 						{
 							ImGui::OpenPopup(u8"遷移削除確認");
 						}
@@ -800,6 +841,7 @@ void Animator_Controller::Render_ImGui()
 									current_transition.reset();
 									has_transition = false;
 								}
+								if (Auto_Save) Save_As();
 								ImGui::CloseCurrentPopup();
 							}
 							ImGui::SameLine();
@@ -811,35 +853,190 @@ void Animator_Controller::Render_ImGui()
 					if (has_transition)
 					{
 						ImGui::Text(u8"判定時間あり");
-						ImGui::SameLine(ImGui::GetWindowContentRegionMax().x * 0.4f);
-						ImGui::Checkbox("##exit", &current_transition->has_exit_time);
+						ImGui::SameLine(input_padding);
+						if (ImGui::Checkbox("##exit", &current_transition->has_exit_time))
+						{
+							if (Auto_Save) Save_As();
+						}
 
 						ImGui::Indent();
 						ImGui::Text(u8"判定時間");
-						ImGui::SameLine(ImGui::GetWindowContentRegionMax().x * 0.4f);
-						ImGui::InputFloat("##exit_time", &current_transition->exit_time);
+						ImGui::SameLine(input_padding);
+						ImGui::SetNextItemWidth(input_size);
+						if (ImGui::InputFloat("##exit_time", &current_transition->exit_time))
+						{
+							if (Auto_Save) Save_As();
+						}
 						ImGui::Unindent();
 
 						ImGui::Text(u8"遷移間隔(秒)");
-						ImGui::SameLine(ImGui::GetWindowContentRegionMax().x * 0.4f);
-						ImGui::InputFloat("##Duration", &current_transition->transition_duration);
+						ImGui::SameLine(input_padding);
+						ImGui::SetNextItemWidth(input_size);
+						if (ImGui::InputFloat("##Duration", &current_transition->transition_duration))
+						{
+							if (Auto_Save) Save_As();
+						}
 
 						ImGui::Text(u8"遷移オフセット");
-						ImGui::SameLine(ImGui::GetWindowContentRegionMax().x * 0.4f);
-						ImGui::InputFloat("##offset", &current_transition->transition_offset);
+						ImGui::SameLine(input_padding);
+						ImGui::SetNextItemWidth(input_size);
+						if (ImGui::InputFloat("##offset", &current_transition->transition_offset))
+						{
+							if (Auto_Save) Save_As();
+						}
 
 						ImGui::Text(u8"中断要因");
-						ImGui::SameLine(ImGui::GetWindowContentRegionMax().x * 0.4f);
-						const static char* sources[3] = { "None", "Current_State", "Next_State" };
-						static int current_sources = 0;
-						current_sources = static_cast<int>(current_transition->interruption_source);
+						ImGui::SameLine(input_padding);
+						ImGui::SetNextItemWidth(input_size);
+						const char* sources[3] = { "None", "Current_State", "Next_State" };
+						int current_sources = static_cast<int>(current_transition->interruption_source);
 						ImGui::Combo("##interruption_source", &current_sources, sources, IM_ARRAYSIZE(sources));
 						if (current_sources != static_cast<int>(current_transition->interruption_source))
 						{
 							current_transition->interruption_source = static_cast<Animator_State_Transition::Interruption_Source>(current_sources);
+							if (Auto_Save) Save_As();
 						}
+
+						ImGui::Spacing();
+						ImGui::Indent();
+						ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
+						if (ImGui::CollapsingHeader(u8"遷移条件"))
+						{
+							const float window_width = ImGui::GetWindowContentRegionMax().x;
+							const size_t condition_size = current_transition->conditions.size();
+							if (condition_size >= 1)
+							{
+								bool erase_condition = false;
+								int erase_condition_index;
+								for (size_t i = 0; i < condition_size; ++i)
+								{
+									shared_ptr<Condition>& condition = current_transition->conditions[i];
+									ImGui::PushID(to_string(i).c_str());
+									ImGui::SetNextItemWidth(window_width * 0.3f);
+									if (ImGui::BeginCombo("##Transition_Select", condition->key.data()))
+									{
+										for (auto& parameter : (*parameters))
+										{
+											const bool is_selected = (parameter.first == condition->key);
+											if (ImGui::Selectable(parameter.first.data(), is_selected))
+											{
+												condition->key = parameter.first;
+												condition->type = parameter.second.type;
+												condition->threshold = 0;
+												if (condition->type == Condition_Type::Int || condition->type == Condition_Type::Float)
+												{
+													condition->mode = Condition_Mode::Greater;
+												}
+												else if (condition->type == Condition_Type::Bool || condition->type == Condition_Type::Trigger)
+												{
+													condition->mode = Condition_Mode::If;
+												}
+												if (Auto_Save) Save_As();
+											}
+
+											if (is_selected)
+											{
+												ImGui::SetItemDefaultFocus();
+											}
+										}
+										ImGui::EndCombo();
+									}
+
+									auto it = parameters->find(condition->key);
+									if (it != parameters->end())
+									{
+										if (it->second.type != Condition_Type::Trigger)
+										{
+											const char* mode_char[6] = { "True","False","Greater","Less","Equals","NotEquals" };
+											ImGui::SameLine();
+											ImGui::SetNextItemWidth(window_width * 0.2f);
+											const int current_mode = static_cast<int>(condition->mode);
+											if (ImGui::BeginCombo("##mode", mode_char[current_mode]))
+											{
+												int mode_start, mode_end = 0;
+												if (it->second.type == Condition_Type::Int) { mode_start = 2; mode_end = 6; }
+												else if (it->second.type == Condition_Type::Float) { mode_start = 2; mode_end = 4; }
+												else if (it->second.type == Condition_Type::Bool) { mode_start = 0; mode_end = 2; }
+
+												for (; mode_start < mode_end; ++mode_start)
+												{
+													const bool is_selected = (mode_start == current_mode);
+													if (ImGui::Selectable(mode_char[mode_start], is_selected))
+													{
+														condition->mode = static_cast<Condition_Mode>(mode_start);
+														if (Auto_Save) Save_As();
+													}
+													if (is_selected) ImGui::SetItemDefaultFocus();
+												}
+												ImGui::EndCombo();
+											}
+
+											if (it->second.type == Condition_Type::Int)
+											{
+												ImGui::SameLine();
+												ImGui::SetNextItemWidth(window_width * 0.2f);
+												int threshold = static_cast<int>(condition->threshold);
+												if (ImGui::InputInt("##Input_Int", &threshold))
+												{
+													condition->threshold = static_cast<float>(threshold);
+													if (Auto_Save) Save_As();
+												}
+											}
+											else if (it->second.type == Condition_Type::Float)
+											{
+												ImGui::SameLine();
+												ImGui::SetNextItemWidth(window_width * 0.2f);
+												if (ImGui::InputFloat("##Input_Float", &condition->threshold))
+												{
+													if (Auto_Save) Save_As();
+												}
+											}
+										}
+									}
+
+									ImGui::SameLine(window_width - 20.0f);
+									ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.0f, 0.0f, 1.0f });
+									if (ImGui::Button(u8" × "))
+									{
+										erase_condition = true;
+										erase_condition_index = i;
+									}
+									ImGui::PopStyleColor(1);
+									ImGui::PopID();
+								}
+
+								if (erase_condition)
+								{
+									current_transition->conditions.erase(current_transition->conditions.begin() + erase_condition_index);
+									if (Auto_Save) Save_As();
+								}
+							}
+							else
+							{
+								ImGui::Text(u8"条件がありません");
+							}
+
+							ImGui::Dummy(ImVec2(0, 0));
+							ImGui::SameLine(window_width - 100.0f);
+							if (ImGui::Button(u8"条件追加", ImVec2(100.0f, 0)))
+							{
+								if (!parameters->empty())
+								{
+									auto it = parameters->begin();
+									Condition_Mode mode = Condition_Mode::Greater;
+									if (it->second.type == Condition_Type::Bool || it->second.type == Condition_Type::Trigger)
+									{
+										mode = Condition_Mode::If;
+									}
+									current_transition->Add_Condition(it->first, it->second.type, mode, 0.0f);
+									if (Auto_Save) Save_As();
+								}
+							}
+						}
+						ImGui::Unindent();
 					}
 				}
+				ImGui::Unindent();
 			}
 		}
 

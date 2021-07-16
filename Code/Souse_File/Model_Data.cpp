@@ -707,16 +707,17 @@ void Model_Data::BuildAnimations(FbxScene* fbxScene)
 
 		// アニメーションデータを抽出する
 		animation.secondsLength = frameCount * samplingTime;
-		animation.keyframes.resize(frameCount);
+		animation.keyframes.resize(frameCount + 1);
 
 		float seconds = 0.0f;
 		Keyframe* keyframe = animation.keyframes.data();
 		size_t fbxNodeCount = fbxNodes.size();
 		FbxTime fbxCurrentTime = fbxStartTime;
-		for (FbxTime fbxCurrentTime = fbxStartTime; fbxCurrentTime < fbxEndTime; fbxCurrentTime += fbxSamplingStep, ++keyframe)
+		for (FbxTime fbxCurrentTime = fbxStartTime; fbxCurrentTime <= fbxEndTime; fbxCurrentTime += fbxSamplingStep, ++keyframe)
 		{
 			// キーフレーム毎の姿勢データを取り出す。
 			keyframe->seconds = seconds;
+			if(keyframe == &animation.keyframes.back()) keyframe->seconds = animation.secondsLength;
 			keyframe->nodeKeys.resize(fbxNodeCount);
 			for (size_t fbxNodeIndex = 0; fbxNodeIndex < fbxNodeCount; ++fbxNodeIndex)
 			{
