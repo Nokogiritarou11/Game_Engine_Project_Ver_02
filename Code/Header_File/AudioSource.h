@@ -54,5 +54,6 @@ namespace BeastEngine
 		}
 	};
 }
+REGISTER_COMPONENT(AudioSource)
 CEREAL_REGISTER_TYPE(BeastEngine::AudioSource)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Behaviour, BeastEngine::AudioSource)

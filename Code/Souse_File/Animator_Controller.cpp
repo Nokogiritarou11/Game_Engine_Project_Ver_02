@@ -684,7 +684,7 @@ void Animator_Controller::Render_ImGui()
 				{
 					clip_name = u8"クリップが選択されていません";
 				}
-				if (ImGui::Button(clip_name.c_str()))
+				if (ImGui::Button(clip_name.c_str(), ImVec2(200, 0)))
 				{
 					string path = System_Function::Get_Open_File_Name("anim", "\\Resouces\\Model");
 					if (!path.empty())

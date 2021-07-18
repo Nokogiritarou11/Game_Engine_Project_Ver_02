@@ -52,6 +52,6 @@ namespace BeastEngine
 		}
 	};
 }
-
+REGISTER_COMPONENT(Mesh_Renderer)
 CEREAL_REGISTER_TYPE(BeastEngine::Mesh_Renderer)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Renderer, BeastEngine::Mesh_Renderer)

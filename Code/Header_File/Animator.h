@@ -43,5 +43,6 @@ namespace BeastEngine
 	};
 }
 
+REGISTER_COMPONENT(Animator)
 CEREAL_REGISTER_TYPE(BeastEngine::Animator)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Behaviour, BeastEngine::Animator)

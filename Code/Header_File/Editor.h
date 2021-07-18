@@ -49,6 +49,9 @@ namespace BeastEngine
 		float near_z;
 		float far_z;
 
+		Vector2 game_view_render_size;
+		float game_view_aspect;
+
 		void Main_Window_Render();
 		void Debug_Log_Render();
 		void Hierarchy_Render(const std::unique_ptr<BeastEngine::Scene>& scene);

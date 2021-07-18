@@ -56,5 +56,6 @@ namespace BeastEngine
 		}
 	};
 }
+REGISTER_COMPONENT(SkinMesh_Renderer)
 CEREAL_REGISTER_TYPE(BeastEngine::SkinMesh_Renderer)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Renderer, BeastEngine::SkinMesh_Renderer)

@@ -6,6 +6,40 @@
 using namespace std;
 using namespace BeastEngine;
 
+std::shared_ptr<Component> GameObject::Add_Component(std::string class_name)
+{
+	std::shared_ptr<Component> buff = Component_Data::Component_Factory::createInstance(class_name);
+	if (buff)
+	{
+		bool can_multiple = buff->Can_Multiple();
+
+		if (!can_multiple)
+		{
+			bool already_attach = false;
+			for (std::shared_ptr<Component>& com : component_list)
+			{
+				if (typeid(*buff) == typeid(*com))
+				{
+					already_attach = true;
+				}
+			}
+			if (!already_attach)
+			{
+				buff->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
+				component_list.emplace_back(buff);
+				return buff;
+			}
+		}
+		else
+		{
+			buff->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
+			component_list.emplace_back(buff);
+			return buff;
+		}
+	}
+	return nullptr;
+}
+
 void GameObject::Initialize()
 {
 	Engine::asset_manager->Registration_Asset(shared_from_this());

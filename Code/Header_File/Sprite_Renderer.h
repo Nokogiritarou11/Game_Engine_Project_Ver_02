@@ -49,5 +49,6 @@ namespace BeastEngine
 		}
 	};
 }
+REGISTER_COMPONENT(Sprite_Renderer)
 CEREAL_REGISTER_TYPE(BeastEngine::Sprite_Renderer)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Renderer, BeastEngine::Sprite_Renderer)

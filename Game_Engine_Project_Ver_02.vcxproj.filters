@@ -48,7 +48,6 @@
     <ClCompile Include="Code\Libraries\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="Code\Libraries\ImGui\imgui_stdlib.cpp" />
     <ClCompile Include="Code\Libraries\ImGui\imgui_widgets.cpp" />
-    <ClCompile Include="Script\Souse\All_Component_List.cpp" />
     <ClCompile Include="Code\Souse_File\View_Texture.cpp" />
     <ClCompile Include="Code\Souse_File\View_Game.cpp" />
     <ClCompile Include="Code\Souse_File\View_Scene.cpp" />
@@ -227,7 +226,6 @@
     <ClInclude Include="Librarys\ImGui\imstb_rectpack.h" />
     <ClInclude Include="Librarys\ImGui\imstb_textedit.h" />
     <ClInclude Include="Librarys\ImGui\imstb_truetype.h" />
-    <ClInclude Include="Code\Header_File\All_Component_List.h" />
     <ClInclude Include="Code\Header_File\AudioSource.h" />
     <ClInclude Include="Code\Header_File\Audio_Manager.h" />
     <ClInclude Include="Code\Header_File\Camera.h" />

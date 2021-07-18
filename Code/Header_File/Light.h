@@ -27,6 +27,7 @@ namespace BeastEngine
 		}
 	};
 }
+REGISTER_COMPONENT(Light)
 CEREAL_REGISTER_TYPE(BeastEngine::Light)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Component, BeastEngine::Light)
 CEREAL_CLASS_VERSION(BeastEngine::Light, 1);

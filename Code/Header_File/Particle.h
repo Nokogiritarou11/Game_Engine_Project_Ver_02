@@ -49,5 +49,6 @@ namespace BeastEngine
 		}
 	};
 }
+REGISTER_COMPONENT(Particle)
 CEREAL_REGISTER_TYPE(BeastEngine::Particle)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Component, BeastEngine::Particle)

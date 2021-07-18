@@ -9,7 +9,6 @@
 #include "View_Scene.h"
 #include "View_Game.h"
 #include "FBX_Converter.h"
-#include "All_Component_List.h"
 #include "Resources.h"
 #include "Cursor.h"
 #include "Transform.h"
@@ -127,8 +126,6 @@ void Editor::Update(const unique_ptr<Scene>& scene)
 
 	Main_Window_Render();
 
-	//シーン再生UI
-	ScenePlayer_Render();
 
 	//FBX読み込みメニュー
 	Engine::fbx_converter->Draw_ImGui();
@@ -150,6 +147,9 @@ void Editor::Update(const unique_ptr<Scene>& scene)
 	}
 	//デバッグログ
 	Debug_Log_Render();
+
+	//シーン再生UI
+	ScenePlayer_Render();
 
 	//ショートカットキーチェック
 	ShortCut_Check();
@@ -339,7 +339,6 @@ void Editor::Hierarchy_Render(const unique_ptr<Scene>& scene)
 		{
 			active_object.reset();
 			active_object_old.reset();
-			controller.reset();
 			selecting = -1;
 		}
 
@@ -510,7 +509,31 @@ void Editor::Inspector_Render()
 		}
 		ID = 0;
 		ImGui::Separator();
-		All_Component_List::Add(obj);
+
+		ImGui::Dummy(ImVec2(0.0f, 10.0f));
+		if (ImGui::Button(u8"コンポーネントを追加", ImVec2(-FLT_MIN, 0.0f)))
+		{
+			ImGui::OpenPopup(u8"コンポーネントリスト");
+		}
+		ImGui::SetNextWindowSize(ImVec2(300, 250));
+		if (ImGui::BeginPopup(u8"コンポーネントリスト"))
+		{
+			ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0, 0.5f));
+			auto& component_map = Component_Data::Component_Factory::getMap();
+			for (auto it = component_map->begin(); it != component_map->end(); ++it)
+			{
+				if (ImGui::Button(it->first.c_str(), ImVec2(-FLT_MIN, 0.0f)))
+				{
+					if (!obj->Add_Component(it->first))
+					{
+						Debug::Log(u8"このコンポーネントは一つのオブジェクトに複数アタッチできません");
+					}
+					ImGui::CloseCurrentPopup();
+				}
+			}
+			ImGui::PopStyleVar();
+			ImGui::EndPopup();
+		}
 	}
 	else
 	{
@@ -736,17 +759,42 @@ void Editor::GameView_Render()
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_NoCollapse;
 
+	Engine::view_game->Set_Screen_Size(1920, 1080);
+
 	ImGui::Begin(u8"ゲーム", NULL, window_flags);
+	const ImGuiWindow* p_win = ImGui::GetCurrentWindow();
+	const Vector2 p_win_size = { p_win->InnerRect.GetWidth() - 8, p_win->InnerRect.GetHeight() - 8 };
+	constexpr float aspect_lock = 1920.0f / 1080.0f;
+	if (p_win_size != game_view_size)
+	{
+		game_view_size = p_win_size;
+		game_view_render_size = game_view_size;
+		game_view_aspect = game_view_size.x / game_view_size.y;
 
-
-	ImGuiWindow* p_win = ImGui::GetCurrentWindow();
-	game_view_size = { p_win->InnerRect.GetWidth() - 8, p_win->InnerRect.GetHeight() - 8 };
+		if (aspect_lock < game_view_aspect) //横のほうが既定より長いとき
+		{
+			game_view_render_size.x = game_view_render_size.y * aspect_lock;
+		}
+		else //縦が長いとき
+		{
+			game_view_render_size.y = game_view_render_size.x / aspect_lock;
+		}
+	}
 
 	const ImVec2 pos = ImGui::GetCursorScreenPos();
 	game_view_position = { pos.x,pos.y + game_view_size.y };
 
-	Engine::view_game->Set_Screen_Size(1920, 1080);
-	ImGui::Image((void*)Engine::view_game->shader_resource_view_render.Get(), ImVec2(game_view_size.x, game_view_size.y));
+	if (aspect_lock < game_view_aspect) //横のほうが既定より長いとき
+	{
+		ImGui::Dummy(ImVec2(0, 0));
+		ImGui::SameLine((game_view_size.x - game_view_render_size.x) * 0.5f);
+	}
+	else
+	{
+		ImGui::Dummy(ImVec2(0, (game_view_size.y - game_view_render_size.y) * 0.5f));
+	}
+
+	ImGui::Image((void*)Engine::view_game->shader_resource_view_render.Get(), ImVec2(game_view_render_size.x, game_view_render_size.y));
 
 	game_view_center_position = { pos.x + game_view_size.x / 2 ,pos.y + game_view_size.y / 2 };
 

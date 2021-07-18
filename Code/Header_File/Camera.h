@@ -36,5 +36,6 @@ namespace BeastEngine
 		UINT num_viewports = 1;
 	};
 }
+REGISTER_COMPONENT(Camera)
 CEREAL_REGISTER_TYPE(BeastEngine::Camera)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Behaviour, BeastEngine::Camera)

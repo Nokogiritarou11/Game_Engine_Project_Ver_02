@@ -1,9 +1,9 @@
 #pragma once
-#include "Component.h"
 #include <typeinfo>
 #include <string>
 #include <list>
 #include <memory>
+#include "Component.h"
 
 namespace BeastEngine
 {
@@ -13,7 +13,7 @@ namespace BeastEngine
 		bool Compare_Tag(std::string _tag);								//指定したタグに一致するか返す
 		bool Get_Active();												//ゲームオブジェクトがアクティブか(親の状態を考慮しない)
 		void Set_Active(bool value);									//アクティブ状態を指定する
-		bool Get_Active_In_Hierarchy();										//ヒエラルキー上でアクティブか(親の状態を考慮する)
+		bool Get_Active_In_Hierarchy();									//ヒエラルキー上でアクティブか(親の状態を考慮する)
 
 		int layer = 0;
 		std::string tag = "Default";
@@ -24,8 +24,9 @@ namespace BeastEngine
 		std::shared_ptr<T> Get_Component();								//アタッチサれているコンポーネントを検索し返す(存在しない場合null_ptr)
 		template<class T>
 		std::shared_ptr<T> Add_Component();								//コンポーネントをアタッチする
+		std::shared_ptr<Component> Add_Component(std::string class_name);
 
-		static std::weak_ptr<GameObject> Find(std::string Name);		//シーン内のゲームオブジェクトを名前で検索する
+		static std::weak_ptr<GameObject> Find(std::string Name);			//シーン内のゲームオブジェクトを名前で検索する
 		static std::weak_ptr<GameObject> Find_With_Tag(std::string Tag);	//シーン内のゲームオブジェクトをタグで検索する
 
 	private:
