@@ -3,7 +3,6 @@
 #include <unordered_map>
 #include "Object.h"
 #include "Animator_Condition.h"
-#include "Avatar.h"
 #include "Animator_State_Machine.h"
 
 namespace BeastEngine
@@ -18,7 +17,6 @@ namespace BeastEngine
 		std::string name;
 		std::vector<std::shared_ptr<BeastEngine::Animator_State_Machine>> state_machines;
 		std::shared_ptr<std::unordered_map<std::string, BeastEngine::Controller_Parameter>> parameters;
-		std::shared_ptr<BeastEngine::Avatar> avatar;
 		std::string save_path;
 
 		Animator_Controller() {};

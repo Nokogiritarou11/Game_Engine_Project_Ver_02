@@ -2,7 +2,6 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
-#include "Avatar.h"
 #include "Object.h"
 
 namespace BeastEngine
@@ -31,7 +30,6 @@ namespace BeastEngine
 
 		struct Animation
 		{
-			BeastEngine::Humanoid_Rig humanoid_type = BeastEngine::Humanoid_Rig::None;
 			std::string Target_Path;
 			std::vector<Keyframe> keys;
 
@@ -40,12 +38,11 @@ namespace BeastEngine
 			template<class Archive>
 			void serialize(Archive& archive)
 			{
-				archive(humanoid_type, Target_Path, keys);
+				archive(Target_Path, keys);
 			}
 		};
 
 		std::vector<Animation> animations;
-		bool is_humanoid;
 
 		float Get_Length() { return length; }
 
@@ -59,7 +56,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(cereal::base_class<BeastEngine::Object>(this), animations, length, is_humanoid);
+			archive(cereal::base_class<BeastEngine::Object>(this), animations, length);
 		}
 	};
 }

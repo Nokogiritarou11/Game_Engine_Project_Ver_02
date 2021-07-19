@@ -13,7 +13,6 @@ namespace BeastEngine
 	public:
 		struct Animation_Target
 		{
-			BeastEngine::Humanoid_Rig humanoid_rig;
 			std::weak_ptr<BeastEngine::Transform> target;
 			BeastEngine::Vector3 position;
 			BeastEngine::Quaternion rotation;
@@ -31,24 +30,19 @@ namespace BeastEngine
 		void Reset_Trigger(std::string key);
 
 		std::shared_ptr<BeastEngine::Animator_Controller> controller;
-		std::shared_ptr<BeastEngine::Avatar> avatar;
 
 	private:
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
 		bool Draw_ImGui() override;
 		bool Can_Multiple() override { return false; };
 
-		void Set_Avatar(std::shared_ptr<BeastEngine::Avatar> set_avatar);
 		void Set_Default_Pose();
 		void Update(); //çXêV
 
 		bool playing = true;
-		bool has_avatar = false;
 
 		std::string controller_path;
-		std::string avatar_path;
 
-		std::unordered_map<BeastEngine::Humanoid_Rig, std::weak_ptr<BeastEngine::Transform>> humanoid_target;
 		std::unordered_map<std::string, Animation_Target> animation_data;
 		std::unordered_map<std::string, Animation_Target> pose_default;
 		std::unordered_map<std::string, Animation_Target> pose_playing;
@@ -60,7 +54,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(cereal::base_class<BeastEngine::Behaviour>(this), controller_path, avatar_path);
+			archive(cereal::base_class<BeastEngine::Behaviour>(this), controller_path);
 		}
 	};
 }

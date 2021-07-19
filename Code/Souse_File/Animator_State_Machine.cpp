@@ -47,7 +47,7 @@ void Animator_State_Machine::Update_Transition()
 	{
 		if (transition->has_exit_time)
 		{
-			if (!transition->exit_trigger && currentSeconds >= clip->Get_Length() * transition->exit_time)
+			if (transition->exit_trigger)
 			{
 				exit = transition->Check_Transition();
 				transition->exit_trigger = false;
@@ -92,13 +92,16 @@ void Animator_State_Machine::Update_Time()
 	}
 	currentSeconds += Time::delta_time * animation_speed * multiplier;
 
+	for (auto& transition : transitions)
+	{
+		if (currentSeconds >= clip->Get_Length() * transition->exit_time)
+		{
+			transition->exit_trigger = true;
+		}
+	}
+
 	if (currentSeconds >= clip->Get_Length())
 	{
-		for (size_t i = 0; i < transitions.size(); ++i)
-		{
-			transitions[i]->exit_trigger = false;
-		}
-
 		if (loopAnimation)
 		{
 			currentSeconds -= clip->Get_Length();

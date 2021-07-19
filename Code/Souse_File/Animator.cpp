@@ -22,30 +22,11 @@ void Animator::Initialize(shared_ptr<GameObject> obj)
 	transform = obj->transform;
 	Engine::animator_manager->Add(static_pointer_cast<Animator>(shared_from_this()));
 
-	if (!avatar_path.empty())
-	{
-		avatar = Avatar::Load_Avatar(avatar_path);
-		if (avatar) has_avatar = true;
-	}
 	if (!controller_path.empty())
 	{
 		controller = Animator_Controller::Load_Animator_Controller(controller_path);
 		controller->Initialize();
 		Set_Default_Pose();
-	}
-}
-
-void Animator::Set_Avatar(shared_ptr<Avatar> set_avatar)
-{
-	if (set_avatar)
-	{
-		avatar = set_avatar;
-		has_avatar = true;
-		for (int i = static_cast<int>(Humanoid_Rig::None); i < static_cast<int>(Humanoid_Rig::RightLittleDistal); ++i)
-		{
-			Humanoid_Rig target_rig = static_cast<Humanoid_Rig>(i);
-			humanoid_target[target_rig] = transform->Find(avatar->Humanoid_Data[target_rig]);
-		}
 	}
 }
 
@@ -59,42 +40,14 @@ void Animator::Set_Default_Pose()
 
 			for (auto& anim : clip->animations)
 			{
-				if (clip->is_humanoid)
+				shared_ptr t_trans = transform->Find(anim.Target_Path).lock();
+				if (t_trans)
 				{
-					//TODO:Avatarが確定したらやる
-					if (avatar)
+					auto it = pose_default.find(anim.Target_Path);
+					if (it == pose_default.end())
 					{
-						auto it = pose_default.find(anim.Target_Path);
-						if (it == pose_default.end())
-						{
-							weak_ptr<Transform> t;
-							Animation_Target t = { Humanoid_Rig::None,t, t_trans->Get_Local_Position(),t_trans->Get_Local_Rotation(),t_trans->Get_Local_Scale() };
-							pose_default[anim.Target_Path] = t;
-						}
-					}
-					else
-					{
-						Debug::Log(u8"Avatarが登録されていない、またはHumanoidモーションをGenericモデルにバインドしようとしています");
-					}
-				}
-				else
-				{
-					if (!avatar)
-					{
-						shared_ptr t_trans = transform->Find(anim.Target_Path).lock();
-						if (t_trans)
-						{
-							auto it = pose_default.find(anim.Target_Path);
-							if (it == pose_default.end())
-							{
-								Animation_Target t = { Humanoid_Rig::None,t_trans, t_trans->Get_Local_Position(),t_trans->Get_Local_Rotation(),t_trans->Get_Local_Scale() };
-								pose_default[anim.Target_Path] = t;
-							}
-						}
-					}
-					else
-					{
-						Debug::Log(u8"HumanoidモデルにをGenericモーションをバインドしようとしています");
+						Animation_Target t = { t_trans, t_trans->Get_Local_Position(),t_trans->Get_Local_Rotation(),t_trans->Get_Local_Scale() };
+						pose_default[anim.Target_Path] = t;
 					}
 				}
 			}
@@ -188,14 +141,6 @@ void Animator::Update()
 
 					Animation_Target& target = pose_playing[animation.Target_Path];
 					// ２つのキーフレーム間の補完計算
-					if (controller->playing_state_machine->clip->is_humanoid)
-					{
-						target.humanoid_rig = animation.humanoid_type;
-					}
-					else
-					{
-						target.humanoid_rig = Humanoid_Rig::None;
-					}
 					target.position = Vector3::Lerp(keyframe0.position, keyframe1.position, rate);
 					target.rotation = Quaternion::Slerp(keyframe0.rotation, keyframe1.rotation, rate);
 					target.scale = Vector3::Lerp(keyframe0.scale, keyframe1.scale, rate);
@@ -222,14 +167,6 @@ void Animator::Update()
 
 					Animation_Target& target = pose_next[animation.Target_Path];
 					// ２つのキーフレーム間の補完計算
-					if (controller->next_state_machine->clip->is_humanoid)
-					{
-						target.humanoid_rig = animation.humanoid_type;
-					}
-					else
-					{
-						target.humanoid_rig = Humanoid_Rig::None;
-					}
 					target.position = Vector3::Lerp(keyframe0.position, keyframe1.position, rate);
 					target.rotation = Quaternion::Slerp(keyframe0.rotation, keyframe1.rotation, rate);
 					target.scale = Vector3::Lerp(keyframe0.scale, keyframe1.scale, rate);
@@ -238,27 +175,24 @@ void Animator::Update()
 			}
 		}
 
-		if (!controller->playing_state_machine->clip->is_humanoid)
+		const float rate = controller->duration_timer / controller->active_transition->transition_duration;
+		for (auto& data : animation_data)
 		{
-			const float rate = controller->duration_timer / controller->active_transition->transition_duration;
+			const Animation_Target& playing = pose_playing[data.first];
+			const Animation_Target& next = pose_next[data.first];
+			data.second.position = Vector3::Lerp(playing.position, next.position, rate);
+			data.second.rotation = Quaternion::Slerp(playing.rotation, next.rotation, rate);
+			data.second.scale = Vector3::Lerp(playing.scale, next.scale, rate);
+		}
+		if (!pose_interrupt.empty())
+		{
 			for (auto& data : animation_data)
 			{
-				const Animation_Target& playing = pose_playing[data.first];
-				const Animation_Target& next = pose_next[data.first];
+				const Animation_Target& playing = pose_interrupt[data.first];
+				const Animation_Target& next = data.second;
 				data.second.position = Vector3::Lerp(playing.position, next.position, rate);
 				data.second.rotation = Quaternion::Slerp(playing.rotation, next.rotation, rate);
 				data.second.scale = Vector3::Lerp(playing.scale, next.scale, rate);
-			}
-			if (!pose_interrupt.empty())
-			{
-				for (auto& data : animation_data)
-				{
-					const Animation_Target& playing = pose_interrupt[data.first];
-					const Animation_Target& next = data.second;
-					data.second.position = Vector3::Lerp(playing.position, next.position, rate);
-					data.second.rotation = Quaternion::Slerp(playing.rotation, next.rotation, rate);
-					data.second.scale = Vector3::Lerp(playing.scale, next.scale, rate);
-				}
 			}
 		}
 	}
@@ -282,14 +216,6 @@ void Animator::Update()
 
 					Animation_Target& target = pose_playing[animation.Target_Path];
 					// ２つのキーフレーム間の補完計算
-					if (controller->playing_state_machine->clip->is_humanoid)
-					{
-						target.humanoid_rig = animation.humanoid_type;
-					}
-					else
-					{
-						target.humanoid_rig = Humanoid_Rig::None;
-					}
 					target.position = Vector3::Lerp(keyframe0.position, keyframe1.position, rate);
 					target.rotation = Quaternion::Slerp(keyframe0.rotation, keyframe1.rotation, rate);
 					target.scale = Vector3::Lerp(keyframe0.scale, keyframe1.scale, rate);
@@ -300,44 +226,14 @@ void Animator::Update()
 		animation_data = pose_playing;
 	}
 
-	if (has_avatar)
+	for (auto& data : animation_data)
 	{
-		for (auto& data : animation_data)
+		Animation_Target& anim = data.second;
+		if (shared_ptr<Transform> target = anim.target.lock())
 		{
-			Animation_Target& anim = data.second;
-			if (anim.humanoid_rig != Humanoid_Rig::None)
-			{
-				if (shared_ptr<Transform> target = humanoid_target[anim.humanoid_rig].lock())
-				{
-					target->Set_Local_Position(anim.position);
-					target->Set_Local_Rotation(anim.rotation);
-					target->Set_Local_Scale(anim.scale);
-				}
-			}
-			else
-			{
-				Debug::Log(u8"HumanoidモデルにGenericモーションは適用できません");
-			}
-		}
-	}
-	else
-	{
-		for (auto& data : animation_data)
-		{
-			Animation_Target& anim = data.second;
-			if (anim.humanoid_rig == Humanoid_Rig::None)
-			{
-				if (shared_ptr<Transform> target = anim.target.lock())
-				{
-					target->Set_Local_Position(anim.position);
-					target->Set_Local_Rotation(anim.rotation);
-					target->Set_Local_Scale(anim.scale);
-				}
-			}
-			else
-			{
-				Debug::Log(u8"GenericモデルにHumanoidモーションは適用できません");
-			}
+			target->Set_Local_Position(anim.position);
+			target->Set_Local_Rotation(anim.rotation);
+			target->Set_Local_Scale(anim.scale);
 		}
 	}
 }
