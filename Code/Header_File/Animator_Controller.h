@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include "Object.h"
 #include "Animator_Condition.h"
-#include "Humanoid_Avatar.h"
+#include "Avatar.h"
 #include "Animator_State_Machine.h"
 
 namespace BeastEngine
@@ -14,25 +14,17 @@ namespace BeastEngine
 	class Animator_Controller : public Object
 	{
 	public:
-		struct Animation_Target
-		{
-			BeastEngine::Humanoid_Rig humanoid_rig;
-			std::weak_ptr<BeastEngine::Transform> target;
-			BeastEngine::Vector3 position;
-			BeastEngine::Quaternion rotation;
-			BeastEngine::Vector3 scale;
-		};
 
 		std::string name;
-		std::unordered_map<std::string, Animation_Target> animation_data;
 		std::vector<std::shared_ptr<BeastEngine::Animator_State_Machine>> state_machines;
 		std::shared_ptr<std::unordered_map<std::string, BeastEngine::Controller_Parameter>> parameters;
+		std::shared_ptr<BeastEngine::Avatar> avatar;
 		std::string save_path;
 
-		Animator_Controller(){};
+		Animator_Controller() {};
 		~Animator_Controller() {};
 
-		void Initialize(std::shared_ptr<BeastEngine::Transform>& root);
+		void Initialize();
 		void Update();
 		bool Add_State_Machine(std::string& name);
 		bool Remove_State_Machine(std::string& name);
@@ -41,20 +33,15 @@ namespace BeastEngine
 
 		static std::shared_ptr<Animator_Controller> Load_Animator_Controller(std::string fullpath = "");
 		static std::shared_ptr<Animator_Controller> Create_New_Controller();
-	private:
-		std::unordered_map<std::string, Animation_Target> pose_default;
-		std::unordered_map<std::string, Animation_Target> pose_playing;
-		std::unordered_map<std::string, Animation_Target> pose_next;
-		std::unordered_map<std::string, Animation_Target> pose_interrupt;
-		std::weak_ptr<Transform> root_transform;
+
 		std::shared_ptr<BeastEngine::Animator_State_Machine> playing_state_machine;
 		std::shared_ptr<BeastEngine::Animator_State_Machine> next_state_machine;
 		std::shared_ptr<BeastEngine::Animator_State_Transition> active_transition;
-		float duration_timer;
+		float duration_timer = 0;
+		int interrupt_state = 0;
 
+	private:
 		int current_state_index = 0;
-
-		void Set_Animation_Target(std::shared_ptr<Animator_State_Machine>& state);
 
 		void Save();
 		void Save_As();

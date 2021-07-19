@@ -211,6 +211,7 @@
     <ClCompile Include="Code\Souse_File\Audio_Manager.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Code\Souse_File\Avatar.cpp" />
     <ClCompile Include="Code\Souse_File\Behaviour.cpp" />
     <ClCompile Include="Code\Souse_File\Bounds.cpp" />
     <ClCompile Include="Code\Souse_File\Camera.cpp" />
@@ -741,7 +742,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Code\Header_File\Humanoid_Avatar.h" />
+    <ClInclude Include="Code\Header_File\Avatar.h" />
     <ClInclude Include="Librarys\ImGui\IconsFontAwesome4.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

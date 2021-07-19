@@ -2,7 +2,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
-#include "Humanoid_Avatar.h"
+#include "Avatar.h"
 #include "Object.h"
 
 namespace BeastEngine
@@ -52,11 +52,10 @@ namespace BeastEngine
 		static std::shared_ptr<Animation_Clip> Load_Clip(std::string fullpath);
 
 	private:
-		friend class BeastEngine::FBX_Converter;
-		friend class cereal::access;
-
 		float length;
 
+		friend class BeastEngine::FBX_Converter;
+		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive)
 		{

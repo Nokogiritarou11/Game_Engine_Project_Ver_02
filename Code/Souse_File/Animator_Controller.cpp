@@ -7,6 +7,7 @@
 #include "Include_ImGui.h"
 #include "Engine.h"
 #include "Asset_Manager.h"
+#include "Debug.h"
 #include <locale.h>
 #include <sstream>
 #include <functional>
@@ -15,10 +16,10 @@
 using namespace std;
 using namespace BeastEngine;
 
-void Animator_Controller::Initialize(shared_ptr<Transform>& root)
+void Animator_Controller::Initialize()
 {
 	Engine::asset_manager->Registration_Asset(shared_from_this());
-	root_transform = root;
+
 	if (!parameters)
 	{
 		parameters = make_shared<unordered_map<string, Controller_Parameter>>();
@@ -26,7 +27,6 @@ void Animator_Controller::Initialize(shared_ptr<Transform>& root)
 	for (auto& state : state_machines)
 	{
 		state->Initialize(parameters);
-		Set_Animation_Target(state);
 		if (state->is_default_state)
 		{
 			playing_state_machine = state;
@@ -88,44 +88,6 @@ bool Animator_Controller::Remove_State_Machine(string& name)
 	return true;
 }
 
-void Animator_Controller::Set_Animation_Target(shared_ptr<Animator_State_Machine>& state)
-{
-	if (state->clip)
-	{
-		shared_ptr<Animation_Clip>& clip = state->clip;
-		pose_default.clear();
-		pose_playing.clear();
-		pose_next.clear();
-		pose_interrupt.clear();
-
-		for (auto& anim : clip->animations)
-		{
-			if (clip->is_humanoid)
-			{
-				//TODO:Avatarが確定したらやる
-				//Animation_Target t = { Humanoid_Rig::None,t_trans, t_trans->Get_Local_Position(),t_trans->Get_Local_Euler_Angles(),t_trans->Get_Local_Scale() };
-				//pose_default[anim.Target_Path] = t;
-			}
-			else
-			{
-				shared_ptr t_trans = root_transform.lock()->Find(anim.Target_Path).lock();
-				if (t_trans)
-				{
-					auto it = pose_default.find(anim.Target_Path);
-					if (it == pose_default.end())
-					{
-						Animation_Target t = { Humanoid_Rig::None,t_trans, t_trans->Get_Local_Position(),t_trans->Get_Local_Rotation(),t_trans->Get_Local_Scale() };
-						pose_default[anim.Target_Path] = t;
-					}
-				}
-			}
-		}
-		pose_playing = pose_default;
-		pose_next = pose_default;
-		pose_interrupt.clear();
-	}
-}
-
 void Animator_Controller::Update()
 {
 	if (!active_transition)
@@ -136,7 +98,7 @@ void Animator_Controller::Update()
 		if (playing_state_machine->transition_trigger)
 		{
 			duration_timer = 0;
-			pose_interrupt.clear();
+			interrupt_state = 1;
 			active_transition = playing_state_machine->Get_Active_Transition();
 			next_state_machine = active_transition->next_state.lock();
 			next_state_machine->Set_Active(active_transition->transition_offset);
@@ -153,7 +115,7 @@ void Animator_Controller::Update()
 		{
 			playing_state_machine->Exit();
 			playing_state_machine = next_state_machine;
-			pose_interrupt.clear();
+			interrupt_state = 1;
 			next_state_machine.reset();
 			active_transition.reset();
 			duration_timer = 0;
@@ -166,7 +128,7 @@ void Animator_Controller::Update()
 
 				if (playing_state_machine->transition_trigger)
 				{
-					pose_interrupt = animation_data;
+					interrupt_state = 2;
 					next_state_machine->Exit();
 					duration_timer = 0;
 					active_transition = playing_state_machine->Get_Active_Transition();
@@ -181,7 +143,7 @@ void Animator_Controller::Update()
 
 				if (next_state_machine->transition_trigger)
 				{
-					pose_interrupt = animation_data;
+					interrupt_state = 2;
 					playing_state_machine->Exit();
 					playing_state_machine = next_state_machine;
 					duration_timer = 0;
@@ -192,142 +154,6 @@ void Animator_Controller::Update()
 				}
 			}
 		}
-	}
-
-	pose_playing = pose_default;
-	pose_next = pose_default;
-	animation_data = pose_default;
-
-	if (next_state_machine)
-	{
-		const float& current_sec = playing_state_machine->currentSeconds;
-		for (auto& animation : playing_state_machine->clip->animations)
-		{
-			const vector<Animation_Clip::Keyframe>& keyframes = animation.keys;
-
-			const int keyCount = static_cast<int>(keyframes.size());
-			for (int keyIndex = 0; keyIndex < keyCount - 1; ++keyIndex)
-			{
-				// 現在の時間がどのキーフレームの間にいるか判定する
-				const Animation_Clip::Keyframe& keyframe0 = keyframes.at(keyIndex);
-				const Animation_Clip::Keyframe& keyframe1 = keyframes.at(keyIndex + 1);
-
-				if (current_sec >= keyframe0.time && current_sec < keyframe1.time)
-				{
-					const float rate = (current_sec - keyframe0.time) / (keyframe1.time - keyframe0.time);
-
-					Animation_Target& target = pose_playing[animation.Target_Path];
-					// ２つのキーフレーム間の補完計算
-					if (playing_state_machine->clip->is_humanoid)
-					{
-						target.humanoid_rig = animation.humanoid_type;
-					}
-					else
-					{
-						target.humanoid_rig = Humanoid_Rig::None;
-					}
-					target.position = Vector3::Lerp(keyframe0.position, keyframe1.position, rate);
-					target.rotation = Quaternion::Slerp(keyframe0.rotation, keyframe1.rotation, rate);
-					target.scale = Vector3::Lerp(keyframe0.scale, keyframe1.scale, rate);
-					break;
-				}
-			}
-		}
-
-		const float& next_sec = next_state_machine->currentSeconds;
-		for (auto& animation : next_state_machine->clip->animations)
-		{
-			const vector<Animation_Clip::Keyframe>& keyframes = animation.keys;
-
-			int keyCount = static_cast<int>(keyframes.size());
-			for (int keyIndex = 0; keyIndex < keyCount - 1; ++keyIndex)
-			{
-				// 現在の時間がどのキーフレームの間にいるか判定する
-				const Animation_Clip::Keyframe& keyframe0 = keyframes.at(keyIndex);
-				const Animation_Clip::Keyframe& keyframe1 = keyframes.at(keyIndex + 1);
-
-				if (next_sec >= keyframe0.time && next_sec < keyframe1.time)
-				{
-					const float rate = (next_sec - keyframe0.time) / (keyframe1.time - keyframe0.time);
-
-					Animation_Target& target = pose_next[animation.Target_Path];
-					// ２つのキーフレーム間の補完計算
-					if (next_state_machine->clip->is_humanoid)
-					{
-						target.humanoid_rig = animation.humanoid_type;
-					}
-					else
-					{
-						target.humanoid_rig = Humanoid_Rig::None;
-					}
-					target.position = Vector3::Lerp(keyframe0.position, keyframe1.position, rate);
-					target.rotation = Quaternion::Slerp(keyframe0.rotation, keyframe1.rotation, rate);
-					target.scale = Vector3::Lerp(keyframe0.scale, keyframe1.scale, rate);
-					break;
-				}
-			}
-		}
-
-		if (!playing_state_machine->clip->is_humanoid)
-		{
-			const float rate = duration_timer / active_transition->transition_duration;
-			for (auto& data : animation_data)
-			{
-				const Animation_Target& playing = pose_playing[data.first];
-				const Animation_Target& next = pose_next[data.first];
-				data.second.position = Vector3::Lerp(playing.position, next.position, rate);
-				data.second.rotation = Quaternion::Slerp(playing.rotation, next.rotation, rate);
-				data.second.scale = Vector3::Lerp(playing.scale, next.scale, rate);
-			}
-			if (!pose_interrupt.empty())
-			{
-				for (auto& data : animation_data)
-				{
-					const Animation_Target& playing = pose_interrupt[data.first];
-					const Animation_Target& next = data.second;
-					data.second.position = Vector3::Lerp(playing.position, next.position, rate);
-					data.second.rotation = Quaternion::Slerp(playing.rotation, next.rotation, rate);
-					data.second.scale = Vector3::Lerp(playing.scale, next.scale, rate);
-				}
-			}
-		}
-	}
-	else
-	{
-		const float& current_sec = playing_state_machine->currentSeconds;
-		for (auto& animation : playing_state_machine->clip->animations)
-		{
-			const vector<Animation_Clip::Keyframe>& keyframes = animation.keys;
-
-			const int keyCount = static_cast<int>(keyframes.size());
-			for (int keyIndex = 0; keyIndex < keyCount - 1; ++keyIndex)
-			{
-				// 現在の時間がどのキーフレームの間にいるか判定する
-				const Animation_Clip::Keyframe& keyframe0 = keyframes.at(keyIndex);
-				const Animation_Clip::Keyframe& keyframe1 = keyframes.at(keyIndex + 1);
-
-				if (current_sec >= keyframe0.time && current_sec < keyframe1.time)
-				{
-					const float rate = (current_sec - keyframe0.time) / (keyframe1.time - keyframe0.time);
-
-					Animation_Target& target = pose_playing[animation.Target_Path];
-					// ２つのキーフレーム間の補完計算
-					if (playing_state_machine->clip->is_humanoid)
-					{
-						target.humanoid_rig = animation.humanoid_type;
-					}
-					else
-					{
-						target.humanoid_rig = Humanoid_Rig::None;
-					}
-					target.position = Vector3::Lerp(keyframe0.position, keyframe1.position, rate);
-					target.rotation = Quaternion::Slerp(keyframe0.rotation, keyframe1.rotation, rate);
-					target.scale = Vector3::Lerp(keyframe0.scale, keyframe1.scale, rate);
-					break;
-				}
-			}
-		}
-		animation_data = pose_playing;
 	}
 }
 
@@ -690,7 +516,6 @@ void Animator_Controller::Render_ImGui()
 					if (!path.empty())
 					{
 						current_state->Set_Clip(path);
-						Set_Animation_Target(current_state);
 						if (Auto_Save) Save_As();
 					}
 				}
