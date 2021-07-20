@@ -94,8 +94,7 @@ HRESULT DxSystem::Create_Device()
 #endif
 	///*
 	//Žg—p‰Â”\‚ÈMSAA‚ðŽæ“¾
-	int max_count = 8;//D3D11_MAX_MULTISAMPLE_SAMPLE_COUNT;
-	if (max_count > 8)max_count = 8;
+	int max_count = 4;//D3D11_MAX_MULTISAMPLE_SAMPLE_COUNT;
 	for (int i = 0; i <= max_count; i++)
 	{
 		UINT Quality;

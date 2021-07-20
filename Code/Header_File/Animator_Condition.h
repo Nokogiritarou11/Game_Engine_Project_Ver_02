@@ -13,27 +13,12 @@
 
 namespace BeastEngine
 {
-	enum class Condition_Type
+	enum class Parameter_Type
 	{
 		Int,
 		Float,
 		Bool,
 		Trigger
-	};
-
-	struct Controller_Parameter
-	{
-		int value_int;
-		float value_float;
-		bool value_bool;
-		Condition_Type type;
-	private:
-		friend class cereal::access;
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(value_int, value_float, value_bool, type);
-		}
 	};
 
 	enum class Condition_Mode
@@ -46,10 +31,25 @@ namespace BeastEngine
 		NotEquals
 	};
 
+	struct Animation_Parameter
+	{
+		int value_int;
+		float value_float;
+		bool value_bool;
+		Parameter_Type type;
+	private:
+		friend class cereal::access;
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(value_int, value_float, value_bool, type);
+		}
+	};
+
 	struct Condition //ëJà⁄èåè
 	{
 		std::string key;
-		Condition_Type type;
+		Parameter_Type type;
 		Condition_Mode mode;
 		float threshold;
 
@@ -59,6 +59,23 @@ namespace BeastEngine
 		void serialize(Archive& archive)
 		{
 			archive(key, type, mode, threshold);
+		}
+	};
+
+	struct Animation_Event
+	{
+		std::string key;
+		bool trigger = false;
+		bool called = false;
+		float time;
+		Animation_Parameter parameter;
+
+	private:
+		friend class cereal::access;
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(key, time, parameter);
 		}
 	};
 }

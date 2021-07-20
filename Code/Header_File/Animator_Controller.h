@@ -13,10 +13,9 @@ namespace BeastEngine
 	class Animator_Controller : public Object
 	{
 	public:
-
 		std::string name;
 		std::vector<std::shared_ptr<BeastEngine::Animator_State_Machine>> state_machines;
-		std::shared_ptr<std::unordered_map<std::string, BeastEngine::Controller_Parameter>> parameters;
+		std::shared_ptr<std::unordered_map<std::string, BeastEngine::Animation_Parameter>> parameters;
 		std::string save_path;
 
 		Animator_Controller() {};
@@ -27,7 +26,7 @@ namespace BeastEngine
 		bool Add_State_Machine(std::string& name);
 		bool Remove_State_Machine(std::string& name);
 		void Render_ImGui();
-		void Add_Parameter(std::string& p_name, BeastEngine::Condition_Type type);
+		void Add_Parameter(std::string& p_name, BeastEngine::Parameter_Type type);
 
 		static std::shared_ptr<Animator_Controller> Load_Animator_Controller(std::string fullpath = "");
 		static std::shared_ptr<Animator_Controller> Create_New_Controller();

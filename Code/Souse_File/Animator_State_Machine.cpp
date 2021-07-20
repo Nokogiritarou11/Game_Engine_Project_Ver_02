@@ -4,7 +4,7 @@
 using namespace std;
 using namespace BeastEngine;
 
-void Animator_State_Machine::Initialize(shared_ptr<unordered_map<string, Controller_Parameter>>& p_parameters)
+void Animator_State_Machine::Initialize(shared_ptr<unordered_map<string, Animation_Parameter>>& p_parameters)
 {
 	parameters = p_parameters;
 	if (!path.empty())
@@ -51,6 +51,7 @@ void Animator_State_Machine::Update_Transition()
 			{
 				exit = transition->Check_Transition();
 				transition->exit_trigger = false;
+				transition->exit_called = true;
 				if (exit) break;
 			}
 		}
@@ -94,14 +95,31 @@ void Animator_State_Machine::Update_Time()
 
 	for (auto& transition : transitions)
 	{
-		if (currentSeconds >= clip->Get_Length() * transition->exit_time)
+		if (!transition->exit_called && currentSeconds >= clip->Get_Length() * transition->exit_time)
 		{
 			transition->exit_trigger = true;
 		}
 	}
 
+	for (auto& eve : events)
+	{
+		if (!eve.called && currentSeconds >= eve.time)
+		{
+			eve.trigger = true;
+		}
+	}
+
 	if (currentSeconds >= clip->Get_Length())
 	{
+		for (auto& transition : transitions)
+		{
+			transition->exit_called = false;
+		}
+		for (auto& eve : events)
+		{
+			eve.called = false;
+		}
+
 		if (loopAnimation)
 		{
 			currentSeconds -= clip->Get_Length();
@@ -124,6 +142,12 @@ void Animator_State_Machine::Add_Transition(shared_ptr<Animator_State_Machine>& 
 void Animator_State_Machine::Remove_Transition(int index)
 {
 	transitions.erase(transitions.begin() + index);
+}
+
+void Animator_State_Machine::Add_Event()
+{
+	Animation_Event eve = {};
+	events.push_back(eve);
 }
 
 shared_ptr<BeastEngine::Animator_State_Transition> Animator_State_Machine::Get_Active_Transition()

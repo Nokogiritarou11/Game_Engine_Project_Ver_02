@@ -4,7 +4,7 @@
 using namespace std;
 using namespace BeastEngine;
 
-void Animator_State_Transition::Initialize(std::shared_ptr<std::unordered_map<std::string, BeastEngine::Controller_Parameter>>& p_parameters, std::shared_ptr<BeastEngine::Animator_State_Machine>& next)
+void Animator_State_Transition::Initialize(std::shared_ptr<std::unordered_map<std::string, BeastEngine::Animation_Parameter>>& p_parameters, std::shared_ptr<BeastEngine::Animator_State_Machine>& next)
 {
 	parameters = p_parameters;
 	next_state = next;
@@ -22,7 +22,7 @@ bool Animator_State_Transition::Check_Transition()
 			{
 				case Condition_Mode::If:
 				{
-					if (condition->type == Condition_Type::Bool || condition->type == Condition_Type::Trigger)
+					if (condition->type == Parameter_Type::Bool || condition->type == Parameter_Type::Trigger)
 					{
 						if (!it->second.value_bool) { exit = false; }
 					}
@@ -31,7 +31,7 @@ bool Animator_State_Transition::Check_Transition()
 
 				case Condition_Mode::IfNot:
 				{
-					if (condition->type == Condition_Type::Bool)
+					if (condition->type == Parameter_Type::Bool)
 					{
 						if (it->second.value_bool) { exit = false; }
 					}
@@ -40,11 +40,11 @@ bool Animator_State_Transition::Check_Transition()
 
 				case Condition_Mode::Greater:
 				{
-					if (condition->type == Condition_Type::Int)
+					if (condition->type == Parameter_Type::Int)
 					{
 						if (it->second.value_int <= condition->threshold) { exit = false; }
 					}
-					if (condition->type == Condition_Type::Float)
+					if (condition->type == Parameter_Type::Float)
 					{
 						if (it->second.value_float <= condition->threshold) { exit = false; }
 					}
@@ -53,11 +53,11 @@ bool Animator_State_Transition::Check_Transition()
 
 				case Condition_Mode::Less:
 				{
-					if (condition->type == Condition_Type::Int)
+					if (condition->type == Parameter_Type::Int)
 					{
 						if (it->second.value_int >= condition->threshold) { exit = false; }
 					}
-					if (condition->type == Condition_Type::Float)
+					if (condition->type == Parameter_Type::Float)
 					{
 						if (it->second.value_float >= condition->threshold) { exit = false; }
 					}
@@ -67,14 +67,14 @@ bool Animator_State_Transition::Check_Transition()
 				case Condition_Mode::Equals:
 					break;
 					{
-						if (condition->type == Condition_Type::Int)
+						if (condition->type == Parameter_Type::Int)
 						{
 							if (it->second.value_int != (int)condition->threshold) { exit = false; }
 						}
 					}
 
 				case Condition_Mode::NotEquals:
-					if (condition->type == Condition_Type::Int)
+					if (condition->type == Parameter_Type::Int)
 					{
 						if (it->second.value_int == (int)condition->threshold) { exit = false; }
 					}
@@ -92,7 +92,7 @@ void Animator_State_Transition::Active()
 {
 	for (auto& condition : conditions)
 	{
-		if (condition->type == Condition_Type::Trigger)
+		if (condition->type == Parameter_Type::Trigger)
 		{
 			auto it = parameters->find(condition->key);
 			if (it != parameters->end())
@@ -103,7 +103,7 @@ void Animator_State_Transition::Active()
 	}
 }
 
-void Animator_State_Transition::Add_Condition(string key, Condition_Type type, Condition_Mode mode, float threshold)
+void Animator_State_Transition::Add_Condition(string key, Parameter_Type type, Condition_Mode mode, float threshold)
 {
 	shared_ptr<Condition> condition = make_shared<Condition>();
 	condition->key = key;

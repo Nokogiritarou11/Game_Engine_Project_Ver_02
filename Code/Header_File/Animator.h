@@ -11,13 +11,6 @@ namespace BeastEngine
 	class Animator : public BeastEngine::Behaviour
 	{
 	public:
-		struct Animation_Target
-		{
-			std::weak_ptr<BeastEngine::Transform> target;
-			BeastEngine::Vector3 position;
-			BeastEngine::Quaternion rotation;
-			BeastEngine::Vector3 scale;
-		};
 
 		void  Play();  //çƒê∂
 		void  Stop();  //í‚é~
@@ -27,22 +20,44 @@ namespace BeastEngine
 		void Set_Float(std::string key, float value);
 		void Set_Bool(std::string key, bool value);
 		void Set_Trigger(std::string key);
+
+		int Get_Int(std::string key);
+		float Get_Float(std::string key);
+		bool Get_Bool(std::string key);
 		void Reset_Trigger(std::string key);
+
+		void Set_Parameter_Int(std::string key, int value);
+		void Set_Parameter_Float(std::string key, float value);
+		void Set_Parameter_Bool(std::string key, bool value);
+		int Get_Parameter_Int(std::string key);
+		float Get_Parameter_Float(std::string key);
+		bool Get_Parameter_Bool(std::string key);
 
 		std::shared_ptr<BeastEngine::Animator_Controller> controller;
 
 	private:
+		struct Animation_Target
+		{
+			std::weak_ptr<BeastEngine::Transform> target;
+			BeastEngine::Vector3 position;
+			BeastEngine::Quaternion rotation;
+			BeastEngine::Vector3 scale;
+		};
+
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
 		bool Draw_ImGui() override;
 		bool Can_Multiple() override { return false; };
 
 		void Set_Default_Pose();
+		void Add_Parameter(std::string& p_name, BeastEngine::Parameter_Type type);
+		void Judge_Event(Animation_Event& eve);
 		void Update(); //çXêV
 
 		bool playing = true;
 
 		std::string controller_path;
 
+		std::unordered_map<std::string, Animation_Parameter> parameters;
 		std::unordered_map<std::string, Animation_Target> animation_data;
 		std::unordered_map<std::string, Animation_Target> pose_default;
 		std::unordered_map<std::string, Animation_Target> pose_playing;
@@ -54,7 +69,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(cereal::base_class<BeastEngine::Behaviour>(this), controller_path);
+			archive(cereal::base_class<BeastEngine::Behaviour>(this), controller_path, parameters);
 		}
 	};
 }

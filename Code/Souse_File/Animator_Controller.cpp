@@ -22,7 +22,7 @@ void Animator_Controller::Initialize()
 
 	if (!parameters)
 	{
-		parameters = make_shared<unordered_map<string, Controller_Parameter>>();
+		parameters = make_shared<unordered_map<string, Animation_Parameter>>();
 	}
 	for (auto& state : state_machines)
 	{
@@ -248,12 +248,12 @@ shared_ptr<Animator_Controller> Animator_Controller::Create_New_Controller()
 	return nullptr;
 }
 
-void Animator_Controller::Add_Parameter(string& p_name, Condition_Type type)
+void Animator_Controller::Add_Parameter(string& p_name, Parameter_Type type)
 {
 	auto it = parameters->find(p_name);
 	if (it == parameters->end())
 	{
-		Controller_Parameter parameter = {};
+		Animation_Parameter parameter = {};
 		parameter.type = type;
 		parameters->insert(make_pair(p_name, parameter));
 	}
@@ -294,7 +294,7 @@ void Animator_Controller::Render_ImGui()
 					ImGui::InputText(u8"パラメータ名", &parameter_name, input_text_flags);
 					if (ImGui::Button(u8"追加") && !parameter_name.empty())
 					{
-						Add_Parameter(parameter_name, Condition_Type::Int);
+						Add_Parameter(parameter_name, Parameter_Type::Int);
 						parameter_name.clear();
 						if (Auto_Save) Save_As();
 						ImGui::CloseCurrentPopup();
@@ -306,7 +306,7 @@ void Animator_Controller::Render_ImGui()
 					ImGui::InputText(u8"パラメータ名", &parameter_name, input_text_flags);
 					if (ImGui::Button(u8"追加") && !parameter_name.empty())
 					{
-						Add_Parameter(parameter_name, Condition_Type::Float);
+						Add_Parameter(parameter_name, Parameter_Type::Float);
 						parameter_name.clear();
 						if (Auto_Save) Save_As();
 						ImGui::CloseCurrentPopup();
@@ -318,7 +318,7 @@ void Animator_Controller::Render_ImGui()
 					ImGui::InputText(u8"パラメータ名", &parameter_name, input_text_flags);
 					if (ImGui::Button(u8"追加") && !parameter_name.empty())
 					{
-						Add_Parameter(parameter_name, Condition_Type::Bool);
+						Add_Parameter(parameter_name, Parameter_Type::Bool);
 						parameter_name.clear();
 						if (Auto_Save) Save_As();
 						ImGui::CloseCurrentPopup();
@@ -330,7 +330,7 @@ void Animator_Controller::Render_ImGui()
 					ImGui::InputText(u8"パラメータ名", &parameter_name, input_text_flags);
 					if (ImGui::Button(u8"追加") && !parameter_name.empty())
 					{
-						Add_Parameter(parameter_name, Condition_Type::Trigger);
+						Add_Parameter(parameter_name, Parameter_Type::Trigger);
 						parameter_name.clear();
 						if (Auto_Save) Save_As();
 						ImGui::CloseCurrentPopup();
@@ -348,30 +348,30 @@ void Animator_Controller::Render_ImGui()
 		{
 			ImGui::Spacing();
 			ImGui::Text(parameter.first.c_str());
-			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x * 0.6f);
+			ImGui::SameLine(ImGui::GetWindowContentRegionWidth() * 0.6f);
 			ImGui::PushID(parameter.first.c_str());
-			ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionMax().x * 0.3f);
+			ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth() * 0.3f);
 			switch (parameter.second.type)
 			{
-				case Condition_Type::Int:
+				case Parameter_Type::Int:
 					if (ImGui::InputInt("##int", &parameter.second.value_int))
 					{
 						if (Auto_Save) Save_As();
 					}
 					break;
-				case Condition_Type::Float:
+				case Parameter_Type::Float:
 					if (ImGui::InputFloat("##float", &parameter.second.value_float))
 					{
 						if (Auto_Save) Save_As();
 					}
 					break;
-				case Condition_Type::Bool:
+				case Parameter_Type::Bool:
 					if (ImGui::Checkbox("##bool", &parameter.second.value_bool))
 					{
 						if (Auto_Save) Save_As();
 					}
 					break;
-				case Condition_Type::Trigger:
+				case Parameter_Type::Trigger:
 					if (ImGui::Checkbox("##trigger", &parameter.second.value_bool))
 					{
 						if (Auto_Save) Save_As();
@@ -379,7 +379,7 @@ void Animator_Controller::Render_ImGui()
 					break;
 			}
 
-			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
+			ImGui::SameLine(ImGui::GetWindowContentRegionWidth() - 20.0f);
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.0f, 0.0f, 1.0f });
 			if (ImGui::Button(u8" × "))
 			{
@@ -400,10 +400,10 @@ void Animator_Controller::Render_ImGui()
 	ImGui::SameLine();
 
 	{
-		ImGui::BeginChild("States", ImVec2(0, 0));
+		ImGui::BeginChild("States", ImVec2(0, 0), true);
 
-		const float input_padding = ImGui::GetWindowContentRegionMax().x * 0.4f;
-		const float input_size = ImGui::GetWindowContentRegionMax().x - input_padding;
+		const float input_padding = ImGui::GetWindowContentRegionWidth() * 0.4f;
+		const float input_size = ImGui::GetWindowContentRegionWidth() - input_padding;
 
 		shared_ptr<Animator_State_Machine> current_state;
 		bool has_state = !state_machines.empty();
@@ -411,7 +411,7 @@ void Animator_Controller::Render_ImGui()
 		if (has_state)
 		{
 			current_state = state_machines[current_state_index];
-			ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionMax().x * 0.8f);
+			ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth() * 0.8f);
 			if (ImGui::BeginCombo("##State_Select", current_state->name.data()))
 			{
 				const size_t state_size = state_machines.size();
@@ -496,7 +496,7 @@ void Animator_Controller::Render_ImGui()
 		{
 			ImGui::Spacing();
 			ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-			if (ImGui::CollapsingHeader(u8"ステート設定", ImGuiTreeNodeFlags_AllowItemOverlap))
+			if (ImGui::CollapsingHeader(u8"ステート設定"))
 			{
 				ImGui::Indent();
 				ImGui::Text(u8"クリップ");
@@ -549,12 +549,112 @@ void Animator_Controller::Render_ImGui()
 					if (Auto_Save) Save_As();
 				}
 
+				ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
+				if (ImGui::CollapsingHeader(u8"アニメーションイベント設定"))
+				{
+					ImGui::Indent();
+					const bool has_event = !current_state->events.empty();
+					if (has_event)
+					{
+						const char* event_type[3] = { "Int","Float","Bool" };
+						bool erase_event = false;
+						size_t erase_event_index = 0;
+						const float window_width = ImGui::GetWindowContentRegionWidth();
+
+						for (size_t i = 0; i < current_state->events.size(); ++i)
+						{
+							Animation_Event& eve = current_state->events[i];
+							ImGui::PushID(i);
+							ImGui::Text(u8"時間(秒)");
+							ImGui::SameLine();
+							ImGui::SetNextItemWidth(window_width * 0.1f);
+							if (ImGui::InputFloat("##event_time", &eve.time))
+							{
+								if (Auto_Save) Save_As();
+							}
+
+							ImGui::SameLine();
+							ImGui::Text(u8"パラメータ名");
+							ImGui::SameLine();
+							ImGui::SetNextItemWidth(window_width * 0.25f);
+							if (ImGui::InputText("##event_key", &eve.key))
+							{
+								if (Auto_Save) Save_As();
+							}
+
+							ImGui::SameLine();
+							ImGui::Text(u8"セット値");
+							ImGui::SameLine();
+							ImGui::SetNextItemWidth(window_width * 0.1f);
+							int current_type = static_cast<int>(eve.parameter.type);
+							ImGui::Combo("##interruption_source", &current_type, event_type, IM_ARRAYSIZE(event_type));
+							if (current_type != static_cast<int>(eve.parameter.type))
+							{
+								eve.parameter.type = static_cast<Parameter_Type>(current_type);
+								if (Auto_Save) Save_As();
+							}
+
+							ImGui::SameLine();
+							ImGui::SetNextItemWidth(window_width * 0.1f);
+							switch (current_type)
+							{
+								case 0:
+									if (ImGui::InputInt("##event_value", &eve.parameter.value_int))
+									{
+										if (Auto_Save) Save_As();
+									}
+									break;
+								case 1:
+									if (ImGui::InputFloat("##event_value", &eve.parameter.value_float))
+									{
+										if (Auto_Save) Save_As();
+									}
+									break;
+								case 2:
+									if (ImGui::Checkbox("##event_value", &eve.parameter.value_bool))
+									{
+										if (Auto_Save) Save_As();
+									}
+									break;
+							}
+
+							ImGui::SameLine(window_width - 20.0f);
+							ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.0f, 0.0f, 1.0f });
+							if (ImGui::Button(u8" × "))
+							{
+								erase_event = true;
+								erase_event_index = i;
+							}
+							ImGui::PopStyleColor(1);
+							ImGui::PopID();
+						}
+
+						if (erase_event)
+						{
+							current_state->events.erase(current_state->events.begin() + erase_event_index);
+							if (Auto_Save) Save_As();
+						}
+					}
+					else
+					{
+						ImGui::Text(u8"アニメーションイベントが設定されていません");
+					}
+					ImGui::Dummy(ImVec2(0, 0));
+					ImGui::SameLine(ImGui::GetWindowContentRegionWidth() - 150.0f);
+					if (ImGui::Button(u8"イベント追加", ImVec2(150.0f, 0)))
+					{
+						current_state->Add_Event();
+						if (Auto_Save) Save_As();
+					}
+					ImGui::Unindent();
+				}
+
 				ImGui::Dummy(ImVec2(0, 20.0f));
 				ImGui::Unindent();
 			}
 
 			ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-			if (ImGui::CollapsingHeader(u8"遷移設定", ImGuiTreeNodeFlags_AllowItemOverlap))
+			if (ImGui::CollapsingHeader(u8"遷移設定"))
 			{
 				ImGui::Indent();
 				static int current_transition_index = 0;
@@ -727,7 +827,7 @@ void Animator_Controller::Render_ImGui()
 						ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 						if (ImGui::CollapsingHeader(u8"遷移条件"))
 						{
-							const float window_width = ImGui::GetWindowContentRegionMax().x;
+							const float window_width = ImGui::GetWindowContentRegionWidth();
 							const size_t condition_size = current_transition->conditions.size();
 							if (condition_size >= 1)
 							{
@@ -748,11 +848,11 @@ void Animator_Controller::Render_ImGui()
 												condition->key = parameter.first;
 												condition->type = parameter.second.type;
 												condition->threshold = 0;
-												if (condition->type == Condition_Type::Int || condition->type == Condition_Type::Float)
+												if (condition->type == Parameter_Type::Int || condition->type == Parameter_Type::Float)
 												{
 													condition->mode = Condition_Mode::Greater;
 												}
-												else if (condition->type == Condition_Type::Bool || condition->type == Condition_Type::Trigger)
+												else if (condition->type == Parameter_Type::Bool || condition->type == Parameter_Type::Trigger)
 												{
 													condition->mode = Condition_Mode::If;
 												}
@@ -770,7 +870,7 @@ void Animator_Controller::Render_ImGui()
 									auto it = parameters->find(condition->key);
 									if (it != parameters->end())
 									{
-										if (it->second.type != Condition_Type::Trigger)
+										if (it->second.type != Parameter_Type::Trigger)
 										{
 											const char* mode_char[6] = { "True","False","Greater","Less","Equals","NotEquals" };
 											ImGui::SameLine();
@@ -779,9 +879,9 @@ void Animator_Controller::Render_ImGui()
 											if (ImGui::BeginCombo("##mode", mode_char[current_mode]))
 											{
 												int mode_start, mode_end = 0;
-												if (it->second.type == Condition_Type::Int) { mode_start = 2; mode_end = 6; }
-												else if (it->second.type == Condition_Type::Float) { mode_start = 2; mode_end = 4; }
-												else if (it->second.type == Condition_Type::Bool) { mode_start = 0; mode_end = 2; }
+												if (it->second.type == Parameter_Type::Int) { mode_start = 2; mode_end = 6; }
+												else if (it->second.type == Parameter_Type::Float) { mode_start = 2; mode_end = 4; }
+												else if (it->second.type == Parameter_Type::Bool) { mode_start = 0; mode_end = 2; }
 
 												for (; mode_start < mode_end; ++mode_start)
 												{
@@ -796,7 +896,7 @@ void Animator_Controller::Render_ImGui()
 												ImGui::EndCombo();
 											}
 
-											if (it->second.type == Condition_Type::Int)
+											if (it->second.type == Parameter_Type::Int)
 											{
 												ImGui::SameLine();
 												ImGui::SetNextItemWidth(window_width * 0.2f);
@@ -807,7 +907,7 @@ void Animator_Controller::Render_ImGui()
 													if (Auto_Save) Save_As();
 												}
 											}
-											else if (it->second.type == Condition_Type::Float)
+											else if (it->second.type == Parameter_Type::Float)
 											{
 												ImGui::SameLine();
 												ImGui::SetNextItemWidth(window_width * 0.2f);
@@ -849,7 +949,7 @@ void Animator_Controller::Render_ImGui()
 								{
 									auto it = parameters->begin();
 									Condition_Mode mode = Condition_Mode::Greater;
-									if (it->second.type == Condition_Type::Bool || it->second.type == Condition_Type::Trigger)
+									if (it->second.type == Parameter_Type::Bool || it->second.type == Parameter_Type::Trigger)
 									{
 										mode = Condition_Mode::If;
 									}
