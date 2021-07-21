@@ -200,69 +200,69 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Code\Souse_File\Animation_Clip.cpp" />
-    <ClCompile Include="Code\Souse_File\Animator.cpp" />
-    <ClCompile Include="Code\Souse_File\Animator_Controller.cpp" />
-    <ClCompile Include="Code\Souse_File\Animator_Manager.cpp" />
-    <ClCompile Include="Code\Souse_File\Animator_State_Machine.cpp" />
-    <ClCompile Include="Code\Souse_File\Animator_State_Transition.cpp" />
-    <ClCompile Include="Code\Souse_File\Asset_Manager.cpp" />
-    <ClCompile Include="Code\Souse_File\AudioSource.cpp" />
-    <ClCompile Include="Code\Souse_File\Audio_Manager.cpp">
+    <ClCompile Include="Code\Source_File\Animation_Clip.cpp" />
+    <ClCompile Include="Code\Source_File\Animator.cpp" />
+    <ClCompile Include="Code\Source_File\Animator_Controller.cpp" />
+    <ClCompile Include="Code\Source_File\Animator_Manager.cpp" />
+    <ClCompile Include="Code\Source_File\Animator_State_Machine.cpp" />
+    <ClCompile Include="Code\Source_File\Animator_State_Transition.cpp" />
+    <ClCompile Include="Code\Source_File\Asset_Manager.cpp" />
+    <ClCompile Include="Code\Source_File\AudioSource.cpp" />
+    <ClCompile Include="Code\Source_File\Audio_Manager.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Code\Souse_File\Behaviour.cpp" />
-    <ClCompile Include="Code\Souse_File\Bounds.cpp" />
-    <ClCompile Include="Code\Souse_File\Camera.cpp" />
-    <ClCompile Include="Code\Souse_File\Component.cpp" />
-    <ClCompile Include="Code\Souse_File\Cursor.cpp" />
-    <ClCompile Include="Code\Souse_File\Debug.cpp" />
-    <ClCompile Include="Code\Souse_File\Editor.cpp" />
-    <ClCompile Include="Code\Souse_File\DxSystem.cpp" />
-    <ClCompile Include="Code\Souse_File\Engine.cpp" />
-    <ClCompile Include="Code\Souse_File\FBX_Converter.cpp" />
-    <ClCompile Include="Code\Souse_File\GameObject.cpp" />
-    <ClCompile Include="Code\Souse_File\Input.cpp" />
-    <ClCompile Include="Code\Souse_File\Light.cpp" />
-    <ClCompile Include="Code\Souse_File\Light_Manager.cpp" />
-    <ClCompile Include="Code\Souse_File\main.cpp" />
-    <ClCompile Include="Code\Souse_File\Material.cpp" />
-    <ClCompile Include="Code\Souse_File\Mesh.cpp" />
-    <ClCompile Include="Code\Souse_File\Model_Data.cpp" />
-    <ClCompile Include="Code\Souse_File\Mesh_Renderer.cpp" />
-    <ClCompile Include="Code\Souse_File\MonoBehaviour.cpp" />
-    <ClCompile Include="Code\Souse_File\Object.cpp" />
-    <ClCompile Include="Code\Souse_File\Original_Math.cpp" />
-    <ClCompile Include="Code\Souse_File\Particle.cpp" />
-    <ClCompile Include="Code\Souse_File\Particle_Manager.cpp" />
-    <ClCompile Include="Code\Souse_File\Rect_Transform.cpp" />
-    <ClCompile Include="Code\Souse_File\Renderer.cpp" />
-    <ClCompile Include="Code\Souse_File\Render_Manager.cpp" />
-    <ClCompile Include="Code\Souse_File\Resources.cpp" />
-    <ClCompile Include="Code\Souse_File\Scene.cpp" />
-    <ClCompile Include="Code\Souse_File\Scene_Manager.cpp" />
-    <ClCompile Include="Code\Souse_File\Screen.cpp" />
-    <ClCompile Include="Code\Souse_File\Shader.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Code\Souse_File\Shadow_Manager.cpp" />
-    <ClCompile Include="Code\Souse_File\SkinMesh_Renderer.cpp" />
-    <ClCompile Include="Code\Souse_File\SkyBox.cpp" />
-    <ClCompile Include="Code\Souse_File\Sprite_Renderer.cpp">
+    <ClCompile Include="Code\Source_File\Behaviour.cpp" />
+    <ClCompile Include="Code\Source_File\Bounds.cpp" />
+    <ClCompile Include="Code\Source_File\Camera.cpp" />
+    <ClCompile Include="Code\Source_File\Component.cpp" />
+    <ClCompile Include="Code\Source_File\Cursor.cpp" />
+    <ClCompile Include="Code\Source_File\Debug.cpp" />
+    <ClCompile Include="Code\Source_File\Editor.cpp" />
+    <ClCompile Include="Code\Source_File\DxSystem.cpp" />
+    <ClCompile Include="Code\Source_File\Engine.cpp" />
+    <ClCompile Include="Code\Source_File\FBX_Converter.cpp" />
+    <ClCompile Include="Code\Source_File\GameObject.cpp" />
+    <ClCompile Include="Code\Source_File\Input.cpp" />
+    <ClCompile Include="Code\Source_File\Light.cpp" />
+    <ClCompile Include="Code\Source_File\Light_Manager.cpp" />
+    <ClCompile Include="Code\Source_File\main.cpp" />
+    <ClCompile Include="Code\Source_File\Material.cpp" />
+    <ClCompile Include="Code\Source_File\Mesh.cpp" />
+    <ClCompile Include="Code\Source_File\Model_Data.cpp" />
+    <ClCompile Include="Code\Source_File\Mesh_Renderer.cpp" />
+    <ClCompile Include="Code\Source_File\MonoBehaviour.cpp" />
+    <ClCompile Include="Code\Source_File\Object.cpp" />
+    <ClCompile Include="Code\Source_File\Original_Math.cpp" />
+    <ClCompile Include="Code\Source_File\Particle.cpp" />
+    <ClCompile Include="Code\Source_File\Particle_Manager.cpp" />
+    <ClCompile Include="Code\Source_File\Rect_Transform.cpp" />
+    <ClCompile Include="Code\Source_File\Renderer.cpp" />
+    <ClCompile Include="Code\Source_File\Render_Manager.cpp" />
+    <ClCompile Include="Code\Source_File\Resources.cpp" />
+    <ClCompile Include="Code\Source_File\Scene.cpp" />
+    <ClCompile Include="Code\Source_File\Scene_Manager.cpp" />
+    <ClCompile Include="Code\Source_File\Screen.cpp" />
+    <ClCompile Include="Code\Source_File\Shader.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Code\Souse_File\System_Function.cpp" />
-    <ClCompile Include="Code\Souse_File\Texture.cpp">
+    <ClCompile Include="Code\Source_File\Shadow_Manager.cpp" />
+    <ClCompile Include="Code\Source_File\SkinMesh_Renderer.cpp" />
+    <ClCompile Include="Code\Source_File\SkyBox.cpp" />
+    <ClCompile Include="Code\Source_File\Sprite_Renderer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Code\Souse_File\Time.cpp" />
-    <ClCompile Include="Code\Souse_File\Transform.cpp" />
-    <ClCompile Include="Code\Souse_File\View_Game.cpp" />
-    <ClCompile Include="Code\Souse_File\View_Scene.cpp" />
-    <ClCompile Include="Code\Souse_File\View_Texture.cpp" />
+    <ClCompile Include="Code\Source_File\System_Function.cpp" />
+    <ClCompile Include="Code\Source_File\Texture.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Code\Source_File\Time.cpp" />
+    <ClCompile Include="Code\Source_File\Transform.cpp" />
+    <ClCompile Include="Code\Source_File\View_Game.cpp" />
+    <ClCompile Include="Code\Source_File\View_Scene.cpp" />
+    <ClCompile Include="Code\Source_File\View_Texture.cpp" />
     <ClCompile Include="Librarys\ImGui\imgui.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

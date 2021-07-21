@@ -307,6 +307,7 @@ void Animator::Judge_Event(Animation_Event& eve)
 void Animator::Update()
 {
 	if (!playing) return;
+	if (!controller) return;
 
 	controller->Update();
 

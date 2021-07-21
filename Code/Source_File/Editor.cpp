@@ -6,6 +6,7 @@
 #include "Engine.h"
 #include "Asset_Manager.h"
 #include "Particle_Manager.h"
+#include "Shadow_Manager.h"
 #include "View_Scene.h"
 #include "View_Game.h"
 #include "FBX_Converter.h"
@@ -16,8 +17,8 @@
 #include "Animator_Controller.h"
 #include "Scene.h"
 #include "Include_ImGui.h"
-#include <ImGuizmo.h>
 #include "System_Function.h"
+#include <ImGuizmo.h>
 #include <sstream>
 #include <functional>
 #include <iostream>
@@ -837,6 +838,17 @@ void Editor::MenuBar_Render()
 	if (ImGui::BeginMenuBar())
 	{
 		Scene_File_Menu_Render();
+
+		if (ImGui::BeginMenu(u8"レンダリング"))
+		{
+			if (ImGui::BeginMenu(u8"シャドウ"))
+			{
+				ImGui::DragFloat(u8"バイアス", &Engine::shadow_manager->shadow_bias, 0.000001f, 0, FLT_MAX, "%.9f");
+				ImGui::DragFloat(u8"距離", &Engine::shadow_manager->shadow_distance, 0.1f, 0.1f);
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenu();
+		}
 		ImGui::EndMenuBar();
 	}
 }

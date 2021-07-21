@@ -15,9 +15,9 @@ Shadow_Manager::Shadow_Manager()
 		td.MipLevels = 1;
 		td.ArraySize = 1;
 		td.Format = DXGI_FORMAT_R32G8X24_TYPELESS;
-		td.SampleDesc = DxSystem::MSAA;
-		//td.SampleDesc.Count = 1;
-		//td.SampleDesc.Quality = 0;
+		//td.SampleDesc = DxSystem::MSAA;
+		td.SampleDesc.Count = 1;
+		td.SampleDesc.Quality = 0;
 		td.Usage = D3D11_USAGE_DEFAULT;
 		td.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 		td.CPUAccessFlags = 0;
@@ -31,8 +31,8 @@ Shadow_Manager::Shadow_Manager()
 		D3D11_DEPTH_STENCIL_VIEW_DESC dsvd;
 		ZeroMemory(&dsvd, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
 		dsvd.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
-		dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
-		//dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		//dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+		dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		dsvd.Texture2D.MipSlice = 0;
 
 		// 深度ステンシルビュー生成
@@ -43,8 +43,8 @@ Shadow_Manager::Shadow_Manager()
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
 		ZeroMemory(&srvd, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
 		srvd.Format = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
-		srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
-		//srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		//srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
+		srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		srvd.Texture2D.MostDetailedMip = 0;
 		srvd.Texture2D.MipLevels = 1;
 
@@ -109,9 +109,9 @@ void Shadow_Manager::Set_Shadow_Map_Texture_Size(u_int size)
 	td.MipLevels = 1;
 	td.ArraySize = 1;
 	td.Format = DXGI_FORMAT_R32G8X24_TYPELESS;
-	td.SampleDesc = DxSystem::MSAA;
-	//td.SampleDesc.Count = 1;
-	//td.SampleDesc.Quality = 0;
+	//td.SampleDesc = DxSystem::MSAA;
+	td.SampleDesc.Count = 1;
+	td.SampleDesc.Quality = 0;
 	td.Usage = D3D11_USAGE_DEFAULT;
 	td.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 	td.CPUAccessFlags = 0;
@@ -125,8 +125,8 @@ void Shadow_Manager::Set_Shadow_Map_Texture_Size(u_int size)
 	D3D11_DEPTH_STENCIL_VIEW_DESC dsvd;
 	ZeroMemory(&dsvd, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
 	dsvd.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
-	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
-	//dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	//dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	dsvd.Texture2D.MipSlice = 0;
 
 	// 深度ステンシルビュー生成
@@ -137,22 +137,12 @@ void Shadow_Manager::Set_Shadow_Map_Texture_Size(u_int size)
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
 	ZeroMemory(&srvd, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
 	srvd.Format = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
-	srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
-	//srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	//srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
+	srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvd.Texture2D.MostDetailedMip = 0;
 	srvd.Texture2D.MipLevels = 1;
 
 	// シェーダリソースビュー生成
 	hr = DxSystem::device->CreateShaderResourceView(depth_stencil_texture.Get(), &srvd, shader_resource_view.GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
-}
-
-void Shadow_Manager::Set_Shadow_Distance(float value)
-{
-	shadow_distance = value;
-}
-
-void Shadow_Manager::Set_Shadow_Bias(float value)
-{
-	shadow_bias = value;
 }

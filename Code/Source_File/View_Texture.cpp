@@ -188,10 +188,11 @@ void View_Texture::Render_Shadow(std::shared_ptr<Transform> camera_transform)
 void View_Texture::Render_Shadow_Directional(Vector4 color, float intensity, std::shared_ptr<Transform> light_transform, std::shared_ptr<Transform> camera_transform)
 {
 	Matrix V, P, VP;
-	Vector3 Look_pos = camera_transform->Get_Position();
-	V = XMMatrixLookAtRH(Look_pos - light_transform->Get_Forward(), Look_pos, light_transform->Get_Up());
-	float size = (float)Engine::shadow_manager->Get_Shadow_Map_Texture_Size();
-	P = XMMatrixOrthographicRH(size, size, 0.1f, 100.f);
+	const float size = Engine::shadow_manager->shadow_distance;
+	const Vector3 Look_pos = camera_transform->Get_Position() + camera_transform->Get_Forward() * (size * 0.5f);
+	V = XMMatrixLookAtRH(Look_pos - light_transform->Get_Forward() * 80.0f, Look_pos, light_transform->Get_Up());
+	//V = XMMatrixLookAtRH(-light_transform->Get_Forward() * 900.0f, Vector3(0,0,0), light_transform->Get_Up());
+	P = XMMatrixOrthographicRH(size, size, 10.0f, 100.0f);
 	VP = V * P;
 
 	buffer_scene.view_projection_matrix = VP;
@@ -204,7 +205,7 @@ void View_Texture::Render_Shadow_Directional(Vector4 color, float intensity, std
 	const Vector3 forward = light_transform->Get_Forward();
 	buffer_scene.light_direction = { forward.x, forward.y, forward.z, 0 };
 	buffer_scene.light_color = { color.x, color.y, color.z };
-	buffer_scene.bias = Engine::shadow_manager->Get_Shadow_Bias();
+	buffer_scene.bias = Engine::shadow_manager->shadow_bias;
 
 	DxSystem::device_context->VSSetConstantBuffers(0, 1, constant_buffer_scene.GetAddressOf());
 	DxSystem::device_context->UpdateSubresource(constant_buffer_scene.Get(), 0, 0, &buffer_scene, 0, 0);
@@ -216,11 +217,11 @@ void View_Texture::Render_Shadow_Directional(Vector4 color, float intensity, std
 	DxSystem::device_context->OMSetBlendState(DxSystem::Get_Blend_State(BS_State::Off), nullptr, 0xFFFFFFFF);
 	Renderer::binding_blend_state = BS_State::Off;
 	//ラスタライザ―設定
-	DxSystem::device_context->RSSetState(DxSystem::Get_Rasterizer_State(RS_State::Cull_Front));
-	Renderer::binding_rasterizer_state = RS_State::Cull_Front;
+	DxSystem::device_context->RSSetState(DxSystem::Get_Rasterizer_State(RS_State::Cull_Back));
+	Renderer::binding_rasterizer_state = RS_State::Cull_Back;
 	//デプスステンシルステート設定
-	DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(DS_State::LEqual), 1);
-	Renderer::binding_depth_stencil_State = DS_State::LEqual;
+	DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(DS_State::Less), 1);
+	Renderer::binding_depth_stencil_State = DS_State::Less;
 
 	shared_ptr<Renderer> p_rend = nullptr;
 	bool expired = false;
