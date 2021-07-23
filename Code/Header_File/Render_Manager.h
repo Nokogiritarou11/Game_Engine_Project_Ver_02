@@ -2,13 +2,14 @@
 #include <memory>
 #include <vector>
 #include <list>
-#include "SkinMesh_Renderer.h"
-#include "Mesh_Renderer.h"
-#include "Sprite_Renderer.h"
 
 namespace BeastEngine
 {
 	class Camera;
+	class Mesh_Renderer;
+	class SkinMesh_Renderer;
+	class Sprite_Renderer;
+	class Renderer;
 
 	class Render_Manager
 	{

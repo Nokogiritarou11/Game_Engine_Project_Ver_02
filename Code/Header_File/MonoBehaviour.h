@@ -42,18 +42,19 @@ namespace BeastEngine
 		bool is_called_Awake = false;
 		bool is_called_Start = false;
 		bool is_called_Update = false;
-		bool is_disable = false;
 		void Add();
 
 		friend class Scene;
 		friend class GameObject;
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(cereal::base_class<Behaviour>(this));
 		}
 	};
 }
+
 CEREAL_REGISTER_TYPE(BeastEngine::MonoBehaviour)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Behaviour, BeastEngine::MonoBehaviour)
+CEREAL_CLASS_VERSION(BeastEngine::MonoBehaviour, 1)

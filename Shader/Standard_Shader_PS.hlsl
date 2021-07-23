@@ -44,16 +44,19 @@ float4 PSMain(VS_OUT pin) : SV_TARGET
 
 	// シャドウマップの深度値と比較する.
     float3 shadowCoord = pin.sdwcoord.xyz / pin.sdwcoord.w;
+    /*
 	// 最大深度傾斜を求める.
     float maxDepthSlope = max(abs(ddx(shadowCoord.z)), abs(ddy(shadowCoord.z)));
     float shadowThreshold = 1.0f; // シャドウにするかどうかの閾値です.
     float slopeScaledBias = 0.01f; // 深度傾斜.
     float depthBiasClamp = 0.01f; // バイアスクランプ値.
-    float3 shadowColor = float3(0.65f, 0.65f, 0.65f);
+    float3 shadowColor = float3(0.75f, 0.75f, 0.75f);
 
     float shadowBias = bias + slopeScaledBias * maxDepthSlope;
     shadowBias = min(shadowBias, depthBiasClamp);
-    shadowThreshold = shadowMap.SampleCmpLevelZero(ShadowMapSamplerState, shadowCoord.xy, shadowCoord.z - shadowBias);
+    shadowThreshold = shadowMap.SampleCmpLevelZero(ShadowMapSamplerState, shadowCoord.xy, shadowCoord.z - shadowBias);*/
+    float3 shadowColor = float3(0.75f, 0.75f, 0.75f);
+    float shadowThreshold = shadowMap.SampleCmpLevelZero(ShadowMapSamplerState, shadowCoord.xy, shadowCoord.z);
     shadowColor = lerp(shadowColor, float3(1.0f, 1.0f, 1.0f), shadowThreshold);
 
     float3 Ka = mapdiff.rgb * (1 - diffuse_factor) * 0.8;

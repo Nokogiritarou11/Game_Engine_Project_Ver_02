@@ -46,12 +46,14 @@ namespace BeastEngine
 		friend class FBX_Converter;
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(cereal::base_class<BeastEngine::Renderer>(this), file_name, file_path);
 		}
 	};
 }
+
 REGISTER_COMPONENT(Mesh_Renderer)
 CEREAL_REGISTER_TYPE(BeastEngine::Mesh_Renderer)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Renderer, BeastEngine::Mesh_Renderer)
+CEREAL_CLASS_VERSION(BeastEngine::Mesh_Renderer, 1)

@@ -67,7 +67,7 @@ namespace BeastEngine
 		friend class BeastEngine::Animator_Manager;
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(cereal::base_class<BeastEngine::Behaviour>(this), controller_path, parameters);
 		}
@@ -77,3 +77,4 @@ namespace BeastEngine
 REGISTER_COMPONENT(Animator)
 CEREAL_REGISTER_TYPE(BeastEngine::Animator)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Behaviour, BeastEngine::Animator)
+CEREAL_CLASS_VERSION(BeastEngine::Animator, 1)

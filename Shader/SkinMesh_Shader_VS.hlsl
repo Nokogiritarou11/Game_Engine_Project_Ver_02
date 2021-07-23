@@ -12,30 +12,30 @@ VS_OUT VSMain(
 	float3 tangent : TANGENT,
 	float2 texcoord : TEXCOORD,
 	float4 bone_weights : WEIGHTS,
-	uint4  bone_indices : BONES
+	uint4 bone_indices : BONES
 )
 {
-	VS_OUT vout;
+    VS_OUT vout;
 
-	float4 pos = float4(position, 1.0f);
-	float4 nor = float4(normal, 0.0f);
-	float4 tan = float4(tangent, 0.0f);
-	float3 p = { 0, 0, 0 };
-	float3 n = { 0, 0, 0 };
-	float3 t = { 0, 0, 0 };
+    float4 pos = float4(position, 1.0f);
+    float4 nor = float4(normal, 0.0f);
+    float4 tan = float4(tangent, 0.0f);
+    float3 p = { 0, 0, 0 };
+    float3 n = { 0, 0, 0 };
+    float3 t = { 0, 0, 0 };
 
-	for (int i = 0; i < 4; i++)
-	{
-		p += (bone_weights[i] * mul(pos, boneTransforms[bone_indices[i]])).xyz;
-		n += (bone_weights[i] * mul(nor, boneTransforms[bone_indices[i]])).xyz;
-		t += (bone_weights[i] * mul(tan, boneTransforms[bone_indices[i]])).xyz;
-	}
+    for (int i = 0; i < 4; i++)
+    {
+        p += (bone_weights[i] * mul(pos, boneTransforms[bone_indices[i]])).xyz;
+        n += (bone_weights[i] * mul(nor, boneTransforms[bone_indices[i]])).xyz;
+        t += (bone_weights[i] * mul(tan, boneTransforms[bone_indices[i]])).xyz;
+    }
 
-	float4 w_pos = float4(p, 1.0f);
-	vout.position = mul(w_pos, viewProjection);
+    float4 w_pos = float4(p, 1.0f);
+    vout.position = mul(w_pos, viewProjection);
 
-	vout.normal = float4(normalize(n), 0.0f);
-	vout.tangent = float4(normalize(t), 0.0f);
+    vout.normal = float4(normalize(n), 0.0f);
+    vout.tangent = float4(normalize(t), 0.0f);
 	/*
 	float3 N = normalize(n);
 	float3 L = normalize(-lightDirection.xyz);
@@ -45,10 +45,10 @@ VS_OUT VSMain(
 	vout.color.xyz = materialColor.xyz * d;
 	vout.color.w = materialColor.w;
 	*/
-	vout.texcoord = texcoord;
+    vout.texcoord = texcoord;
 
 	///*
-	vout.sdwcoord = mul(w_pos, shadowMatrix);
+    vout.sdwcoord = mul(w_pos + vout.normal * bias, shadowMatrix);
 	//*/
 	/*
 	w_pos = mul(viewProjection, w_pos);
@@ -58,5 +58,5 @@ VS_OUT VSMain(
 	w_pos.xy = 0.5f * w_pos.xy + 0.5f;
 	vout.sdwcoord = float4(w_pos.x, w_pos.y, w_pos.z, 0);
 	*/
-	return vout;
+    return vout;
 }

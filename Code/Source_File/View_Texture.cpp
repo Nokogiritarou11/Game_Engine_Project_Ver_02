@@ -190,9 +190,9 @@ void View_Texture::Render_Shadow_Directional(Vector4 color, float intensity, std
 	Matrix V, P, VP;
 	const float size = Engine::shadow_manager->shadow_distance;
 	const Vector3 Look_pos = camera_transform->Get_Position() + camera_transform->Get_Forward() * (size * 0.5f);
-	V = XMMatrixLookAtRH(Look_pos - light_transform->Get_Forward() * 80.0f, Look_pos, light_transform->Get_Up());
+	V = XMMatrixLookAtRH(Look_pos - light_transform->Get_Forward() * 800.0f, Look_pos, light_transform->Get_Up());
 	//V = XMMatrixLookAtRH(-light_transform->Get_Forward() * 900.0f, Vector3(0,0,0), light_transform->Get_Up());
-	P = XMMatrixOrthographicRH(size, size, 10.0f, 100.0f);
+	P = XMMatrixOrthographicRH(size, size, 100.0f, 1000.0f);
 	VP = V * P;
 
 	buffer_scene.view_projection_matrix = VP;
@@ -224,40 +224,16 @@ void View_Texture::Render_Shadow_Directional(Vector4 color, float intensity, std
 	Renderer::binding_depth_stencil_State = DS_State::Less;
 
 	shared_ptr<Renderer> p_rend = nullptr;
-	bool expired = false;
-	bool disabled = false;
 	for (weak_ptr<Renderer> r : Engine::render_manager->renderer_3D_list)
 	{
-		if (!r.expired())
+		p_rend = r.lock();
+		if (p_rend->gameobject->Get_Active_In_Hierarchy())
 		{
-			p_rend = r.lock();
-			if (p_rend->gameobject->Get_Active_In_Hierarchy())
+			if (p_rend->Get_Enabled())
 			{
-				if (p_rend->Get_Enabled())
-				{
-					p_rend->Render_Shadow(V, P);
-				}
-			}
-			else
-			{
-				p_rend->is_disable = true;
-				disabled = true;
+				p_rend->Render_Shadow(V, P);
 			}
 		}
-		else
-		{
-			expired = true;
-		}
-	}
-	if (expired)
-	{
-		auto removeIt = remove_if(Engine::render_manager->renderer_3D_list.begin(), Engine::render_manager->renderer_3D_list.end(), [](weak_ptr<Renderer> r) { return r.expired(); });
-		Engine::render_manager->renderer_3D_list.erase(removeIt, Engine::render_manager->renderer_3D_list.end());
-	}
-	if (disabled)
-	{
-		auto removeIt = remove_if(Engine::render_manager->renderer_3D_list.begin(), Engine::render_manager->renderer_3D_list.end(), [](weak_ptr<Renderer> r) { shared_ptr<Renderer> rend = r.lock(); rend->is_called = false; return rend->is_disable; });
-		Engine::render_manager->renderer_3D_list.erase(removeIt, Engine::render_manager->renderer_3D_list.end());
 	}
 }
 

@@ -853,7 +853,7 @@ void Transform::Remove_Parent()
 
 		local_position = position;
 		local_rotation = rotation;
-		local_scale = local_scale;
+		local_scale = scale;
 
 		local_translation_matrix = translation_matrix;
 		local_rotation_matrix = rotation_matrix;

@@ -24,7 +24,7 @@ namespace BeastEngine
 		private:
 			friend class cereal::access;
 			template<class Archive>
-			void serialize(Archive& archive)
+			void serialize(Archive& archive, std::uint32_t const version)
 			{
 				archive
 				(
@@ -43,7 +43,7 @@ namespace BeastEngine
 		private:
 			friend class cereal::access;
 			template<class Archive>
-			void serialize(Archive& archive)
+			void serialize(Archive& archive, std::uint32_t const version)
 			{
 				archive(index_start, index_count, color, material_ID);
 			}
@@ -68,7 +68,7 @@ namespace BeastEngine
 	private:
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(cereal::base_class<BeastEngine::Object>(this), vertices, indices, subsets, default_material_passes, inverse_matrixes, boundingbox);
 		}
@@ -77,3 +77,6 @@ namespace BeastEngine
 
 CEREAL_REGISTER_TYPE(BeastEngine::Mesh)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Object, BeastEngine::Mesh)
+CEREAL_CLASS_VERSION(BeastEngine::Mesh, 1)
+CEREAL_CLASS_VERSION(BeastEngine::Mesh::vertex, 1)
+CEREAL_CLASS_VERSION(BeastEngine::Mesh::subset, 1)

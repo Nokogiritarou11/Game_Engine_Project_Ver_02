@@ -13,6 +13,7 @@ namespace BeastEngine
 	{
 	public:
 		void Draw_ImGui();
+		void Direct_Load(const char* file_path, const char* fbx_filename, bool convert_mesh, bool convert_animation, bool convert_prefab);
 	private:
 		std::shared_ptr<BeastEngine::Model_Data> model;
 		void Load_From_FBX(bool& convert_mesh, bool& convert_animation, bool& convert_prefab);

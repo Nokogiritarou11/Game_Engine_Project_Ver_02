@@ -46,7 +46,7 @@ bool Animator_Controller::Add_State_Machine(string& name)
 	shared_ptr<Animator_State_Machine> state_machine = make_shared<Animator_State_Machine>();
 	state_machine->name = name;
 	state_machine->Initialize(parameters);
-	state_machines.push_back(state_machine);
+	state_machines.emplace_back(state_machine);
 
 	return true;
 }

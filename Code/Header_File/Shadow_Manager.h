@@ -18,7 +18,7 @@ namespace BeastEngine
 		void Set_Shadow_Map_Texture_Size(u_int size);
 
 		u_int Get_Shadow_Map_Texture_Size() { return shadow_map_texture_size; }
-		float shadow_bias = 0.0005f;
+		float shadow_bias = 0.01f;
 		float shadow_distance = 15;
 
 	private:

@@ -93,7 +93,6 @@ void SkinMesh_Renderer::Set_Active(bool value)
 						Engine::render_manager->Add(static_pointer_cast<SkinMesh_Renderer>(shared_from_this()));
 						is_called = true;
 					}
-					is_disable = false;
 				}
 			}
 		}
@@ -140,7 +139,7 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 					cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
 					binaryInputArchive(Mat);
 					Material::Initialize(Mat, pass);
-					material.push_back(Mat);
+					material.emplace_back(Mat);
 				}
 			}
 			Set_Active(Get_Enabled());
@@ -248,17 +247,17 @@ bool SkinMesh_Renderer::Draw_ImGui()
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 	bool open = ImGui::CollapsingHeader("SkinMesh_Renderer", ImGuiTreeNodeFlags_AllowItemOverlap);
 
-	bool removed = true;
+	bool removed = false;
 	if (ImGui::BeginPopupContextItem("SkinMesh_Renderer_sub"))
 	{
 		if (ImGui::Selectable(u8"コンポーネントを削除"))
 		{
 			Object::Destroy(dynamic_pointer_cast<SkinMesh_Renderer>(shared_from_this()));
-			removed = false;
+			removed = true;
 		}
 		ImGui::EndPopup();
 	}
-	if (!removed)
+	if (removed)
 	{
 		return false;
 	}

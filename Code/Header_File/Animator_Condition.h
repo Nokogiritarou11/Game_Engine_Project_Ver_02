@@ -33,14 +33,14 @@ namespace BeastEngine
 
 	struct Animation_Parameter
 	{
-		int value_int;
-		float value_float;
-		bool value_bool;
+		int value_int = 0;
+		float value_float = 0;
+		bool value_bool = false;
 		Parameter_Type type;
 	private:
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(value_int, value_float, value_bool, type);
 		}
@@ -48,15 +48,15 @@ namespace BeastEngine
 
 	struct Condition //ëJà⁄èåè
 	{
-		std::string key;
+		std::string key = "";
 		Parameter_Type type;
 		Condition_Mode mode;
-		float threshold;
+		float threshold = 0;
 
 	private:
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(key, type, mode, threshold);
 		}
@@ -64,18 +64,22 @@ namespace BeastEngine
 
 	struct Animation_Event
 	{
-		std::string key;
+		std::string key = "";
 		bool trigger = false;
 		bool called = false;
-		float time;
+		float time = 0;
 		Animation_Parameter parameter;
 
 	private:
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(key, time, parameter);
 		}
 	};
 }
+
+CEREAL_CLASS_VERSION(BeastEngine::Animation_Parameter, 1)
+CEREAL_CLASS_VERSION(BeastEngine::Condition, 1)
+CEREAL_CLASS_VERSION(BeastEngine::Animation_Event, 1)

@@ -17,11 +17,13 @@ namespace BeastEngine
 
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(cereal::base_class<BeastEngine::Component>(this), enabled);
 		}
 	};
 }
+
 CEREAL_REGISTER_TYPE(BeastEngine::Behaviour)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Component, BeastEngine::Behaviour)
+CEREAL_CLASS_VERSION(BeastEngine::Behaviour, 1)

@@ -43,12 +43,14 @@ namespace BeastEngine
 
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(cereal::base_class<BeastEngine::Renderer>(this), size, uv_origin, uv_size, color, file_name, file_path);
 		}
 	};
 }
+
 REGISTER_COMPONENT(Sprite_Renderer)
 CEREAL_REGISTER_TYPE(BeastEngine::Sprite_Renderer)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Renderer, BeastEngine::Sprite_Renderer)
+CEREAL_CLASS_VERSION(BeastEngine::Sprite_Renderer, 1)

@@ -32,7 +32,6 @@ namespace BeastEngine
 		bool Can_Multiple() override { return false; };
 
 		bool is_called = false;
-		bool is_disable = false;
 
 		Effekseer::EffectRef effect = nullptr;
 		Effekseer::Handle handle = -1;
@@ -43,12 +42,14 @@ namespace BeastEngine
 		friend class Particle_Manager;
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(cereal::base_class<Component>(this), play_on_awake, play_speed, file_name, file_path);
 		}
 	};
 }
+
 REGISTER_COMPONENT(Particle)
 CEREAL_REGISTER_TYPE(BeastEngine::Particle)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Component, BeastEngine::Particle)
+CEREAL_CLASS_VERSION(BeastEngine::Particle, 1)

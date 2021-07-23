@@ -22,13 +22,13 @@ VS_SHADOW_OUT VSMain(
 {
     VS_SHADOW_OUT vout;
 
-	float4 pos = float4(position, 1.0f);
-	float3 p = { 0, 0, 0 };
+    float4 pos = float4(position, 1.0f);
+    float3 p = { 0, 0, 0 };
 
 	for (int i = 0; i < 4; i++)
 	{
-		p += (bone_weights[i] * mul(pos, boneTransforms[bone_indices[i]])).xyz;
-	}
+        p += (bone_weights[i] * mul(pos, boneTransforms[bone_indices[i]])).xyz;
+    }
 
 	vout.position = mul(float4(p, 1.0f), viewProjection);
 

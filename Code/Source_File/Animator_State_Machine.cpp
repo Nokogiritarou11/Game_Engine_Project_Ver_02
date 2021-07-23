@@ -136,7 +136,7 @@ void Animator_State_Machine::Add_Transition(shared_ptr<Animator_State_Machine>& 
 {
 	shared_ptr<Animator_State_Transition> transition = make_shared<Animator_State_Transition>();
 	transition->Initialize(parameters, next_state);
-	transitions.push_back(transition);
+	transitions.emplace_back(transition);
 }
 
 void Animator_State_Machine::Remove_Transition(int index)
@@ -147,7 +147,7 @@ void Animator_State_Machine::Remove_Transition(int index)
 void Animator_State_Machine::Add_Event()
 {
 	Animation_Event eve = {};
-	events.push_back(eve);
+	events.emplace_back(eve);
 }
 
 shared_ptr<BeastEngine::Animator_State_Transition> Animator_State_Machine::Get_Active_Transition()

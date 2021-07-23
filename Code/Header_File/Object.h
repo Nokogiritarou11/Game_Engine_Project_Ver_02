@@ -50,10 +50,12 @@ namespace BeastEngine
 
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(name, instance_id);
 		}
 	};
 }
+
 CEREAL_REGISTER_TYPE(BeastEngine::Object)
+CEREAL_CLASS_VERSION(BeastEngine::Object, 1)

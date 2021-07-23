@@ -50,12 +50,14 @@ namespace BeastEngine
 		friend class Animator;
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(cereal::base_class<BeastEngine::Renderer>(this), file_name, file_path, bones);
 		}
 	};
 }
+
 REGISTER_COMPONENT(SkinMesh_Renderer)
 CEREAL_REGISTER_TYPE(BeastEngine::SkinMesh_Renderer)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Renderer, BeastEngine::SkinMesh_Renderer)
+CEREAL_CLASS_VERSION(BeastEngine::SkinMesh_Renderer, 1)

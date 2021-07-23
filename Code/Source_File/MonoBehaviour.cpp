@@ -15,7 +15,6 @@ void MonoBehaviour::Initialize(shared_ptr<GameObject> obj)
 	is_called_Awake = false;
 	is_called_Start = false;
 	is_called_Update = false;
-	is_disable = false;
 	if (Engine::scene_manager->run)
 	{
 		Add();
@@ -66,7 +65,6 @@ void  MonoBehaviour::Add()
 								Scene_Manager::Get_Active_Scene()->monobehaviour_Update_next_list.emplace_back(static_pointer_cast<MonoBehaviour>(shared_from_this()));
 								is_called_Update = true;
 							}
-							is_disable = false;
 						}
 					}
 				}

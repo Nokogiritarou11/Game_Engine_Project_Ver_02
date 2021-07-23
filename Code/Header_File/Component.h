@@ -27,7 +27,7 @@ namespace BeastEngine
 	private:
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(cereal::base_class<BeastEngine::Object>(this));
 		}
@@ -44,6 +44,7 @@ namespace BeastEngine
 
 CEREAL_REGISTER_TYPE(BeastEngine::Component)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Object, BeastEngine::Component)
+CEREAL_CLASS_VERSION(BeastEngine::Component, 1)
 
 namespace BeastEngine
 {

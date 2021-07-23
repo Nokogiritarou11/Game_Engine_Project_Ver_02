@@ -23,16 +23,16 @@ bool Camera::Draw_ImGui()
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 	bool open = ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_AllowItemOverlap);
 
-	bool removed = true;
+	bool removed = false;
 	if (ImGui::BeginPopupContextItem("Camera_sub"))
 	{
 		if (ImGui::Selectable(u8"コンポーネントを削除"))
 		{
 			Object::Destroy(dynamic_pointer_cast<Camera>(shared_from_this()));
-			removed = false;
+			removed = true;
 		}
 		ImGui::EndPopup();
-		if (!removed)
+		if (removed)
 		{
 			return false;
 		}

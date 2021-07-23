@@ -26,7 +26,7 @@ namespace BeastEngine
 			std::string shader_name;
 			std::string shader_fullpass;
 			template<class Archive>
-			void serialize(Archive& archive)
+			void serialize(Archive& archive, std::uint32_t const version)
 			{
 				archive(shader_pass, shader_name, shader_fullpass);
 			}
@@ -49,7 +49,7 @@ namespace BeastEngine
 			std::string texture_name;
 			std::string texture_fullpass;
 			template<class Archive>
-			void serialize(Archive& archive)
+			void serialize(Archive& archive, std::uint32_t const version)
 			{
 				archive(texture_pass, texture_name, texture_fullpass);
 			}
@@ -78,7 +78,7 @@ namespace BeastEngine
 		friend class BeastEngine::Mesh_Renderer;
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(cereal::base_class<BeastEngine::Object>(this), name, color, shader_info, texture_info, blend_state, rasterizer_state, depth_stencil_state);
 		}
@@ -87,3 +87,6 @@ namespace BeastEngine
 
 CEREAL_REGISTER_TYPE(BeastEngine::Material)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Object, BeastEngine::Material)
+CEREAL_CLASS_VERSION(BeastEngine::Material, 1)
+CEREAL_CLASS_VERSION(BeastEngine::Material::Shader_Info, 1)
+CEREAL_CLASS_VERSION(BeastEngine::Material::Texture_Info, 1)

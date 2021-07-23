@@ -24,7 +24,7 @@ namespace BeastEngine
 
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(cereal::base_class<BeastEngine::Behaviour>(this), fov, near_z, far_z);
 		}
@@ -36,6 +36,8 @@ namespace BeastEngine
 		UINT num_viewports = 1;
 	};
 }
+
 REGISTER_COMPONENT(Camera)
 CEREAL_REGISTER_TYPE(BeastEngine::Camera)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Behaviour, BeastEngine::Camera)
+CEREAL_CLASS_VERSION(BeastEngine::Camera, 1)

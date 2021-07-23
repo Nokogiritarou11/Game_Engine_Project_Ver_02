@@ -27,7 +27,6 @@ namespace BeastEngine
 
 	protected:
 		bool is_called = false;
-		bool is_disable = false;
 		bool enabled = true;
 		bool enabled_old = false;
 		bool recalculated_frame = false;
@@ -46,7 +45,7 @@ namespace BeastEngine
 		friend class Render_Manager;
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(cereal::base_class<BeastEngine::Component>(this), enabled);
 		}
@@ -55,3 +54,4 @@ namespace BeastEngine
 
 CEREAL_REGISTER_TYPE(BeastEngine::Renderer)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Component, BeastEngine::Renderer)
+CEREAL_CLASS_VERSION(BeastEngine::Renderer, 1)

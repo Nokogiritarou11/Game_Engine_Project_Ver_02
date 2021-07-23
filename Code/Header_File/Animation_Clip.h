@@ -22,7 +22,7 @@ namespace BeastEngine
 		private:
 			friend class cereal::access;
 			template<class Archive>
-			void serialize(Archive& archive)
+			void serialize(Archive& archive, std::uint32_t const version)
 			{
 				archive(time, scale, rotation, position);
 			}
@@ -36,7 +36,7 @@ namespace BeastEngine
 		private:
 			friend class cereal::access;
 			template<class Archive>
-			void serialize(Archive& archive)
+			void serialize(Archive& archive, std::uint32_t const version)
 			{
 				archive(Target_Path, keys);
 			}
@@ -54,7 +54,7 @@ namespace BeastEngine
 		friend class BeastEngine::FBX_Converter;
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(cereal::base_class<BeastEngine::Object>(this), animations, length);
 		}
@@ -63,3 +63,6 @@ namespace BeastEngine
 
 CEREAL_REGISTER_TYPE(BeastEngine::Animation_Clip)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Object, BeastEngine::Animation_Clip)
+CEREAL_CLASS_VERSION(BeastEngine::Animation_Clip, 1)
+CEREAL_CLASS_VERSION(BeastEngine::Animation_Clip::Keyframe, 1)
+CEREAL_CLASS_VERSION(BeastEngine::Animation_Clip::Animation, 1)

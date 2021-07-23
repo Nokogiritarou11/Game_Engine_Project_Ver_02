@@ -83,12 +83,11 @@ void Particle_Manager::Update()
 {
 	shared_ptr<Particle> p_eff = nullptr;
 	bool expired = false;
-	bool disabled = false;
-	for (weak_ptr<Particle> r : particle_list)
+	for (auto& p : particle_list)
 	{
-		if (!r.expired())
+		if (!p.expired())
 		{
-			p_eff = r.lock();
+			p_eff = p.lock();
 			if (p_eff->gameobject->Get_Active_In_Hierarchy())
 			{
 				if (Engine::particle_manager->manager->Exists(p_eff->handle))
@@ -110,8 +109,6 @@ void Particle_Manager::Update()
 					// Ä¶‚ð’âŽ~‚·‚é
 					Engine::particle_manager->manager->StopEffect(p_eff->handle);
 				}
-				p_eff->is_disable = true;
-				disabled = true;
 			}
 		}
 		else
@@ -121,12 +118,7 @@ void Particle_Manager::Update()
 	}
 	if (expired)
 	{
-		auto removeIt = remove_if(particle_list.begin(), particle_list.end(), [](weak_ptr<Particle> r) { return r.expired(); });
-		particle_list.erase(removeIt, particle_list.end());
-	}
-	if (disabled)
-	{
-		auto removeIt = remove_if(particle_list.begin(), particle_list.end(), [](weak_ptr<Particle> r) { shared_ptr<Particle> p = r.lock(); p->is_called = false; return p->is_disable; });
+		auto removeIt = remove_if(particle_list.begin(), particle_list.end(), [](weak_ptr<Particle> p) { return p.expired(); });
 		particle_list.erase(removeIt, particle_list.end());
 	}
 

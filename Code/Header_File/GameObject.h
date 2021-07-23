@@ -41,12 +41,13 @@ namespace BeastEngine
 		friend class Scene;
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive);
+		void serialize(Archive& archive, std::uint32_t const version);
 	};
 }
 
 CEREAL_REGISTER_TYPE(BeastEngine::GameObject)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Object, BeastEngine::GameObject)
+CEREAL_CLASS_VERSION(BeastEngine::GameObject, 1)
 
 template<class T>
 std::shared_ptr<T> BeastEngine::GameObject::Get_Component()
@@ -103,7 +104,7 @@ std::shared_ptr<T> BeastEngine::GameObject::Add_Component()
 
 #include "Transform.h"
 template<class Archive>
-void BeastEngine::GameObject::serialize(Archive& archive)
+void BeastEngine::GameObject::serialize(Archive& archive, std::size_t version)
 {
 	archive(cereal::base_class<BeastEngine::Object>(this), layer, tag, transform, component_list, active, active_old);
 }

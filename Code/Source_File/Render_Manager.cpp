@@ -7,26 +7,27 @@
 #include "Renderer.h"
 #include "Camera.h"
 #include "Original_Math.h"
+#include "SkinMesh_Renderer.h"
+#include "Mesh_Renderer.h"
+#include "Sprite_Renderer.h"
 using namespace DirectX;
 using namespace std;
 using namespace BeastEngine;
 
 void Render_Manager::Reset()
 {
-	for (weak_ptr<Renderer> r : renderer_3D_list)
+	for (auto& r : renderer_3D_list)
 	{
-		if (shared_ptr<Renderer> rend = r.lock())
+		if (auto& rend = r.lock())
 		{
-			rend->is_disable = false;
 			rend->enabled_old = false;
 			rend->is_called = false;
 		}
 	}
-	for (weak_ptr<Renderer> r : renderer_2D_list)
+	for (auto& r : renderer_2D_list)
 	{
-		if (shared_ptr<Renderer> rend = r.lock())
+		if (auto& rend = r.lock())
 		{
-			rend->is_disable = false;
 			rend->enabled_old = false;
 			rend->is_called = false;
 		}
@@ -59,18 +60,12 @@ void Render_Manager::Check_Renderer()
 	//3Dオブジェクト
 	{
 		bool expired = false;
-		bool disabled = false;
-		for (weak_ptr<Renderer> r : renderer_3D_list)
+		for (auto& r : renderer_3D_list)
 		{
 			if (!r.expired())
 			{
 				p_rend = r.lock();
 				p_rend->recalculated_frame = false;
-				if (!p_rend->gameobject->Get_Active_In_Hierarchy())
-				{
-					p_rend->is_disable = true;
-					disabled = true;
-				}
 			}
 			else
 			{
@@ -82,27 +77,16 @@ void Render_Manager::Check_Renderer()
 			auto removeIt = remove_if(renderer_3D_list.begin(), renderer_3D_list.end(), [](weak_ptr<Renderer> r) { return r.expired(); });
 			renderer_3D_list.erase(removeIt, renderer_3D_list.end());
 		}
-		if (disabled)
-		{
-			auto removeIt = remove_if(renderer_3D_list.begin(), renderer_3D_list.end(), [](weak_ptr<Renderer> r) { shared_ptr<Renderer> rend = r.lock(); rend->is_called = false; return rend->is_disable; });
-			renderer_3D_list.erase(removeIt, renderer_3D_list.end());
-		}
 	}
 	//2Dオブジェクト
 	{
 		bool expired = false;
-		bool disabled = false;
-		for (weak_ptr<Renderer> r : renderer_2D_list)
+		for (auto& r : renderer_2D_list)
 		{
 			if (!r.expired())
 			{
 				p_rend = r.lock();
 				p_rend->recalculated_frame = false;
-				if (!p_rend->gameobject->Get_Active_In_Hierarchy())
-				{
-					p_rend->is_disable = true;
-					disabled = true;
-				}
 			}
 			else
 			{
@@ -114,11 +98,6 @@ void Render_Manager::Check_Renderer()
 			auto removeIt = remove_if(renderer_2D_list.begin(), renderer_2D_list.end(), [](weak_ptr<Renderer> r) { return r.expired(); });
 			renderer_2D_list.erase(removeIt, renderer_2D_list.end());
 		}
-		if (disabled)
-		{
-			auto removeIt = remove_if(renderer_2D_list.begin(), renderer_2D_list.end(), [](weak_ptr<Renderer> r) { shared_ptr<Renderer> rend = r.lock(); rend->is_called = false; return rend->is_disable; });
-			renderer_2D_list.erase(removeIt, renderer_2D_list.end());
-		}
 	}
 }
 
@@ -128,7 +107,7 @@ void Render_Manager::Render()
 
 	shared_ptr<Camera> camera = nullptr;
 	bool expired = false;
-	for (weak_ptr<Camera> c : camera_list)
+	for (auto& c : camera_list)
 	{
 		if (!c.expired())
 		{

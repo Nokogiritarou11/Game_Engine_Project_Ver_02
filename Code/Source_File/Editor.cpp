@@ -862,7 +862,7 @@ void Editor::Scene_File_Menu_Render()
 		{
 			if (!Engine::scene_manager->run && !Engine::scene_manager->pause)
 			{
-				string path = System_Function::Get_Save_File_Name();
+				string path = System_Function::Get_Save_File_Name("bin", "\\Resouces\\Scene");
 				if (path != "")
 				{
 					int path_i = path.find_last_of("\\") + 1;//7
@@ -916,7 +916,7 @@ void Editor::Scene_File_Menu_Render()
 				}
 				else
 				{
-					string path = System_Function::Get_Save_File_Name();
+					string path = System_Function::Get_Save_File_Name("bin", "\\Resouces\\Scene");
 					if (path != "")
 					{
 						int path_i = path.find_last_of("\\") + 1;//7

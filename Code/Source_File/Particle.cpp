@@ -99,7 +99,6 @@ void Particle::Set_Active(bool value)
 				Stop();
 			}
 		}
-		is_disable = false;
 	}
 	else
 	{
@@ -170,17 +169,17 @@ bool Particle::Draw_ImGui()
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 	bool open = ImGui::CollapsingHeader("Particle");
 
-	bool removed = true;
+	bool removed = false;
 	if (ImGui::BeginPopupContextItem("Particle_sub"))
 	{
 		if (ImGui::Selectable(u8"コンポーネントを削除"))
 		{
 			Object::Destroy(dynamic_pointer_cast<Particle>(shared_from_this()));
-			removed = false;
+			removed = true;
 		}
 		ImGui::EndPopup();
 	}
-	if (!removed)
+	if (removed)
 	{
 		return false;
 	}

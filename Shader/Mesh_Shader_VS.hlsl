@@ -26,6 +26,6 @@ VS_OUT VSMain(
     vout.tangent = normalize(mul(tan, world));
     vout.texcoord = texcoord;
 
-    vout.sdwcoord = mul(mul(pos, world), shadowMatrix);
+    vout.sdwcoord = mul(mul(pos, world) + vout.normal * bias, shadowMatrix);
     return vout;
 }

@@ -10,6 +10,7 @@
 #include "Light_Manager.h"
 #include "Particle_Manager.h"
 #include "Shadow_Manager.h"
+#include "Collider_Manager.h"
 #include "FBX_Converter.h"
 #include "Editor.h"
 #include "SkyBox.h"
@@ -33,6 +34,7 @@ unique_ptr<Animator_Manager> Engine::animator_manager;
 unique_ptr<Light_Manager>	 Engine::light_manager;
 unique_ptr<Particle_Manager> Engine::particle_manager;
 unique_ptr<Shadow_Manager>	 Engine::shadow_manager;
+unique_ptr<Collider_Manager> Engine::collider_manager;
 unique_ptr<FBX_Converter>	 Engine::fbx_converter;
 unique_ptr<Editor>			 Engine::editor;
 unique_ptr<View_Game>		 Engine::view_game;
@@ -50,10 +52,11 @@ Engine::Engine()
 	light_manager = make_unique<Light_Manager>();
 	particle_manager = make_unique<Particle_Manager>();
 	shadow_manager = make_unique<Shadow_Manager>();
-	view_game = make_unique<View_Game>();
+	collider_manager = make_unique<Collider_Manager>();
 
 #if _DEBUG
 	fbx_converter = make_unique<FBX_Converter>();
+	view_game = make_unique<View_Game>();
 	view_scene = make_unique<View_Scene>();
 	editor = make_unique<Editor>();
 	string load_path;
@@ -67,7 +70,7 @@ Engine::Engine()
 		}
 		else
 		{
-			string path = System_Function::Get_Save_File_Name();
+			string path = System_Function::Get_Save_File_Name("bin", "\\Resouces\\Scene");
 			if (path != "")
 			{
 				int path_i = path.find_last_of("\\") + 1;//7
@@ -81,7 +84,7 @@ Engine::Engine()
 	}
 	else
 	{
-		string path = System_Function::Get_Save_File_Name();
+		string path = System_Function::Get_Save_File_Name("bin", "\\Resouces\\Scene");
 		if (path != "")
 		{
 			int path_i = path.find_last_of("\\") + 1;//7
@@ -94,6 +97,7 @@ Engine::Engine()
 	}
 
 #else
+	view_game = make_unique<View_Game>();
 	string load_path;
 	ifstream iIfstream("Default_Resource\\System\\last_save.bin");
 	if (iIfstream.is_open())
@@ -126,6 +130,7 @@ Engine::~Engine()
 	light_manager.reset();
 	particle_manager.reset();
 	shadow_manager.reset();
+	collider_manager.reset();
 	fbx_converter.reset();
 	editor.reset();
 	view_game.reset();
@@ -142,6 +147,7 @@ void Engine::Update()
 	cursor_manager->Update();
 	audio_manager->Update();
 	scene_manager->Update();
+	collider_manager->Update();
 
 #if _DEBUG
 	editor->Update(scene_manager->Get_Active_Scene());

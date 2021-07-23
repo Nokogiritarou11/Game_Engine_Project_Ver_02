@@ -129,7 +129,6 @@ void Scene::Processing_Start()
 									{
 										monobehaviour_Update_list.emplace_back(m);
 										mono->is_called_Update = true;
-										mono->is_disable = false;
 									}
 								}
 							}
@@ -151,7 +150,6 @@ void Scene::Processing_Update(int state)
 	}
 
 	bool expired = false;
-	bool disabled = false;
 	for (auto& m : monobehaviour_Update_list)
 	{
 		if (!m.expired())
@@ -170,16 +168,6 @@ void Scene::Processing_Update(int state)
 						mono->LateUpdate();
 					}
 				}
-				else
-				{
-					mono->is_disable = true;
-					disabled = true;
-				}
-			}
-			else
-			{
-				mono->is_disable = true;
-				disabled = true;
 			}
 		}
 		else
@@ -190,11 +178,6 @@ void Scene::Processing_Update(int state)
 	if (expired)
 	{
 		auto removeIt = remove_if(monobehaviour_Update_list.begin(), monobehaviour_Update_list.end(), [](weak_ptr<MonoBehaviour> m) { return m.expired(); });
-		monobehaviour_Update_list.erase(removeIt, monobehaviour_Update_list.end());
-	}
-	if (disabled)
-	{
-		auto removeIt = remove_if(monobehaviour_Update_list.begin(), monobehaviour_Update_list.end(), [](weak_ptr<MonoBehaviour> m) { shared_ptr<MonoBehaviour> mono = m.lock(); mono->is_called_Update = false; return mono->is_disable; });
 		monobehaviour_Update_list.erase(removeIt, monobehaviour_Update_list.end());
 	}
 }

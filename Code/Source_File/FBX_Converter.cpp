@@ -80,6 +80,12 @@ void FBX_Converter::Draw_ImGui()
 	ImGui::End();
 }
 
+void FBX_Converter::Direct_Load(const char* file_path, const char* fbx_filename, bool convert_mesh, bool convert_animation, bool convert_prefab)
+{
+	model = Model_Data::Load_Model(file_path, fbx_filename);
+	Load_From_FBX(convert_mesh, convert_animation, convert_prefab);
+}
+
 void FBX_Converter::Load_From_FBX(bool& convert_mesh, bool& convert_animation, bool& convert_prefab)
 {
 	shared_ptr<GameObject> obj = Create_GameObject(model->name);

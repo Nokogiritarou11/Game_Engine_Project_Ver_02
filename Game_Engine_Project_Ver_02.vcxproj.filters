@@ -84,6 +84,9 @@
     <ClCompile Include="Code\Source_File\Animator_Controller.cpp" />
     <ClCompile Include="Code\Source_File\Animator_State_Transition.cpp" />
     <ClCompile Include="Code\Source_File\Animator_State_Machine.cpp" />
+    <ClCompile Include="Code\Source_File\Collider.cpp" />
+    <ClCompile Include="Code\Source_File\Box_Collider.cpp" />
+    <ClCompile Include="Code\Source_File\Collider_Manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -272,6 +275,9 @@
     <ClInclude Include="Code\Header_File\Animator_State_Transition.h" />
     <ClInclude Include="Code\Header_File\Animator_State_Machine.h" />
     <ClInclude Include="Code\Header_File\Animator_Condition.h" />
+    <ClInclude Include="Code\Header_File\Collider.h" />
+    <ClInclude Include="Code\Header_File\Box_Collider.h" />
+    <ClInclude Include="Code\Header_File\Collider_Manager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

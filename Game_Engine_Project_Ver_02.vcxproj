@@ -213,7 +213,10 @@
     </ClCompile>
     <ClCompile Include="Code\Source_File\Behaviour.cpp" />
     <ClCompile Include="Code\Source_File\Bounds.cpp" />
+    <ClCompile Include="Code\Source_File\Box_Collider.cpp" />
     <ClCompile Include="Code\Source_File\Camera.cpp" />
+    <ClCompile Include="Code\Source_File\Collider.cpp" />
+    <ClCompile Include="Code\Source_File\Collider_Manager.cpp" />
     <ClCompile Include="Code\Source_File\Component.cpp" />
     <ClCompile Include="Code\Source_File\Cursor.cpp" />
     <ClCompile Include="Code\Source_File\Debug.cpp" />
@@ -303,7 +306,10 @@
     </ClInclude>
     <ClInclude Include="Code\Header_File\Behaviour.h" />
     <ClInclude Include="Code\Header_File\Bounds.h" />
+    <ClInclude Include="Code\Header_File\Box_Collider.h" />
     <ClInclude Include="Code\Header_File\Camera.h" />
+    <ClInclude Include="Code\Header_File\Collider.h" />
+    <ClInclude Include="Code\Header_File\Collider_Manager.h" />
     <ClInclude Include="Code\Header_File\Component.h" />
     <ClInclude Include="Code\Header_File\Cursor.h" />
     <ClInclude Include="Code\Header_File\Debug.h" />

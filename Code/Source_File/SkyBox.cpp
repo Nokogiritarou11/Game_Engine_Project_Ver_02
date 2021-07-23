@@ -7,7 +7,8 @@
 #include "Material.h"
 #include "Texture.h"
 #include "Mesh.h"
-#include "FBX_Converter.h"
+//#include "Engine.h"
+//#include "FBX_Converter.h"
 using namespace std;
 using namespace BeastEngine;
 
@@ -39,7 +40,7 @@ SkyBox::SkyBox()
 		}
 	}
 
-	//FBX_Converter::Convert_From_FBX("Default_Resource\\Model\\sphere\\", "sphere");
+	//Engine::fbx_converter->Direct_Load("Default_Resource\\Model\\sphere\\", "sphere", true, false, false);
 	mesh = Mesh::Load_Mesh("Default_Resource\\Model\\sphere\\sphere");
 
 	// 定数バッファの生成
@@ -62,11 +63,11 @@ SkyBox::SkyBox()
 	}
 }
 
-SkyBox::~SkyBox(){}
+SkyBox::~SkyBox() {}
 
 void SkyBox::Render(Vector3 pos)
 {
-	DxSystem::device_context->IASetInputLayout(material->shader->vertex_layout.Get());
+	DxSystem::device_context->IASetInputLayout(vertex_shader->vertex_layout.Get());
 	//シェーダーリソースのバインド
 	material->texture[static_cast<int>(Material::Texture_Type::Main)]->Set(1); //PSSetSamplar PSSetShaderResources
 

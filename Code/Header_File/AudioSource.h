@@ -48,12 +48,14 @@ namespace BeastEngine
 
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(cereal::base_class<BeastEngine::Behaviour>(this), file_name, file_path, play_on_awake, loop, volume, pitch);
 		}
 	};
 }
+
 REGISTER_COMPONENT(AudioSource)
 CEREAL_REGISTER_TYPE(BeastEngine::AudioSource)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Behaviour, BeastEngine::AudioSource)
+CEREAL_CLASS_VERSION(BeastEngine::AudioSource, 1)

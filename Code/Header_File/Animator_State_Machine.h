@@ -40,9 +40,11 @@ namespace BeastEngine
 
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(name, path, animation_speed, multiplier_hash, loopAnimation, is_default_state, transitions, events);
 		}
 	};
 }
+
+CEREAL_CLASS_VERSION(BeastEngine::Animator_State_Machine, 1)

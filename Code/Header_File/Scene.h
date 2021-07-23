@@ -21,7 +21,7 @@ namespace BeastEngine
 
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(gameobject_list);
 		}
@@ -50,3 +50,5 @@ namespace BeastEngine
 		std::vector<std::weak_ptr<MonoBehaviour>> monobehaviour_Update_next_list;
 	};
 }
+
+CEREAL_CLASS_VERSION(BeastEngine::Scene, 1)

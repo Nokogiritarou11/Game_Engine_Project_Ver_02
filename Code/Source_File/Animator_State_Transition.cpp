@@ -110,7 +110,7 @@ void Animator_State_Transition::Add_Condition(string key, Parameter_Type type, C
 	condition->type = type;
 	condition->mode = mode;
 	condition->threshold = threshold;
-	conditions.push_back(condition);
+	conditions.emplace_back(condition);
 }
 
 void Animator_State_Transition::Remove_Condition(int index)

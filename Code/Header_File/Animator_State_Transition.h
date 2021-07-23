@@ -42,9 +42,11 @@ namespace BeastEngine
 
 		friend class cereal::access;
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(has_exit_time, exit_time, transition_duration, transition_offset, interruption_source, conditions, next_state);
 		}
 	};
 }
+
+CEREAL_CLASS_VERSION(BeastEngine::Animator_State_Transition, 1)
