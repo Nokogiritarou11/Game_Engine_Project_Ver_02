@@ -13,18 +13,10 @@ void Collider_Manager::Add(shared_ptr<Box_Collider>& collider)
 
 void Collider_Manager::Update()
 {
-	shared_ptr<Box_Collider> box;
 	bool expired = false;
 	for (auto& b : box_list)
 	{
-		if (!b.expired())
-		{
-			box = b.lock();
-			if (box->gameobject->Get_Active_In_Hierarchy())
-			{
-			}
-		}
-		else
+		if (b.expired())
 		{
 			expired = true;
 		}
@@ -33,6 +25,27 @@ void Collider_Manager::Update()
 	{
 		auto removeIt = remove_if(box_list.begin(), box_list.end(), [](weak_ptr<Box_Collider> b) { return b.expired(); });
 		box_list.erase(removeIt, box_list.end());
+	}
+
+	shared_ptr<Box_Collider> box_main;
+	shared_ptr<Box_Collider> box_judge;
+	for (auto& box : box_list)
+	{
+		box_main = box.lock();
+		if (box_main->gameobject->Get_Active_In_Hierarchy())
+		{
+			for (auto& b : box_list)
+			{
+				box_judge = b.lock();
+				if (box_main != box_judge)
+				{
+					if (Judge(box_main, box_judge))
+					{
+
+					}
+				}
+			}
+		}
 	}
 }
 

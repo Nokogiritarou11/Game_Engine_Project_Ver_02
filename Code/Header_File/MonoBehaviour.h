@@ -19,6 +19,7 @@
 #include "Resources.h"
 #include "Include_ImGui.h"
 #include "Time_Engine.h"
+#include "Box_Collider.h"
 
 namespace BeastEngine
 {
@@ -35,6 +36,13 @@ namespace BeastEngine
 		virtual void OnDisable() {};//非アクティブになった時に呼ばれる
 		virtual void OnDestroy() {};//削除時に呼ばれる
 
+		virtual void OnTrigger_Enter(std::shared_ptr<Collider>& col) {};
+		virtual void OnCollision_Enter(std::shared_ptr<Collider>& col) {};
+		virtual void OnTrigger_Stay(std::shared_ptr<Collider>& col) {};
+		virtual void OnCollision_Stay(std::shared_ptr<Collider>& col) {};
+		virtual void OnTrigger_Exit(std::shared_ptr<Collider>& col) {};
+		virtual void OnCollision_Exit(std::shared_ptr<Collider>& col) {};
+
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
 		void Set_Active(bool value) override;
 		bool Can_Multiple() override { return true; };
@@ -45,6 +53,7 @@ namespace BeastEngine
 		void Add();
 
 		friend class Scene;
+		friend class Collider;
 		friend class GameObject;
 		friend class cereal::access;
 		template<class Archive>

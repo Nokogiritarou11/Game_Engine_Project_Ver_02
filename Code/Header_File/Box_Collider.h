@@ -14,7 +14,6 @@ namespace BeastEngine
 		bool Draw_ImGui() override;
 		void Set_Active(bool value) override;
 
-
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)

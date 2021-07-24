@@ -33,7 +33,12 @@ void Box_Collider::Set_Active(bool value)
 		{
 			if (Get_Enabled())
 			{
-				Engine::collider_manager->Add(static_pointer_cast<Box_Collider>(shared_from_this()));
+				if (!is_called)
+				{
+					Initialize_MonoBehaviour();
+					Engine::collider_manager->Add(static_pointer_cast<Box_Collider>(shared_from_this()));
+					is_called = true;
+				}
 			}
 		}
 	}
