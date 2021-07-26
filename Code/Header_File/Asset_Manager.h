@@ -29,7 +29,8 @@ namespace BeastEngine
 		std::unordered_map<std::string, std::shared_ptr<BeastEngine::Texture>> cache_texture;
 		std::unordered_map<std::string, std::shared_ptr<BeastEngine::Animation_Clip>> cache_clip;
 
-		void Clear_Manager();
+		void Exit();
+
 	private:
 
 		std::unordered_map<std::string, std::weak_ptr<BeastEngine::Object>> cache_asset;

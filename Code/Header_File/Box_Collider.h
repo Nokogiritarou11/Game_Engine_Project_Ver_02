@@ -6,13 +6,15 @@ namespace BeastEngine
 	class Box_Collider :public BeastEngine::Collider
 	{
 	public:
-		BeastEngine::Vector3 Get_Scaling_Size() const;
-		BeastEngine::Vector3 size;
+		void Set_Size(BeastEngine::Vector3& new_size);
+		BeastEngine::Vector3 Get_Size() const { return size; }
 
 	private:
-		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
+		void Create_Shape() override;
+		void Resize_Shape() override;
 		bool Draw_ImGui() override;
-		void Set_Active(bool value) override;
+
+		BeastEngine::Vector3 size;
 
 		friend class cereal::access;
 		template<class Archive>

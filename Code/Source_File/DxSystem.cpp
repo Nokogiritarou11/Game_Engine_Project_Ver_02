@@ -24,8 +24,6 @@ HWND								DxSystem::hwnd;
 DXGI_SAMPLE_DESC					DxSystem::MSAA;
 int DxSystem::screen_width = 1920;
 int DxSystem::screen_height = 1080;
-XMFLOAT4 DxSystem::light_direction = { 0.0f, 1.0f, 0.0f, 0 };
-float DxSystem::elapsed_time = 0;
 
 //****************************************************************
 //

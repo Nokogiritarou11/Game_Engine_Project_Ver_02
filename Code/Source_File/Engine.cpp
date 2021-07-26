@@ -10,7 +10,7 @@
 #include "Light_Manager.h"
 #include "Particle_Manager.h"
 #include "Shadow_Manager.h"
-#include "Collider_Manager.h"
+#include "BulletPhysics_Manager.h"
 #include "FBX_Converter.h"
 #include "Editor.h"
 #include "SkyBox.h"
@@ -24,21 +24,21 @@
 using namespace std;
 using namespace BeastEngine;
 
-unique_ptr<Input>			 Engine::input_manager;
-unique_ptr<Cursor>			 Engine::cursor_manager;
-unique_ptr<Asset_Manager>	 Engine::asset_manager;
-unique_ptr<Scene_Manager>	 Engine::scene_manager;
-unique_ptr<Audio_Manager>	 Engine::audio_manager;
-unique_ptr<Render_Manager>	 Engine::render_manager;
-unique_ptr<Animator_Manager> Engine::animator_manager;
-unique_ptr<Light_Manager>	 Engine::light_manager;
-unique_ptr<Particle_Manager> Engine::particle_manager;
-unique_ptr<Shadow_Manager>	 Engine::shadow_manager;
-unique_ptr<Collider_Manager> Engine::collider_manager;
-unique_ptr<FBX_Converter>	 Engine::fbx_converter;
-unique_ptr<Editor>			 Engine::editor;
-unique_ptr<View_Game>		 Engine::view_game;
-unique_ptr<View_Scene>		 Engine::view_scene;
+unique_ptr<Input>                 Engine::input_manager;
+unique_ptr<Cursor>                Engine::cursor_manager;
+unique_ptr<Asset_Manager>         Engine::asset_manager;
+unique_ptr<Scene_Manager>         Engine::scene_manager;
+unique_ptr<Audio_Manager>         Engine::audio_manager;
+unique_ptr<Render_Manager>        Engine::render_manager;
+unique_ptr<Animator_Manager>      Engine::animator_manager;
+unique_ptr<Light_Manager>         Engine::light_manager;
+unique_ptr<Particle_Manager>      Engine::particle_manager;
+unique_ptr<Shadow_Manager>	      Engine::shadow_manager;
+unique_ptr<BulletPhysics_Manager> Engine::bulletphysics_manager;
+unique_ptr<FBX_Converter>	      Engine::fbx_converter;
+unique_ptr<Editor>                Engine::editor;
+unique_ptr<View_Game>	          Engine::view_game;
+unique_ptr<View_Scene>	          Engine::view_scene;
 
 Engine::Engine()
 {
@@ -52,7 +52,7 @@ Engine::Engine()
 	light_manager = make_unique<Light_Manager>();
 	particle_manager = make_unique<Particle_Manager>();
 	shadow_manager = make_unique<Shadow_Manager>();
-	collider_manager = make_unique<Collider_Manager>();
+	bulletphysics_manager = make_unique<BulletPhysics_Manager>();
 
 #if _DEBUG
 	fbx_converter = make_unique<FBX_Converter>();
@@ -130,12 +130,13 @@ Engine::~Engine()
 	light_manager.reset();
 	particle_manager.reset();
 	shadow_manager.reset();
-	collider_manager.reset();
 	fbx_converter.reset();
 	editor.reset();
 	view_game.reset();
 	view_scene.reset();
-	asset_manager->Clear_Manager();
+	bulletphysics_manager->Exit();
+	bulletphysics_manager.reset();
+	asset_manager->Exit();
 	asset_manager.reset();
 }
 
@@ -147,7 +148,7 @@ void Engine::Update()
 	cursor_manager->Update();
 	audio_manager->Update();
 	scene_manager->Update();
-	collider_manager->Update();
+	bulletphysics_manager->Update();
 
 #if _DEBUG
 	editor->Update(scene_manager->Get_Active_Scene());

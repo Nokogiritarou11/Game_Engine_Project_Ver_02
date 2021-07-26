@@ -1,46 +1,54 @@
 #include "Box_Collider.h"
 #include "Engine.h"
-#include "Collider_Manager.h"
 #include "Asset_Manager.h"
 #include "Transform.h"
 #include "GameObject.h"
 #include "Include_ImGui.h"
+#include "RigidBody.h"
+#include "BulletPhysics_Manager.h"
 
 using namespace std;
 using namespace BeastEngine;
 
-Vector3 Box_Collider::Get_Scaling_Size() const
+void Box_Collider::Create_Shape()
 {
-	Vector3 v = size;
-	v *= transform->Get_Scale();
-	return v;
+	shape = make_unique<btBoxShape>(btVector3(size.x, size.y, size.z));
+	Resize_Shape();
 }
 
-void Box_Collider::Initialize(shared_ptr<GameObject> obj)
+void Box_Collider::Resize_Shape()
 {
-	gameobject = obj;
-	Engine::asset_manager->Registration_Asset(shared_from_this());
-	transform = obj->transform;
-	Set_Active(gameobject->Get_Active_In_Hierarchy());
-}
-
-
-void Box_Collider::Set_Active(bool value)
-{
-	if (value)
+	Vector3 scale = transform->Get_Scale();
+	btVector3 bt_scale(scale.x, scale.y, scale.z);
+	if (shape->getLocalScaling() != bt_scale)
 	{
-		if (gameobject->Get_Active_In_Hierarchy())
+		shape->setLocalScaling(bt_scale);
+		if (is_trigger)
 		{
-			if (Get_Enabled())
-			{
-				if (!is_called)
-				{
-					Initialize_MonoBehaviour();
-					Engine::collider_manager->Add(static_pointer_cast<Box_Collider>(shared_from_this()));
-					is_called = true;
-				}
-			}
+			Engine::bulletphysics_manager->Resize_Ghost(ghost);
 		}
+		else
+		{
+			Engine::bulletphysics_manager->Resize_RigidBody(rigidbody->rigidbody);
+		}
+	}
+}
+
+void Box_Collider::Set_Size(Vector3& new_size)
+{
+	if (size != new_size)
+	{
+		size = new_size;
+		if (is_trigger)
+		{
+			Engine::bulletphysics_manager->Remove_Ghost(ghost);
+		}
+		else
+		{
+			Engine::bulletphysics_manager->Remove_RigidBody(rigidbody->rigidbody);
+			rigidbody->rigidbody.reset();
+		}
+		Create_Shape();
 	}
 }
 

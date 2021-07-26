@@ -14,6 +14,7 @@
 #include "Render_Manager.h"
 #include "Audio_Manager.h"
 #include "Particle_Manager.h"
+#include "BulletPhysics_Manager.h"
 using namespace std;
 using namespace BeastEngine;
 
@@ -174,6 +175,7 @@ void Scene_Manager::Update()
 		Engine::light_manager->Reset();
 		Engine::particle_manager->Reset();
 		Engine::audio_manager->Reset();
+		Engine::bulletphysics_manager->Reset();
 
 		if (active_scene)
 		{

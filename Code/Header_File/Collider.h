@@ -1,47 +1,80 @@
 #pragma once
-#include "Component.h"
 #include <unordered_map>
+#include "btBulletDynamicsCommon.h"
+#include "BulletCollision/CollisionDispatch/btGhostObject.h"
+#include "LinearMath/btVector3.h"
+#include "LinearMath/btQuaternion.h"
+#include "LinearMath/btTransform.h"
+#include "LinearMath/btIDebugDraw.h"
+#include "Component.h"
+#include "RigidBody.h"
 
 namespace BeastEngine
 {
 	class MonoBehaviour;
-	class Collider_Manager;
+	class BulletPhysics_Manager;
 
-	class Collider :public BeastEngine::Component
+	struct Collision
+	{
+		const std::shared_ptr<BeastEngine::Collider> collider;
+		const std::shared_ptr<BeastEngine::GameObject> gameobject;
+		const std::shared_ptr<BeastEngine::Transform> transform;
+		const std::vector<BeastEngine::Vector3> contacts;
+	};
+
+	class Collider : public BeastEngine::Component
 	{
 	public:
+		~Collider();
 		void Set_Enabled(bool value); //表示するか
-		bool Get_Enabled();			 //現在アクティブか
-
-		bool is_trigger = false;
+		bool Get_Enabled();			  //現在アクティブか
+		void Set_IsTrigger(bool value);
+		std::shared_ptr<RigidBody> rigidbody;
 
 	protected:
 		void Initialize_MonoBehaviour();
 
-		bool is_called = false;
-		bool enabled = true;
-		bool enabled_old = false;
+		std::unique_ptr<btCollisionShape> shape;
+		std::unique_ptr<btGhostObject> ghost;
+		bool is_trigger = false;
 
 	private:
+		virtual void Create_Shape() {};
+		virtual void Resize_Shape() {};
+		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
+		void Set_Active(bool value) override;
 		bool Can_Multiple() override { return false; };
-		void Call_Hit(std::shared_ptr<Collider>& col);
+
+		void Create_Ghost();
+		void Create_Collider();
+
+		void Call_Hit(Collision& collision);
 		void Call_Update();
-		void Call_OnTrigger_Enter(std::shared_ptr<Collider>& col);
-		void Call_OnCollision_Enter(std::shared_ptr<Collider>& col);
-		void Call_OnTrigger_Stay(std::shared_ptr<Collider>& col);
-		void Call_OnCollision_Stay(std::shared_ptr<Collider>& col);
-		void Call_OnTrigger_Exit(std::shared_ptr<Collider>& col);
-		void Call_OnCollision_Exit(std::shared_ptr<Collider>& col);
+
+		void Call_OnTrigger_Enter(BeastEngine::Collision& collision);
+		void Call_OnTrigger_Stay(BeastEngine::Collision& collision);
+		void Call_OnTrigger_Exit(BeastEngine::Collision& collision);
+
+		void Call_OnCollision_Enter(BeastEngine::Collision& collision);
+		void Call_OnCollision_Stay(BeastEngine::Collision& collision);
+		void Call_OnCollision_Exit(BeastEngine::Collision& collision);
 
 		std::vector<std::weak_ptr<BeastEngine::MonoBehaviour>> send_list;
 		std::unordered_map<std::string, std::weak_ptr<BeastEngine::Collider>> hit_list;
 
-		friend class BeastEngine::Collider_Manager;
+		bool is_called = false;
+		bool enabled = true;
+		bool enabled_old = false;
+		bool disabled = false;
+		bool disabled_old = false;
+
+		friend class BeastEngine::BulletPhysics_Manager;
+		friend class BeastEngine::RigidBody;
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Component>(this), enabled);
+			archive(cereal::base_class<BeastEngine::Component>(this), enabled, is_trigger, rigidbody);
 		}
 	};
 }

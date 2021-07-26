@@ -106,7 +106,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 		return 0;
 	}
 
-	BeastEngine::Engine* engine = new BeastEngine::Engine();
+	std::unique_ptr<BeastEngine::Engine> engine = std::make_unique<BeastEngine::Engine>();
 	BeastEngine::Time::time_scale = 1.0f;
 
 	//ƒƒCƒ“ƒ‹[ƒv
@@ -146,6 +146,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 			engine->Update();
 		}
 	}
-	SAFE_DELETE(engine);
+	engine.reset();
 	return 0;
 }

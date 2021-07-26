@@ -5,6 +5,7 @@
 #include <DirectXPackedVector.h>
 #include <DirectXCollision.h>
 #include "cereal/cereal.hpp"
+#include "cereal/access.hpp"
 #ifndef XM_CONSTEXPR
 #define XM_CONSTEXPR
 #endif
@@ -118,6 +119,8 @@ namespace BeastEngine
 		static const Vector2 UnitX;
 		static const Vector2 UnitY;
 
+	private:
+		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
@@ -243,6 +246,8 @@ namespace BeastEngine
 		static const Vector3 Forward;
 		static const Vector3 Backward;
 
+	private:
+		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
@@ -362,6 +367,8 @@ namespace BeastEngine
 		static const Vector4 UnitZ;
 		static const Vector4 UnitW;
 
+	private:
+		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
@@ -525,6 +532,8 @@ namespace BeastEngine
 		// Constants
 		static const Matrix Identity;
 
+	private:
+		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
@@ -612,6 +621,8 @@ namespace BeastEngine
 		// Constants
 		static const Quaternion Identity;
 
+	private:
+		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive)
 		{

@@ -4,7 +4,7 @@
 using namespace std;
 using namespace BeastEngine;
 
-void Asset_Manager::Clear_Manager()
+void Asset_Manager::Exit()
 {
 	cache_vertex.clear();
 	cache_pixel.clear();

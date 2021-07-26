@@ -36,12 +36,12 @@ namespace BeastEngine
 		virtual void OnDisable() {};//非アクティブになった時に呼ばれる
 		virtual void OnDestroy() {};//削除時に呼ばれる
 
-		virtual void OnTrigger_Enter(std::shared_ptr<Collider>& col) {};
-		virtual void OnCollision_Enter(std::shared_ptr<Collider>& col) {};
-		virtual void OnTrigger_Stay(std::shared_ptr<Collider>& col) {};
-		virtual void OnCollision_Stay(std::shared_ptr<Collider>& col) {};
-		virtual void OnTrigger_Exit(std::shared_ptr<Collider>& col) {};
-		virtual void OnCollision_Exit(std::shared_ptr<Collider>& col) {};
+		virtual void OnTrigger_Enter(BeastEngine::Collision& collision) {};
+		virtual void OnCollision_Enter(BeastEngine::Collision& collision) {};
+		virtual void OnTrigger_Stay(BeastEngine::Collision& collision) {};
+		virtual void OnCollision_Stay(BeastEngine::Collision& collision) {};
+		virtual void OnTrigger_Exit(BeastEngine::Collision& collision) {};
+		virtual void OnCollision_Exit(BeastEngine::Collision& collision) {};
 
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
 		void Set_Active(bool value) override;

@@ -216,9 +216,9 @@
     <ClCompile Include="Code\Source_File\Behaviour.cpp" />
     <ClCompile Include="Code\Source_File\Bounds.cpp" />
     <ClCompile Include="Code\Source_File\Box_Collider.cpp" />
+    <ClCompile Include="Code\Source_File\BulletPhysics_Manager.cpp" />
     <ClCompile Include="Code\Source_File\Camera.cpp" />
     <ClCompile Include="Code\Source_File\Collider.cpp" />
-    <ClCompile Include="Code\Source_File\Collider_Manager.cpp" />
     <ClCompile Include="Code\Source_File\Component.cpp" />
     <ClCompile Include="Code\Source_File\Cursor.cpp" />
     <ClCompile Include="Code\Source_File\Debug.cpp" />
@@ -244,6 +244,7 @@
     <ClCompile Include="Code\Source_File\Renderer.cpp" />
     <ClCompile Include="Code\Source_File\Render_Manager.cpp" />
     <ClCompile Include="Code\Source_File\Resources.cpp" />
+    <ClCompile Include="Code\Source_File\RigidBody.cpp" />
     <ClCompile Include="Code\Source_File\Scene.cpp" />
     <ClCompile Include="Code\Source_File\Scene_Manager.cpp" />
     <ClCompile Include="Code\Source_File\Screen.cpp" />
@@ -309,9 +310,9 @@
     <ClInclude Include="Code\Header_File\Behaviour.h" />
     <ClInclude Include="Code\Header_File\Bounds.h" />
     <ClInclude Include="Code\Header_File\Box_Collider.h" />
+    <ClInclude Include="Code\Header_File\BulletPhysics_Manager.h" />
     <ClInclude Include="Code\Header_File\Camera.h" />
     <ClInclude Include="Code\Header_File\Collider.h" />
-    <ClInclude Include="Code\Header_File\Collider_Manager.h" />
     <ClInclude Include="Code\Header_File\Component.h" />
     <ClInclude Include="Code\Header_File\Cursor.h" />
     <ClInclude Include="Code\Header_File\Debug.h" />
@@ -339,6 +340,7 @@
     <ClInclude Include="Code\Header_File\Renderer.h" />
     <ClInclude Include="Code\Header_File\Render_Manager.h" />
     <ClInclude Include="Code\Header_File\Resources.h" />
+    <ClInclude Include="Code\Header_File\RigidBody.h" />
     <ClInclude Include="Code\Header_File\Scene.h" />
     <ClInclude Include="Code\Header_File\Scene_Manager.h" />
     <ClInclude Include="Code\Header_File\Screen.h" />

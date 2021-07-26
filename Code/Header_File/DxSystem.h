@@ -61,9 +61,6 @@ namespace BeastEngine
 		static HWND hwnd;
 		static DXGI_SAMPLE_DESC MSAA;
 
-		static DirectX::XMFLOAT4 light_direction;
-		static float elapsed_time;
-
 		static bool Initialize(HWND hWnd, int width, int height);
 		static void Release();
 		static void Clear(DWORD color = 0x0000FFFF);
