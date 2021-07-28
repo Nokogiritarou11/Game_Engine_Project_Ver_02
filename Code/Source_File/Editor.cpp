@@ -732,7 +732,7 @@ void Editor::SceneView_Render()
 		matrix = trans->Get_World_Matrix();
 
 		ImVec2 winPos = ImGui::GetWindowPos();
-		ImGuizmo::SetRect(winPos.x, winPos.y, window_width, window_height);
+		ImGuizmo::SetRect(winPos.x + 4, winPos.y + 16, window_width, window_height);
 		ImGuizmo::SetDrawlist();
 
 		// 選択ノードの行列を操作する

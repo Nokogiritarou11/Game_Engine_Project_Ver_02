@@ -1,20 +1,12 @@
 #include "Collider.h"
 #include "GameObject.h"
 #include "MonoBehaviour.h"
+#include "Include_ImGui.h"
 #include "Engine.h"
-#include "BulletPhysics_Manager.h"
 #include "Asset_Manager.h"
 
 using namespace BeastEngine;
 using namespace std;
-
-Collider::~Collider()
-{
-	if (ghost)
-	{
-		Engine::bulletphysics_manager->Remove_Ghost(ghost);
-	}
-}
 
 void Collider::Set_Enabled(bool value)
 {
@@ -68,11 +60,10 @@ void Collider::Set_Active(bool value)
 		{
 			if (is_trigger)
 			{
-				Engine::bulletphysics_manager->Remove_Ghost(ghost);
+				ghost->ghost.reset();
 			}
 			else
 			{
-				Engine::bulletphysics_manager->Remove_RigidBody(rigidbody->rigidbody);
 				rigidbody->rigidbody.reset();
 			}
 			shape.reset();
@@ -81,24 +72,9 @@ void Collider::Set_Active(bool value)
 		{
 			Create_Shape();
 			Create_Collider();
+			Rescale_Shape();
 		}
 	}
-}
-
-void Collider::Create_Ghost()
-{
-	ghost = make_unique<btGhostObject>();
-
-	// 形状設定
-	ghost->setCollisionShape(shape.get());
-	// 他のオブジェクトへの反応なし
-	// CF_NO_CONTACT_RESPONSEを指定しないと剛体と衝突する
-	ghost->setCollisionFlags(ghost->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
-	// 位置設定
-	Vector3 pos = transform->Get_Position();
-	Quaternion rot = transform->Get_Rotation();
-	btTransform t(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z));
-	ghost->setWorldTransform(t);
 }
 
 void Collider::Create_Collider()
@@ -109,22 +85,19 @@ void Collider::Create_Collider()
 
 		if (!ghost)
 		{
-			Create_Ghost();
+			ghost = make_unique<GhostObject>();
 		}
-		Engine::bulletphysics_manager->Add_Ghost(static_pointer_cast<Collider>(shared_from_this()), ghost, gameobject->layer, 0);
+		ghost->Initialize(static_pointer_cast<Collider>(shared_from_this()));
 	}
 	else
 	{
-		if (ghost)
-		{
-			Engine::bulletphysics_manager->Remove_Ghost(ghost);
-			ghost.reset();
-		}
+		ghost.reset();
+
 		if (!rigidbody)
 		{
 			rigidbody = make_unique<RigidBody>();
 		}
-		rigidbody->Initialize(static_pointer_cast<Collider>(shared_from_this()), shape, transform);
+		rigidbody->Initialize(static_pointer_cast<Collider>(shared_from_this()));
 	}
 }
 
@@ -145,10 +118,10 @@ void Collider::Initialize(shared_ptr<GameObject> obj)
 
 	Create_Shape();
 	Create_Collider();
+	Rescale_Shape();
 
 	Set_Active(gameobject->Get_Active_In_Hierarchy());
 }
-
 
 void Collider::Initialize_MonoBehaviour()
 {
@@ -162,14 +135,32 @@ void Collider::Initialize_MonoBehaviour()
 	}
 }
 
+void Collider::Rescale_Shape()
+{
+	Vector3 scale = transform->Get_Scale();
+	btVector3 bt_scale(scale.x, scale.y, scale.z);
+	if (shape->getLocalScaling() != bt_scale)
+	{
+		shape->setLocalScaling(bt_scale);
+		if (is_trigger)
+		{
+			ghost->Resize();
+		}
+		else
+		{
+			rigidbody->Resize();
+		}
+	}
+}
+
 void Collider::Call_Hit(Collision& collision)
 {
 	string& id = collision.collider->Get_Instance_ID();
-	auto it = hit_list.find(id);
-	if (it == hit_list.end())
+	auto it = hit_list_old.find(id);
+	if (it == hit_list_old.end())
 	{
 		hit_list[id] = collision.collider;
-		if (collision.collider->is_trigger)
+		if (is_trigger)
 		{
 			Call_OnTrigger_Enter(collision);
 		}
@@ -180,7 +171,8 @@ void Collider::Call_Hit(Collision& collision)
 	}
 	else
 	{
-		if (collision.collider->is_trigger)
+		hit_list[id] = collision.collider;
+		if (is_trigger)
 		{
 			Call_OnTrigger_Stay(collision);
 		}
@@ -191,9 +183,64 @@ void Collider::Call_Hit(Collision& collision)
 	}
 }
 
-void Collider::Call_Update()
+void Collider::Update_Transform()
 {
+	Vector3 pos = transform->Get_Position();
+	Quaternion rot = transform->Get_Rotation();
 
+	Rescale_Shape();
+
+	if (position_old != pos || rotation_old != rot)
+	{
+		position_old = pos;
+		rotation_old = rot;
+
+		btTransform t(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z));
+		if (is_trigger)	ghost->Set_btTransform(t);
+		else rigidbody->Set_btTransform(t);
+	}
+}
+
+void Collider::Update_Simulation()
+{
+	btTransform t;
+	if (is_trigger) ghost->Get_btTransform(t);
+	else rigidbody->Get_btTransform(t);
+
+	btVector3 v = t.getOrigin();
+	btQuaternion q = t.getRotation();
+
+	Vector3 pos = { v.x(), v.y(), v.z() };
+	Quaternion rot = { q.x(), q.y(), q.z(), q.w() };
+
+	if (position_old != pos || rotation_old != rot)
+	{
+		position_old = pos;
+		rotation_old = rot;
+		transform->Set_Position(pos);
+		transform->Set_Rotation(rot);
+	}
+
+	shared_ptr<Collider> col;
+	for (auto& hit : hit_list_old)
+	{
+		auto it = hit_list.find(hit.first);
+		if (it == hit_list.end())
+		{
+			col = hit.second.lock();
+			Collision collision = { col, col->gameobject, col->transform };
+			if (is_trigger)
+			{
+				Call_OnTrigger_Exit(collision);
+			}
+			else
+			{
+				Call_OnCollision_Exit(collision);
+			}
+		}
+	}
+	hit_list_old = hit_list;
+	hit_list.clear();
 }
 
 void Collider::Call_OnTrigger_Enter(Collision& collision)
@@ -267,5 +314,87 @@ void Collider::Call_OnCollision_Exit(Collision& collision)
 			mono = m.lock();
 			mono->OnCollision_Exit(collision);
 		}
+	}
+}
+
+void Collider::Draw_ImGui_Common()
+{
+	float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
+
+	ImGui::Text(u8"トリガーコライダー");
+	ImGui::SameLine(window_center);
+	bool trigger = is_trigger;
+	if (ImGui::Checkbox("##Trigger", &trigger))
+	{
+		Set_IsTrigger(trigger);
+	}
+
+	if (!is_trigger)
+	{
+		ImGui::Text(u8"ダイナミックコライダー");
+		ImGui::SameLine(window_center);
+		bool dynamic = rigidbody->is_dynamic;
+		if (ImGui::Checkbox("##Dynamic", &dynamic))
+		{
+			rigidbody->Set_Dynamic(dynamic);
+		}
+
+		if (rigidbody->is_dynamic)
+		{
+			ImGui::Text(u8"質量");
+			ImGui::SameLine(window_center);
+			ImGui::SetNextItemWidth(window_center);
+			float mass = rigidbody->mass;
+			if (ImGui::InputFloat("##Mass", &mass, 0, 0, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue))
+			{
+				rigidbody->Set_Mass(mass);
+			}
+
+			ImGui::Text(u8"重力");
+			ImGui::SameLine(window_center);
+			bool gravity = (rigidbody->gravity == Vector3(0.0f, -9.8f, 0.0f));
+			if (ImGui::Checkbox("##Gravity", &gravity))
+			{
+				rigidbody->Use_Gravity(gravity);
+			}
+		}
+		else
+		{
+			ImGui::Text(u8"キネマティック");
+			ImGui::SameLine(window_center);
+			bool kinematic = rigidbody->is_kinematic;
+			if (ImGui::Checkbox("##Kinematic", &kinematic))
+			{
+				rigidbody->Set_Kinematic(kinematic);
+			}
+		}
+
+		ImGui::Text(u8"移動制限");
+		ImGui::SameLine(window_center);
+		bool pos_x = !static_cast<bool>(rigidbody->linear_factor.x);
+		bool pos_y = !static_cast<bool>(rigidbody->linear_factor.y);
+		bool pos_z = !static_cast<bool>(rigidbody->linear_factor.z);
+		bool changed_pos = false;
+		if (ImGui::Checkbox("X##Pos", &pos_x)) changed_pos = true;
+		ImGui::SameLine();
+		if (ImGui::Checkbox("Y##Pos", &pos_y)) changed_pos = true;
+		ImGui::SameLine();
+		if (ImGui::Checkbox("Z##Pos", &pos_z)) changed_pos = true;
+
+		if (changed_pos) rigidbody->Set_Freeze_Position(pos_x, pos_y, pos_z);
+
+		ImGui::Text(u8"回転制限");
+		ImGui::SameLine(window_center);
+		bool rot_x = !static_cast<bool>(rigidbody->angular_factor.x);
+		bool rot_y = !static_cast<bool>(rigidbody->angular_factor.y);
+		bool rot_z = !static_cast<bool>(rigidbody->angular_factor.z);
+		bool changed_rot = false;
+		if (ImGui::Checkbox("X##Rot", &rot_x)) changed_rot = true;
+		ImGui::SameLine();
+		if (ImGui::Checkbox("Y##Rot", &rot_y)) changed_rot = true;
+		ImGui::SameLine();
+		if (ImGui::Checkbox("Z##Rot", &rot_z)) changed_rot = true;
+
+		if (changed_rot) rigidbody->Set_Freeze_Rotation(rot_x, rot_y, rot_z);
 	}
 }

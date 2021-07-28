@@ -8,6 +8,7 @@
 #include "LinearMath/btIDebugDraw.h"
 #include "Component.h"
 #include "RigidBody.h"
+#include "GhostObject.h"
 
 namespace BeastEngine
 {
@@ -25,7 +26,6 @@ namespace BeastEngine
 	class Collider : public BeastEngine::Component
 	{
 	public:
-		~Collider();
 		void Set_Enabled(bool value); //表示するか
 		bool Get_Enabled();			  //現在アクティブか
 		void Set_IsTrigger(bool value);
@@ -34,22 +34,25 @@ namespace BeastEngine
 	protected:
 		void Initialize_MonoBehaviour();
 
+		virtual void Create_Shape() {};
+		void Rescale_Shape();
+		void Draw_ImGui_Common();
+
 		std::unique_ptr<btCollisionShape> shape;
-		std::unique_ptr<btGhostObject> ghost;
+		std::unique_ptr<GhostObject> ghost;
 		bool is_trigger = false;
 
 	private:
-		virtual void Create_Shape() {};
-		virtual void Resize_Shape() {};
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
 		void Set_Active(bool value) override;
 		bool Can_Multiple() override { return false; };
 
-		void Create_Ghost();
+		void Update_Transform();
+		void Update_Simulation();
+
 		void Create_Collider();
 
 		void Call_Hit(Collision& collision);
-		void Call_Update();
 
 		void Call_OnTrigger_Enter(BeastEngine::Collision& collision);
 		void Call_OnTrigger_Stay(BeastEngine::Collision& collision);
@@ -61,6 +64,7 @@ namespace BeastEngine
 
 		std::vector<std::weak_ptr<BeastEngine::MonoBehaviour>> send_list;
 		std::unordered_map<std::string, std::weak_ptr<BeastEngine::Collider>> hit_list;
+		std::unordered_map<std::string, std::weak_ptr<BeastEngine::Collider>> hit_list_old;
 
 		bool is_called = false;
 		bool enabled = true;
@@ -68,8 +72,12 @@ namespace BeastEngine
 		bool disabled = false;
 		bool disabled_old = false;
 
+		BeastEngine::Vector3 position_old;
+		BeastEngine::Quaternion rotation_old;
+
 		friend class BeastEngine::BulletPhysics_Manager;
 		friend class BeastEngine::RigidBody;
+		friend class BeastEngine::GhostObject;
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)

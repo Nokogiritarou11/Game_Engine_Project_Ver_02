@@ -19,9 +19,7 @@ namespace BeastEngine
 	enum class Force_Mode
 	{
 		Force,
-		//Acceleration,
-		Impulse,
-		//VelocityChange
+		Impulse
 	};
 
 	class RigidBody
@@ -29,12 +27,11 @@ namespace BeastEngine
 	public:
 		~RigidBody();
 
-		void Initialize(std::shared_ptr<BeastEngine::Collider> col, std::unique_ptr<btCollisionShape>& shape, std::shared_ptr<BeastEngine::Transform> trans);
-
 		void Set_Mass(float set_mass);
-		float Get_Mass() { return mass; }
+		float Get_Mass() const;
 
 		void Set_Kinematic(bool value);
+		void Set_Dynamic(bool value);
 		void Use_Gravity(bool value);
 
 		void Set_Freeze_Position(bool x_axis, bool y_axis, bool z_axis);
@@ -49,7 +46,12 @@ namespace BeastEngine
 		void Add_Force_AtPosition(BeastEngine::Vector3 force, BeastEngine::Vector3 position, Force_Mode mode = Force_Mode::Force);
 
 	private:
-		void Create_RigidBody();
+		void Initialize(std::shared_ptr<BeastEngine::Collider> col);
+		void Create();
+		void Resize();
+		void Remove();
+		void Get_btTransform(btTransform& t);
+		void Set_btTransform(btTransform& t);
 		void Draw_ImGui();
 
 		std::unique_ptr<btRigidBody> rigidbody;
@@ -57,6 +59,9 @@ namespace BeastEngine
 		std::weak_ptr<BeastEngine::Collider> collider;
 
 		float mass = 1.0f;
+		float send_mass = 1.0f;
+		bool is_dynamic = true;
+		bool is_kinematic = false;
 		BeastEngine::Vector3 gravity = { 0.0f, -9.8f, 0.0f };
 		BeastEngine::Vector3 linear_factor = { 1.0f, 1.0f, 1.0f };
 		BeastEngine::Vector3 angular_factor = { 1.0f, 1.0f, 1.0f };
@@ -67,7 +72,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(mass, gravity, linear_factor, angular_factor);
+			archive(mass, is_dynamic, is_kinematic, gravity, linear_factor, angular_factor);
 		}
 	};
 }

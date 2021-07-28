@@ -11,10 +11,9 @@ namespace BeastEngine
 
 	private:
 		void Create_Shape() override;
-		void Resize_Shape() override;
 		bool Draw_ImGui() override;
 
-		BeastEngine::Vector3 size;
+		BeastEngine::Vector3 size = { 1.0f,1.0f ,1.0f };
 
 		friend class cereal::access;
 		template<class Archive>

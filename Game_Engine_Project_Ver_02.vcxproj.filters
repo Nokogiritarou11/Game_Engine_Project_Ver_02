@@ -88,6 +88,7 @@
     <ClCompile Include="Code\Source_File\Box_Collider.cpp" />
     <ClCompile Include="Code\Source_File\BulletPhysics_Manager.cpp" />
     <ClCompile Include="Code\Source_File\RigidBody.cpp" />
+    <ClCompile Include="Code\Source_File\Ghost_Object.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -280,6 +281,7 @@
     <ClInclude Include="Code\Header_File\Box_Collider.h" />
     <ClInclude Include="Code\Header_File\BulletPhysics_Manager.h" />
     <ClInclude Include="Code\Header_File\RigidBody.h" />
+    <ClInclude Include="Code\Header_File\GhostObject.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

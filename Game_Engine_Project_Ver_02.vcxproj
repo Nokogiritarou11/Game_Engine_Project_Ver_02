@@ -227,6 +227,7 @@
     <ClCompile Include="Code\Source_File\Engine.cpp" />
     <ClCompile Include="Code\Source_File\FBX_Converter.cpp" />
     <ClCompile Include="Code\Source_File\GameObject.cpp" />
+    <ClCompile Include="Code\Source_File\Ghost_Object.cpp" />
     <ClCompile Include="Code\Source_File\Input.cpp" />
     <ClCompile Include="Code\Source_File\Light.cpp" />
     <ClCompile Include="Code\Source_File\Light_Manager.cpp" />
@@ -321,6 +322,7 @@
     <ClInclude Include="Code\Header_File\Engine.h" />
     <ClInclude Include="Code\Header_File\FBX_Converter.h" />
     <ClInclude Include="Code\Header_File\GameObject.h" />
+    <ClInclude Include="Code\Header_File\GhostObject.h" />
     <ClInclude Include="Code\Header_File\Include_ImGui.h" />
     <ClInclude Include="Code\Header_File\Input.h" />
     <ClInclude Include="Code\Header_File\Light.h" />
