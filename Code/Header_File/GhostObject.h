@@ -28,7 +28,6 @@ namespace BeastEngine
 		void Remove();
 		void Get_btTransform(btTransform& t);
 		void Set_btTransform(btTransform& t);
-		void Draw_ImGui();
 
 		std::unique_ptr<btGhostObject> ghost;
 		std::weak_ptr<BeastEngine::Collider> collider;

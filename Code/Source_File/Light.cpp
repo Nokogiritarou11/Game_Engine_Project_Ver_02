@@ -48,12 +48,21 @@ bool Light::Draw_ImGui()
 
 	if (open)
 	{
+		float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
+
+		ImGui::Text("Color");
+		ImGui::SameLine(window_center);
+		ImGui::SetNextItemWidth(window_center);
 		float out_color[4] = { color.x,color.y,color.z,color.w };
-		if (ImGui::ColorEdit3("Color", out_color))
+		if (ImGui::ColorEdit3("##Color", out_color))
 		{
 			color = { out_color[0],out_color[1] ,out_color[2] ,out_color[3] };
 		}
-		ImGui::DragFloat(u8"‹­“x", &intensity, 0.01f, 0, FLT_MAX);
+
+		ImGui::Text(u8"‹­“x");
+		ImGui::SameLine(window_center);
+		ImGui::SetNextItemWidth(window_center);
+		ImGui::DragFloat("##intensity", &intensity, 0.01f, 0, FLT_MAX);
 	}
 	return true;
 }

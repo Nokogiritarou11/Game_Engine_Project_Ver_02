@@ -200,17 +200,29 @@ bool Transform::Draw_ImGui()
 			update_GUI = false;
 		}
 
-		if (ImGui::DragFloat3(u8"Position", pos, 0.05f, -FLT_MAX, FLT_MAX))
+		float window_center = ImGui::GetWindowContentRegionWidth() * 0.25f;
+		float window_size = ImGui::GetWindowContentRegionWidth() * 0.75f;
+
+		ImGui::Text("Position");
+		ImGui::SameLine(window_center);
+		ImGui::SetNextItemWidth(window_size);
+		if (ImGui::DragFloat3("##pos", pos, 0.05f, -FLT_MAX, FLT_MAX))
 		{
 			Set_Local_Position(pos[0], pos[1], pos[2]);
 			update_GUI = false;
 		}
-		if (ImGui::DragFloat3(u8"Rotation", rot, 0.05f, -FLT_MAX, FLT_MAX))
+		ImGui::Text("Rotation");
+		ImGui::SameLine(window_center);
+		ImGui::SetNextItemWidth(window_size);
+		if (ImGui::DragFloat3("##rot", rot, 0.05f, -FLT_MAX, FLT_MAX))
 		{
 			Set_Local_Euler_Angles(rot[0], rot[1], rot[2]);
 			update_GUI = false;
 		}
-		if (ImGui::DragFloat3(u8"Scale", scl, 0.01f, -FLT_MAX, FLT_MAX))
+		ImGui::Text("Scale");
+		ImGui::SameLine(window_center);
+		ImGui::SetNextItemWidth(window_size);
+		if (ImGui::DragFloat3("##sca", scl, 0.01f, -FLT_MAX, FLT_MAX))
 		{
 			Set_Local_Scale(scl[0], scl[1], scl[2]);
 			update_GUI = false;

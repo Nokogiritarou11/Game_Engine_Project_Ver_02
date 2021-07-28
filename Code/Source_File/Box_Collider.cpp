@@ -61,7 +61,11 @@ bool Box_Collider::Draw_ImGui()
 
 	if (open)
 	{
+		float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
+
 		ImGui::Text(u8"ÉTÉCÉY");
+		ImGui::SameLine(window_center);
+		ImGui::SetNextItemWidth(window_center);
 		float size_im[3] = { size.x,size.y,size.z };
 		if (ImGui::InputFloat3("##Box_Size", size_im, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue))
 		{

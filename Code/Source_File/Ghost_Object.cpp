@@ -56,8 +56,3 @@ void GhostObject::Set_btTransform(btTransform& t)
 {
 	ghost->setWorldTransform(t);
 }
-
-void GhostObject::Draw_ImGui()
-{
-
-}

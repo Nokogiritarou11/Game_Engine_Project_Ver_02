@@ -45,13 +45,13 @@ void RigidBody::Create()
 	btVector3 localInertia(0, 0, 0);
 	if (is_dynamic)
 	{
-		col->shape->calculateLocalInertia(mass, localInertia);
+		col->shape->calculateLocalInertia(send_mass, localInertia);
 	}
 
 	motion_state = make_unique<btDefaultMotionState>(transform);
 
 	//„‘Ìì¬
-	btRigidBody::btRigidBodyConstructionInfo rb_info(mass, motion_state.get(), col->shape.get(), localInertia);
+	btRigidBody::btRigidBodyConstructionInfo rb_info(send_mass, motion_state.get(), col->shape.get(), localInertia);
 	rigidbody = make_unique<btRigidBody>(btRigidBody(rb_info));
 
 	if (is_kinematic)
@@ -61,6 +61,9 @@ void RigidBody::Create()
 	}
 
 	Engine::bulletphysics_manager->Add_RigidBody(collider, rigidbody, col->gameobject->layer, 0);
+	rigidbody->setLinearFactor(btVector3(linear_factor.x, linear_factor.y, linear_factor.z));
+	rigidbody->setAngularFactor(btVector3(angular_factor.x, angular_factor.y, angular_factor.z));
+	rigidbody->setGravity(btVector3(gravity.x, gravity.y, gravity.z));
 }
 
 void RigidBody::Resize()
@@ -159,6 +162,7 @@ void RigidBody::Get_btTransform(btTransform& t)
 
 void RigidBody::Set_btTransform(btTransform& t)
 {
+	rigidbody->activate(true);
 	rigidbody->setWorldTransform(t);
 }
 
@@ -209,6 +213,9 @@ void RigidBody::Use_Gravity(bool value)
 
 	rigidbody->activate(true);
 	rigidbody->setGravity(btVector3(gravity.x, gravity.y, gravity.z));
+
+	btVector3 bt_v = rigidbody->getLinearVelocity();
+	rigidbody->setLinearVelocity(btVector3(bt_v.x(), 0.0f, bt_v.z()));
 }
 
 void RigidBody::Add_Force(Vector3 force, Force_Mode mode)
@@ -244,8 +251,4 @@ void RigidBody::Add_Force_AtPosition(Vector3 force, Vector3 position, Force_Mode
 		default:
 			break;
 	}
-}
-
-void RigidBody::Draw_ImGui()
-{
 }

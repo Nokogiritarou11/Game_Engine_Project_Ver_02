@@ -286,5 +286,7 @@
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />
     <None Include="Shader\SkyBox_Shader.hlsli" />
+    <None Include="Script\Header\MonoBehaviour_Example.h" />
+    <None Include="Script\Source\MonoBehaviour_Example.cpp" />
   </ItemGroup>
 </Project>

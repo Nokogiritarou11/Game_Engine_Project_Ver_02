@@ -48,9 +48,22 @@ bool Camera::Draw_ImGui()
 
 	if (open)
 	{
-		ImGui::DragFloat("FOV", &fov, 0.1f, 0.01f, FLT_MAX);
-		ImGui::DragFloat(u8"Å’Z•`‰æ‹——£", &near_z, 0.1f, -FLT_MAX, FLT_MAX);
-		ImGui::DragFloat(u8"Å’·•`‰æ‹——£", &far_z, 0.1f, -FLT_MAX, FLT_MAX);
+		float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
+
+		ImGui::Text("FOV");
+		ImGui::SameLine(window_center);
+		ImGui::SetNextItemWidth(window_center);
+		ImGui::DragFloat("##FOV", &fov, 0.1f, 0.01f, FLT_MAX);
+
+		ImGui::Text(u8"Å’Z•`‰æ‹——£");
+		ImGui::SameLine(window_center);
+		ImGui::SetNextItemWidth(window_center);
+		ImGui::DragFloat("##Near", &near_z, 0.1f, -FLT_MAX, FLT_MAX);
+
+		ImGui::Text(u8"Å’·•`‰æ‹——£");
+		ImGui::SameLine(window_center);
+		ImGui::SetNextItemWidth(window_center);
+		ImGui::DragFloat("##Far", &far_z, 0.1f, -FLT_MAX, FLT_MAX);
 	}
 	return true;
 }
