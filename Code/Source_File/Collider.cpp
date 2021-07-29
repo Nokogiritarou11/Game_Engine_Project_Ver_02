@@ -58,14 +58,8 @@ void Collider::Set_Active(bool value)
 		disabled = disabled_old;
 		if (disabled)
 		{
-			if (is_trigger)
-			{
-				ghost->ghost.reset();
-			}
-			else
-			{
-				rigidbody->rigidbody.reset();
-			}
+			if (is_trigger) ghost->ghost.reset();
+			else rigidbody->rigidbody.reset();
 			shape.reset();
 		}
 		else
@@ -98,6 +92,25 @@ void Collider::Create_Collider()
 			rigidbody = make_unique<RigidBody>();
 		}
 		rigidbody->Initialize(static_pointer_cast<Collider>(shared_from_this()));
+	}
+
+	//デバッグ表示可否
+	Set_Debug_Draw(debug_drawed);
+}
+
+void Collider::Reset_Collider()
+{
+	if (is_trigger)
+	{
+		debug_drawed = ghost->Get_Debug_Drawed();
+		ghost->Remove();
+		ghost->ghost.reset();
+	}
+	else
+	{
+		debug_drawed = rigidbody->Get_Debug_Drawed();
+		rigidbody->Remove();
+		rigidbody->rigidbody.reset();
 	}
 }
 
@@ -142,14 +155,8 @@ void Collider::Rescale_Shape()
 	if (shape->getLocalScaling() != bt_scale)
 	{
 		shape->setLocalScaling(bt_scale);
-		if (is_trigger)
-		{
-			ghost->Resize();
-		}
-		else
-		{
-			rigidbody->Resize();
-		}
+		if (is_trigger) ghost->Resize();
+		else rigidbody->Resize();
 	}
 }
 
@@ -160,32 +167,20 @@ void Collider::Call_Hit(Collision& collision)
 	if (it == hit_list_old.end())
 	{
 		hit_list[id] = collision.collider;
-		if (is_trigger)
-		{
-			Call_OnTrigger_Enter(collision);
-		}
-		else
-		{
-			Call_OnCollision_Enter(collision);
-		}
+		if (is_trigger)Call_OnTrigger_Enter(collision);
+		else Call_OnCollision_Enter(collision);
 	}
 	else
 	{
 		hit_list[id] = collision.collider;
-		if (is_trigger)
-		{
-			Call_OnTrigger_Stay(collision);
-		}
-		else
-		{
-			Call_OnCollision_Stay(collision);
-		}
+		if (is_trigger) Call_OnTrigger_Stay(collision);
+		else Call_OnCollision_Stay(collision);
 	}
 }
 
 void Collider::Update_Transform()
 {
-	Vector3 pos = transform->Get_Position();
+	Vector3 pos = transform->Get_Position() + (transform->Get_Right() * center.x) + (transform->Get_Up() * center.y) + (transform->Get_Forward() * center.z);
 	Quaternion rot = transform->Get_Rotation();
 
 	Rescale_Shape();
@@ -212,6 +207,7 @@ void Collider::Update_Simulation()
 
 	Vector3 pos = { v.x(), v.y(), v.z() };
 	Quaternion rot = { q.x(), q.y(), q.z(), q.w() };
+	pos -= ((transform->Get_Right() * center.x) + (transform->Get_Up() * center.y) + (transform->Get_Forward() * center.z));
 
 	if (position_old != pos || rotation_old != rot)
 	{
@@ -229,14 +225,8 @@ void Collider::Update_Simulation()
 		{
 			col = hit.second.lock();
 			Collision collision = { col, col->gameobject, col->transform };
-			if (is_trigger)
-			{
-				Call_OnTrigger_Exit(collision);
-			}
-			else
-			{
-				Call_OnCollision_Exit(collision);
-			}
+			if (is_trigger) Call_OnTrigger_Exit(collision);
+			else Call_OnCollision_Exit(collision);
 		}
 	}
 	hit_list_old = hit_list;
@@ -326,6 +316,17 @@ void Collider::Set_Debug_Draw(bool value)
 void Collider::Draw_ImGui_Common()
 {
 	float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
+
+	ImGui::Text(u8"中心オフセット");
+	ImGui::SameLine(window_center);
+	ImGui::SetNextItemWidth(window_center);
+	float center_im[3] = { center.x, center.y, center.z };
+	if (ImGui::DragFloat3("##Center", center_im, 0.1f))
+	{
+		center = { center_im[0], center_im[1], center_im[2] };
+	}
+
+	ImGui::Separator();
 
 	ImGui::Text(u8"トリガーコライダー");
 	ImGui::SameLine(window_center);

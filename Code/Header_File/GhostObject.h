@@ -14,7 +14,6 @@ namespace BeastEngine
 {
 	class Transform;
 	class Collider;
-	class Box_Collider;
 
 	class GhostObject
 	{
@@ -29,11 +28,11 @@ namespace BeastEngine
 		void Get_btTransform(btTransform& t);
 		void Set_btTransform(btTransform& t);
 		void Set_Debug_Draw(bool value);
+		bool Get_Debug_Drawed();
 
 		std::unique_ptr<btGhostObject> ghost;
 		std::weak_ptr<BeastEngine::Collider> collider;
 
 		friend class BeastEngine::Collider;
-		friend class BeastEngine::Box_Collider;
 	};
 }

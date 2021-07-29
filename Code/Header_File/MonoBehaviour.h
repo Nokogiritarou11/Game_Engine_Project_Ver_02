@@ -20,13 +20,14 @@
 #include "Include_ImGui.h"
 #include "Time_Engine.h"
 #include "Box_Collider.h"
+#include "Sphere_Collider.h"
+#include "Capsule_Collider.h"
 
 namespace BeastEngine
 {
 	class MonoBehaviour : public BeastEngine::Behaviour
 	{
 	private:
-
 		virtual void Awake() {};      //初めてアクティブになった時に一回だけ呼ばれる(Enableに依存し、ゲームオブジェクトのActiveを無視する)
 		virtual void Start() {};      //初めてアクティブになった時に一回だけ呼ばれる(ゲームオブジェクトのActiveと自身のEnableに依存する)
 		virtual void Update() {};     //アクティブ時に毎フレーム呼ばれる

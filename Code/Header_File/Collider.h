@@ -31,11 +31,13 @@ namespace BeastEngine
 		bool Get_Enabled();			  //現在アクティブか
 		void Set_IsTrigger(bool value);
 		std::shared_ptr<RigidBody> rigidbody;
+		BeastEngine::Vector3 center;
 
 	protected:
 		virtual void Create_Shape() {};
 		void Rescale_Shape();
 		void Create_Collider();
+		void Reset_Collider();
 
 		void Initialize_MonoBehaviour();
 		void Draw_ImGui_Common();
@@ -73,6 +75,7 @@ namespace BeastEngine
 		bool enabled_old = false;
 		bool disabled = false;
 		bool disabled_old = false;
+		bool debug_drawed = false;
 
 		BeastEngine::Vector3 position_old;
 		BeastEngine::Quaternion rotation_old;
@@ -85,7 +88,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Component>(this), enabled, is_trigger, rigidbody);
+			archive(cereal::base_class<BeastEngine::Component>(this), enabled, is_trigger, rigidbody, center);
 		}
 	};
 }

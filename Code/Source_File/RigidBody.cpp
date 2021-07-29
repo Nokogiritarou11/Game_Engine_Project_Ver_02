@@ -64,9 +64,6 @@ void RigidBody::Create()
 	rigidbody->setLinearFactor(btVector3(linear_factor.x, linear_factor.y, linear_factor.z));
 	rigidbody->setAngularFactor(btVector3(angular_factor.x, angular_factor.y, angular_factor.z));
 	rigidbody->setGravity(btVector3(gravity.x, gravity.y, gravity.z));
-
-	//デバッグ非表示
-	Set_Debug_Draw(false);
 }
 
 void RigidBody::Resize()
@@ -260,4 +257,9 @@ void RigidBody::Set_Debug_Draw(bool value)
 {
 	if(value) rigidbody->setCollisionFlags(rigidbody->getCollisionFlags() & ~btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
 	else rigidbody->setCollisionFlags(rigidbody->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
+}
+
+bool RigidBody::Get_Debug_Drawed()
+{
+	return !(rigidbody->getCollisionFlags() & btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
 }

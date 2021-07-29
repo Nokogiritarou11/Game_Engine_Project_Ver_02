@@ -523,7 +523,11 @@ void Editor::Inspector_Render()
 			{
 				if (ImGui::Button(it->first.c_str(), ImVec2(-FLT_MIN, 0.0f)))
 				{
-					if (!obj->Add_Component(it->first))
+					if (obj->Add_Component(it->first))
+					{
+						Set_Debug_Draw(true, obj);
+					}
+					else
 					{
 						Debug::Log(u8"このコンポーネントは一つのオブジェクトに複数アタッチできません");
 					}

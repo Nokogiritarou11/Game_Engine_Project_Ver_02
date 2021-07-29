@@ -92,6 +92,8 @@
     <ClCompile Include="Code\Source_File\RigidBody.cpp" />
     <ClCompile Include="Code\Source_File\Ghost_Object.cpp" />
     <ClCompile Include="Code\Source_File\Debug_Draw_Manager.cpp" />
+    <ClCompile Include="Code\Source_File\Sphere_Collider.cpp" />
+    <ClCompile Include="Code\Source_File\Capsule_Collider.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -286,6 +288,8 @@
     <ClInclude Include="Code\Header_File\RigidBody.h" />
     <ClInclude Include="Code\Header_File\GhostObject.h" />
     <ClInclude Include="Code\Header_File\Debug_Draw_Manager.h" />
+    <ClInclude Include="Code\Header_File\Sphere_Collider.h" />
+    <ClInclude Include="Code\Header_File\Capsule_Collider.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

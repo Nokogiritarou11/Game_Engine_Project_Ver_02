@@ -14,7 +14,6 @@ namespace BeastEngine
 {
 	class Transform;
 	class Collider;
-	class Box_Collider;
 
 	enum class Force_Mode
 	{
@@ -53,6 +52,7 @@ namespace BeastEngine
 		void Get_btTransform(btTransform& t);
 		void Set_btTransform(btTransform& t);
 		void Set_Debug_Draw(bool value);
+		bool Get_Debug_Drawed();
 
 		std::unique_ptr<btRigidBody> rigidbody;
 		std::unique_ptr<btDefaultMotionState> motion_state;
@@ -67,7 +67,6 @@ namespace BeastEngine
 		BeastEngine::Vector3 angular_factor = { 1.0f, 1.0f, 1.0f };
 
 		friend class BeastEngine::Collider;
-		friend class BeastEngine::Box_Collider;
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)

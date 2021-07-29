@@ -218,6 +218,7 @@
     <ClCompile Include="Code\Source_File\Box_Collider.cpp" />
     <ClCompile Include="Code\Source_File\BulletPhysics_Manager.cpp" />
     <ClCompile Include="Code\Source_File\Camera.cpp" />
+    <ClCompile Include="Code\Source_File\Capsule_Collider.cpp" />
     <ClCompile Include="Code\Source_File\Collider.cpp" />
     <ClCompile Include="Code\Source_File\Component.cpp" />
     <ClCompile Include="Code\Source_File\Cursor.cpp" />
@@ -257,6 +258,7 @@
     <ClCompile Include="Code\Source_File\Shadow_Manager.cpp" />
     <ClCompile Include="Code\Source_File\SkinMesh_Renderer.cpp" />
     <ClCompile Include="Code\Source_File\SkyBox.cpp" />
+    <ClCompile Include="Code\Source_File\Sphere_Collider.cpp" />
     <ClCompile Include="Code\Source_File\Sprite_Renderer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
@@ -318,6 +320,7 @@
     <ClInclude Include="Code\Header_File\Box_Collider.h" />
     <ClInclude Include="Code\Header_File\BulletPhysics_Manager.h" />
     <ClInclude Include="Code\Header_File\Camera.h" />
+    <ClInclude Include="Code\Header_File\Capsule_Collider.h" />
     <ClInclude Include="Code\Header_File\Collider.h" />
     <ClInclude Include="Code\Header_File\Component.h" />
     <ClInclude Include="Code\Header_File\Cursor.h" />
@@ -359,6 +362,7 @@
     <ClInclude Include="Code\Header_File\Shadow_Manager.h" />
     <ClInclude Include="Code\Header_File\SkinMesh_Renderer.h" />
     <ClInclude Include="Code\Header_File\SkyBox.h" />
+    <ClInclude Include="Code\Header_File\Sphere_Collider.h" />
     <ClInclude Include="Code\Header_File\Sprite_Renderer.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
