@@ -52,6 +52,7 @@ namespace BeastEngine
 		void Remove();
 		void Get_btTransform(btTransform& t);
 		void Set_btTransform(btTransform& t);
+		void Set_Debug_Draw(bool value);
 
 		std::unique_ptr<btRigidBody> rigidbody;
 		std::unique_ptr<btDefaultMotionState> motion_state;

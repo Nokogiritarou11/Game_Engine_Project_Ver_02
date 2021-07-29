@@ -7,6 +7,7 @@
 #include "Asset_Manager.h"
 #include "Particle_Manager.h"
 #include "Shadow_Manager.h"
+#include "Collider.h"
 #include "View_Scene.h"
 #include "View_Game.h"
 #include "FBX_Converter.h"
@@ -338,6 +339,7 @@ void Editor::Hierarchy_Render(const unique_ptr<Scene>& scene)
 
 		if (!Item_Clicked && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0))
 		{
+			Set_Debug_Draw(false, active_object.lock());
 			active_object.reset();
 			active_object_old.reset();
 			selecting = -1;
@@ -363,9 +365,7 @@ void Editor::Hierarchy_Render(const unique_ptr<Scene>& scene)
 				if (ImGui::Selectable(u8"オブジェクトを削除"))
 				{
 					GameObject::Destroy(active_object.lock());
-					active_object.reset();
-					active_object_old.reset();
-					controller.reset();
+					Select_Reset();
 					selecting = -1;
 				}
 
@@ -450,9 +450,7 @@ void Editor::Hierarchy_Render(const unique_ptr<Scene>& scene)
 			if (ImGui::IsKeyPressed(46)) //Delete
 			{
 				GameObject::Destroy(active_object.lock());
-				active_object.reset();
-				active_object_old.reset();
-				controller.reset();
+				Select_Reset();
 				selecting = -1;
 			}
 		}
@@ -569,9 +567,7 @@ void Editor::ScenePlayer_Render()
 				Cursor::cursor_lock_mode = CursorLock_Mode::None;
 				Cursor::visible = true;
 				ImGui::SetWindowFocus(u8"ゲーム");
-				active_object.reset();
-				active_object_old.reset();
-				controller.reset();
+				Select_Reset();
 				Engine::scene_manager->Start_Debug_Scene();
 			}
 			else
@@ -619,9 +615,7 @@ void Editor::ScenePlayer_Render()
 			ImGui::SetWindowFocus(u8"シーン");
 			Cursor::cursor_lock_mode = CursorLock_Mode::None;
 			Cursor::visible = true;
-			active_object.reset();
-			active_object_old.reset();
-			controller.reset();
+			Select_Reset();
 			render_cursor = true;
 			Engine::scene_manager->run = false;
 			Engine::scene_manager->pause = false;
@@ -883,9 +877,7 @@ void Editor::Scene_File_Menu_Render()
 				{
 					Engine::scene_manager->last_save_path = path;
 					Scene_Manager::LoadScene(path);
-					active_object.reset();
-					active_object_old.reset();
-					controller.reset();
+					Select_Reset();
 					ofstream oOfstream("Default_Resource\\System\\last_save.bin");
 					if (oOfstream.is_open())
 					{
@@ -983,14 +975,7 @@ void Editor::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj, 
 		if (ImGui::IsItemClicked() || ImGui::IsItemClicked(1))
 		{
 			selecting = ID;
-			active_object = obj;
-			if (shared_ptr<Animator> animator = obj->Get_Component<Animator>())
-			{
-				if (animator->controller)
-				{
-					controller = animator->controller;
-				}
-			}
+			Activate_Select_Object(obj);
 		}
 		if (ImGui::IsItemClicked())
 		{
@@ -1019,14 +1004,7 @@ void Editor::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj, 
 		if (ImGui::IsItemClicked() || ImGui::IsItemClicked(1))
 		{
 			selecting = ID;
-			active_object = obj;
-			if (shared_ptr<Animator> animator = obj->Get_Component<Animator>())
-			{
-				if (animator->controller)
-				{
-					controller = animator->controller;
-				}
-			}
+			Activate_Select_Object(obj);
 		}
 
 		GameObject_DragMenu_Render(obj);
@@ -1165,9 +1143,7 @@ void Editor::ShortCut_Check()
 					Cursor::cursor_lock_mode = CursorLock_Mode::None;
 					Cursor::visible = true;
 					render_cursor = true;
-					active_object.reset();
-					active_object_old.reset();
-					controller.reset();
+					Select_Reset();
 					Engine::scene_manager->run = false;
 					Engine::scene_manager->pause = false;
 					Engine::scene_manager->End_Debug_Scene();
@@ -1179,9 +1155,7 @@ void Editor::ShortCut_Check()
 						Cursor::cursor_lock_mode = CursorLock_Mode::None;
 						Cursor::visible = true;
 						ImGui::SetWindowFocus(u8"ゲーム");
-						active_object.reset();
-						active_object_old.reset();
-						controller.reset();
+						Select_Reset();
 						Engine::scene_manager->Start_Debug_Scene();
 					}
 					else
@@ -1260,4 +1234,45 @@ void Editor::Debug_Camera_Update()
 			mouse_old_pos = { -1,-1 };
 		}
 	}
+}
+
+void Editor::Select_Reset()
+{
+	Set_Debug_Draw(false, active_object.lock());
+	active_object.reset();
+	active_object_old.reset();
+	controller.reset();
+}
+
+void Editor::Set_Debug_Draw(bool value, const shared_ptr<GameObject>& obj)
+{
+	if (obj)
+	{
+		if (shared_ptr<Collider> col = obj->Get_Component<Collider>())
+		{
+			col->Set_Debug_Draw(value);
+		}
+		for (auto& child : obj->transform->children)
+		{
+			Set_Debug_Draw(value, child.lock()->gameobject);
+		}
+	}
+}
+
+void Editor::Activate_Select_Object(const shared_ptr<GameObject>& obj)
+{
+	if (shared_ptr<GameObject> now = active_object.lock())
+	{
+		Set_Debug_Draw(false, now);
+	}
+	active_object = obj;
+	if (shared_ptr<Animator> animator = obj->Get_Component<Animator>())
+	{
+		if (animator->controller)
+		{
+			controller = animator->controller;
+		}
+	}
+
+	Set_Debug_Draw(true, obj);
 }

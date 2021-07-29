@@ -68,5 +68,9 @@ namespace BeastEngine
 
 		void ShortCut_Check();
 		void Debug_Camera_Update();
+
+		void Select_Reset();
+		void Set_Debug_Draw(bool value, const std::shared_ptr<BeastEngine::GameObject>& obj);
+		void Activate_Select_Object(const std::shared_ptr<BeastEngine::GameObject>& obj);
 	};
 }

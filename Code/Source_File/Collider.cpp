@@ -317,6 +317,12 @@ void Collider::Call_OnCollision_Exit(Collision& collision)
 	}
 }
 
+void Collider::Set_Debug_Draw(bool value)
+{
+	if (is_trigger) ghost->Set_Debug_Draw(value);
+	else rigidbody->Set_Debug_Draw(value);
+}
+
 void Collider::Draw_ImGui_Common()
 {
 	float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;

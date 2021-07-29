@@ -35,6 +35,9 @@ void GhostObject::Create()
 	btTransform t(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z));
 	ghost->setWorldTransform(t);
 	Engine::bulletphysics_manager->Add_Ghost(col, ghost, col->gameobject->layer, -1);
+
+	//デバッグ非表示
+	Set_Debug_Draw(false);
 }
 
 void GhostObject::Resize()
@@ -55,4 +58,10 @@ void GhostObject::Get_btTransform(btTransform& t)
 void GhostObject::Set_btTransform(btTransform& t)
 {
 	ghost->setWorldTransform(t);
+}
+
+void GhostObject::Set_Debug_Draw(bool value)
+{
+	if (value) ghost->setCollisionFlags(ghost->getCollisionFlags() & ~btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
+	else ghost->setCollisionFlags(ghost->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
 }

@@ -14,6 +14,7 @@ namespace BeastEngine
 {
 	class MonoBehaviour;
 	class BulletPhysics_Manager;
+	class Editor;
 
 	struct Collision
 	{
@@ -61,6 +62,8 @@ namespace BeastEngine
 		void Call_OnCollision_Stay(BeastEngine::Collision& collision);
 		void Call_OnCollision_Exit(BeastEngine::Collision& collision);
 
+		void Set_Debug_Draw(bool value);
+
 		std::vector<std::weak_ptr<BeastEngine::MonoBehaviour>> send_list;
 		std::unordered_map<std::string, std::weak_ptr<BeastEngine::Collider>> hit_list;
 		std::unordered_map<std::string, std::weak_ptr<BeastEngine::Collider>> hit_list_old;
@@ -74,6 +77,7 @@ namespace BeastEngine
 		BeastEngine::Vector3 position_old;
 		BeastEngine::Quaternion rotation_old;
 
+		friend class BeastEngine::Editor;
 		friend class BeastEngine::BulletPhysics_Manager;
 		friend class BeastEngine::RigidBody;
 		friend class BeastEngine::GhostObject;
