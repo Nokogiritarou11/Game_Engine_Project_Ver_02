@@ -33,6 +33,9 @@ namespace BeastEngine
 		void Resize_Ghost(std::unique_ptr<btGhostObject>& ghost);
 		void Remove_Ghost(std::unique_ptr<btGhostObject>& ghost);
 
+		void Set_Debug_Drawer();
+		void Render_Debug();
+
 	private:
 		std::unique_ptr<btDefaultCollisionConfiguration> collision_config;
 		std::unique_ptr<btCollisionDispatcher> dispatcher;

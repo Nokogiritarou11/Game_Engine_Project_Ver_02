@@ -32,10 +32,11 @@ namespace BeastEngine
 		std::shared_ptr<RigidBody> rigidbody;
 
 	protected:
-		void Initialize_MonoBehaviour();
-
 		virtual void Create_Shape() {};
 		void Rescale_Shape();
+		void Create_Collider();
+
+		void Initialize_MonoBehaviour();
 		void Draw_ImGui_Common();
 
 		std::unique_ptr<btCollisionShape> shape;
@@ -49,8 +50,6 @@ namespace BeastEngine
 
 		void Update_Transform();
 		void Update_Simulation();
-
-		void Create_Collider();
 
 		void Call_Hit(Collision& collision);
 

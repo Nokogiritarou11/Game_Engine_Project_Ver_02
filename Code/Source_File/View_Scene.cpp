@@ -3,6 +3,7 @@
 #include "Engine.h"
 #include "GameObject.h"
 #include "Particle_Manager.h"
+#include "BulletPhysics_Manager.h"
 #include "SkyBox.h"
 #include "Transform.h"
 using namespace std;
@@ -31,5 +32,6 @@ void View_Scene::Render(Matrix V, Matrix P, std::shared_ptr<Transform> camera_tr
 		Render_3D(V, P);
 
 		Engine::particle_manager->Render();
+		Engine::bulletphysics_manager->Render_Debug();
 	}
 }

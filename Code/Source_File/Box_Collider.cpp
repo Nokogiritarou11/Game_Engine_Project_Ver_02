@@ -21,13 +21,16 @@ void Box_Collider::Set_Size(Vector3& new_size)
 		size = new_size;
 		if (is_trigger)
 		{
+			ghost->Remove();
 			ghost->ghost.reset();
 		}
 		else
 		{
+			rigidbody->Remove();
 			rigidbody->rigidbody.reset();
 		}
 		Create_Shape();
+		Create_Collider();
 		Rescale_Shape();
 	}
 }

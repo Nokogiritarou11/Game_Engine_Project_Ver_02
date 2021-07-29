@@ -15,6 +15,7 @@ namespace BeastEngine
 	class Particle_Manager;
 	class Shadow_Manager;
 	class BulletPhysics_Manager;
+	class Debug_Draw_Manager;
 	class FBX_Converter;
 	class Editor;
 	class View_Game;
@@ -41,6 +42,7 @@ namespace BeastEngine
 		static std::unique_ptr<BeastEngine::Particle_Manager> particle_manager;
 		static std::unique_ptr<BeastEngine::Shadow_Manager> shadow_manager;
 		static std::unique_ptr<BeastEngine::BulletPhysics_Manager> bulletphysics_manager;
+		static std::unique_ptr<BeastEngine::Debug_Draw_Manager> debug_draw_manager;
 		static std::unique_ptr<BeastEngine::FBX_Converter> fbx_converter;
 		static std::unique_ptr<BeastEngine::Editor> editor;
 		static std::unique_ptr<BeastEngine::View_Game> view_game;

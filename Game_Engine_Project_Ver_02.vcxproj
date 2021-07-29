@@ -222,6 +222,7 @@
     <ClCompile Include="Code\Source_File\Component.cpp" />
     <ClCompile Include="Code\Source_File\Cursor.cpp" />
     <ClCompile Include="Code\Source_File\Debug.cpp" />
+    <ClCompile Include="Code\Source_File\Debug_Draw_Manager.cpp" />
     <ClCompile Include="Code\Source_File\Editor.cpp" />
     <ClCompile Include="Code\Source_File\DxSystem.cpp" />
     <ClCompile Include="Code\Source_File\Engine.cpp" />
@@ -321,6 +322,7 @@
     <ClInclude Include="Code\Header_File\Component.h" />
     <ClInclude Include="Code\Header_File\Cursor.h" />
     <ClInclude Include="Code\Header_File\Debug.h" />
+    <ClInclude Include="Code\Header_File\Debug_Draw_Manager.h" />
     <ClInclude Include="Code\Header_File\Editor.h" />
     <ClInclude Include="Code\Header_File\DxSystem.h" />
     <ClInclude Include="Code\Header_File\Engine.h" />
@@ -837,6 +839,22 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </FxCompile>
+    <FxCompile Include="Shader\Debug_Shader_PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shader\Debug_Shader_VS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="Shader\Mesh_Shader_VS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
@@ -920,6 +938,10 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shader\Debug_Shader.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
     <None Include="Shader\Scene_Constants.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

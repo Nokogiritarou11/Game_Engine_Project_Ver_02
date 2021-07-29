@@ -11,6 +11,7 @@
 #include "Particle_Manager.h"
 #include "Shadow_Manager.h"
 #include "BulletPhysics_Manager.h"
+#include "Debug_Draw_Manager.h"
 #include "FBX_Converter.h"
 #include "Editor.h"
 #include "SkyBox.h"
@@ -35,6 +36,7 @@ unique_ptr<Light_Manager>         Engine::light_manager;
 unique_ptr<Particle_Manager>      Engine::particle_manager;
 unique_ptr<Shadow_Manager>	      Engine::shadow_manager;
 unique_ptr<BulletPhysics_Manager> Engine::bulletphysics_manager;
+unique_ptr<Debug_Draw_Manager>	  Engine::debug_draw_manager;
 unique_ptr<FBX_Converter>	      Engine::fbx_converter;
 unique_ptr<Editor>                Engine::editor;
 unique_ptr<View_Game>	          Engine::view_game;
@@ -55,6 +57,8 @@ Engine::Engine()
 	bulletphysics_manager = make_unique<BulletPhysics_Manager>();
 
 #if _DEBUG
+	debug_draw_manager = make_unique<Debug_Draw_Manager>();
+	bulletphysics_manager->Set_Debug_Drawer();
 	fbx_converter = make_unique<FBX_Converter>();
 	view_game = make_unique<View_Game>();
 	view_scene = make_unique<View_Scene>();
@@ -134,6 +138,7 @@ Engine::~Engine()
 	editor.reset();
 	view_game.reset();
 	view_scene.reset();
+	debug_draw_manager.reset();
 	bulletphysics_manager->Exit();
 	bulletphysics_manager.reset();
 	asset_manager->Exit();

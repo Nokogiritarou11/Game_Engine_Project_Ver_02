@@ -60,7 +60,7 @@ void RigidBody::Create()
 		rigidbody->setActivationState(DISABLE_DEACTIVATION);
 	}
 
-	Engine::bulletphysics_manager->Add_RigidBody(collider, rigidbody, col->gameobject->layer, 0);
+	Engine::bulletphysics_manager->Add_RigidBody(collider, rigidbody, col->gameobject->layer, -1);
 	rigidbody->setLinearFactor(btVector3(linear_factor.x, linear_factor.y, linear_factor.z));
 	rigidbody->setAngularFactor(btVector3(angular_factor.x, angular_factor.y, angular_factor.z));
 	rigidbody->setGravity(btVector3(gravity.x, gravity.y, gravity.z));

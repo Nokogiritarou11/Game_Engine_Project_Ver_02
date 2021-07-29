@@ -34,7 +34,7 @@ void GhostObject::Create()
 	Quaternion rot = col->transform->Get_Rotation();
 	btTransform t(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z));
 	ghost->setWorldTransform(t);
-	Engine::bulletphysics_manager->Add_Ghost(col, ghost, col->gameobject->layer, 0);
+	Engine::bulletphysics_manager->Add_Ghost(col, ghost, col->gameobject->layer, -1);
 }
 
 void GhostObject::Resize()

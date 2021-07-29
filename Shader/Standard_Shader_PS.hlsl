@@ -15,7 +15,6 @@ SamplerState diffuseMapSamplerState : register(s1);
 
 SamplerState normalMapSamplerState : register(s3);
 
-
 float4 PSMain(VS_OUT pin) : SV_TARGET
 {
     float4 outcolor;
@@ -67,4 +66,3 @@ float4 PSMain(VS_OUT pin) : SV_TARGET
 
     return outcolor;
 }
-

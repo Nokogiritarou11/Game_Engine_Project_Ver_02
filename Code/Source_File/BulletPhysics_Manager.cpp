@@ -1,4 +1,5 @@
 #include "BulletPhysics_Manager.h"
+#include "Debug_Draw_Manager.h"
 #include "Collider.h"
 #include "Time_Engine.h"
 #include "Engine.h"
@@ -113,7 +114,7 @@ void BulletPhysics_Manager::Add_RigidBody(weak_ptr<Collider> col, unique_ptr<btR
 	auto it = collider_list.find(rigidbody.get());
 	if (it == collider_list.end())
 	{
-		world->addRigidBody(rigidbody.get(), group, mask);
+		world->addRigidBody(rigidbody.get());
 		collider_list[rigidbody.get()] = col;
 	}
 }
@@ -142,7 +143,7 @@ void BulletPhysics_Manager::Add_Ghost(weak_ptr<Collider> col, unique_ptr<btGhost
 	auto it = collider_list.find(ghost.get());
 	if (it == collider_list.end())
 	{
-		world->addCollisionObject(ghost.get(), group, mask);
+		world->addCollisionObject(ghost.get());
 		collider_list[ghost.get()] = col;
 	}
 }
@@ -164,4 +165,18 @@ void BulletPhysics_Manager::Remove_Ghost(unique_ptr<btGhostObject>& ghost)
 		world->removeCollisionObject(ghost.get());
 		collider_list.erase(it);
 	}
+}
+
+void BulletPhysics_Manager::Set_Debug_Drawer()
+{
+	if (Engine::debug_draw_manager)
+	{
+		Engine::debug_draw_manager->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
+		world->setDebugDrawer(Engine::debug_draw_manager.get());
+	}
+}
+
+void BulletPhysics_Manager::Render_Debug()
+{
+	world->debugDrawWorld();
 }

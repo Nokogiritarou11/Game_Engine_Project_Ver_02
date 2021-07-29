@@ -404,9 +404,9 @@ bool DxSystem::Create_Rasterizer_State()
 	D3D11_RASTERIZER_DESC rd;
 	for (int state = 0; state < RASTERIZE_TYPE; ++state)
 	{
-		switch (state)
+		switch (static_cast<RS_State>(state))
 		{
-			case static_cast<int>(RS_State::Cull_Back) :
+			case RS_State::Cull_Back:
 				ZeroMemory(&rd, sizeof(rd));
 				rd.FillMode = D3D11_FILL_SOLID;
 				rd.CullMode = D3D11_CULL_BACK;
@@ -420,61 +420,61 @@ bool DxSystem::Create_Rasterizer_State()
 				rd.AntialiasedLineEnable = TRUE;
 				break;
 
-				case static_cast<int>(RS_State::Cull_Front) :
-					ZeroMemory(&rd, sizeof(rd));
-					rd.FillMode = D3D11_FILL_SOLID;
-					rd.CullMode = D3D11_CULL_FRONT;
-					rd.FrontCounterClockwise = TRUE;
-					rd.DepthBias = 0;
-					rd.DepthBiasClamp = 0;
-					rd.SlopeScaledDepthBias = 0;
-					rd.DepthClipEnable = TRUE;
-					rd.ScissorEnable = FALSE;
-					rd.MultisampleEnable = TRUE;
-					rd.AntialiasedLineEnable = TRUE;
-					break;
+			case RS_State::Cull_Front:
+				ZeroMemory(&rd, sizeof(rd));
+				rd.FillMode = D3D11_FILL_SOLID;
+				rd.CullMode = D3D11_CULL_FRONT;
+				rd.FrontCounterClockwise = TRUE;
+				rd.DepthBias = 0;
+				rd.DepthBiasClamp = 0;
+				rd.SlopeScaledDepthBias = 0;
+				rd.DepthClipEnable = TRUE;
+				rd.ScissorEnable = FALSE;
+				rd.MultisampleEnable = TRUE;
+				rd.AntialiasedLineEnable = TRUE;
+				break;
 
-					case static_cast<int>(RS_State::Cull_None) :
-						ZeroMemory(&rd, sizeof(rd));
-						rd.FillMode = D3D11_FILL_SOLID;
-						rd.CullMode = D3D11_CULL_NONE;
-						rd.FrontCounterClockwise = TRUE;
-						rd.DepthBias = 0;
-						rd.DepthBiasClamp = 0;
-						rd.SlopeScaledDepthBias = 0;
-						rd.DepthClipEnable = FALSE;
-						rd.ScissorEnable = FALSE;
-						rd.MultisampleEnable = TRUE;
-						rd.AntialiasedLineEnable = TRUE;
-						break;
+			case RS_State::Cull_None:
+				ZeroMemory(&rd, sizeof(rd));
+				rd.FillMode = D3D11_FILL_SOLID;
+				rd.CullMode = D3D11_CULL_NONE;
+				rd.FrontCounterClockwise = TRUE;
+				rd.DepthBias = 0;
+				rd.DepthBiasClamp = 0;
+				rd.SlopeScaledDepthBias = 0;
+				rd.DepthClipEnable = FALSE;
+				rd.ScissorEnable = FALSE;
+				rd.MultisampleEnable = TRUE;
+				rd.AntialiasedLineEnable = TRUE;
+				break;
 
-						case static_cast<int>(RS_State::Standard) :
-							ZeroMemory(&rd, sizeof(rd));
-							rd.FillMode = D3D11_FILL_SOLID;	// 塗りつぶし
-							rd.CullMode = D3D11_CULL_NONE;	// カリング
-							rd.FrontCounterClockwise = TRUE;	// 三角形の時計回りが正面
-							rd.DepthBias = 0;
-							rd.DepthBiasClamp = 0;
-							rd.SlopeScaledDepthBias = 0;
-							rd.DepthClipEnable = TRUE;	// 距離に基づくクリッピングを有効か
-							rd.ScissorEnable = FALSE;	// シザー長方形カリングを有効か
-							rd.MultisampleEnable = TRUE;	// MSAAで四辺形かアルファ線を設定
-							rd.AntialiasedLineEnable = TRUE;	// ラインAAが有効か
-							break;
+			case RS_State::Standard:
+				ZeroMemory(&rd, sizeof(rd));
+				rd.FillMode = D3D11_FILL_SOLID;	// 塗りつぶし
+				rd.CullMode = D3D11_CULL_NONE;	// カリング
+				rd.FrontCounterClockwise = TRUE;	// 三角形の時計回りが正面
+				rd.DepthBias = 0;
+				rd.DepthBiasClamp = 0;
+				rd.SlopeScaledDepthBias = 0;
+				rd.DepthClipEnable = TRUE;	// 距離に基づくクリッピングを有効か
+				rd.ScissorEnable = FALSE;	// シザー長方形カリングを有効か
+				rd.MultisampleEnable = TRUE;	// MSAAで四辺形かアルファ線を設定
+				rd.AntialiasedLineEnable = TRUE;	// ラインAAが有効か
+				break;
 
-							case static_cast<int>(RS_State::Wire) :
-								ZeroMemory(&rd, sizeof(rd));
-								rd.FillMode = D3D11_FILL_WIREFRAME;
-								rd.CullMode = D3D11_CULL_BACK;
-								rd.FrontCounterClockwise = TRUE;
-								rd.DepthBias = 0;
-								rd.DepthBiasClamp = 0;
-								rd.SlopeScaledDepthBias = 0;
-								rd.DepthClipEnable = TRUE;
-								rd.ScissorEnable = FALSE;
-								rd.MultisampleEnable = TRUE;
-								rd.AntialiasedLineEnable = TRUE;
-								break;
+			case RS_State::Wire:
+				ZeroMemory(&rd, sizeof(rd));
+				rd.FillMode = D3D11_FILL_WIREFRAME;
+				rd.CullMode = D3D11_CULL_BACK;
+				rd.FrontCounterClockwise = TRUE;
+				rd.DepthBias = 0;
+				rd.DepthBiasClamp = 0;
+				rd.SlopeScaledDepthBias = 0;
+				rd.DepthClipEnable = TRUE;
+				rd.ScissorEnable = FALSE;
+				rd.MultisampleEnable = TRUE;
+				rd.AntialiasedLineEnable = TRUE;
+				break;
 		}
 		HRESULT hr = device->CreateRasterizerState(&rd, rasterizer_state[state].GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
@@ -490,9 +490,9 @@ bool DxSystem::Create_Blend_State()
 
 	for (int state = 0; state < BLEND_TYPE; state++)
 	{
-		switch (state)
+		switch (static_cast<BS_State>(state))
 		{
-			case static_cast<int>(BS_State::Off) :
+			case BS_State::Off:
 				ZeroMemory(&bd, sizeof(bd));
 				bd.IndependentBlendEnable = false;
 				bd.AlphaToCoverageEnable = false;
@@ -508,117 +508,117 @@ bool DxSystem::Create_Blend_State()
 
 				break;
 
-				case static_cast<int>(BS_State::Alpha) :
-					ZeroMemory(&bd, sizeof(bd));
-					bd.IndependentBlendEnable = false;
-					bd.AlphaToCoverageEnable = false;
-					bd.RenderTarget[0].BlendEnable = true;
-					bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-					bd.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-					bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+			case BS_State::Alpha:
+				ZeroMemory(&bd, sizeof(bd));
+				bd.IndependentBlendEnable = false;
+				bd.AlphaToCoverageEnable = false;
+				bd.RenderTarget[0].BlendEnable = true;
+				bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+				bd.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+				bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 
-					bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-					bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-					bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-					bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+				bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+				bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+				bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+				bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-					break;
+				break;
 
-					case static_cast<int>(BS_State::Alpha_Test) :
-						ZeroMemory(&bd, sizeof(bd));
-						bd.IndependentBlendEnable = false;
-						bd.AlphaToCoverageEnable = true;
-						bd.RenderTarget[0].BlendEnable = true;
-						bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-						bd.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-						bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+			case BS_State::Alpha_Test:
+				ZeroMemory(&bd, sizeof(bd));
+				bd.IndependentBlendEnable = false;
+				bd.AlphaToCoverageEnable = true;
+				bd.RenderTarget[0].BlendEnable = true;
+				bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+				bd.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+				bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 
-						bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-						//bd.RenderTarget[0].DestBlendAlpha        = D3D11_BLEND_INV_SRC_ALPHA;
-						bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-						bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-						bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+				bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+				//bd.RenderTarget[0].DestBlendAlpha        = D3D11_BLEND_INV_SRC_ALPHA;
+				bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+				bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+				bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-						break;
+				break;
 
-						case static_cast<int>(BS_State::Transparent) :
-							ZeroMemory(&bd, sizeof(bd));
-							bd.IndependentBlendEnable = false;
-							bd.AlphaToCoverageEnable = false;
-							bd.RenderTarget[0].BlendEnable = true;
-							bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-							bd.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-							bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+			case BS_State::Transparent:
+				ZeroMemory(&bd, sizeof(bd));
+				bd.IndependentBlendEnable = false;
+				bd.AlphaToCoverageEnable = false;
+				bd.RenderTarget[0].BlendEnable = true;
+				bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+				bd.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+				bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 
-							bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-							bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-							bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-							bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+				bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+				bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+				bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+				bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-							break;
+				break;
 
-							case static_cast<int>(BS_State::Add) :
-								ZeroMemory(&bd, sizeof(bd));
-								bd.IndependentBlendEnable = false;
-								bd.AlphaToCoverageEnable = false;
-								bd.RenderTarget[0].BlendEnable = true;
-								bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-								bd.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
-								bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+			case BS_State::Add:
+				ZeroMemory(&bd, sizeof(bd));
+				bd.IndependentBlendEnable = false;
+				bd.AlphaToCoverageEnable = false;
+				bd.RenderTarget[0].BlendEnable = true;
+				bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+				bd.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+				bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 
-								bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
-								bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
-								bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-								bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+				bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
+				bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+				bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+				bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-								break;
+				break;
 
-								case static_cast<int>(BS_State::Subtract) :
-									ZeroMemory(&bd, sizeof(bd));
-									bd.IndependentBlendEnable = false;
-									bd.AlphaToCoverageEnable = false;
-									bd.RenderTarget[0].BlendEnable = true;
-									bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-									bd.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
-									bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_REV_SUBTRACT;
+			case BS_State::Subtract:
+				ZeroMemory(&bd, sizeof(bd));
+				bd.IndependentBlendEnable = false;
+				bd.AlphaToCoverageEnable = false;
+				bd.RenderTarget[0].BlendEnable = true;
+				bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+				bd.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+				bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_REV_SUBTRACT;
 
-									bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
-									bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
-									bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-									bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+				bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
+				bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+				bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+				bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-									break;
+				break;
 
-									case static_cast<int>(BS_State::Replace) :
-										ZeroMemory(&bd, sizeof(bd));
-										bd.IndependentBlendEnable = false;
-										bd.AlphaToCoverageEnable = false;
-										bd.RenderTarget[0].BlendEnable = true;
-										bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-										bd.RenderTarget[0].DestBlend = D3D11_BLEND_ZERO;
-										bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+			case BS_State::Replace:
+				ZeroMemory(&bd, sizeof(bd));
+				bd.IndependentBlendEnable = false;
+				bd.AlphaToCoverageEnable = false;
+				bd.RenderTarget[0].BlendEnable = true;
+				bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+				bd.RenderTarget[0].DestBlend = D3D11_BLEND_ZERO;
+				bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 
-										bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
-										bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-										bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-										bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+				bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+				bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+				bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+				bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-										break;
-										case static_cast<int>(BS_State::Multiply) :
-											ZeroMemory(&bd, sizeof(bd));
-											bd.IndependentBlendEnable = false;
-											bd.AlphaToCoverageEnable = false;
-											bd.RenderTarget[0].BlendEnable = true;
-											bd.RenderTarget[0].SrcBlend = D3D11_BLEND_DEST_COLOR;
-											bd.RenderTarget[0].DestBlend = D3D11_BLEND_ZERO;
-											bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+				break;
+			case BS_State::Multiply:
+				ZeroMemory(&bd, sizeof(bd));
+				bd.IndependentBlendEnable = false;
+				bd.AlphaToCoverageEnable = false;
+				bd.RenderTarget[0].BlendEnable = true;
+				bd.RenderTarget[0].SrcBlend = D3D11_BLEND_DEST_COLOR;
+				bd.RenderTarget[0].DestBlend = D3D11_BLEND_ZERO;
+				bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 
-											bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_DEST_ALPHA;
-											bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-											bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-											bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+				bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_DEST_ALPHA;
+				bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+				bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+				bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-											break;
+				break;
 		}
 		//ブレンドステートの作成
 		HRESULT hr = device->CreateBlendState(&bd, blend_state[state].GetAddressOf());

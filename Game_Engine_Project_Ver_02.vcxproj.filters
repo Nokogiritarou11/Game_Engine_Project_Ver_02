@@ -13,6 +13,8 @@
     <FxCompile Include="Shader\SkinMesh_ShadowMap_Shader_VS.hlsl" />
     <FxCompile Include="Shader\Mesh_ShadowMap_Shader_VS.hlsl" />
     <FxCompile Include="Code\Shader\2D.fx" />
+    <FxCompile Include="Shader\Debug_Shader_VS.hlsl" />
+    <FxCompile Include="Shader\Debug_Shader_PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Source_File\Object.cpp" />
@@ -89,6 +91,7 @@
     <ClCompile Include="Code\Source_File\BulletPhysics_Manager.cpp" />
     <ClCompile Include="Code\Source_File\RigidBody.cpp" />
     <ClCompile Include="Code\Source_File\Ghost_Object.cpp" />
+    <ClCompile Include="Code\Source_File\Debug_Draw_Manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -282,11 +285,13 @@
     <ClInclude Include="Code\Header_File\BulletPhysics_Manager.h" />
     <ClInclude Include="Code\Header_File\RigidBody.h" />
     <ClInclude Include="Code\Header_File\GhostObject.h" />
+    <ClInclude Include="Code\Header_File\Debug_Draw_Manager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />
     <None Include="Shader\SkyBox_Shader.hlsli" />
     <None Include="Script\Header\MonoBehaviour_Example.h" />
     <None Include="Script\Source\MonoBehaviour_Example.cpp" />
+    <None Include="Shader\Debug_Shader.hlsli" />
   </ItemGroup>
 </Project>
