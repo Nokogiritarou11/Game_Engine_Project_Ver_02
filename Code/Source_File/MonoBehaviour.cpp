@@ -58,13 +58,13 @@ void  MonoBehaviour::Add()
 						{
 							if (!is_called_Start)
 							{
-								Scene_Manager::Get_Active_Scene()->monobehaviour_Start_next_list.emplace_back(static_pointer_cast<MonoBehaviour>(shared_from_this()));
+								Engine::scene_manager->Get_Active_Scene()->monobehaviour_Start_next_list.emplace_back(static_pointer_cast<MonoBehaviour>(shared_from_this()));
 							}
 							else
 							{
 								if (!is_called_Update)
 								{
-									Scene_Manager::Get_Active_Scene()->monobehaviour_Update_next_list.emplace_back(static_pointer_cast<MonoBehaviour>(shared_from_this()));
+									Engine::scene_manager->Get_Active_Scene()->monobehaviour_Update_next_list.emplace_back(static_pointer_cast<MonoBehaviour>(shared_from_this()));
 									is_called_Update = true;
 								}
 							}

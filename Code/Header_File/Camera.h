@@ -11,7 +11,7 @@ namespace BeastEngine
 	{
 	public:
 
-		float fov = 30.0f;
+		float fov = 60.0f;
 		float near_z = 0.1f;	// •\¦Å‹ß–Ê‚Ü‚Å‚Ì‹——£
 		float far_z = 1000.0f;	// •\¦Å‰“–Ê‚Ü‚Å‚Ì‹——£
 

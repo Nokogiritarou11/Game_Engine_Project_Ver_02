@@ -4,6 +4,7 @@
 #include "Time_Engine.h"
 #include "Engine.h"
 #include "Scene_Manager.h"
+#include "Project_Settings.h"
 
 using namespace std;
 using namespace BeastEngine;
@@ -109,12 +110,12 @@ void BulletPhysics_Manager::Update()
 	}
 }
 
-void BulletPhysics_Manager::Add_RigidBody(weak_ptr<Collider> col, unique_ptr<btRigidBody>& rigidbody, int group, int mask)
+void BulletPhysics_Manager::Add_RigidBody(weak_ptr<Collider> col, unique_ptr<btRigidBody>& rigidbody, int layer)
 {
 	auto it = collider_list.find(rigidbody.get());
 	if (it == collider_list.end())
 	{
-		world->addRigidBody(rigidbody.get());
+		world->addRigidBody(rigidbody.get(), (1 << layer), Engine::scene_manager->settings->layer_mask[layer]);
 		collider_list[rigidbody.get()] = col;
 	}
 }
@@ -138,12 +139,12 @@ void BulletPhysics_Manager::Remove_RigidBody(unique_ptr<btRigidBody>& rigidbody)
 	}
 }
 
-void BulletPhysics_Manager::Add_Ghost(weak_ptr<Collider> col, unique_ptr<btGhostObject>& ghost, int group, int mask)
+void BulletPhysics_Manager::Add_Ghost(weak_ptr<Collider> col, unique_ptr<btGhostObject>& ghost, int layer)
 {
 	auto it = collider_list.find(ghost.get());
 	if (it == collider_list.end())
 	{
-		world->addCollisionObject(ghost.get());
+		world->addCollisionObject(ghost.get(), (1 << layer), Engine::scene_manager->settings->layer_mask[layer]);
 		collider_list[ghost.get()] = col;
 	}
 }

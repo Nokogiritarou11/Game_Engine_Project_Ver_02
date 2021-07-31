@@ -164,7 +164,7 @@ void View_Texture::Render_Sky(Vector3 pos)
 	skybox->Render(pos);
 }
 
-void View_Texture::Render_Shadow(std::shared_ptr<Transform> camera_transform)
+void View_Texture::Render_Shadow(std::shared_ptr<Transform>& camera_transform)
 {
 	for (vector<weak_ptr<Light>>::iterator itr = Engine::light_manager->light_list.begin(); itr != Engine::light_manager->light_list.end();)
 	{
@@ -185,7 +185,7 @@ void View_Texture::Render_Shadow(std::shared_ptr<Transform> camera_transform)
 	}
 }
 
-void View_Texture::Render_Shadow_Directional(Vector4 color, float intensity, std::shared_ptr<Transform> light_transform, std::shared_ptr<Transform> camera_transform)
+void View_Texture::Render_Shadow_Directional(Vector4 color, float intensity, std::shared_ptr<Transform>& light_transform, std::shared_ptr<Transform>& camera_transform)
 {
 	Matrix V, P, VP;
 	const float size = Engine::shadow_manager->shadow_distance;

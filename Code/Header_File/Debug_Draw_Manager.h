@@ -6,6 +6,8 @@
 
 namespace BeastEngine
 {
+	class Transform;
+
 	class Debug_Draw_Manager : public btIDebugDraw
 	{
 	public:
@@ -32,9 +34,14 @@ namespace BeastEngine
 		virtual void reportErrorWarning(const char* warningString) {}
 		virtual void draw3dText(const btVector3& location, const char* textString) {}
 
-	private:
-		int bit_Debug_Mode = 0;
+		void Render_Collider();
+		void Render_Grid(std::shared_ptr<BeastEngine::Transform>& trans);
 
+	private:
+		void Set_Dx_Settings();
+
+		int bit_Debug_Mode = 0;
+		Microsoft::WRL::ComPtr<ID3D11Buffer> constant_buffer_debug;
 		std::shared_ptr<BeastEngine::Shader> shader;
 
 		struct Vertex
@@ -55,7 +62,15 @@ namespace BeastEngine
 
 			Vertex from, to;
 		};
+		//頂点データ構造体
+		struct VertexData
+		{
+			BeastEngine::Vector3 pos;
+			BeastEngine::Vector3 col;
+		};
 		const size_t max_line = 30000;
 		std::vector<Line> lines;
+
+		int grid_length;
 	};
 }

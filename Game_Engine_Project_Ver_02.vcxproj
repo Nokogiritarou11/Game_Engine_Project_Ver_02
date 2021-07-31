@@ -347,6 +347,7 @@
     <ClInclude Include="Code\Header_File\Original_Math.h" />
     <ClInclude Include="Code\Header_File\Particle.h" />
     <ClInclude Include="Code\Header_File\Particle_Manager.h" />
+    <ClInclude Include="Code\Header_File\Project_Settings.h" />
     <ClInclude Include="Code\Header_File\RectTransform.h" />
     <ClInclude Include="Code\Header_File\Renderer.h" />
     <ClInclude Include="Code\Header_File\Render_Manager.h" />

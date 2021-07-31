@@ -217,7 +217,7 @@ bool AudioSource::Draw_ImGui()
 			}
 		}
 
-		ImGui::Dummy(ImVec2(0,3));
+		ImGui::Dummy({0,3});
 		ImGui::Text(u8"音量　");
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50);
@@ -252,12 +252,12 @@ bool AudioSource::Draw_ImGui()
 			}
 		}
 
-		ImGui::Dummy(ImVec2(0,3));
+		ImGui::Dummy({0,3});
 		ImGui::Checkbox(u8"アクティブ時の自動再生", &play_on_awake);
-		ImGui::Dummy(ImVec2(0,3));
+		ImGui::Dummy({ 0,3 });
 		ImGui::Checkbox(u8"ループ再生", &loop);
 
-		ImGui::Dummy(ImVec2(0,3));
+		ImGui::Dummy({ 0,3 });
 		if (effect_instance)
 		{
 			if (ImGui::Button(ICON_FA_PLAY, ImVec2(30, 0)))

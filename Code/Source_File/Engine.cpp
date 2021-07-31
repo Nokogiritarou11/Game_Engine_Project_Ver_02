@@ -18,6 +18,7 @@
 #include "View_Game.h"
 #include "View_Scene.h"
 #include "System_Function.h"
+#include "Project_Settings.h"
 #include <sstream>
 #include <functional>
 #include <iostream>
@@ -47,14 +48,14 @@ Engine::Engine()
 	input_manager = make_unique<Input>();
 	cursor_manager = make_unique<Cursor>();
 	asset_manager = make_unique<Asset_Manager>();
-	scene_manager = make_unique<Scene_Manager>();
+	shadow_manager = make_unique<Shadow_Manager>();
 	audio_manager = make_unique<Audio_Manager>();
 	render_manager = make_unique<Render_Manager>();
 	animator_manager = make_unique<Animator_Manager>();
 	light_manager = make_unique<Light_Manager>();
 	particle_manager = make_unique<Particle_Manager>();
-	shadow_manager = make_unique<Shadow_Manager>();
 	bulletphysics_manager = make_unique<BulletPhysics_Manager>();
+	scene_manager = make_unique<Scene_Manager>();
 
 #if _DEBUG
 	debug_draw_manager = make_unique<Debug_Draw_Manager>();
@@ -70,7 +71,7 @@ Engine::Engine()
 		getline(iIfstream, load_path);
 		if (load_path != "")
 		{
-			Scene_Manager::LoadScene(load_path);
+			scene_manager->Load_Scene(load_path);
 		}
 		else
 		{
@@ -109,7 +110,7 @@ Engine::Engine()
 		getline(iIfstream, load_path);
 		if (load_path != "")
 		{
-			Scene_Manager::LoadScene(load_path);
+			scene_manager->Load_Scene(load_path);
 		}
 		else
 		{
@@ -125,6 +126,7 @@ Engine::Engine()
 Engine::~Engine()
 {
 	DxSystem::Release();
+	scene_manager->Exit();
 	scene_manager.reset();
 	input_manager.reset();
 	cursor_manager.reset();
@@ -156,7 +158,7 @@ void Engine::Update()
 	bulletphysics_manager->Update();
 
 #if _DEBUG
-	editor->Update(scene_manager->Get_Active_Scene());
+	editor->Update();
 	particle_manager->Update();
 	render_manager->Render();
 	editor->Render();

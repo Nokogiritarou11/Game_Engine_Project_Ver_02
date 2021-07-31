@@ -7,6 +7,7 @@
 #include "Asset_Manager.h"
 #include "Particle_Manager.h"
 #include "Shadow_Manager.h"
+#include "Project_Settings.h"
 #include "Collider.h"
 #include "View_Scene.h"
 #include "View_Game.h"
@@ -83,7 +84,7 @@ Editor::Editor()
 		// 画面サイズ取得のためビューポートを取得
 		{
 			// 角度をラジアン(θ)に変換
-			fov_y = XMConvertToRadians(30);	// 画角
+			fov_y = XMConvertToRadians(60);	// 画角
 			aspect = (float)Engine::view_scene->screen_x / (float)Engine::view_scene->screen_y;	// 画面比率
 			near_z = 0.1f;
 			far_z = 1000.0f;
@@ -117,7 +118,7 @@ Editor::~Editor()
 	ImGui::DestroyContext();
 }
 
-void Editor::Update(const unique_ptr<Scene>& scene)
+void Editor::Update()
 {
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
@@ -138,7 +139,7 @@ void Editor::Update(const unique_ptr<Scene>& scene)
 	//ゲームオブジェクト関連
 	{
 		//ヒエラルキー
-		Hierarchy_Render(scene);
+		Hierarchy_Render();
 		//インスペクタ
 		Inspector_Render();
 	}
@@ -310,8 +311,10 @@ void Editor::Debug_Log_Render()
 }
 
 //ヒエラルキー描画
-void Editor::Hierarchy_Render(const unique_ptr<Scene>& scene)
+void Editor::Hierarchy_Render()
 {
+	const unique_ptr<Scene>& scene = Engine::scene_manager->active_scene;
+
 	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_FirstUseEver);
 
@@ -479,15 +482,66 @@ void Editor::Inspector_Render()
 			active = obj->Get_Active();
 			active_object_old = active_object;
 		}
+
 		//選択時
 		if (ImGui::Checkbox("##active", &active))
 		{
 			obj->Set_Active(active);
 		}
 		ImGui::SameLine();
-		ImGui::InputText(u8"名前", &obj->name);
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		ImGui::InputText("##Name", &obj->name);
 
-		static int ID = 0;
+		const unique_ptr<Project_Settings>& settings = Engine::scene_manager->settings;
+		ImGui::Text(u8"タグ");
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth() * -0.5f);
+		if (ImGui::BeginCombo("##Tag", obj->tag.data()))
+		{
+			const size_t tag_size = settings->tag.size();
+			for (size_t i = 0; i < tag_size; ++i)
+			{
+				const string& select_tag = settings->tag[i];
+				const bool is_selected = (obj->tag == select_tag);
+				if (ImGui::Selectable(select_tag.data(), is_selected))
+				{
+					obj->tag = select_tag;
+				}
+
+				if (is_selected) ImGui::SetItemDefaultFocus();
+			}
+			ImGui::EndCombo();
+		}
+
+		ImGui::SameLine();
+		ImGui::Text(u8"レイヤー");
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		if (ImGui::BeginCombo("##Layer", settings->layer[obj->layer].data()))
+		{
+			array<string, 32>& layer = settings->layer;
+			size_t layer_size = 0;
+			for (; layer_size < 32; ++layer_size)
+			{
+				if (layer[layer_size].empty()) break;
+			}
+			for (size_t i = 0; i < layer_size; ++i)
+			{
+				const bool is_selected = (obj->layer == i);
+				if (ImGui::Selectable(settings->layer[i].data(), is_selected))
+				{
+					obj->layer = i;
+				}
+
+				if (is_selected) ImGui::SetItemDefaultFocus();
+			}
+			ImGui::EndCombo();
+		}
+
+		ImGui::Dummy({ 0,10 });
+		ImGui::Separator();
+
+		int ID = 0;
 		bool removed = true;
 		while (removed)
 		{
@@ -506,10 +560,9 @@ void Editor::Inspector_Render()
 			}
 			removed = removed_comp;
 		}
-		ID = 0;
 		ImGui::Separator();
 
-		ImGui::Dummy(ImVec2(0.0f, 10.0f));
+		ImGui::Dummy({ 0.0f, 10.0f });
 		if (ImGui::Button(u8"コンポーネントを追加", ImVec2(-FLT_MIN, 0.0f)))
 		{
 			ImGui::OpenPopup(u8"コンポーネントリスト");
@@ -658,7 +711,7 @@ void Editor::SceneView_Render()
 			float mouse_wheel = io.MouseWheel;
 			if (mouse_wheel != 0.0f)
 			{
-				Vector3 move = debug_camera_transform->Get_Forward() * mouse_wheel * 10;
+				Vector3 move = debug_camera_transform->Get_Forward() * mouse_wheel * 5;
 				debug_camera_transform->Set_Position(debug_camera_transform->Get_Position() + move);
 			}
 		}
@@ -696,7 +749,7 @@ void Editor::SceneView_Render()
 		// 画面サイズ取得のためビューポートを取得
 		{
 			// 角度をラジアン(θ)に変換
-			fov_y = XMConvertToRadians(30);	// 画角
+			fov_y = XMConvertToRadians(60);	// 画角
 			aspect = (float)Engine::view_scene->screen_x / (float)Engine::view_scene->screen_y;	// 画面比率
 			near_z = 0.1f;
 			far_z = 1000.0f;
@@ -785,12 +838,12 @@ void Editor::GameView_Render()
 
 	if (aspect_lock < game_view_aspect) //横のほうが既定より長いとき
 	{
-		ImGui::Dummy(ImVec2(0, 0));
+		ImGui::Dummy({});
 		ImGui::SameLine((game_view_size.x - game_view_render_size.x) * 0.5f);
 	}
 	else
 	{
-		ImGui::Dummy(ImVec2(0, (game_view_size.y - game_view_render_size.y) * 0.5f));
+		ImGui::Dummy({ 0, (game_view_size.y - game_view_render_size.y) * 0.5f });
 	}
 
 	ImGui::Image((void*)Engine::view_game->shader_resource_view_render.Get(), ImVec2(game_view_render_size.x, game_view_render_size.y));
@@ -836,17 +889,7 @@ void Editor::MenuBar_Render()
 	if (ImGui::BeginMenuBar())
 	{
 		Scene_File_Menu_Render();
-
-		if (ImGui::BeginMenu(u8"レンダリング"))
-		{
-			if (ImGui::BeginMenu(u8"シャドウ"))
-			{
-				ImGui::DragFloat(u8"バイアス", &Engine::shadow_manager->shadow_bias, 0.000001f, 0, FLT_MAX, "%.9f");
-				ImGui::DragFloat(u8"距離", &Engine::shadow_manager->shadow_distance, 0.1f, 0.1f);
-				ImGui::EndMenu();
-			}
-			ImGui::EndMenu();
-		}
+		Scene_Setting_Menu_Render();
 		ImGui::EndMenuBar();
 	}
 }
@@ -880,7 +923,7 @@ void Editor::Scene_File_Menu_Render()
 				if (path != "")
 				{
 					Engine::scene_manager->last_save_path = path;
-					Scene_Manager::LoadScene(path);
+					Engine::scene_manager->Load_Scene(path);
 					Select_Reset();
 					ofstream oOfstream("Default_Resource\\System\\last_save.bin");
 					if (oOfstream.is_open())
@@ -959,10 +1002,223 @@ void Editor::Scene_File_Menu_Render()
 	}
 }
 
+//シーン設定メニュー
+void Editor::Scene_Setting_Menu_Render()
+{
+	if (ImGui::BeginMenu(u8"シーン設定"))
+	{
+		const unique_ptr<Project_Settings>& settings = Engine::scene_manager->settings;
+		if (ImGui::BeginMenu(u8"レンダリング"))
+		{
+			if (ImGui::BeginMenu(u8"シャドウ"))
+			{
+				if (ImGui::DragFloat(u8"バイアス", &settings->shadow_bias, 0.000001f, 0, FLT_MAX, "%.9f"))
+				{
+					Engine::shadow_manager->shadow_bias = settings->shadow_bias;
+					Engine::scene_manager->Save_Settings();
+				}
+				if (ImGui::DragFloat(u8"距離", &settings->shadow_distance, 0.1f, 0.1f))
+				{
+					Engine::shadow_manager->shadow_distance = settings->shadow_distance;
+					Engine::scene_manager->Save_Settings();
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenu();
+		}
+
+		ImGui::SetNextWindowSize({ 250,300 });
+		if (ImGui::BeginMenu(u8"タグ"))
+		{
+			if (ImGui::CollapsingHeader(u8"タグ一覧"))
+			{
+				ImGui::Indent();
+				bool erase_tag = false;
+				int erase_it = 0;
+				vector<string>& tag = settings->tag;
+				for (size_t i = 0; i < tag.size(); ++i)
+				{
+					ImGui::Spacing();
+					ImGui::PushID(i);
+					const string name = to_string(i) + ": " + tag[i];
+					ImGui::Text(name.c_str());
+					if (i != 0)
+					{
+						ImGui::SameLine(ImGui::GetWindowContentRegionWidth() - 20.0f);
+						ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.0f, 0.0f, 1.0f });
+						if (ImGui::Button(u8" × "))
+						{
+							erase_tag = true;
+							erase_it = i;
+						}
+						ImGui::PopStyleColor(1);
+					}
+					ImGui::PopID();
+				}
+				if (erase_tag)
+				{
+					tag.erase(tag.begin() + erase_it);
+					Engine::scene_manager->Save_Settings();
+				}
+				ImGui::Unindent();
+				ImGui::Dummy({});
+				ImGui::SameLine(ImGui::GetWindowContentRegionWidth() - 30.0f);
+				if (ImGui::Button(u8"追加"))
+				{
+					ImGui::OpenPopup(u8"タグ新規入力");
+				}
+				if (ImGui::BeginPopup(u8"タグ新規入力"))
+				{
+					static string tag_name;
+					ImGui::InputText(u8"新規タグ名", &tag_name);
+					if (ImGui::Button(u8"追加") && !tag_name.empty())
+					{
+						tag.emplace_back(tag_name);
+						tag_name.clear();
+						Engine::scene_manager->Save_Settings();
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::EndPopup();
+				}
+			}
+			ImGui::EndMenu();
+		}
+
+		ImGui::SetNextWindowSize({ 250,300 });
+		if (ImGui::BeginMenu(u8"レイヤー"))
+		{
+			array<string, 32>& layer = settings->layer;
+			array<int, 32>& layer_mask = settings->layer_mask;
+			size_t layer_size = 0;
+			for (; layer_size < 32; ++layer_size)
+			{
+				if (layer[layer_size].empty()) break;
+			}
+
+			if (ImGui::CollapsingHeader(u8"レイヤー一覧"))
+			{
+				ImGui::Indent();
+				bool erase_layer = false;
+				int erase_it = 0;
+				for (size_t i = 0; i < layer_size; ++i)
+				{
+					ImGui::Spacing();
+					ImGui::PushID(i);
+					const string name = to_string(i) + ": " + layer[i];
+					ImGui::Text(name.c_str());
+					if (i != 0)
+					{
+						ImGui::SameLine(ImGui::GetWindowContentRegionWidth() - 20.0f);
+						ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.0f, 0.0f, 1.0f });
+						if (ImGui::Button(u8" × "))
+						{
+							erase_layer = true;
+							erase_it = i;
+						}
+						ImGui::PopStyleColor(1);
+					}
+					ImGui::PopID();
+				}
+				if (erase_layer)
+				{
+					layer[erase_it].clear();
+					layer_mask[erase_it] = -1;
+					Engine::scene_manager->Save_Settings();
+				}
+				ImGui::Unindent();
+				if (layer[31].empty())
+				{
+					ImGui::Dummy({});
+					ImGui::SameLine(ImGui::GetWindowContentRegionWidth() - 30.0f);
+					if (ImGui::Button(u8"追加"))
+					{
+						ImGui::OpenPopup(u8"レイヤー新規入力");
+					}
+					if (ImGui::BeginPopup(u8"レイヤー新規入力"))
+					{
+						static string layer_name;
+						ImGui::InputText(u8"新規レイヤー名", &layer_name);
+						if (ImGui::Button(u8"追加") && !layer_name.empty())
+						{
+							layer[layer_size] = layer_name;
+							layer_name.clear();
+							Engine::scene_manager->Save_Settings();
+							ImGui::CloseCurrentPopup();
+						}
+						ImGui::EndPopup();
+					}
+				}
+			}
+			ImGui::EndMenu();
+		}
+
+		ImGui::SetNextWindowSize({ 250,400 });
+		if (ImGui::BeginMenu(u8"物理"))
+		{
+			array<string, 32>& layer = settings->layer;
+			array<int, 32>& layer_mask = settings->layer_mask;
+
+			if (ImGui::CollapsingHeader(u8"衝突設定"))
+			{
+				const float window_width = ImGui::GetWindowContentRegionWidth() - 20;
+
+				size_t layer_size = 0;
+				for (; layer_size < 32; ++layer_size)
+				{
+					if (layer[layer_size].empty()) break;
+				}
+
+				vector<array<bool, 32>> layer_list;
+				layer_list.resize(layer_size);
+				for (size_t i = 0; i < layer_list.size(); ++i)
+				{
+					for (size_t j = 0; j < 32; ++j)
+					{
+						layer_list[i][j] = layer_mask[i] & (1 << j);
+					}
+				}
+
+				for (size_t i = 0; i < layer_size; ++i)
+				{
+					if (ImGui::TreeNode(layer[i].c_str()))
+					{
+						for (size_t j = i; j < layer_size; ++j)
+						{
+							const string id = layer[i] + to_string(j);
+							ImGui::PushID(id.c_str());
+							const string label = " VS : " + layer[j];
+							ImGui::Text(label.c_str());
+							ImGui::SameLine(window_width);
+							if (ImGui::Checkbox("##Check", &layer_list[i][j]))
+							{
+								if (layer_list[i][j])
+								{
+									layer_mask[i] |= (1 << j);
+									layer_mask[j] |= (1 << i);
+								}
+								else
+								{
+									layer_mask[i] &= ~(1 << j);
+									layer_mask[j] &= ~(1 << i);
+								}
+							}
+							ImGui::PopID();
+						}
+						ImGui::TreePop();
+					}
+				}
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenu();
+	}
+}
+
 //オブジェクトツリー描画
 void Editor::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj, int& selecting, int flag, bool& Item_Clicked)
 {
 	++ID;
+	ImGui::PushID(ID);
 	const ImGuiTreeNodeFlags in_flag = flag;
 	if (selecting == ID) flag |= ImGuiTreeNodeFlags_Selected;
 
@@ -1013,6 +1269,7 @@ void Editor::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj, 
 
 		GameObject_DragMenu_Render(obj);
 	}
+	ImGui::PopID();
 }
 
 //ヒエラルキーでのオブジェクトドラッグ
@@ -1193,8 +1450,8 @@ void Editor::Debug_Camera_Update()
 			}
 			if (mouse_pos.x != mouse_old_pos.x || mouse_pos.y != mouse_old_pos.y)
 			{
-				const float dis_x = (mouse_pos.x - mouse_old_pos.x) * 0.1f;
-				const float dis_y = (mouse_pos.y - mouse_old_pos.y) * 0.1f;
+				const float dis_x = (mouse_pos.x - mouse_old_pos.x) * 0.15f;
+				const float dis_y = (mouse_pos.y - mouse_old_pos.y) * 0.15f;
 
 				Vector3 rot = debug_camera_transform->Get_Euler_Angles();
 				rot.y -= dis_x;
@@ -1205,15 +1462,12 @@ void Editor::Debug_Camera_Update()
 				mouse_old_pos = mouse_pos;
 			}
 
-			static float speed = 10;
+			static float speed = 5;
 			float mouse_wheel = io.MouseWheel;
 			if (mouse_wheel != 0.0f)
 			{
-				speed += mouse_wheel * 3;
-				if (speed < 5)
-				{
-					speed = 5;
-				}
+				speed += mouse_wheel * 2;
+				speed = Mathf::Clamp(speed, 1, 10);
 			}
 			if (ImGui::IsKeyDown(87))
 			{

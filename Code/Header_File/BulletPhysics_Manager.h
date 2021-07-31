@@ -25,11 +25,11 @@ namespace BeastEngine
 		void Exit();
 		void Update();
 
-		void Add_RigidBody(std::weak_ptr<BeastEngine::Collider> col, std::unique_ptr<btRigidBody>& rigidbody, int group, int mask);
+		void Add_RigidBody(std::weak_ptr<BeastEngine::Collider> col, std::unique_ptr<btRigidBody>& rigidbody, int layer);
 		void Resize_RigidBody(std::unique_ptr<btRigidBody>& rigidbody);
 		void Remove_RigidBody(std::unique_ptr<btRigidBody>& rigidbody);
 
-		void Add_Ghost(std::weak_ptr<BeastEngine::Collider> col, std::unique_ptr<btGhostObject>& ghost, int group, int mask);
+		void Add_Ghost(std::weak_ptr<BeastEngine::Collider> col, std::unique_ptr<btGhostObject>& ghost, int layer);
 		void Resize_Ghost(std::unique_ptr<btGhostObject>& ghost);
 		void Remove_Ghost(std::unique_ptr<btGhostObject>& ghost);
 

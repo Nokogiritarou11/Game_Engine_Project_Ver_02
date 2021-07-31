@@ -290,6 +290,7 @@
     <ClInclude Include="Code\Header_File\Debug_Draw_Manager.h" />
     <ClInclude Include="Code\Header_File\Sphere_Collider.h" />
     <ClInclude Include="Code\Header_File\Capsule_Collider.h" />
+    <ClInclude Include="Code\Header_File\Project_Settings.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

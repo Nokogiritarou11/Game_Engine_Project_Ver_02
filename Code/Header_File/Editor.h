@@ -15,7 +15,7 @@ namespace BeastEngine
 		Editor();
 		~Editor();
 
-		void Update(const std::unique_ptr<BeastEngine::Scene>& scene);
+		void Update();
 		void Render();
 
 		void Print_Log(std::string log);
@@ -54,7 +54,7 @@ namespace BeastEngine
 
 		void Main_Window_Render();
 		void Debug_Log_Render();
-		void Hierarchy_Render(const std::unique_ptr<BeastEngine::Scene>& scene);
+		void Hierarchy_Render();
 		void Inspector_Render();
 		void ScenePlayer_Render();
 		void SceneView_Render();
@@ -63,6 +63,7 @@ namespace BeastEngine
 
 		void MenuBar_Render();
 		void Scene_File_Menu_Render();
+		void Scene_Setting_Menu_Render();
 		void GameObject_Tree_Render(int& ID, const std::shared_ptr<BeastEngine::GameObject>& obj, int& selecting, int flag, bool& Item_Clicked);
 		void GameObject_DragMenu_Render(const std::shared_ptr<BeastEngine::GameObject>& obj);
 

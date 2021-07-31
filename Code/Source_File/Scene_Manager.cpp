@@ -1,32 +1,53 @@
-#include "Animator_Manager.h"
-#include "SkinMesh_Renderer.h"
-#include "Light_Manager.h"
-#include "Transform.h"
+#include <fstream>
 #include <locale.h>
 #include <sstream>
 #include <functional>
 #include <iostream>
-#include <fstream>
+#include "Scene_Manager.h"
+#include "Animator_Manager.h"
+#include "SkinMesh_Renderer.h"
+#include "Light_Manager.h"
+#include "Transform.h"
 #include "System_Function.h"
 #include "Engine.h"
-#include "Scene_Manager.h"
 #include "Scene.h"
 #include "Render_Manager.h"
 #include "Audio_Manager.h"
 #include "Particle_Manager.h"
 #include "BulletPhysics_Manager.h"
+#include "Project_Settings.h"
+#include "Shadow_Manager.h"
 using namespace std;
 using namespace BeastEngine;
 
-//**********************************************
-//
-//		ÉVÅ[ÉìÇÃä«óù
-//
-//**********************************************
+Scene_Manager::Scene_Manager()
+{
+	ifstream in_bin("Default_Resource\\System\\settings.bin", ios::binary);
+	if (in_bin.is_open())
+	{
+		unique_ptr<Project_Settings> set = make_unique<Project_Settings>();
+		stringstream bin_s_stream;
+		bin_s_stream << in_bin.rdbuf();
+		cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
+		binaryInputArchive(set);
+		settings = move(set);
+	}
+	else
+	{
+		settings = make_unique<Project_Settings>();
+		settings->tag.emplace_back("Default");
+		settings->layer[0] = "Default";
+		settings->layer_mask.fill(-1);
+		Save_Settings();
+	}
+	Engine::shadow_manager->shadow_bias = settings->shadow_bias;
+	Engine::shadow_manager->shadow_distance = settings->shadow_distance;
+}
 
-unique_ptr<Scene> Scene_Manager::active_scene;
-bool Scene_Manager::load = false;
-string Scene_Manager::next_scene_path;
+void Scene_Manager::Exit()
+{
+	if (active_scene) active_scene->Reset();
+}
 
 unique_ptr<Scene> Scene_Manager::CreateScene_From_File()
 {
@@ -114,7 +135,7 @@ void Scene_Manager::Create_Scene_Default(string file_path, string file_name)
 		last_save_path = file_path;
 	}
 
-	LoadScene(file_path);
+	Load_Scene(file_path);
 }
 
 void Scene_Manager::Save_Scene(string Save_Path)
@@ -132,6 +153,15 @@ void Scene_Manager::Save_Scene(string Save_Path)
 	}
 }
 
+void Scene_Manager::Save_Settings()
+{
+	ofstream ss("Default_Resource\\System\\settings.bin", ios::binary);
+	{
+		cereal::BinaryOutputArchive o_archive(ss);
+		o_archive(settings);
+	}
+}
+
 void Scene_Manager::Start_Debug_Scene()
 {
 	behind_scene = move(active_scene);
@@ -143,7 +173,7 @@ void Scene_Manager::Start_Debug_Scene()
 			out_archive(behind_scene);
 		}
 	}
-	LoadScene("Default_Resource\\System\\Debug_Scene.bin");
+	Load_Scene("Default_Resource\\System\\Debug_Scene.bin");
 }
 
 void Scene_Manager::End_Debug_Scene()
@@ -160,7 +190,7 @@ void Scene_Manager::End_Debug_Scene()
 	active_scene->Initialize();
 }
 
-void Scene_Manager::LoadScene(string Scene_Path)
+void Scene_Manager::Load_Scene(string Scene_Path)
 {
 	load = true;
 	next_scene_path = Scene_Path;
@@ -196,9 +226,4 @@ void Scene_Manager::Update()
 unique_ptr<Scene>& Scene_Manager::Get_Active_Scene()
 {
 	return active_scene;
-}
-
-Scene_Manager::~Scene_Manager()
-{
-	if (active_scene) active_scene->Reset();
 }

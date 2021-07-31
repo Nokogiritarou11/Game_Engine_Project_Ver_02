@@ -3,14 +3,14 @@
 #include "Engine.h"
 #include "GameObject.h"
 #include "Particle_Manager.h"
-#include "BulletPhysics_Manager.h"
+#include "Debug_Draw_Manager.h"
 #include "SkyBox.h"
 #include "Transform.h"
 using namespace std;
 using namespace DirectX;
 using namespace BeastEngine;
 
-void View_Scene::Render(Matrix V, Matrix P, std::shared_ptr<Transform> camera_transform)
+void View_Scene::Render(Matrix V, Matrix P, std::shared_ptr<Transform>& camera_transform)
 {
 	//シャドウマップ描画
 	Render_Shadow(camera_transform);
@@ -32,6 +32,7 @@ void View_Scene::Render(Matrix V, Matrix P, std::shared_ptr<Transform> camera_tr
 		Render_3D(V, P);
 
 		Engine::particle_manager->Render();
-		Engine::bulletphysics_manager->Render_Debug();
+		Engine::debug_draw_manager->Render_Grid(camera_transform);
+		Engine::debug_draw_manager->Render_Collider();
 	}
 }

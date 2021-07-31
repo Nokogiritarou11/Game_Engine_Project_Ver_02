@@ -605,7 +605,7 @@ bool Animator::Draw_ImGui()
 		{
 			ImGui::Text(u8"アニメーターコントローラーが登録されていません");
 		}
-		ImGui::Dummy(ImVec2(0.0f, 10.0f));
+		ImGui::Dummy({0.0f, 10.0f});
 		if (ImGui::Button(u8"新規作成"))
 		{
 			controller = Animator_Controller::Create_New_Controller();

@@ -277,9 +277,9 @@ void Animator_Controller::Render_ImGui()
 	ImGui::SameLine();
 	ImGui::Checkbox(u8"オートセーブ", &Auto_Save);
 
-	ImGui::Dummy(ImVec2(0, 10.0f));
+	ImGui::Dummy({0, 10.0f});
 	ImGui::Separator();
-	ImGui::Dummy(ImVec2(0, 10.0f));
+	ImGui::Dummy({0, 10.0f});
 	{
 		ImGui::BeginChild("Parameters", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.25f, 0), true, ImGuiWindowFlags_MenuBar);
 
@@ -639,7 +639,7 @@ void Animator_Controller::Render_ImGui()
 					{
 						ImGui::Text(u8"アニメーションイベントが設定されていません");
 					}
-					ImGui::Dummy(ImVec2(0, 0));
+					ImGui::Dummy({0, 0});
 					ImGui::SameLine(ImGui::GetWindowContentRegionWidth() - 150.0f);
 					if (ImGui::Button(u8"イベント追加", ImVec2(150.0f, 0)))
 					{
@@ -649,7 +649,7 @@ void Animator_Controller::Render_ImGui()
 					ImGui::Unindent();
 				}
 
-				ImGui::Dummy(ImVec2(0, 20.0f));
+				ImGui::Dummy({0, 20.0f});
 				ImGui::Unindent();
 			}
 
@@ -941,7 +941,7 @@ void Animator_Controller::Render_ImGui()
 								ImGui::Text(u8"条件がありません");
 							}
 
-							ImGui::Dummy(ImVec2(0, 0));
+							ImGui::Dummy({});
 							ImGui::SameLine(window_width - 100.0f);
 							if (ImGui::Button(u8"条件追加", ImVec2(100.0f, 0)))
 							{

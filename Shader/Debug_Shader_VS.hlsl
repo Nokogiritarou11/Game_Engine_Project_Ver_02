@@ -1,5 +1,9 @@
 #include "Scene_Constants.hlsli"
 #include "Debug_Shader.hlsli"
+cbuffer CbDebug : register(b1)
+{
+    float4 color_alpha;
+};
 
 VS_DEBUG_OUT VSMain(
 	float3 position : POSITION,
@@ -10,7 +14,7 @@ VS_DEBUG_OUT VSMain(
 
     float4 pos = float4(position, 1.0f);
     vout.position = mul(pos, viewProjection);
-    vout.color = float4(color, 1.0f);
+    vout.color = float4(color, color_alpha.w);
 
     return vout;
 }

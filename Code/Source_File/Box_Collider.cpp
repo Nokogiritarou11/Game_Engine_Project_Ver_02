@@ -6,7 +6,7 @@ using namespace BeastEngine;
 
 void Box_Collider::Create_Shape()
 {
-	shape = make_unique<btBoxShape>(btVector3(size.x, size.y, size.z));
+	shape = make_unique<btBoxShape>(btVector3(size.x * 0.5f, size.y * 0.5f, size.z * 0.5f));
 }
 
 void Box_Collider::Set_Size(Vector3& new_size)

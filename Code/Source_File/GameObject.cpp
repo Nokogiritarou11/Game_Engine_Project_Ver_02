@@ -140,10 +140,10 @@ void GameObject::Set_Child_Active(bool value)
 
 weak_ptr<GameObject> GameObject::Find(string Name)
 {
-	return Scene_Manager::Get_Active_Scene()->Find(Name);
+	return Engine::scene_manager->Get_Active_Scene()->Find(Name);
 }
 
 weak_ptr<GameObject> GameObject::Find_With_Tag(string Tag)
 {
-	return Scene_Manager::Get_Active_Scene()->Find_With_Tag(Tag);
+	return Engine::scene_manager->Get_Active_Scene()->Find_With_Tag(Tag);
 }

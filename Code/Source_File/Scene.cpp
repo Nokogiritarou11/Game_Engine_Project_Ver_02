@@ -5,6 +5,8 @@
 #include "Animator.h"
 #include "Transform.h"
 #include "GameObject.h"
+#include "Engine.h"
+#include "Shadow_Manager.h"
 #include <typeinfo>
 using namespace std;
 using namespace BeastEngine;

@@ -35,9 +35,9 @@ void RigidBody::Create()
 	//épê®
 	shared_ptr<Collider> col = collider.lock();
 
-	Quaternion q = col->transform->Get_Rotation();
-	Vector3 p = col->transform->Get_Position();
-	btTransform transform(btQuaternion(q.x, q.y, q.z, q.w), btVector3(p.x, p.y, p.z));
+	Vector3 pos = col->transform->Get_Position() + (col->transform->Get_Right() * col->center.x) + (col->transform->Get_Up() * col->center.y) + (col->transform->Get_Forward() * col->center.z);
+	Quaternion rot = col->transform->Get_Rotation();
+	btTransform t(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z));
 
 	is_dynamic = (send_mass != 0.0f);
 
@@ -48,7 +48,7 @@ void RigidBody::Create()
 		col->shape->calculateLocalInertia(send_mass, localInertia);
 	}
 
-	motion_state = make_unique<btDefaultMotionState>(transform);
+	motion_state = make_unique<btDefaultMotionState>(t);
 
 	//çÑëÃçÏê¨
 	btRigidBody::btRigidBodyConstructionInfo rb_info(send_mass, motion_state.get(), col->shape.get(), localInertia);
@@ -60,7 +60,7 @@ void RigidBody::Create()
 		rigidbody->setActivationState(DISABLE_DEACTIVATION);
 	}
 
-	Engine::bulletphysics_manager->Add_RigidBody(collider, rigidbody, col->gameobject->layer, -1);
+	Engine::bulletphysics_manager->Add_RigidBody(collider, rigidbody, col->gameobject->layer);
 	rigidbody->setLinearFactor(btVector3(linear_factor.x, linear_factor.y, linear_factor.z));
 	rigidbody->setAngularFactor(btVector3(angular_factor.x, angular_factor.y, angular_factor.z));
 	rigidbody->setGravity(btVector3(gravity.x, gravity.y, gravity.z));

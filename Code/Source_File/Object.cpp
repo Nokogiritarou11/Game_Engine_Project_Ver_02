@@ -33,11 +33,11 @@ Object::~Object()
 
 void Object::Destroy(shared_ptr<GameObject> obj)
 {
-	Scene_Manager::Get_Active_Scene()->Destroy_GameObject(obj);
+	Engine::scene_manager->Get_Active_Scene()->Destroy_GameObject(obj);
 }
 void Object::Destroy(shared_ptr<Component> comp)
 {
-	Scene_Manager::Get_Active_Scene()->Destroy_Component(comp);
+	Engine::scene_manager->Get_Active_Scene()->Destroy_Component(comp);
 }
 
 shared_ptr<Object> Object::Instantiate(std::weak_ptr<BeastEngine::Object> original)
