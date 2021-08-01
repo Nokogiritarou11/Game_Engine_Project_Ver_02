@@ -25,6 +25,15 @@ namespace BeastEngine
 		BeastEngine::Vector2 game_view_center_position;
 		bool render_cursor = true;
 
+		//デバッグカメラ関連
+		BeastEngine::Matrix debug_camera_view_matrix;
+		BeastEngine::Matrix debug_camera_projection_matrix;
+		std::shared_ptr<BeastEngine::Transform> debug_camera_transform;
+		float fov_y;
+		float aspect;
+		float near_z;
+		float far_z;
+
 	private:
 		//Imgui設定
 		char* font_name = "Default_Resource/Font/mplus-1p-medium.ttf";
@@ -39,15 +48,6 @@ namespace BeastEngine
 		std::weak_ptr<BeastEngine::GameObject> draging_object;
 
 		std::weak_ptr<BeastEngine::Animator_Controller> controller;
-
-		//デバッグカメラ関連
-		BeastEngine::Matrix debug_camera_view_matrix;
-		BeastEngine::Matrix debug_camera_projection_matrix;
-		std::shared_ptr<BeastEngine::Transform> debug_camera_transform;
-		float fov_y;
-		float aspect;
-		float near_z;
-		float far_z;
 
 		Vector2 game_view_render_size;
 		float game_view_aspect;

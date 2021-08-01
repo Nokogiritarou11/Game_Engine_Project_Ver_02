@@ -270,9 +270,7 @@
     </ClCompile>
     <ClCompile Include="Code\Source_File\Time.cpp" />
     <ClCompile Include="Code\Source_File\Transform.cpp" />
-    <ClCompile Include="Code\Source_File\View_Game.cpp" />
-    <ClCompile Include="Code\Source_File\View_Scene.cpp" />
-    <ClCompile Include="Code\Source_File\View_Texture.cpp" />
+    <ClCompile Include="Code\Source_File\Render_Texture.cpp" />
     <ClCompile Include="Librarys\ImGui\imgui.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -375,9 +373,7 @@
     </ClInclude>
     <ClInclude Include="Code\Header_File\Time_Engine.h" />
     <ClInclude Include="Code\Header_File\Transform.h" />
-    <ClInclude Include="Code\Header_File\View_Game.h" />
-    <ClInclude Include="Code\Header_File\View_Scene.h" />
-    <ClInclude Include="Code\Header_File\View_Texture.h" />
+    <ClInclude Include="Code\Header_File\Render_Texture.h" />
     <ClInclude Include="Code\Libraries\cereal\access.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>

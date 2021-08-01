@@ -9,8 +9,6 @@
 #include "Shadow_Manager.h"
 #include "Project_Settings.h"
 #include "Collider.h"
-#include "View_Scene.h"
-#include "View_Game.h"
 #include "FBX_Converter.h"
 #include "Resources.h"
 #include "Cursor.h"
@@ -20,6 +18,8 @@
 #include "Scene.h"
 #include "Include_ImGui.h"
 #include "System_Function.h"
+#include "Render_Manager.h"
+#include "Render_Texture.h"
 #include <ImGuizmo.h>
 #include <sstream>
 #include <functional>
@@ -85,14 +85,14 @@ Editor::Editor()
 		{
 			// 角度をラジアン(θ)に変換
 			fov_y = XMConvertToRadians(60);	// 画角
-			aspect = (float)Engine::view_scene->screen_x / (float)Engine::view_scene->screen_y;	// 画面比率
+			aspect = (float)Engine::render_manager->scene_texture->screen_x / (float)Engine::render_manager->scene_texture->screen_x;	// 画面比率
 			near_z = 0.1f;
 			far_z = 1000.0f;
 
 			//Debug_Camera_P = XMMatrixPerspectiveFovLH(fov_y, aspect, near_z, far_z);
 			debug_camera_projection_matrix = XMMatrixPerspectiveFovRH(fov_y, aspect, near_z, far_z);
 
-			//XMStoreFloat4x4(&Debug_Camera_P, XMMatrixOrthographicLH((float)Engine::view_scene->screen_x, (float)Engine::view_scene->screen_y, 0.1f, 1000.0f));
+			//XMStoreFloat4x4(&Debug_Camera_P, XMMatrixOrthographicLH((float)Engine::render_manager->scene_texture->screen_x, (float)Engine::render_manager->scene_texture->screen_y, 0.1f, 1000.0f));
 		}
 		// ビュー行列を作成
 		// カメラの設定
@@ -160,9 +160,6 @@ void Editor::Update()
 
 void Editor::Render()
 {
-	Engine::particle_manager->Camera_Update(debug_camera_transform, fov_y, near_z, far_z, aspect);
-	Engine::view_scene->Render(debug_camera_view_matrix, debug_camera_projection_matrix, debug_camera_transform);
-
 	// レンダーターゲットビュー設定
 	DxSystem::Set_Default_View();
 	DxSystem::Set_ViewPort(DxSystem::Get_Screen_Width(), DxSystem::Get_Screen_Height());
@@ -693,8 +690,8 @@ void Editor::SceneView_Render()
 	//const float titleBarHeight = ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2.0f + 10;
 	const float window_width = ImGui::GetCurrentWindow()->InnerRect.GetWidth() - 8;
 	const float window_height = ImGui::GetCurrentWindow()->InnerRect.GetHeight() - 8;
-	Engine::view_scene->Set_Screen_Size((int)window_width, (int)window_height);
-	ImGui::Image((void*)Engine::view_scene->shader_resource_view_render.Get(), ImVec2(window_width, window_height));
+	Engine::render_manager->scene_texture->Set_Screen_Size((int)window_width, (int)window_height);
+	ImGui::Image((void*)Engine::render_manager->scene_texture->shader_resource_view_render.Get(), ImVec2(window_width, window_height));
 
 	static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
 	static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
@@ -750,14 +747,14 @@ void Editor::SceneView_Render()
 		{
 			// 角度をラジアン(θ)に変換
 			fov_y = XMConvertToRadians(60);	// 画角
-			aspect = (float)Engine::view_scene->screen_x / (float)Engine::view_scene->screen_y;	// 画面比率
+			aspect = (float)Engine::render_manager->scene_texture->screen_x / (float)Engine::render_manager->scene_texture->screen_y;	// 画面比率
 			near_z = 0.1f;
 			far_z = 1000.0f;
 
 			//Debug_Camera_P = XMMatrixPerspectiveFovLH(fov_y, aspect, near_z, far_z);
 			debug_camera_projection_matrix = XMMatrixPerspectiveFovRH(fov_y, aspect, near_z, far_z);
 
-			//XMStoreFloat4x4(&Debug_Camera_P, XMMatrixOrthographicLH((float)Engine::view_scene->screen_x, (float)Engine::view_scene->screen_y, 0.1f, 1000.0f));
+			//XMStoreFloat4x4(&Debug_Camera_P, XMMatrixOrthographicLH((float)Engine::render_manager->scene_texture->screen_x, (float)Engine::render_manager->scene_texture->screen_y, 0.1f, 1000.0f));
 		}
 		// ビュー行列を作成
 		// カメラの設定
@@ -811,12 +808,12 @@ void Editor::GameView_Render()
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_NoCollapse;
 
-	Engine::view_game->Set_Screen_Size(1920, 1080);
+	Engine::render_manager->game_texture->Set_Screen_Size(1920, 1080);
+	constexpr float aspect_lock = 1920.0f / 1080.0f;
 
 	ImGui::Begin(u8"ゲーム", NULL, window_flags);
 	const ImGuiWindow* p_win = ImGui::GetCurrentWindow();
 	const Vector2 p_win_size = { p_win->InnerRect.GetWidth() - 8, p_win->InnerRect.GetHeight() - 8 };
-	constexpr float aspect_lock = 1920.0f / 1080.0f;
 	if (p_win_size != game_view_size)
 	{
 		game_view_size = p_win_size;
@@ -846,7 +843,7 @@ void Editor::GameView_Render()
 		ImGui::Dummy({ 0, (game_view_size.y - game_view_render_size.y) * 0.5f });
 	}
 
-	ImGui::Image((void*)Engine::view_game->shader_resource_view_render.Get(), ImVec2(game_view_render_size.x, game_view_render_size.y));
+	ImGui::Image((void*)Engine::render_manager->game_texture->shader_resource_view_render.Get(), ImVec2(game_view_render_size.x, game_view_render_size.y));
 
 	game_view_center_position = { pos.x + game_view_size.x / 2 ,pos.y + game_view_size.y / 2 };
 

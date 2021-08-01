@@ -3,7 +3,7 @@
 #include "GameObject.h"
 #include "Engine.h"
 #include "Screen.h"
-#include "View_Game.h"
+#include "Render_Texture.h"
 #include "Render_Manager.h"
 #include "Include_ImGui.h"
 #include "Debug.h"
@@ -85,7 +85,7 @@ void Sprite_Renderer::Set_Active(bool value)
 	}
 }
 
-void Sprite_Renderer::Render(Matrix V, Matrix P)
+void Sprite_Renderer::Render()
 {
 	if (texture)
 	{
@@ -163,8 +163,8 @@ void Sprite_Renderer::Render(Matrix V, Matrix P)
 		// 正規化デバイス座標系
 		for (int i = 0; i < 4; i++)
 		{
-			data[i].pos.x = 2.0f * data[i].pos.x / Engine::view_game->screen_x - 1.0f;
-			data[i].pos.y = 1.0f - 2.0f * data[i].pos.y / Engine::view_game->screen_y;
+			data[i].pos.x = 2.0f * data[i].pos.x / Engine::render_manager->game_texture->screen_x - 1.0f;
+			data[i].pos.y = 1.0f - 2.0f * data[i].pos.y / Engine::render_manager->game_texture->screen_y;
 			data[i].pos.z = 0.0f;
 		}
 

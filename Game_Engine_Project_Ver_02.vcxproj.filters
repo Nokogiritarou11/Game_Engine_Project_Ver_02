@@ -50,9 +50,7 @@
     <ClCompile Include="Code\Libraries\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="Code\Libraries\ImGui\imgui_stdlib.cpp" />
     <ClCompile Include="Code\Libraries\ImGui\imgui_widgets.cpp" />
-    <ClCompile Include="Code\Source_File\View_Texture.cpp" />
-    <ClCompile Include="Code\Source_File\View_Game.cpp" />
-    <ClCompile Include="Code\Source_File\View_Scene.cpp" />
+    <ClCompile Include="Code\Source_File\Render_Texture.cpp" />
     <ClCompile Include="Code\Source_File\SkyBox.cpp" />
     <ClCompile Include="Code\Source_File\Light.cpp" />
     <ClCompile Include="Code\Source_File\Light_Manager.cpp" />
@@ -258,9 +256,7 @@
     <ClInclude Include="Code\Header_File\Sprite_Renderer.h" />
     <ClInclude Include="Code\Header_File\System_Function.h" />
     <ClInclude Include="Code\Header_File\Texture.h" />
-    <ClInclude Include="Code\Header_File\View_Game.h" />
-    <ClInclude Include="Code\Header_File\View_Scene.h" />
-    <ClInclude Include="Code\Header_File\View_Texture.h" />
+    <ClInclude Include="Code\Header_File\Render_Texture.h" />
     <ClInclude Include="Code\Libraries\cereal\access.hpp" />
     <ClInclude Include="Code\Libraries\cereal\cereal.hpp" />
     <ClInclude Include="Code\Libraries\cereal\details\util.hpp" />

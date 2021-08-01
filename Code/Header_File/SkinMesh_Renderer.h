@@ -30,8 +30,8 @@ namespace BeastEngine
 		std::vector<std::weak_ptr<BeastEngine::Transform>> bones;
 
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
-		void Render(BeastEngine::Matrix V, BeastEngine::Matrix P) override;
-		void Render_Shadow(BeastEngine::Matrix V, BeastEngine::Matrix P) override;
+		void Render() override;
+		void Render_Shadow() override;
 		bool Draw_ImGui() override;
 		void Set_Active(bool value) override;
 		void Recalculate_Frame();

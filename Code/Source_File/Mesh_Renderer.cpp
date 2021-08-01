@@ -143,7 +143,7 @@ void Mesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 	}
 }
 
-void Mesh_Renderer::Render(Matrix V, Matrix P)
+void Mesh_Renderer::Render()
 {
 	if (mesh)
 	{
@@ -200,7 +200,7 @@ void Mesh_Renderer::Render(Matrix V, Matrix P)
 	}
 }
 
-void Mesh_Renderer::Render_Shadow(Matrix V, Matrix P)
+void Mesh_Renderer::Render_Shadow()
 {
 	if (mesh)
 	{

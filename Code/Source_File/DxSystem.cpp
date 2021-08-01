@@ -226,6 +226,7 @@ void DxSystem::Set_ViewPort(int width, int height, int Num)
 void DxSystem::Set_Default_View()
 {
 	device_context->OMSetRenderTargets(1, render_target_view.GetAddressOf(), depth_stencil_view.Get());
+	Set_ViewPort(screen_width, screen_height);
 }
 
 //------------------------------------------------

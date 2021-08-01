@@ -23,7 +23,7 @@ namespace BeastEngine
 	private:
 
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj);
-		void Render(BeastEngine::Matrix V, BeastEngine::Matrix P) override;
+		void Render() override;
 		bool Draw_ImGui() override;
 		void Set_Active(bool value) override;
 

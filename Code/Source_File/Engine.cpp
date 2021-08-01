@@ -1,3 +1,7 @@
+#include <sstream>
+#include <functional>
+#include <iostream>
+#include <fstream>
 #include "Engine.h"
 #include "Input.h"
 #include "Cursor.h"
@@ -14,15 +18,10 @@
 #include "Debug_Draw_Manager.h"
 #include "FBX_Converter.h"
 #include "Editor.h"
+#include "Render_Texture.h"
 #include "SkyBox.h"
-#include "View_Game.h"
-#include "View_Scene.h"
 #include "System_Function.h"
 #include "Project_Settings.h"
-#include <sstream>
-#include <functional>
-#include <iostream>
-#include <fstream>
 using namespace std;
 using namespace BeastEngine;
 
@@ -40,8 +39,6 @@ unique_ptr<BulletPhysics_Manager> Engine::bulletphysics_manager;
 unique_ptr<Debug_Draw_Manager>	  Engine::debug_draw_manager;
 unique_ptr<FBX_Converter>	      Engine::fbx_converter;
 unique_ptr<Editor>                Engine::editor;
-unique_ptr<View_Game>	          Engine::view_game;
-unique_ptr<View_Scene>	          Engine::view_scene;
 
 Engine::Engine()
 {
@@ -61,8 +58,6 @@ Engine::Engine()
 	debug_draw_manager = make_unique<Debug_Draw_Manager>();
 	bulletphysics_manager->Set_Debug_Drawer();
 	fbx_converter = make_unique<FBX_Converter>();
-	view_game = make_unique<View_Game>();
-	view_scene = make_unique<View_Scene>();
 	editor = make_unique<Editor>();
 	string load_path;
 	ifstream iIfstream("Default_Resource\\System\\last_save.bin");
@@ -138,8 +133,6 @@ Engine::~Engine()
 	shadow_manager.reset();
 	fbx_converter.reset();
 	editor.reset();
-	view_game.reset();
-	view_scene.reset();
 	debug_draw_manager.reset();
 	bulletphysics_manager->Exit();
 	bulletphysics_manager.reset();

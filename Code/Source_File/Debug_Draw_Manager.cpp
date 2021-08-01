@@ -133,8 +133,7 @@ void Debug_Draw_Manager::Render_Grid(shared_ptr<Transform>& trans)
 	UINT offset = 0;
 	DxSystem::device_context->IASetVertexBuffers(0, 1, grid_vertex_buffer.GetAddressOf(), &stride, &offset);
 
-
-	DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(DS_State::Always), 1);
+	DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(DS_State::Less), 1);
 
 	const float alpha = 0.15f;
 	//•`‰æ

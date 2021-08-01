@@ -38,10 +38,10 @@ namespace BeastEngine
 		static DS_State binding_depth_stencil_State;
 
 	private:
-		virtual void Render(BeastEngine::Matrix V, BeastEngine::Matrix P) {};
-		virtual void Render_Shadow(BeastEngine::Matrix V, BeastEngine::Matrix P) {};
+		virtual void Render() {};
+		virtual void Render_Shadow() {};
 
-		friend class View_Texture;
+		friend class Render_Texture;
 		friend class Render_Manager;
 		friend class cereal::access;
 		template<class Archive>

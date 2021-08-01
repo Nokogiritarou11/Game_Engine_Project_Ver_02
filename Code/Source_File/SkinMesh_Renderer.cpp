@@ -147,7 +147,7 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 	}
 }
 
-void SkinMesh_Renderer::Render(Matrix V, Matrix P)
+void SkinMesh_Renderer::Render()
 {
 	if (mesh)
 	{
@@ -205,7 +205,7 @@ void SkinMesh_Renderer::Render(Matrix V, Matrix P)
 	}
 }
 
-void SkinMesh_Renderer::Render_Shadow(Matrix V, Matrix P)
+void SkinMesh_Renderer::Render_Shadow()
 {
 	if (mesh)
 	{
