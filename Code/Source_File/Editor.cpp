@@ -20,6 +20,7 @@
 #include "System_Function.h"
 #include "Render_Manager.h"
 #include "Render_Texture.h"
+#include "Camera.h"
 #include <ImGuizmo.h>
 #include <sstream>
 #include <functional>
@@ -77,38 +78,9 @@ Editor::Editor()
 	Vector3 e = { 15, 0, 0 };
 	debug_camera_transform = make_shared<Transform>(p, e);
 	Engine::asset_manager->Registration_Asset(debug_camera_transform);
-
-	//カメラ行列初回計算
-	{
-		// プロジェクション行列を作成
-		// 画面サイズ取得のためビューポートを取得
-		{
-			// 角度をラジアン(θ)に変換
-			fov_y = XMConvertToRadians(60);	// 画角
-			aspect = (float)Engine::render_manager->scene_texture->screen_x / (float)Engine::render_manager->scene_texture->screen_x;	// 画面比率
-			near_z = 0.1f;
-			far_z = 1000.0f;
-
-			//Debug_Camera_P = XMMatrixPerspectiveFovLH(fov_y, aspect, near_z, far_z);
-			debug_camera_projection_matrix = XMMatrixPerspectiveFovRH(fov_y, aspect, near_z, far_z);
-
-			//XMStoreFloat4x4(&Debug_Camera_P, XMMatrixOrthographicLH((float)Engine::render_manager->scene_texture->screen_x, (float)Engine::render_manager->scene_texture->screen_y, 0.1f, 1000.0f));
-		}
-		// ビュー行列を作成
-		// カメラの設定
-		{
-			Vector3 eye_v = debug_camera_transform->Get_Position();
-			Vector3 focus_v = eye_v + debug_camera_transform->Get_Forward();
-
-			XMVECTOR camForward = XMVector3Normalize(focus_v - eye_v);    // Get forward vector based on target
-			camForward = XMVectorSetY(camForward, 0.0f);    // set forwards y component to 0 so it lays only on
-			camForward = XMVector3Normalize(camForward);
-			XMVECTOR camRight = XMVectorSet(-XMVectorGetZ(camForward), 0.0f, XMVectorGetX(camForward), 0.0f);
-
-			XMVECTOR up_v = debug_camera_transform->Get_Up();
-			debug_camera_view_matrix = XMMatrixLookAtRH(eye_v, focus_v, up_v);
-		}
-	}
+	debug_camera = make_shared<Camera>();
+	Engine::asset_manager->Registration_Asset(debug_camera);
+	debug_camera->transform = debug_camera_transform;
 }
 
 Editor::~Editor()
@@ -740,38 +712,6 @@ void Editor::SceneView_Render()
 		}
 	}
 
-	//カメラ行列計算
-	{
-		// プロジェクション行列を作成
-		// 画面サイズ取得のためビューポートを取得
-		{
-			// 角度をラジアン(θ)に変換
-			fov_y = XMConvertToRadians(60);	// 画角
-			aspect = (float)Engine::render_manager->scene_texture->screen_x / (float)Engine::render_manager->scene_texture->screen_y;	// 画面比率
-			near_z = 0.1f;
-			far_z = 1000.0f;
-
-			//Debug_Camera_P = XMMatrixPerspectiveFovLH(fov_y, aspect, near_z, far_z);
-			debug_camera_projection_matrix = XMMatrixPerspectiveFovRH(fov_y, aspect, near_z, far_z);
-
-			//XMStoreFloat4x4(&Debug_Camera_P, XMMatrixOrthographicLH((float)Engine::render_manager->scene_texture->screen_x, (float)Engine::render_manager->scene_texture->screen_y, 0.1f, 1000.0f));
-		}
-		// ビュー行列を作成
-		// カメラの設定
-		{
-			Vector3 eye_v = debug_camera_transform->Get_Position();
-			Vector3 focus_v = eye_v + debug_camera_transform->Get_Forward();
-
-			XMVECTOR camForward = XMVector3Normalize(focus_v - eye_v);    // Get forward vector based on target
-			camForward = XMVectorSetY(camForward, 0.0f);    // set forwards y component to 0 so it lays only on
-			camForward = XMVector3Normalize(camForward);
-			XMVECTOR camRight = XMVectorSet(-XMVectorGetZ(camForward), 0.0f, XMVectorGetX(camForward), 0.0f);
-
-			XMVECTOR up_v = debug_camera_transform->Get_Up();
-			debug_camera_view_matrix = XMMatrixLookAtRH(eye_v, focus_v, up_v);
-		}
-	}
-
 	if (!active_object.expired())
 	{
 		static Matrix matrix;
@@ -785,7 +725,7 @@ void Editor::SceneView_Render()
 
 		// 選択ノードの行列を操作する
 		ImGuizmo::Manipulate(
-			&debug_camera_view_matrix._11, &debug_camera_projection_matrix._11,	// ビュー＆プロジェクション行列
+			&debug_camera->view_matrix._11, &debug_camera->projection_matrix._11,	// ビュー＆プロジェクション行列
 			mCurrentGizmoOperation,		// 移動操作
 			mCurrentGizmoMode,			// ローカル空間での操作
 			&matrix._11,	// 操作するワールド行列

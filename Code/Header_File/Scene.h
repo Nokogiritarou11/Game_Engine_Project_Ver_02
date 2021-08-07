@@ -23,7 +23,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(gameobject_list);
+			archive(name, gameobject_list);
 		}
 
 		friend class Scene_Manager;

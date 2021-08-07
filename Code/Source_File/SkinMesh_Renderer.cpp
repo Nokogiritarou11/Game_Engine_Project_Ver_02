@@ -36,10 +36,10 @@ void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 	if (!constant_buffer_mesh)
 	{
 		D3D11_BUFFER_DESC bd = {};
-		bd.Usage = D3D11_USAGE_DEFAULT;
+		bd.Usage = D3D11_USAGE_DYNAMIC;
 		bd.ByteWidth = sizeof(Constant_Buffer_Mesh);
 		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		bd.CPUAccessFlags = 0;
+		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		bd.MiscFlags = 0;
 		bd.StructureByteStride = 0;
 		HRESULT hr = DxSystem::device->CreateBuffer(&bd, nullptr, constant_buffer_mesh.GetAddressOf());
@@ -48,10 +48,10 @@ void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 	if (!constant_buffer_color)
 	{
 		D3D11_BUFFER_DESC bd = {};
-		bd.Usage = D3D11_USAGE_DEFAULT;
+		bd.Usage = D3D11_USAGE_DYNAMIC;
 		bd.ByteWidth = sizeof(Constant_Buffer_Color);
 		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		bd.CPUAccessFlags = 0;
+		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		bd.MiscFlags = 0;
 		bd.StructureByteStride = 0;
 		HRESULT hr = DxSystem::device->CreateBuffer(&bd, nullptr, constant_buffer_color.GetAddressOf());
@@ -165,14 +165,31 @@ void SkinMesh_Renderer::Render()
 		{
 			DxSystem::device_context->IASetInputLayout(vertex_shader->vertex_layout.Get());
 
+			//頂点コンスタントバッファ
 			DxSystem::device_context->VSSetConstantBuffers(1, 1, constant_buffer_mesh.GetAddressOf());
-			DxSystem::device_context->UpdateSubresource(constant_buffer_mesh.Get(), 0, 0, &buffer_mesh, 0, 0);
+			{
+				UINT subresourceIndex = 0;
+				D3D11_MAPPED_SUBRESOURCE mapped;
+				auto hr = DxSystem::device_context->Map(constant_buffer_mesh.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+				if (SUCCEEDED(hr))
+				{
+					memcpy(mapped.pData, &buffer_mesh, sizeof(Constant_Buffer_Mesh));
+					DxSystem::device_context->Unmap(constant_buffer_mesh.Get(), subresourceIndex);
+				}
+			}
 
 			//マテリアルコンスタントバッファ
-			Constant_Buffer_Color cbColor;
-			cbColor.material_color = material[subset.material_ID]->color;
 			DxSystem::device_context->PSSetConstantBuffers(2, 1, constant_buffer_color.GetAddressOf());
-			DxSystem::device_context->UpdateSubresource(constant_buffer_color.Get(), 0, 0, &cbColor, 0, 0);
+			{
+				UINT subresourceIndex = 0;
+				D3D11_MAPPED_SUBRESOURCE mapped;
+				auto hr = DxSystem::device_context->Map(constant_buffer_color.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+				if (SUCCEEDED(hr))
+				{
+					memcpy(mapped.pData, &material[subset.material_ID]->color, sizeof(Vector4));
+					DxSystem::device_context->Unmap(constant_buffer_color.Get(), subresourceIndex);
+				}
+			}
 
 			material[subset.material_ID]->Active_Texture(); //PSSetSamplar PSSetShaderResources
 			//シェーダーリソースのバインド
@@ -223,8 +240,19 @@ void SkinMesh_Renderer::Render_Shadow()
 		{
 			DxSystem::device_context->IASetInputLayout(vertex_shader->vertex_layout.Get());
 
+			//頂点コンスタントバッファ
 			DxSystem::device_context->VSSetConstantBuffers(1, 1, constant_buffer_mesh.GetAddressOf());
-			DxSystem::device_context->UpdateSubresource(constant_buffer_mesh.Get(), 0, 0, &buffer_mesh, 0, 0);
+			{
+				UINT subresourceIndex = 0;
+				D3D11_MAPPED_SUBRESOURCE mapped;
+				auto hr = DxSystem::device_context->Map(constant_buffer_mesh.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+				if (SUCCEEDED(hr))
+				{
+					Constant_Buffer_Mesh* p = static_cast<Constant_Buffer_Mesh*>(mapped.pData);
+					memcpy(p->bone_transforms, buffer_mesh.bone_transforms, sizeof(p->bone_transforms));
+					DxSystem::device_context->Unmap(constant_buffer_mesh.Get(), subresourceIndex);
+				}
+			}
 
 			//シェーダーリソースのバインド
 			shadow_shader->Activate(); //PS,VSSetShader

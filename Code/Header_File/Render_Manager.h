@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <vector>
+#include <array>
 #include <list>
 #include "DxSystem.h"
 #include "Original_Math.h"
@@ -35,11 +36,15 @@ namespace BeastEngine
 		{
 			std::weak_ptr<BeastEngine::Renderer> renderer;
 			int   queue;
-			float Z_distance;
+			float z_distance;
 		};
 
 		std::unique_ptr<BeastEngine::SkyBox> skybox;
-		std::list<std::vector<Render_Obj>> renderer_list;
+		std::shared_ptr<BeastEngine::Transform> shadow_camera_transform;
+		std::shared_ptr<BeastEngine::Camera> shadow_camera;
+
+		std::vector<Render_Obj> opaque_list;
+		std::vector<Render_Obj> alpha_list;
 		std::vector<std::weak_ptr<BeastEngine::Renderer>> renderer_3D_list;
 		std::vector<std::weak_ptr<BeastEngine::Renderer>> renderer_2D_list;
 		std::vector<std::weak_ptr<BeastEngine::Camera>> camera_list;
@@ -57,6 +62,8 @@ namespace BeastEngine
 
 		//Rendererの生存チェック
 		void Check_Renderer();
+		void Culling_Renderer(BeastEngine::Vector3& view_pos, std::array<BeastEngine::Vector4, 6>& planes);
+		void Sort_Renderer();
 
 		void Render_Scene();
 		void Render_Game();
@@ -64,7 +71,7 @@ namespace BeastEngine
 		void Render_Sky(BeastEngine::Vector3& pos);
 		void Render_Shadow(std::shared_ptr<BeastEngine::Transform>& camera_transform);
 		void Render_Shadow_Directional(BeastEngine::Vector4 color, float intensity, std::shared_ptr<BeastEngine::Transform>& light_transform, std::shared_ptr<BeastEngine::Transform>& camera_transform);
-		void Render_3D();
+		void Render_3D(std::shared_ptr<BeastEngine::Camera>& camera);
 		void Render_2D();
 	};
 }

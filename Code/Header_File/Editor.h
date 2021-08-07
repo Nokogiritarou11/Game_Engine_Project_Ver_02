@@ -7,6 +7,7 @@ namespace BeastEngine
 	class Scene;
 	class GameObject;
 	class Transform;
+	class Camera;
 	class Animator_Controller;
 
 	class Editor
@@ -26,13 +27,8 @@ namespace BeastEngine
 		bool render_cursor = true;
 
 		//デバッグカメラ関連
-		BeastEngine::Matrix debug_camera_view_matrix;
-		BeastEngine::Matrix debug_camera_projection_matrix;
 		std::shared_ptr<BeastEngine::Transform> debug_camera_transform;
-		float fov_y;
-		float aspect;
-		float near_z;
-		float far_z;
+		std::shared_ptr<BeastEngine::Camera> debug_camera;
 
 	private:
 		//Imgui設定

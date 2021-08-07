@@ -7,6 +7,7 @@ namespace BeastEngine
 {
 	class SkinMesh_Renderer;
 	class Mesh_Renderer;
+	class Sprite_Renderer;
 	class SkyBox;
 	class Shader;
 	class Texture;
@@ -19,6 +20,7 @@ namespace BeastEngine
 		std::shared_ptr<BeastEngine::Texture> texture[5];
 
 		BeastEngine::Vector4 color = { 1,1,1,1 };
+		int render_queue = 2000;
 
 		struct Shader_Info
 		{
@@ -76,11 +78,12 @@ namespace BeastEngine
 		friend class BeastEngine::SkyBox;
 		friend class BeastEngine::SkinMesh_Renderer;
 		friend class BeastEngine::Mesh_Renderer;
+		friend class BeastEngine::Sprite_Renderer;
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Object>(this), name, color, shader_info, texture_info, blend_state, rasterizer_state, depth_stencil_state);
+			archive(cereal::base_class<BeastEngine::Object>(this), name, color, shader_info, texture_info, blend_state, rasterizer_state, depth_stencil_state, render_queue);
 		}
 	};
 }

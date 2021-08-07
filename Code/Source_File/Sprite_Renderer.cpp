@@ -40,9 +40,10 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 	//	頂点バッファ作成
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
-	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.Usage = D3D11_USAGE_DYNAMIC;
 	bd.ByteWidth = sizeof(v);
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
 	D3D11_SUBRESOURCE_DATA res;
 	ZeroMemory(&res, sizeof(res));
@@ -89,14 +90,7 @@ void Sprite_Renderer::Render()
 {
 	if (texture)
 	{
-		if (material.empty())
-		{
-			default_shader->Activate();
-		}
-		else
-		{
-			material[0]->shader->Activate();
-		}
+		default_shader->Activate();
 		//頂点データ設定
 		Vertex data[4];
 
@@ -192,14 +186,8 @@ void Sprite_Renderer::Render()
 		data[2].color = color;
 		data[3].color = color;
 
-		if (material.empty())
-		{
-			DxSystem::device_context->IASetInputLayout(default_shader->vertex_layout.Get());
-		}
-		else
-		{
-			DxSystem::device_context->IASetInputLayout(material[0]->shader->vertex_layout.Get());
-		}
+		DxSystem::device_context->IASetInputLayout(default_shader->vertex_layout.Get());
+
 		//	頂点バッファの指定
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
@@ -208,7 +196,14 @@ void Sprite_Renderer::Render()
 			&stride,		// １頂点のサイズ
 			&offset			// 開始位置
 		);
-		DxSystem::device_context->UpdateSubresource(vertex_buffer.Get(), 0, NULL, data, 0, 0);
+		UINT subresourceIndex = 0;
+		D3D11_MAPPED_SUBRESOURCE mapped;
+		auto hr = DxSystem::device_context->Map(vertex_buffer.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+		if (SUCCEEDED(hr))
+		{
+			memcpy(mapped.pData, data, sizeof(Vertex) * 4);
+			DxSystem::device_context->Unmap(vertex_buffer.Get(), subresourceIndex);
+		}
 
 		//テクスチャの設定
 		texture->Set(1);

@@ -47,10 +47,10 @@ SkyBox::SkyBox()
 	if (!constant_buffer_skybox)
 	{
 		D3D11_BUFFER_DESC bd = {};
-		bd.Usage = D3D11_USAGE_DEFAULT;
+		bd.Usage = D3D11_USAGE_DYNAMIC;
 		bd.ByteWidth = sizeof(Constant_Buffer_Skybox);
 		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		bd.CPUAccessFlags = 0;
+		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		bd.MiscFlags = 0;
 		bd.StructureByteStride = 0;
 		HRESULT hr = DxSystem::device->CreateBuffer(&bd, nullptr, constant_buffer_skybox.GetAddressOf());
@@ -96,7 +96,14 @@ void SkyBox::Render(Vector3 pos)
 
 	DxSystem::device_context->VSSetConstantBuffers(1, 1, constant_buffer_skybox.GetAddressOf());
 	DxSystem::device_context->PSSetConstantBuffers(1, 1, constant_buffer_skybox.GetAddressOf());
-	DxSystem::device_context->UpdateSubresource(constant_buffer_skybox.Get(), 0, 0, &cbSkyBox, 0, 0);
+	UINT subresourceIndex = 0;
+	D3D11_MAPPED_SUBRESOURCE mapped;
+	auto hr = DxSystem::device_context->Map(constant_buffer_skybox.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+	if (SUCCEEDED(hr))
+	{
+		memcpy(mapped.pData, &cbSkyBox, sizeof(Constant_Buffer_Skybox));
+		DxSystem::device_context->Unmap(constant_buffer_skybox.Get(), subresourceIndex);
+	}
 
 	// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
 	UINT stride = sizeof(Mesh::vertex);

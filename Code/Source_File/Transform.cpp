@@ -1139,7 +1139,7 @@ void Transform::Set_World_Matrix(Matrix matrix)
 Quaternion Transform::Look_At(Vector3 pos)
 {
 	Vector3 up = { 0,1,0 };
-	Vector3 z = XMVector3Normalize(pos - transform->position);
+	Vector3 z = XMVector3Normalize(pos - position);
 	Vector3 x = XMVector3Normalize(XMVector3Cross(up, z));
 	Vector3 y = XMVector3Normalize(XMVector3Cross(z, x));
 

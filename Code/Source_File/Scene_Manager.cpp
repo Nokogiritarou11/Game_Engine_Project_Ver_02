@@ -55,10 +55,6 @@ unique_ptr<Scene> Scene_Manager::CreateScene_From_File()
 
 	if (path != "")
 	{
-		int path_i = path.find_last_of("\\") + 1;//7
-		int ext_i = path.find_last_of(".");//10
-		string file_name = path.substr(path_i, ext_i - path_i); //ファイル名
-
 		ifstream in_bin(path, ios::binary);
 		if (in_bin.is_open())
 		{
@@ -67,7 +63,6 @@ unique_ptr<Scene> Scene_Manager::CreateScene_From_File()
 			bin_s_stream << in_bin.rdbuf();
 			cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
 			binaryInputArchive(New_Scene);
-			New_Scene->name = file_name;
 
 			last_save_path = path;
 			return move(New_Scene);
@@ -82,10 +77,6 @@ unique_ptr<Scene> Scene_Manager::CreateScene_From_File()
 
 unique_ptr<Scene> Scene_Manager::CreateScene_From_File(std::string file_path)
 {
-	int path_i = file_path.find_last_of("\\") + 1;//7
-	int ext_i = file_path.find_last_of(".");//10
-	string file_name = file_path.substr(path_i, ext_i - path_i); //ファイル名
-
 	ifstream in_bin(file_path, ios::binary);
 	if (in_bin.is_open())
 	{
@@ -94,7 +85,6 @@ unique_ptr<Scene> Scene_Manager::CreateScene_From_File(std::string file_path)
 		bin_s_stream << in_bin.rdbuf();
 		cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
 		binaryInputArchive(New_Scene);
-		New_Scene->name = file_name;
 
 		last_save_path = file_path;
 		return move(New_Scene);

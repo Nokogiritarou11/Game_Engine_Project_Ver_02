@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <vector>
+#include <array>
 #include <wrl.h>
 #include <Original_Math.h>
 #include <tchar.h>
@@ -13,6 +14,8 @@
 
 namespace BeastEngine
 {
+	class Transform;
+
 	struct Bounds
 	{
 	public:
@@ -26,6 +29,8 @@ namespace BeastEngine
 		void Set_center(float x, float y, float z);
 		void Set_size(BeastEngine::Vector3 value);
 		void Set_size(float x, float y, float z);
+
+		bool Get_Is_Culling_Frustum(std::shared_ptr<BeastEngine::Transform>& trans, std::array<BeastEngine::Vector4, 6>& planes);
 
 	private:
 		BeastEngine::Vector3 center;

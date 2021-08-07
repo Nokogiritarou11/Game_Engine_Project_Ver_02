@@ -13,6 +13,27 @@ namespace BeastEngine
 {
 	class Shader
 	{
+	public:
+		enum Render_Type
+		{
+			Opaque,
+			CutOut,
+			Fade,
+			Transparent,
+			Overlay
+		};
+
+		static std::shared_ptr<BeastEngine::Shader> Create(std::string VSName, std::string PSName);
+
+		void Activate();
+		void Activate_VS();
+		void Activate_PS();
+		void Activate_GS();
+		void Activate_HS();
+		void Activate_DS();
+
+		Microsoft::WRL::ComPtr<ID3D11InputLayout> vertex_layout;
+
 	private:
 		Microsoft::WRL::ComPtr<ID3D11VertexShader>		vs = nullptr; // 頂点シェーダ
 		Microsoft::WRL::ComPtr<ID3D11PixelShader>		ps = nullptr; // ピクセルシェーダ
@@ -28,26 +49,5 @@ namespace BeastEngine
 		//bool Create_HS(std::string filename);
 		//bool Create_DS(std::string filename);
 
-	public:
-		enum Render_Type
-		{
-			Opaque,
-			CutOut,
-			Fade,
-			Transparent,
-			Overlay
-		};
-
-		Microsoft::WRL::ComPtr<ID3D11InputLayout> vertex_layout;
-
-		static std::shared_ptr<BeastEngine::Shader> Create(std::string VSName, std::string PSName);
-
-		void Activate();
-
-		void Activate_VS();
-		void Activate_PS();
-		void Activate_GS();
-		void Activate_HS();
-		void Activate_DS();
 	};
 }

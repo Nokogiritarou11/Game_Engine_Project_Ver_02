@@ -33,7 +33,6 @@ void Render_Texture::Set_Screen_Size(int x, int y)
 void Render_Texture::Set_Render_Target()
 {
 	DxSystem::device_context->OMSetRenderTargets(1, render_target_view.GetAddressOf(), depth_stencil_view.Get());
-	Clear();
 	// ビューポートの設定
 	DxSystem::Set_ViewPort(screen_x, screen_y);
 }

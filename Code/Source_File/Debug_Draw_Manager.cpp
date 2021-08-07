@@ -15,10 +15,10 @@ Debug_Draw_Manager::Debug_Draw_Manager()
 	grid_length = 70;
 	{
 		D3D11_BUFFER_DESC bd = {};
-		bd.Usage = D3D11_USAGE_DEFAULT;
+		bd.Usage = D3D11_USAGE_DYNAMIC;
 		bd.ByteWidth = sizeof(Vector4);
 		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		bd.CPUAccessFlags = 0;
+		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		bd.MiscFlags = 0;
 		bd.StructureByteStride = 0;
 		HRESULT hr = DxSystem::device->CreateBuffer(&bd, nullptr, constant_buffer_debug.GetAddressOf());
@@ -62,7 +62,14 @@ void Debug_Draw_Manager::flushLines()
 	DxSystem::device_context->IASetVertexBuffers(0, 1, vb, &stride, &offset);
 
 	Vector4 color = { 0, 0, 0, 1.0f };
-	DxSystem::device_context->UpdateSubresource(constant_buffer_debug.Get(), 0, 0, &color, 0, 0);
+	UINT subresourceIndex = 0;
+	D3D11_MAPPED_SUBRESOURCE mapped;
+	hr = DxSystem::device_context->Map(constant_buffer_debug.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+	if (SUCCEEDED(hr))
+	{
+		memcpy(mapped.pData, &color, sizeof(Vector4));
+		DxSystem::device_context->Unmap(constant_buffer_debug.Get(), subresourceIndex);
+	}
 	DxSystem::device_context->VSSetConstantBuffers(1, 1, constant_buffer_debug.GetAddressOf());
 
 	//•`‰æ
@@ -117,6 +124,7 @@ void Debug_Draw_Manager::Render_Grid(shared_ptr<Transform>& trans)
 		}
 	}
 
+	HRESULT hr;
 	ComPtr<ID3D11Buffer> grid_vertex_buffer;
 	D3D11_BUFFER_DESC bd = {};
 	bd.Usage = D3D11_USAGE_DEFAULT;
@@ -125,7 +133,7 @@ void Debug_Draw_Manager::Render_Grid(shared_ptr<Transform>& trans)
 	bd.CPUAccessFlags = 0;
 	D3D11_SUBRESOURCE_DATA InitData = {};
 	InitData.pSysMem = grids.data();
-	HRESULT hr = DxSystem::device->CreateBuffer(&bd, &InitData, grid_vertex_buffer.GetAddressOf());
+	hr = DxSystem::device->CreateBuffer(&bd, &InitData, grid_vertex_buffer.GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	// ’¸“_ƒoƒbƒtƒ@
@@ -136,14 +144,31 @@ void Debug_Draw_Manager::Render_Grid(shared_ptr<Transform>& trans)
 	DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(DS_State::Less), 1);
 
 	const float alpha = 0.15f;
-	//•`‰æ
 	Vector4 color_w = { 0, 0, 0,  color_level[0] * alpha };
-	DxSystem::device_context->UpdateSubresource(constant_buffer_debug.Get(), 0, 0, &color_w, 0, 0);
-	DxSystem::device_context->Draw(count[0] * 4, 0);
-
-	color_w = { 0, 0, 0,  color_level[1] * alpha };
-	DxSystem::device_context->UpdateSubresource(constant_buffer_debug.Get(), 0, 0, &color_w, 0, 0);
-	DxSystem::device_context->Draw(count[1] * 4, count[0] * 4);
+	//•`‰æ
+	{
+		UINT subresourceIndex = 0;
+		D3D11_MAPPED_SUBRESOURCE mapped;
+		hr = DxSystem::device_context->Map(constant_buffer_debug.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+		if (SUCCEEDED(hr))
+		{
+			memcpy(mapped.pData, &color_w, sizeof(Vector4));
+			DxSystem::device_context->Unmap(constant_buffer_debug.Get(), subresourceIndex);
+		}
+		DxSystem::device_context->Draw(count[0] * 4, 0);
+	}
+	{
+		color_w = { 0, 0, 0,  color_level[1] * alpha };
+		UINT subresourceIndex = 0;
+		D3D11_MAPPED_SUBRESOURCE mapped;
+		auto hr = DxSystem::device_context->Map(constant_buffer_debug.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+		if (SUCCEEDED(hr))
+		{
+			memcpy(mapped.pData, &color_w, sizeof(Vector4));
+			DxSystem::device_context->Unmap(constant_buffer_debug.Get(), subresourceIndex);
+		}
+		DxSystem::device_context->Draw(count[1] * 4, count[0] * 4);
+	}
 }
 
 void Debug_Draw_Manager::drawLine(const btVector3& from, const btVector3& to, const btVector3& fromColor, const btVector3& toColor)
@@ -189,7 +214,15 @@ void Debug_Draw_Manager::Render_Collider()
 {
 	Set_Dx_Settings();
 	DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(DS_State::None_No_Write), 0);
+
 	Vector4 color_w = { 0, 0, 0, 0.5f };
-	DxSystem::device_context->UpdateSubresource(constant_buffer_debug.Get(), 0, 0, &color_w, 0, 0);
+	UINT subresourceIndex = 0;
+	D3D11_MAPPED_SUBRESOURCE mapped;
+	auto hr = DxSystem::device_context->Map(constant_buffer_debug.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+	if (SUCCEEDED(hr))
+	{
+		memcpy(mapped.pData, &color_w, sizeof(Vector4));
+		DxSystem::device_context->Unmap(constant_buffer_debug.Get(), subresourceIndex);
+	}
 	Engine::bulletphysics_manager->Render_Debug();
 }
