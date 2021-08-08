@@ -2,12 +2,12 @@
 
 struct VS_SHADOW_OUT
 {
-    float4 position : SV_POSITION;
+	float4 position : SV_POSITION;
 };
 
 cbuffer CbMesh : register(b1)
 {
-    row_major float4x4 world;
+	float4x4 world;
 };
 
 VS_SHADOW_OUT VSMain(
@@ -19,11 +19,11 @@ VS_SHADOW_OUT VSMain(
 	uint4 bone_indices : BONES
 )
 {
-    VS_SHADOW_OUT vout;
+	VS_SHADOW_OUT vout;
 
-    float4 pos = float4(position, 1.0f);
+	float4 pos = float4(position, 1.0f);
 
-    vout.position = mul(pos, mul(world, viewProjection));
+	vout.position = mul(mul(viewProjection, world), pos);
 
-    return vout;
+	return vout;
 }

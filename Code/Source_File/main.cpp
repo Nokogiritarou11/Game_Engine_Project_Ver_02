@@ -101,7 +101,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 	Microsoft::WRL::Wrappers::RoInitializeWrapper initialize(RO_INIT_MULTITHREADED);
 
 	// デバイス初期化
-	if (FAILED((HRESULT)BeastEngine::DxSystem::Initialize(hWnd, BeastEngine::DxSystem::Get_Screen_Width(), BeastEngine::DxSystem::Get_Screen_Height())))
+	if (!BeastEngine::DxSystem::Initialize(hWnd, BeastEngine::DxSystem::Get_Screen_Width(), BeastEngine::DxSystem::Get_Screen_Height()))
 	{
 		return 0;
 	}

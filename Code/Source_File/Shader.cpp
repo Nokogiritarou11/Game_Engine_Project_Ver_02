@@ -167,6 +167,7 @@ bool Shader::Create_VS(string filename)
 	}
 	return true;
 }
+
 bool Shader::Create_PS(string filename)
 {
 	HRESULT hr = S_OK;

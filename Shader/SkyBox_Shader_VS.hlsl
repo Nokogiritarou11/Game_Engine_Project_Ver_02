@@ -10,10 +10,10 @@ VS_SKY_OUT VSMain
     uint4 bone_indices : BONES
 )
 {
-    VS_SKY_OUT vout;
+	VS_SKY_OUT vout;
 
-    vout.position = mul(float4(position, 1.0f), mul(world, viewProjection));
-    vout.texcoord = normalize(position.xyz);
+	vout.position = mul(mul(viewProjection, world), float4(position, 1.0f));
+	vout.texcoord = normalize(position.xyz);
 
-    return vout;
+	return vout;
 }

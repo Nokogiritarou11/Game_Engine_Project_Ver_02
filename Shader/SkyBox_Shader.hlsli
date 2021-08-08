@@ -6,6 +6,6 @@ struct VS_SKY_OUT
 
 cbuffer CONSTANT_BUFFER : register(b1)
 {
-	column_major float4x4 world;
+	float4x4 world;
 	float4 color;
 };

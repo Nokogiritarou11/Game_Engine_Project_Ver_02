@@ -2,7 +2,7 @@
 #include "Debug_Shader.hlsli"
 cbuffer CbDebug : register(b1)
 {
-    float4 color_alpha;
+	float4 color_alpha;
 };
 
 VS_DEBUG_OUT VSMain(
@@ -10,11 +10,11 @@ VS_DEBUG_OUT VSMain(
     float3 color : COLOR
 )
 {
-    VS_DEBUG_OUT vout;
+	VS_DEBUG_OUT vout;
 
-    float4 pos = float4(position, 1.0f);
-    vout.position = mul(pos, viewProjection);
-    vout.color = float4(color, color_alpha.w);
+	float4 pos = float4(position, 1.0f);
+	vout.position = mul(viewProjection, pos);
+	vout.color = float4(color, color_alpha.w);
 
-    return vout;
+	return vout;
 }

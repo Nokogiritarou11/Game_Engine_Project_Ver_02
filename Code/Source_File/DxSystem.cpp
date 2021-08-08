@@ -37,7 +37,7 @@ bool DxSystem::Initialize(HWND hWnd, int width, int height)
 	Initialize_Render_Target();
 	Create_Rasterizer_State();
 	Create_Blend_State();
-	return false;
+	return true;
 }
 
 //****************************************************************

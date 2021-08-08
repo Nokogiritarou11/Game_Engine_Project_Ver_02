@@ -2,7 +2,7 @@
 
 cbuffer CbMesh : register(b1)
 {
-    row_major float4x4 world;
+	float4x4 world;
 };
 
 VS_OUT VSMain(
@@ -14,18 +14,18 @@ VS_OUT VSMain(
 	uint4 bone_indices : BONES
 )
 {
-    VS_OUT vout;
+	VS_OUT vout;
 
-    float4 pos = float4(position, 1.0f);
-    float4 nor = float4(normal, 0.0f);
-    float4 tan = float4(tangent, 0.0f);
+	float4 pos = float4(position, 1.0f);
+	float4 nor = float4(normal, 0.0f);
+	float4 tan = float4(tangent, 0.0f);
 
-    vout.position = mul(pos, mul(world, viewProjection));
+	vout.position = mul(viewProjection, mul(world, pos));
 
-    vout.normal = normalize(mul(nor, world));
-    vout.tangent = normalize(mul(tan, world));
-    vout.texcoord = texcoord;
+	vout.normal = normalize(mul(world, nor));
+	vout.tangent = normalize(mul(world, tan));
+	vout.texcoord = texcoord;
 
-    vout.sdwcoord = mul(mul(pos, world) + vout.normal * bias, shadowMatrix);
-    return vout;
+	vout.sdwcoord = mul(shadowMatrix, mul(world, pos) + vout.normal * bias);
+	return vout;
 }

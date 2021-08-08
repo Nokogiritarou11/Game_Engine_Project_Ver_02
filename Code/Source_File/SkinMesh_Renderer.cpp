@@ -104,7 +104,8 @@ void SkinMesh_Renderer::Recalculate_Frame()
 	// メッシュ用定数バッファ更新
 	if (!bones.empty())
 	{
-		for (size_t i = 0; i < bones.size(); ++i)
+		size_t size = bones.size();
+		for (size_t i = 0; i < size; ++i)
 		{
 			Matrix world_transform = bones[i].lock()->Get_World_Matrix();
 			Matrix inverse_transform = mesh->inverse_matrixes[i];
