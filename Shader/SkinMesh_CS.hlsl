@@ -27,7 +27,7 @@ StructuredBuffer<VERTEX_IN> vertex_in : register(t0);
 // Out
 RWStructuredBuffer<VERTEX_OUT> vertex_out : register(u0);
 
-[numthreads(64, 1, 1)]
+[numthreads(128, 1, 1)]
 void main(uint3 dispatch : SV_DispatchThreadID)
 {
 	int num = dispatch.x;

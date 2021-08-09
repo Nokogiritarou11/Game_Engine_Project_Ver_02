@@ -161,7 +161,7 @@ void Mesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 			}
 
 			//コンピュートシェーダー設定
-			compute_shader->Create_Buffer_Input(sizeof(Mesh::vertex), mesh->vertices.size(), &mesh->vertices);
+			compute_shader->Create_Buffer_Input(sizeof(Mesh::vertex), mesh->vertices.size(), &mesh->vertices[0]);
 			compute_shader->Create_Buffer_Result(sizeof(Mesh::vertex_default_buffer), mesh->vertices.size(), nullptr);
 
 			//	頂点バッファ作成
@@ -171,7 +171,11 @@ void Mesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 			bd.ByteWidth = sizeof(Mesh::vertex_default_buffer) * mesh->vertices.size();
 			bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 			bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-			DxSystem::device->CreateBuffer(&bd, nullptr, vertex_buffer.GetAddressOf());
+			D3D11_SUBRESOURCE_DATA InitData = {};
+			InitData.pSysMem = &mesh->vertices[0]; // 頂点のアドレス
+			InitData.SysMemPitch = 0;
+			InitData.SysMemSlicePitch = 0;
+			DxSystem::device->CreateBuffer(&bd, &InitData, vertex_buffer.GetAddressOf());
 
 			//AABB
 			bounds = mesh->boundingbox;
@@ -190,7 +194,7 @@ void Mesh_Renderer::Render()
 		}
 
 		// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
-		UINT stride = sizeof(Mesh::vertex);
+		UINT stride = sizeof(Mesh::vertex_default_buffer);
 		UINT offset = 0;
 		DxSystem::device_context->IASetVertexBuffers(0, 1, vertex_buffer.GetAddressOf(), &stride, &offset);
 		DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
@@ -248,7 +252,7 @@ void Mesh_Renderer::Render_Shadow()
 		}
 
 		// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
-		UINT stride = sizeof(Mesh::vertex);
+		UINT stride = sizeof(Mesh::vertex_default_buffer);
 		UINT offset = 0;
 		DxSystem::device_context->IASetVertexBuffers(0, 1, vertex_buffer.GetAddressOf(), &stride, &offset);
 		DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);

@@ -172,7 +172,7 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 			}
 
 			//コンピュートシェーダー設定
-			compute_shader->Create_Buffer_Input(sizeof(Mesh::vertex), mesh->vertices.size(), &mesh->vertices);
+			compute_shader->Create_Buffer_Input(sizeof(Mesh::vertex), mesh->vertices.size(), &mesh->vertices[0]);
 			compute_shader->Create_Buffer_Result(sizeof(Mesh::vertex_default_buffer), mesh->vertices.size(), nullptr);
 
 			//	頂点バッファ作成
@@ -202,7 +202,7 @@ void SkinMesh_Renderer::Render()
 		}
 
 		// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
-		UINT stride = sizeof(Mesh::vertex);
+		UINT stride = sizeof(Mesh::vertex_default_buffer);
 		UINT offset = 0;
 		DxSystem::device_context->IASetVertexBuffers(0, 1, vertex_buffer.GetAddressOf(), &stride, &offset);
 		DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
@@ -260,7 +260,7 @@ void SkinMesh_Renderer::Render_Shadow()
 		}
 
 		// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
-		UINT stride = sizeof(Mesh::vertex);
+		UINT stride = sizeof(Mesh::vertex_default_buffer);
 		UINT offset = 0;
 		DxSystem::device_context->IASetVertexBuffers(0, 1, vertex_buffer.GetAddressOf(), &stride, &offset);
 		DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
