@@ -15,6 +15,10 @@
     <FxCompile Include="Code\Shader\2D.fx" />
     <FxCompile Include="Shader\Debug_Shader_VS.hlsl" />
     <FxCompile Include="Shader\Debug_Shader_PS.hlsl" />
+    <FxCompile Include="Shader\SkinMesh_CS.hlsl" />
+    <FxCompile Include="Shader\Mesh_CS.hlsl" />
+    <FxCompile Include="Shader\Standard_Shader_VS.hlsl" />
+    <FxCompile Include="Shader\Standard_Shadow_Shader_VS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Source_File\Object.cpp" />
@@ -92,6 +96,7 @@
     <ClCompile Include="Code\Source_File\Debug_Draw_Manager.cpp" />
     <ClCompile Include="Code\Source_File\Sphere_Collider.cpp" />
     <ClCompile Include="Code\Source_File\Capsule_Collider.cpp" />
+    <ClCompile Include="Code\Source_File\Compute_Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -287,6 +292,7 @@
     <ClInclude Include="Code\Header_File\Sphere_Collider.h" />
     <ClInclude Include="Code\Header_File\Capsule_Collider.h" />
     <ClInclude Include="Code\Header_File\Project_Settings.h" />
+    <ClInclude Include="Code\Header_File\Compute_Shader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

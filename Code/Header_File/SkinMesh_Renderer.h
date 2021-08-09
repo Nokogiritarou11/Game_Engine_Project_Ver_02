@@ -4,6 +4,7 @@
 namespace BeastEngine
 {
 	class Shader;
+	class Compute_Shader;
 	class Mesh;
 
 	class SkinMesh_Renderer : public BeastEngine::Renderer
@@ -44,7 +45,8 @@ namespace BeastEngine
 		std::string file_path;
 
 		static std::shared_ptr<BeastEngine::Shader> shadow_shader;
-		static std::shared_ptr<BeastEngine::Shader> vertex_shader;
+		std::shared_ptr<BeastEngine::Compute_Shader> compute_shader;
+		Microsoft::WRL::ComPtr <ID3D11Buffer> vertex_buffer;
 
 		friend class FBX_Converter;
 		friend class Animator;

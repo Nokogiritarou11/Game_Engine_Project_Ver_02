@@ -10,6 +10,7 @@ namespace BeastEngine
 	class Object;
 	class Mesh;
 	class Shader;
+	class Compute_Shader;
 	class Texture;
 	class Material;
 	class Animation_Clip;
@@ -22,10 +23,9 @@ namespace BeastEngine
 		std::weak_ptr<BeastEngine::Object> Get_Asset_From_ID(std::string id);
 
 		std::unordered_map<std::string, std::shared_ptr<BeastEngine::Mesh>> cache_mesh;
-		std::unordered_map<std::string, std::pair<ID3D11VertexShader*, ID3D11InputLayout*>> cache_vertex;
-		std::unordered_map<std::string, ID3D11PixelShader*> cache_pixel;
-		std::unordered_map<std::string, std::shared_ptr<BeastEngine::Material>> cache_material;
 		std::unordered_map<std::string, std::shared_ptr<BeastEngine::Shader>> cache_shader;
+		std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11ComputeShader>> cache_compute_shader;
+		std::unordered_map<std::string, std::shared_ptr<BeastEngine::Material>> cache_material;
 		std::unordered_map<std::string, std::shared_ptr<BeastEngine::Texture>> cache_texture;
 		std::unordered_map<std::string, std::shared_ptr<BeastEngine::Animation_Clip>> cache_clip;
 

@@ -20,7 +20,7 @@ using namespace std;
 using namespace DirectX;
 using namespace BeastEngine;
 
-shared_ptr<Shader> Sprite_Renderer::default_shader;
+shared_ptr<Material> Sprite_Renderer::default_material;
 
 void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 {
@@ -51,9 +51,12 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 
 	DxSystem::device->CreateBuffer(&bd, &res, vertex_buffer.GetAddressOf());
 
-	if (!default_shader)
+	if (!default_material)
 	{
-		default_shader = Shader::Create("Shader/2D_Shader_VS.hlsl", "Shader/2D_Shader_PS.hlsl");
+		default_material = make_shared<Material>();
+		default_material->Set_Shader("Shader\\2D_Shader_VS.hlsl", Shader::Shader_Type::Vertex);
+		default_material->Set_Shader("Shader\\2D_Shader_PS.hlsl", Shader::Shader_Type::Pixel);
+		Material::Initialize(default_material, "Default_Resource\\shader\\skybox.mat");
 	}
 
 	if (file_path != "")
@@ -90,7 +93,6 @@ void Sprite_Renderer::Render()
 {
 	if (texture)
 	{
-		default_shader->Activate();
 		//頂点データ設定
 		Vertex data[4];
 
@@ -186,7 +188,7 @@ void Sprite_Renderer::Render()
 		data[2].color = color;
 		data[3].color = color;
 
-		DxSystem::device_context->IASetInputLayout(default_shader->vertex_layout.Get());
+		default_material->Active_Shader();
 
 		//	頂点バッファの指定
 		UINT stride = sizeof(Vertex);

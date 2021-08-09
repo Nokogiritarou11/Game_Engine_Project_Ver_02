@@ -7,13 +7,12 @@
 
 namespace BeastEngine
 {
-	class Shader;
 	class Texture;
+	class Material;
 
 	class Sprite_Renderer : public BeastEngine::Renderer
 	{
 	public:
-
 		BeastEngine::Vector2 size = { 100,100 };			//表示サイズ
 		BeastEngine::Vector2 uv_origin = { 0,0 };		//テクスチャのUV原点
 		BeastEngine::Vector2 uv_size = { 100,100 };		//テクスチャから切り出すサイズ(UV原点基準)
@@ -21,7 +20,6 @@ namespace BeastEngine
 		std::shared_ptr<BeastEngine::Texture> texture;	//描画するテクスチャ
 
 	private:
-
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj);
 		void Render() override;
 		bool Draw_ImGui() override;
@@ -35,11 +33,10 @@ namespace BeastEngine
 		};
 
 		Microsoft::WRL::ComPtr<ID3D11Buffer> vertex_buffer;
+		static std::shared_ptr<BeastEngine::Material> default_material;
 
 		std::string file_name;
 		std::string file_path;
-
-		static std::shared_ptr<BeastEngine::Shader> default_shader;
 
 		friend class cereal::access;
 		template<class Archive>

@@ -29,6 +29,5 @@ namespace BeastEngine
 		};
 
 		Microsoft::WRL::ComPtr<ID3D11Buffer> constant_buffer_skybox;		//コンスタントバッファ
-		std::shared_ptr<BeastEngine::Shader> vertex_shader;
 	};
 }

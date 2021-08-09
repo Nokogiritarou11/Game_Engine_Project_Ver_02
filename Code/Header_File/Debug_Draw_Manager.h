@@ -7,6 +7,7 @@
 namespace BeastEngine
 {
 	class Transform;
+	class Material;
 
 	class Debug_Draw_Manager : public btIDebugDraw
 	{
@@ -42,7 +43,7 @@ namespace BeastEngine
 
 		int bit_Debug_Mode = 0;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> constant_buffer_debug;
-		std::shared_ptr<BeastEngine::Shader> shader;
+		std::shared_ptr<BeastEngine::Material> material;
 
 		struct Vertex
 		{

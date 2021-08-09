@@ -14,40 +14,72 @@ namespace BeastEngine
 	class Shader
 	{
 	public:
-		enum Render_Type
+		enum class Shader_Type
 		{
-			Opaque,
-			CutOut,
-			Fade,
-			Transparent,
-			Overlay
+			Vertex,
+			Geometry,
+			Pixel,
+			Hull,
+			Domain
 		};
 
-		static std::shared_ptr<BeastEngine::Shader> Create(std::string VSName, std::string PSName);
+		static std::shared_ptr<BeastEngine::Shader> Create(std::string shader_path, Shader_Type shader_type);
+		virtual void Activate() {};
 
-		void Activate();
-		void Activate_VS();
-		void Activate_PS();
-		void Activate_GS();
-		void Activate_HS();
-		void Activate_DS();
+	protected:
+		virtual bool Initialize(std::string filename) { return false; };
+		HRESULT Compile(WCHAR* filename, LPCSTR method, LPCSTR shaderModel, ID3DBlob** ppBlobOut);
+	};
 
-		Microsoft::WRL::ComPtr<ID3D11InputLayout> vertex_layout;
+	class Vertex_Shader : public Shader
+	{
+	public:
+		void Activate() override;
 
 	private:
-		Microsoft::WRL::ComPtr<ID3D11VertexShader>		vs = nullptr; // 頂点シェーダ
-		Microsoft::WRL::ComPtr<ID3D11PixelShader>		ps = nullptr; // ピクセルシェーダ
-		Microsoft::WRL::ComPtr<ID3D11GeometryShader>	gs = nullptr; // ジオメトリシェーダ
-		Microsoft::WRL::ComPtr<ID3D11HullShader>		hs = nullptr; // ハルシェーダ
-		Microsoft::WRL::ComPtr<ID3D11DomainShader>		ds = nullptr; // ドメインネームシェーダ
+		bool Initialize(std::string filename) override;
 
-		HRESULT Compile(WCHAR* filename, LPCSTR method, LPCSTR shaderModel, ID3DBlob** ppBlobOut);
+		Microsoft::WRL::ComPtr<ID3D11VertexShader> vs = nullptr; // 頂点シェーダ
+		Microsoft::WRL::ComPtr<ID3D11InputLayout> vertex_layout;
+	};
 
-		bool Create_VS(std::string filename);
-		bool Create_PS(std::string filename);
-		//bool Create_GS(std::string filename);
-		//bool Create_HS(std::string filename);
-		//bool Create_DS(std::string filename);
+	class Pixel_Shader : public Shader
+	{
+	public:
+		void Activate() override;
 
+	private:
+		bool Initialize(std::string filename) override;
+		Microsoft::WRL::ComPtr<ID3D11PixelShader> ps = nullptr; // ピクセルシェーダ
+	};
+
+	class Geometry_Shader : public Shader
+	{
+	public:
+		void Activate() override;
+
+	private:
+		bool Initialize(std::string filename) override;
+		Microsoft::WRL::ComPtr<ID3D11GeometryShader> gs = nullptr; // ジオメトリシェーダ
+	};
+
+	class Hull_Shader : public Shader
+	{
+	public:
+		void Activate() override;
+
+	private:
+		bool Initialize(std::string filename) override;
+		Microsoft::WRL::ComPtr<ID3D11HullShader> hs = nullptr; // ハルシェーダ
+	};
+
+	class Domain_Shader : public Shader
+	{
+	public:
+		void Activate() override;
+
+	private:
+		bool Initialize(std::string filename) override;
+		Microsoft::WRL::ComPtr<ID3D11DomainShader> ds = nullptr; // ドメインネームシェーダ
 	};
 }

@@ -15,30 +15,10 @@ using namespace BeastEngine;
 SkyBox::SkyBox()
 {
 	material = make_shared<Material>();
-	ifstream in_bin("Default_Resource\\Model\\sphere\\SkyBoxes\\envmap_miramar\\envmap_miramar.mat", ios::binary);
-	if (in_bin.is_open())
-	{
-		stringstream bin_s_stream;
-		bin_s_stream << in_bin.rdbuf();
-		cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
-		binaryInputArchive(material);
-		Material::Initialize(material, "Default_Resource\\Model\\sphere\\SkyBoxes\\envmap_miramar\\envmap_miramar.mat");
-	}
-	else
-	{
-		shared_ptr<Material> mat = Material::Create("Default_Resource\\Model\\sphere\\SkyBoxes\\envmap_miramar\\", "envmap_miramar", L"Shader/SkyBox_Shader_PS.hlsl");
-		mat->Set_Texture(Material::Texture_Type::Main, "Default_Resource\\Model\\sphere\\skyboxes\\envmap_miramar\\", "envmap_miramar.dds");
-		mat->Save();
-		ifstream bin("Default_Resource\\Model\\sphere\\SkyBoxes\\envmap_miramar\\envmap_miramar.mat", ios::binary);
-		if (bin.is_open())
-		{
-			stringstream bin_s_stream;
-			bin_s_stream << bin.rdbuf();
-			cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
-			binaryInputArchive(material);
-			Material::Initialize(material, "Default_Resource\\Model\\sphere\\SkyBoxes\\envmap_miramar\\envmap_miramar.mat");
-		}
-	}
+	material->Set_Texture(Material::Texture_Type::Main, "Default_Resource\\Model\\sphere\\skyboxes\\envmap_miramar\\", "envmap_miramar.dds");
+	material->Set_Shader("Shader\\SkyBox_Shader_VS.hlsl", Shader::Shader_Type::Vertex);
+	material->Set_Shader("Shader\\SkyBox_Shader_PS.hlsl", Shader::Shader_Type::Pixel);
+	Material::Initialize(material, "Default_Resource\\shader\\skybox.mat");
 
 	//Engine::fbx_converter->Direct_Load("Default_Resource\\Model\\sphere\\", "sphere", true, false, false);
 	mesh = Mesh::Load_Mesh("Default_Resource\\Model\\sphere\\sphere");
@@ -56,23 +36,15 @@ SkyBox::SkyBox()
 		HRESULT hr = DxSystem::device->CreateBuffer(&bd, nullptr, constant_buffer_skybox.GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
-
-	if (!vertex_shader)
-	{
-		vertex_shader = Shader::Create("Shader/SkyBox_Shader_VS.hlsl", "");
-	}
 }
 
 SkyBox::~SkyBox() {}
 
 void SkyBox::Render(Vector3 pos)
 {
-	DxSystem::device_context->IASetInputLayout(vertex_shader->vertex_layout.Get());
 	//シェーダーリソースのバインド
-	material->texture[static_cast<int>(Material::Texture_Type::Main)]->Set(1); //PSSetSamplar PSSetShaderResources
-
-	vertex_shader->Activate_VS();
-	material->shader->Activate_PS(); //PS,VSSetShader
+	material->texture[static_cast<int>(Material::Texture_Type::Main)]->Set(1);
+	material->Active_Shader();
 
 	// 定数バッファ更新
 	Constant_Buffer_Skybox cbSkyBox;

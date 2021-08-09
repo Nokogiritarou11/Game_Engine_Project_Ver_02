@@ -5,7 +5,7 @@ cbuffer CbDebug : register(b1)
 	float4 color_alpha;
 };
 
-VS_DEBUG_OUT VSMain(
+VS_DEBUG_OUT main(
 	float3 position : POSITION,
     float3 color : COLOR
 )

@@ -15,7 +15,7 @@
 using namespace std;
 using namespace BeastEngine;
 
-shared_ptr<Material> Material::Create(const string& Material_Pass, const string& Material_Name, WCHAR* PS_Name)
+shared_ptr<Material> Material::Create(const string& Material_Pass, const string& Material_Name)
 {
 	auto it = Engine::asset_manager->cache_material.find(Material_Pass + Material_Name + ".mat");
 	if (it != Engine::asset_manager->cache_material.end())
@@ -26,19 +26,9 @@ shared_ptr<Material> Material::Create(const string& Material_Pass, const string&
 	{
 		shared_ptr<Material> mat = make_shared<Material>();
 		mat->name = Material_Name;
-		{
-			char char_pass[MAX_PATH];
-			string str_pass;
-			WideCharToMultiByte(CP_ACP, 0, PS_Name, -1, char_pass, MAX_PATH, NULL, NULL);
-			str_pass = char_pass;
-			int path_i = str_pass.find_last_of("\\") + 1;//7
-			int ext_i = str_pass.find_last_of(".");//10
-			mat->shader_info[static_cast<int>(Shader_Type::PS)].shader_fullpass = str_pass;
-			mat->shader_info[static_cast<int>(Shader_Type::PS)].shader_pass = str_pass.substr(0, path_i); //ファイルまでのディレクトリ
-			string filename = str_pass.substr(path_i, ext_i - path_i); //ファイル名
-			mat->shader_info[static_cast<int>(Shader_Type::PS)].shader_name = filename;
-		}
 		mat->self_save_pass = Material_Pass + Material_Name + ".mat";
+		mat->Set_Shader("Shader\\Standard_Shader_VS.hlsl", Shader::Shader_Type::Vertex);
+		mat->Set_Shader("Shader\\Standard_Shader_PS.hlsl", Shader::Shader_Type::Pixel);
 		return mat;
 	}
 }
@@ -53,7 +43,7 @@ void Material::Initialize(shared_ptr<Material>& mat, string Material_FullPass)
 	else
 	{
 		mat->Set_Texture_All();
-		mat->shader = Shader::Create("", mat->shader_info[static_cast<int>(Shader_Type::PS)].shader_fullpass);
+		mat->Set_Shader_All();
 
 		mat->self_save_pass = Material_FullPass;
 		Engine::asset_manager->cache_material.insert(make_pair(Material_FullPass, mat));
@@ -66,6 +56,39 @@ void Material::Set_Texture(Texture_Type texture_type, const std::string& filepat
 	texture_info[static_cast<int>(texture_type)].texture_pass = filepath;
 	texture_info[static_cast<int>(texture_type)].texture_fullpass = filepath + filename;
 	texture[static_cast<int>(texture_type)] = Texture::Load(texture_info[static_cast<int>(texture_type)].texture_fullpass);
+}
+
+void Material::Set_Shader(const string& shader_path, Shader::Shader_Type shader_type)
+{
+	int type = static_cast<int>(shader_type);
+	if (shader_path.empty())
+	{
+		shader[type].reset();
+		shader_info[type].shader_fullpass.clear();
+		shader_info[type].shader_pass.clear(); //ファイルまでのディレクトリ
+		shader_info[type].shader_name.clear();
+	}
+	else
+	{
+		int path_i = shader_path.find_last_of("\\") + 1;//7
+		int ext_i = shader_path.find_last_of(".");//10
+		shader_info[type].shader_fullpass = shader_path;
+		shader_info[type].shader_pass = shader_path.substr(0, path_i); //ファイルまでのディレクトリ
+		string filename = shader_path.substr(path_i, ext_i - path_i); //ファイル名
+		shader_info[type].shader_name = filename;
+		shader[type] = Shader::Create(shader_path, shader_type);
+	}
+}
+
+void Material::Set_Shader_All()
+{
+	for (size_t i = 0; i < 5; i++)
+	{
+		if (!shader_info[i].shader_fullpass.empty())
+		{
+			shader[i] = Shader::Create(shader_info[i].shader_fullpass, static_cast<Shader::Shader_Type>(i));
+		}
+	}
 }
 
 void Material::Set_Texture_All()
@@ -92,7 +115,13 @@ void Material::Active_Texture(bool Use_Material)
 
 void Material::Active_Shader()
 {
-	shader->Activate();
+	for (auto s : shader)
+	{
+		if (s)
+		{
+			s->Activate();
+		}
+	}
 }
 
 void Material::Save(const string& path)

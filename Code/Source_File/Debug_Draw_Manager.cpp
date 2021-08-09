@@ -2,6 +2,7 @@
 #include "Engine.h"
 #include "BulletPhysics_Manager.h"
 #include "Transform.h"
+#include "Material.h"
 using namespace std;
 using namespace BeastEngine;
 using namespace DirectX;
@@ -9,7 +10,10 @@ using Microsoft::WRL::ComPtr;
 
 Debug_Draw_Manager::Debug_Draw_Manager()
 {
-	shader = Shader::Create("Shader/Debug_Shader_VS.hlsl", "Shader/Debug_Shader_PS.hlsl");
+	material = make_shared<Material>();
+	material->Set_Shader("Shader\\Debug_Shader_VS.hlsl", Shader::Shader_Type::Vertex);
+	material->Set_Shader("Shader\\Debug_Shader_PS.hlsl", Shader::Shader_Type::Pixel);
+	Material::Initialize(material, "Default_Resource\\shader\\debug_draw.mat");
 	lines.clear();
 
 	grid_length = 70;
@@ -199,9 +203,7 @@ void Debug_Draw_Manager::Set_Dx_Settings()
 	DxSystem::device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
 	// シェーダ
-	DxSystem::device_context->IASetInputLayout(shader->vertex_layout.Get());
-	shader->Activate_VS();
-	shader->Activate_PS();
+	material->Active_Shader();
 
 	// ステート
 	DxSystem::device_context->RSSetState(DxSystem::Get_Rasterizer_State(RS_State::Wire));

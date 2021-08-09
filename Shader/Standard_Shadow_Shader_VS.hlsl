@@ -5,25 +5,17 @@ struct VS_SHADOW_OUT
 	float4 position : SV_POSITION;
 };
 
-cbuffer CbMesh : register(b1)
-{
-	float4x4 world;
-};
-
 VS_SHADOW_OUT main(
 	float3 position : POSITION,
 	float3 normal : NORMAL,
 	float3 tangent : TANGENT,
-	float2 texcoord : TEXCOORD,
-	float4 bone_weights : WEIGHTS,
-	uint4 bone_indices : BONES
+	float2 texcoord : TEXCOORD
 )
 {
 	VS_SHADOW_OUT vout;
 
 	float4 pos = float4(position, 1.0f);
-
-	vout.position = mul(mul(viewProjection, world), pos);
+	vout.position = mul(viewProjection, pos);
 
 	return vout;
 }

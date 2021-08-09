@@ -1,7 +1,7 @@
 #include "SkyBox_Shader.hlsli"
 #include "Scene_Constants.hlsli"
 
-VS_SKY_OUT VSMain
+VS_SKY_OUT main
 (
     float3 position : POSITION,
     float3 normal : NORMAL,

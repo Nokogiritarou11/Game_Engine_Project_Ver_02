@@ -6,8 +6,8 @@ using namespace BeastEngine;
 
 void Asset_Manager::Exit()
 {
-	cache_vertex.clear();
-	cache_pixel.clear();
+	cache_shader.clear();
+	cache_compute_shader.clear();
 	cache_mesh.clear();
 	cache_shader.clear();
 	cache_texture.clear();

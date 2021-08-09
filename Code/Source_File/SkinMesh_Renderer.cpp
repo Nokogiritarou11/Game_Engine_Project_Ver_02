@@ -5,7 +5,7 @@
 #include "Render_Manager.h"
 #include "Debug.h"
 #include "Include_ImGui.h"
-#include "Shader.h"
+#include "Compute_Shader.h"
 #include "Material.h"
 #include "Mesh.h"
 #include <sstream>
@@ -23,7 +23,6 @@ using namespace BeastEngine;
 ComPtr <ID3D11Buffer> SkinMesh_Renderer::constant_buffer_mesh;
 ComPtr <ID3D11Buffer> SkinMesh_Renderer::constant_buffer_color;
 shared_ptr<Shader> SkinMesh_Renderer::shadow_shader;
-shared_ptr<Shader> SkinMesh_Renderer::vertex_shader;
 
 void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 {
@@ -60,15 +59,10 @@ void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 
 	if (!shadow_shader)
 	{
-		shadow_shader = make_unique<Shader>();
-		shadow_shader = Shader::Create("Shader/SkinMesh_ShadowMap_Shader_VS.hlsl", "");
+		shadow_shader = Shader::Create("Shader/Standard_Shadow_Shader_VS.hlsl", Shader::Shader_Type::Vertex);
 	}
 
-	if (!vertex_shader)
-	{
-		vertex_shader = make_unique<Shader>();
-		vertex_shader = Shader::Create("Shader/SkinMesh_Shader_VS.hlsl", "");
-	}
+	compute_shader = Compute_Shader::Create("Shader/SkinMesh_CS.hlsl");
 
 	if (file_path != "")
 	{
@@ -112,11 +106,44 @@ void SkinMesh_Renderer::Recalculate_Frame()
 			Matrix bone_transform = inverse_transform * world_transform;
 			buffer_mesh.bone_transforms[i] = bone_transform;
 		}
+		//頂点コンスタントバッファ
+		DxSystem::device_context->CSSetConstantBuffers(1, 1, constant_buffer_mesh.GetAddressOf());
+		{
+			UINT subresourceIndex = 0;
+			D3D11_MAPPED_SUBRESOURCE mapped;
+			auto hr = DxSystem::device_context->Map(constant_buffer_mesh.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+			if (SUCCEEDED(hr))
+			{
+				memcpy(mapped.pData, &buffer_mesh, sizeof(Constant_Buffer_Mesh));
+				DxSystem::device_context->Unmap(constant_buffer_mesh.Get(), subresourceIndex);
+			}
+		}
+
+		compute_shader->Run();
+		{
+			HRESULT hr;
+			UINT subresourceIndex = 0;
+			D3D11_MAPPED_SUBRESOURCE mapped_v, mapped_c;
+			hr = DxSystem::device_context->Map(vertex_buffer.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped_v);
+			if (SUCCEEDED(hr))
+			{
+				ComPtr<ID3D11Buffer>& buf = compute_shader->Get_Copy_Buffer();
+				hr = DxSystem::device_context->Map(buf.Get(), subresourceIndex, D3D11_MAP_READ, 0, &mapped_c);
+				if (SUCCEEDED(hr))
+				{
+					memcpy(mapped_v.pData, mapped_c.pData, sizeof(Mesh::vertex_default_buffer) * mesh->vertices.size());
+					DxSystem::device_context->Unmap(buf.Get(), subresourceIndex);
+				}
+				DxSystem::device_context->Unmap(vertex_buffer.Get(), subresourceIndex);
+			}
+		}
 	}
 	else
 	{
 		buffer_mesh.bone_transforms[0] = transform->Get_World_Matrix();
 	}
+
+	recalculated_frame = true;
 }
 
 void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
@@ -143,6 +170,23 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 					material.emplace_back(Mat);
 				}
 			}
+
+			//コンピュートシェーダー設定
+			compute_shader->Create_Buffer_Input(sizeof(Mesh::vertex), mesh->vertices.size(), &mesh->vertices);
+			compute_shader->Create_Buffer_Result(sizeof(Mesh::vertex_default_buffer), mesh->vertices.size(), nullptr);
+
+			//	頂点バッファ作成
+			D3D11_BUFFER_DESC bd;
+			ZeroMemory(&bd, sizeof(bd));
+			bd.Usage = D3D11_USAGE_DYNAMIC;
+			bd.ByteWidth = sizeof(Mesh::vertex_default_buffer) * mesh->vertices.size();
+			bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+			bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+			DxSystem::device->CreateBuffer(&bd, nullptr, vertex_buffer.GetAddressOf());
+
+			//AABB
+			bounds = mesh->boundingbox;
+
 			Set_Active(Get_Enabled());
 		}
 	}
@@ -160,25 +204,10 @@ void SkinMesh_Renderer::Render()
 		// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
 		UINT stride = sizeof(Mesh::vertex);
 		UINT offset = 0;
-		DxSystem::device_context->IASetVertexBuffers(0, 1, mesh->vertex_buffer.GetAddressOf(), &stride, &offset);
+		DxSystem::device_context->IASetVertexBuffers(0, 1, vertex_buffer.GetAddressOf(), &stride, &offset);
 		DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 		for (auto& subset : mesh->subsets)
 		{
-			DxSystem::device_context->IASetInputLayout(vertex_shader->vertex_layout.Get());
-
-			//頂点コンスタントバッファ
-			DxSystem::device_context->VSSetConstantBuffers(1, 1, constant_buffer_mesh.GetAddressOf());
-			{
-				UINT subresourceIndex = 0;
-				D3D11_MAPPED_SUBRESOURCE mapped;
-				auto hr = DxSystem::device_context->Map(constant_buffer_mesh.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
-				if (SUCCEEDED(hr))
-				{
-					memcpy(mapped.pData, &buffer_mesh, sizeof(Constant_Buffer_Mesh));
-					DxSystem::device_context->Unmap(constant_buffer_mesh.Get(), subresourceIndex);
-				}
-			}
-
 			//マテリアルコンスタントバッファ
 			DxSystem::device_context->PSSetConstantBuffers(2, 1, constant_buffer_color.GetAddressOf());
 			{
@@ -194,8 +223,7 @@ void SkinMesh_Renderer::Render()
 
 			material[subset.material_ID]->Active_Texture(); //PSSetSamplar PSSetShaderResources
 			//シェーダーリソースのバインド
-			vertex_shader->Activate_VS(); //VSsetShader
-			material[subset.material_ID]->shader->Activate_PS(); //PSSetShader
+			material[subset.material_ID]->Active_Shader(); //PSSetShader
 
 			//ブレンドステート設定
 			if (binding_blend_state != material[subset.material_ID]->blend_state)
@@ -219,7 +247,6 @@ void SkinMesh_Renderer::Render()
 			// ↑で設定したリソースを利用してポリゴンを描画する。
 			DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
 		}
-		recalculated_frame = true;
 	}
 }
 
@@ -235,32 +262,15 @@ void SkinMesh_Renderer::Render_Shadow()
 		// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
 		UINT stride = sizeof(Mesh::vertex);
 		UINT offset = 0;
-		DxSystem::device_context->IASetVertexBuffers(0, 1, mesh->vertex_buffer.GetAddressOf(), &stride, &offset);
+		DxSystem::device_context->IASetVertexBuffers(0, 1, vertex_buffer.GetAddressOf(), &stride, &offset);
 		DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 		for (auto& subset : mesh->subsets)
 		{
-			DxSystem::device_context->IASetInputLayout(vertex_shader->vertex_layout.Get());
-
-			//頂点コンスタントバッファ
-			DxSystem::device_context->VSSetConstantBuffers(1, 1, constant_buffer_mesh.GetAddressOf());
-			{
-				UINT subresourceIndex = 0;
-				D3D11_MAPPED_SUBRESOURCE mapped;
-				auto hr = DxSystem::device_context->Map(constant_buffer_mesh.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
-				if (SUCCEEDED(hr))
-				{
-					Constant_Buffer_Mesh* p = static_cast<Constant_Buffer_Mesh*>(mapped.pData);
-					memcpy(p->bone_transforms, buffer_mesh.bone_transforms, sizeof(p->bone_transforms));
-					DxSystem::device_context->Unmap(constant_buffer_mesh.Get(), subresourceIndex);
-				}
-			}
-
 			//シェーダーリソースのバインド
 			shadow_shader->Activate(); //PS,VSSetShader
 			// ↑で設定したリソースを利用してポリゴンを描画する。
 			DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
 		}
-		recalculated_frame = true;
 	}
 }
 

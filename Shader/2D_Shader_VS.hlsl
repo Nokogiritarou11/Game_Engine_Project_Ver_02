@@ -5,7 +5,7 @@ struct VS_OUT
     float4 color : COLOR;
 };
 
-VS_OUT VSMain
+VS_OUT main
 (
 	float3 position : POSITION,
 	float2 texcoord : TEXCOORD,

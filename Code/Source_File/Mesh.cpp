@@ -7,6 +7,8 @@
 #include <assert.h>
 #include "Engine.h"
 #include "Asset_Manager.h"
+using Microsoft::WRL::ComPtr;
+using namespace DirectX;
 using namespace std;
 using namespace BeastEngine;
 
@@ -83,6 +85,5 @@ shared_ptr<Mesh> Mesh::Load_Mesh(string fullpath)
 			return mesh;
 		}
 	}
-
 	return nullptr;
 }

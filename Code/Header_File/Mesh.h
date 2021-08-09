@@ -8,7 +8,6 @@
 
 namespace BeastEngine
 {
-
 	class Mesh : public BeastEngine::Object
 	{
 	public:
@@ -33,12 +32,21 @@ namespace BeastEngine
 			}
 		};
 
+		struct vertex_default_buffer
+		{
+			//コンピュートシェーダー計算後の頂点データ
+			BeastEngine::Vector3 position;
+			BeastEngine::Vector3 normal;
+			BeastEngine::Vector3 tangent;
+			BeastEngine::Vector2 texcoord;
+		};
+
 		struct subset
 		{
 			u_int index_start = 0; // start number of index buffer
 			u_int index_count = 0; // number of vertices (indices)
-			BeastEngine::Vector4 color;
-			u_int material_ID;
+			BeastEngine::Vector4 color = { 1,1,1,1 };
+			u_int material_ID = 0;
 
 		private:
 			friend class cereal::access;

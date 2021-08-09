@@ -1,6 +1,6 @@
 #pragma once
 #include "DxSystem.h"
-#include "Object.h"
+#include "Shader.h"
 #include <unordered_map>
 
 namespace BeastEngine
@@ -9,14 +9,14 @@ namespace BeastEngine
 	class Mesh_Renderer;
 	class Sprite_Renderer;
 	class SkyBox;
-	class Shader;
+	class Debug_Draw_Manager;
 	class Texture;
 
 	class Material : public BeastEngine::Object
 	{
 	public:
 		std::string name;
-		std::shared_ptr<BeastEngine::Shader> shader;
+		std::shared_ptr<BeastEngine::Shader> shader[5];
 		std::shared_ptr<BeastEngine::Texture> texture[5];
 
 		BeastEngine::Vector4 color = { 1,1,1,1 };
@@ -34,7 +34,6 @@ namespace BeastEngine
 			}
 		};
 		Shader_Info shader_info[5];
-		enum class Shader_Type { VS, PS, GS, HS, DS };
 
 		enum class Texture_Type
 		{
@@ -58,9 +57,10 @@ namespace BeastEngine
 		};
 		Texture_Info texture_info[5];
 
-		static std::shared_ptr<Material> Create(const std::string& Material_Pass, const std::string& Material_Name, WCHAR* PS_Name);
+		static std::shared_ptr<Material> Create(const std::string& Material_Pass, const std::string& Material_Name);
 		void Save(const std::string& path = "");
 		void Set_Texture(Texture_Type texture_type, const std::string& filepath, const std::string& filename);
+		void Set_Shader(const std::string& shader_path, BeastEngine::Shader::Shader_Type shader_type);
 
 	private:
 		std::string self_save_pass;
@@ -71,10 +71,12 @@ namespace BeastEngine
 
 		static void Initialize(std::shared_ptr<Material>& mat, std::string Material_FullPass);
 		void Set_Texture_All();
+		void Set_Shader_All();
 		void Active_Texture(bool Use_Material = true);
 		void Active_Shader();
 		void Draw_ImGui();
 
+		friend class BeastEngine::Debug_Draw_Manager;
 		friend class BeastEngine::SkyBox;
 		friend class BeastEngine::SkinMesh_Renderer;
 		friend class BeastEngine::Mesh_Renderer;

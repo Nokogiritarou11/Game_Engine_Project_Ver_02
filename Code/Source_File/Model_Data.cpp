@@ -277,7 +277,7 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 		}
 		if (cashed) continue;
 
-		shared_ptr<Material> mat = Material::Create(file_path, material_name, L"Shader/Standard_Shader_PS.hlsl");
+		shared_ptr<Material> mat = Material::Create(file_path, material_name);
 
 		//Main(Diffuse)Texture
 		GetTexture(surface_material, FbxSurfaceMaterial::sDiffuse, mat);

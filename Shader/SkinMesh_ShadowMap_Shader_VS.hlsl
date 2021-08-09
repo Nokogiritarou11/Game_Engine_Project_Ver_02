@@ -11,7 +11,7 @@ cbuffer CbMesh : register(b1)
 	float4x4 boneTransforms[MAX_BONES];
 };
 
-VS_SHADOW_OUT VSMain(
+VS_SHADOW_OUT main(
 	float3 position : POSITION,
 	float3 normal : NORMAL,
 	float3 tangent : TANGENT,
