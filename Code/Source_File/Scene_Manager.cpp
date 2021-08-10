@@ -25,7 +25,7 @@ Scene_Manager::Scene_Manager()
 	ifstream in_bin("Default_Resource\\System\\settings.bin", ios::binary);
 	if (in_bin.is_open())
 	{
-		unique_ptr<Project_Settings> set = make_unique<Project_Settings>();
+		unique_ptr<Project_Settings> set;
 		stringstream bin_s_stream;
 		bin_s_stream << in_bin.rdbuf();
 		cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
@@ -58,7 +58,7 @@ unique_ptr<Scene> Scene_Manager::CreateScene_From_File()
 		ifstream in_bin(path, ios::binary);
 		if (in_bin.is_open())
 		{
-			unique_ptr<Scene> New_Scene = make_unique<Scene>();
+			unique_ptr<Scene> New_Scene;
 			stringstream bin_s_stream;
 			bin_s_stream << in_bin.rdbuf();
 			cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
@@ -80,7 +80,7 @@ unique_ptr<Scene> Scene_Manager::CreateScene_From_File(std::string file_path)
 	ifstream in_bin(file_path, ios::binary);
 	if (in_bin.is_open())
 	{
-		unique_ptr<Scene> New_Scene = make_unique<Scene>();
+		unique_ptr<Scene> New_Scene;
 		stringstream bin_s_stream;
 		bin_s_stream << in_bin.rdbuf();
 		cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);

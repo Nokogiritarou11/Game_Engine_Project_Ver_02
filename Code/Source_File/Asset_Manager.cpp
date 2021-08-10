@@ -22,7 +22,8 @@ void Asset_Manager::Registration_Asset(shared_ptr<Object> obj)
 }
 void Asset_Manager::Erase_Asset(std::string id)
 {
-	cache_asset.erase(id);
+	auto it = cache_asset.erase(id);
+	assert(it != 0);
 }
 
 weak_ptr<Object> Asset_Manager::Get_Asset_From_ID(string id)

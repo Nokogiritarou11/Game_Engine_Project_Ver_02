@@ -86,13 +86,13 @@ inline Vector3 Vector_Max(Vector3 a, Vector3 b)
 	return Vector3(max(a.x, b.x), max(a.y, b.y), max(a.y, b.y));
 }
 
-shared_ptr<Model_Data> Model_Data::Load_Model(const char* file_path, const char* fbx_filename, const char* ignoreRootMotionNodeName)
+shared_ptr<Model_Data> Model_Data::Load_Model(const string& file_path, const string& fbx_filename)
 {
 	shared_ptr<Model_Data> model_ptr = make_shared<Model_Data>();
-	model_ptr->name = (string)fbx_filename;
-	model_ptr->file_path = (string)file_path;
+	model_ptr->name = fbx_filename;
+	model_ptr->file_path = file_path;
 
-	const string fullpath = (string)file_path + (string)fbx_filename + ".fbx";
+	const string fullpath = file_path + fbx_filename + ".fbx";
 
 	FbxManager* fbxManager = FbxManager::Create();
 
@@ -146,20 +146,6 @@ shared_ptr<Model_Data> Model_Data::Load_Model(const char* file_path, const char*
 	FbxNode* fbxRootNode = fbxScene->GetRootNode();
 	model_ptr->BuildNodes(fbxRootNode, -1);
 	model_ptr->BuildMeshes(fbxRootNode);
-
-	// 無視するルートモーションを検索
-	if (ignoreRootMotionNodeName != nullptr)
-	{
-		model_ptr->rootMotionNodeIndex = -1;
-		for (size_t i = 0; i < model_ptr->bones.size(); ++i)
-		{
-			if (model_ptr->bones.at(i).name == ignoreRootMotionNodeName)
-			{
-				model_ptr->rootMotionNodeIndex = static_cast<int>(i);
-				break;
-			}
-		}
-	}
 
 	// アニメーション構築
 	model_ptr->BuildAnimations(fbxScene);
@@ -277,7 +263,8 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 		}
 		if (cashed) continue;
 
-		shared_ptr<Material> mat = Material::Create(file_path, material_name);
+		shared_ptr<Material> mat = Material::Create("Shader\\Standard_Shader_VS.hlsl", "Shader\\Standard_Shader_PS.hlsl");
+		mat->name = material_name;
 
 		//Main(Diffuse)Texture
 		GetTexture(surface_material, FbxSurfaceMaterial::sDiffuse, mat);
@@ -290,7 +277,7 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 		//EmissionTexture
 		GetTexture(surface_material, FbxSurfaceMaterial::sEmissive, mat);
 
-		mat->Save();
+		mat->Save(file_path);
 		default_material_passes.push_back(new_mat_path);
 	}
 
@@ -331,7 +318,7 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 		}
 	};
 	// 頂点影響力データを抽出する
-	std::vector<BoneInfluence> boneInfluences;
+	vector<BoneInfluence> boneInfluences;
 	{
 		boneInfluences.resize(fbxControlPointsCount);
 
@@ -399,8 +386,8 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 	fbxMesh->GetUVSetNames(fbxUVSetNames);
 
 	// 頂点データ
-	std::vector<Mesh::vertex>& vertices = mesh->vertices;
-	std::vector<u_int>& indices = mesh->indices;
+	vector<Mesh::vertex>& vertices = mesh->vertices;
+	vector<u_int>& indices = mesh->indices;
 	vertices.resize(fbxPolygonCount * 3);
 	indices.resize(fbxPolygonCount * 3);
 
@@ -503,7 +490,7 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 						case FbxGeometryElement::EReferenceMode::eIndex:
 						default:
 							_ASSERT_EXPR(false, L"Invalid Reference Mode");
-							throw std::exception("Invalid Reference Mode");
+							throw exception("Invalid Reference Mode");
 					}
 					vertex.tangent.x = static_cast<float>(geometry_element_tangent->GetDirectArray().GetAt(index_of_vertex)[0]);
 					vertex.tangent.y = static_cast<float>(geometry_element_tangent->GetDirectArray().GetAt(index_of_vertex)[1]);
@@ -523,7 +510,7 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 						case FbxGeometryElement::EReferenceMode::eIndex:
 						default:
 							_ASSERT_EXPR(false, L"Invalid Reference Mode");
-							throw std::exception("Invalid Reference Mode");
+							throw exception("Invalid Reference Mode");
 					}
 					vertex.tangent.x = static_cast<float>(geometry_element_tangent->GetDirectArray().GetAt(index_of_vertex)[0]);
 					vertex.tangent.y = static_cast<float>(geometry_element_tangent->GetDirectArray().GetAt(index_of_vertex)[1]);
@@ -532,7 +519,7 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 				else
 				{
 					_ASSERT_EXPR(false, L"Invalid Mapping Mode");
-					throw std::exception("Invalid Mapping Mode");
+					throw exception("Invalid Mapping Mode");
 				}
 			}
 			else
@@ -697,7 +684,7 @@ void Model_Data::BuildAnimations(FbxScene* fbxScene)
 		int frameCount = static_cast<int>((fbxEndTime.Get() - fbxStartTime.Get()) / fbxSamplingStep.Get());
 
 		// アニメーションの対象となるノード(ボーン)を列挙する
-		std::vector<FbxNode*> fbxNodes;
+		vector<FbxNode*> fbxNodes;
 		FbxNode* fbxRootNode = fbxScene->GetRootNode();
 		for (Skeleton& node : bones)
 		{
@@ -717,7 +704,7 @@ void Model_Data::BuildAnimations(FbxScene* fbxScene)
 		{
 			// キーフレーム毎の姿勢データを取り出す。
 			keyframe->seconds = seconds;
-			if(keyframe == &animation.keyframes.back()) keyframe->seconds = animation.secondsLength;
+			if (keyframe == &animation.keyframes.back()) keyframe->seconds = animation.secondsLength;
 			keyframe->nodeKeys.resize(fbxNodeCount);
 			for (size_t fbxNodeIndex = 0; fbxNodeIndex < fbxNodeCount; ++fbxNodeIndex)
 			{

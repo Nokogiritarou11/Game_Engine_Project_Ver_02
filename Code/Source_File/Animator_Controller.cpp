@@ -209,7 +209,7 @@ shared_ptr<Animator_Controller> Animator_Controller::Load_Animator_Controller(st
 	int ext_i = path.find_last_of(".");//10
 	string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
 	string filename = path.substr(path_i, ext_i - path_i); //ファイル名
-	shared_ptr<Animator_Controller> controller = make_shared<Animator_Controller>();
+	shared_ptr<Animator_Controller> controller;
 
 	ifstream in_bin(path, ios::binary);
 	if (in_bin.is_open())

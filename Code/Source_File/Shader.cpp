@@ -15,11 +15,11 @@ HRESULT Shader::Compile(WCHAR* filename, LPCSTR method, LPCSTR shaderModel, ID3D
 	ShaderFlags |= D3DCOMPILE_DEBUG;
 	ShaderFlags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
 
-	ComPtr<ID3DBlob> BlobError = NULL;
+	ComPtr<ID3DBlob> BlobError = nullptr;
 	// コンパイル
 	HRESULT hr = D3DCompileFromFile(
 		filename,
-		NULL,
+		nullptr,
 		D3D_COMPILE_STANDARD_FILE_INCLUDE,
 		method,
 		shaderModel,
@@ -30,9 +30,9 @@ HRESULT Shader::Compile(WCHAR* filename, LPCSTR method, LPCSTR shaderModel, ID3D
 	);
 
 	// エラー出力
-	if (BlobError != NULL)
+	if (BlobError != nullptr)
 	{
-		MessageBoxA(0, (char*)BlobError->GetBufferPointer(), NULL, MB_OK);
+		MessageBoxA(0, (char*)BlobError->GetBufferPointer(), nullptr, MB_OK);
 	}
 
 	return hr;
@@ -79,7 +79,7 @@ bool Vertex_Shader::Initialize(string filename)
 {
 	HRESULT hr = S_OK;
 
-	ComPtr<ID3DBlob> VSBlob = NULL;
+	ComPtr<ID3DBlob> VSBlob = nullptr;
 	// 頂点シェーダ
 
 	setlocale(LC_ALL, "japanese");
@@ -91,11 +91,11 @@ bool Vertex_Shader::Initialize(string filename)
 	assert(SUCCEEDED(hr));
 
 	// 頂点シェーダ生成
-	hr = DxSystem::device->CreateVertexShader(VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), NULL, vs.GetAddressOf());
+	hr = DxSystem::device->CreateVertexShader(VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), nullptr, vs.GetAddressOf());
 	assert(SUCCEEDED(hr));
 
 	// Reflect shader info
-	ID3D11ShaderReflection* pVertexShaderReflection = NULL;
+	ID3D11ShaderReflection* pVertexShaderReflection = nullptr;
 	hr = D3DReflect(VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&pVertexShaderReflection);
 	assert(SUCCEEDED(hr));
 
@@ -167,13 +167,13 @@ bool Geometry_Shader::Initialize(string filename)
 	size_t ret = 0;
 	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
 
-	ComPtr<ID3DBlob> GSBlob = NULL;
+	ComPtr<ID3DBlob> GSBlob = nullptr;
 	hr = Compile(FileName, "main", "gs_5_0", &GSBlob);
 	if (FAILED(hr))
 	{
 		return false;
 	}
-	hr = DxSystem::device->CreateGeometryShader(GSBlob->GetBufferPointer(), GSBlob->GetBufferSize(), NULL, gs.GetAddressOf());
+	hr = DxSystem::device->CreateGeometryShader(GSBlob->GetBufferPointer(), GSBlob->GetBufferSize(), nullptr, gs.GetAddressOf());
 	assert(SUCCEEDED(hr));
 	return true;
 }
@@ -188,13 +188,13 @@ bool Pixel_Shader::Initialize(string filename)
 	size_t ret = 0;
 	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
 
-	ComPtr<ID3DBlob> PSBlob = NULL;
+	ComPtr<ID3DBlob> PSBlob = nullptr;
 	hr = Compile(FileName, "main", "ps_5_0", &PSBlob);
 	if (FAILED(hr))
 	{
 		return false;
 	}
-	hr = DxSystem::device->CreatePixelShader(PSBlob->GetBufferPointer(), PSBlob->GetBufferSize(), NULL, ps.GetAddressOf());
+	hr = DxSystem::device->CreatePixelShader(PSBlob->GetBufferPointer(), PSBlob->GetBufferSize(), nullptr, ps.GetAddressOf());
 	assert(SUCCEEDED(hr));
 	return true;
 }
@@ -209,13 +209,13 @@ bool Hull_Shader::Initialize(string filename)
 	size_t ret = 0;
 	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
 
-	ComPtr<ID3DBlob> HSBlob = NULL;
+	ComPtr<ID3DBlob> HSBlob = nullptr;
 	hr = Compile(FileName, "main", "hs_5_0", &HSBlob);
 	if (FAILED(hr))
 	{
 		return false;
 	}
-	hr = DxSystem::device->CreateHullShader(HSBlob->GetBufferPointer(), HSBlob->GetBufferSize(), NULL, hs.GetAddressOf());
+	hr = DxSystem::device->CreateHullShader(HSBlob->GetBufferPointer(), HSBlob->GetBufferSize(), nullptr, hs.GetAddressOf());
 	assert(SUCCEEDED(hr));
 	return true;
 }
@@ -230,13 +230,13 @@ bool Domain_Shader::Initialize(string filename)
 	size_t ret = 0;
 	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
 
-	ComPtr<ID3DBlob> DSBlob = NULL;
+	ComPtr<ID3DBlob> DSBlob = nullptr;
 	hr = Compile(FileName, "main", "ds_5_0", &DSBlob);
 	if (FAILED(hr))
 	{
 		return false;
 	}
-	hr = DxSystem::device->CreateDomainShader(DSBlob->GetBufferPointer(), DSBlob->GetBufferSize(), NULL, ds.GetAddressOf());
+	hr = DxSystem::device->CreateDomainShader(DSBlob->GetBufferPointer(), DSBlob->GetBufferSize(), nullptr, ds.GetAddressOf());
 	assert(SUCCEEDED(hr));
 	return true;
 }
@@ -246,21 +246,21 @@ bool Domain_Shader::Initialize(string filename)
 void Vertex_Shader::Activate()
 {
 	DxSystem::device_context->IASetInputLayout(vertex_layout.Get());
-	DxSystem::device_context->VSSetShader(vs.Get(), NULL, 0);
+	DxSystem::device_context->VSSetShader(vs.Get(), nullptr, 0);
 }
 void Geometry_Shader::Activate()
 {
-	DxSystem::device_context->GSSetShader(gs.Get(), NULL, 0);
+	DxSystem::device_context->GSSetShader(gs.Get(), nullptr, 0);
 }
 void Pixel_Shader::Activate()
 {
-	DxSystem::device_context->PSSetShader(ps.Get(), NULL, 0);
+	DxSystem::device_context->PSSetShader(ps.Get(), nullptr, 0);
 }
 void Hull_Shader::Activate()
 {
-	DxSystem::device_context->HSSetShader(hs.Get(), NULL, 0);
+	DxSystem::device_context->HSSetShader(hs.Get(), nullptr, 0);
 }
 void Domain_Shader::Activate()
 {
-	DxSystem::device_context->DSSetShader(ds.Get(), NULL, 0);
+	DxSystem::device_context->DSSetShader(ds.Get(), nullptr, 0);
 }

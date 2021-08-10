@@ -58,7 +58,7 @@ shared_ptr<GameObject> Resources::Load_Prefab(string file_path)
 	ifstream in_bin(file_path, ios::binary);
 	if (in_bin.is_open())
 	{
-		shared_ptr<GameObject> obj = make_shared<GameObject>();
+		shared_ptr<GameObject> obj;
 		stringstream bin_s_stream;
 		bin_s_stream << in_bin.rdbuf();
 		cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);

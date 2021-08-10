@@ -10,10 +10,7 @@ using Microsoft::WRL::ComPtr;
 
 Debug_Draw_Manager::Debug_Draw_Manager()
 {
-	material = make_shared<Material>();
-	material->Set_Shader("Shader\\Debug_Shader_VS.hlsl", Shader::Shader_Type::Vertex);
-	material->Set_Shader("Shader\\Debug_Shader_PS.hlsl", Shader::Shader_Type::Pixel);
-	Material::Initialize(material, "Default_Resource\\shader\\debug_draw.mat");
+	material = Material::Create("Shader\\Debug_Shader_VS.hlsl", "Shader\\Debug_Shader_PS.hlsl");
 	lines.clear();
 
 	grid_length = 70;

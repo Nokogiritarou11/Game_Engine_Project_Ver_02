@@ -15,39 +15,44 @@
 using namespace std;
 using namespace BeastEngine;
 
-shared_ptr<Material> Material::Create(const string& Material_Pass, const string& Material_Name)
+shared_ptr<Material> Material::Create(const std::string& vertex_path, const std::string& pixel_path, const std::string& geometry_path)
 {
-	auto it = Engine::asset_manager->cache_material.find(Material_Pass + Material_Name + ".mat");
+	shared_ptr<Material> mat = make_shared<Material>();
+	mat->name = "material";
+	mat->Set_Shader(vertex_path, Shader::Shader_Type::Vertex);
+	mat->Set_Shader(pixel_path, Shader::Shader_Type::Pixel);
+	mat->Set_Shader(geometry_path, Shader::Shader_Type::Geometry);
+	Engine::asset_manager->Registration_Asset(mat);
+	return mat;
+}
+
+shared_ptr<Material> Material::Load_Material(const string& fullpath)
+{
+	auto it = Engine::asset_manager->cache_material.find(fullpath);
 	if (it != Engine::asset_manager->cache_material.end())
 	{
 		return it->second;
 	}
 	else
 	{
-		shared_ptr<Material> mat = make_shared<Material>();
-		mat->name = Material_Name;
-		mat->self_save_pass = Material_Pass + Material_Name + ".mat";
-		mat->Set_Shader("Shader\\Standard_Shader_VS.hlsl", Shader::Shader_Type::Vertex);
-		mat->Set_Shader("Shader\\Standard_Shader_PS.hlsl", Shader::Shader_Type::Pixel);
-		return mat;
-	}
-}
+		shared_ptr<Material> mat;
+		ifstream in_bin(fullpath, ios::binary);
+		if (in_bin.is_open())
+		{
+			stringstream bin_s_stream;
+			bin_s_stream << in_bin.rdbuf();
+			cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
+			binaryInputArchive(mat);
 
-void Material::Initialize(shared_ptr<Material>& mat, string Material_FullPass)
-{
-	auto it = Engine::asset_manager->cache_material.find(Material_FullPass);
-	if (it != Engine::asset_manager->cache_material.end())
-	{
-		mat = it->second;
+			mat->Set_Texture_All();
+			mat->Set_Shader_All();
+			Engine::asset_manager->Registration_Asset(mat);
+			Engine::asset_manager->cache_material.insert(make_pair(fullpath, mat));
+			return mat;
+		}
 	}
-	else
-	{
-		mat->Set_Texture_All();
-		mat->Set_Shader_All();
 
-		mat->self_save_pass = Material_FullPass;
-		Engine::asset_manager->cache_material.insert(make_pair(Material_FullPass, mat));
-	}
+	return nullptr;
 }
 
 void Material::Set_Texture(Texture_Type texture_type, const std::string& filepath, const string& filename)
@@ -115,6 +120,12 @@ void Material::Active_Texture(bool Use_Material)
 
 void Material::Active_Shader()
 {
+	DxSystem::device_context->VSSetShader(nullptr, nullptr, 0);
+	DxSystem::device_context->GSSetShader(nullptr, nullptr, 0);
+	DxSystem::device_context->PSSetShader(nullptr, nullptr, 0);
+	DxSystem::device_context->HSSetShader(nullptr, nullptr, 0);
+	DxSystem::device_context->DSSetShader(nullptr, nullptr, 0);
+
 	for (auto s : shader)
 	{
 		if (s)

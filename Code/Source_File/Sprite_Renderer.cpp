@@ -53,10 +53,7 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 
 	if (!default_material)
 	{
-		default_material = make_shared<Material>();
-		default_material->Set_Shader("Shader\\2D_Shader_VS.hlsl", Shader::Shader_Type::Vertex);
-		default_material->Set_Shader("Shader\\2D_Shader_PS.hlsl", Shader::Shader_Type::Pixel);
-		Material::Initialize(default_material, "Default_Resource\\shader\\skybox.mat");
+		default_material = Material::Create("Shader\\2D_Shader_VS.hlsl", "Shader\\2D_Shader_PS.hlsl");
 	}
 
 	if (file_path != "")

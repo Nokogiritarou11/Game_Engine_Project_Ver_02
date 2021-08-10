@@ -71,7 +71,7 @@ namespace BeastEngine
 		std::vector<std::string> default_material_passes;
 		std::string file_path;
 
-		static std::shared_ptr<BeastEngine::Mesh> Load_Mesh(std::string fullpath);
+		static std::shared_ptr<BeastEngine::Mesh> Load_Mesh(const std::string& fullpath);
 
 	private:
 		friend class cereal::access;

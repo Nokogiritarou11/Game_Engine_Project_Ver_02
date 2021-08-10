@@ -12,7 +12,7 @@ using namespace DirectX;
 using namespace std;
 using namespace BeastEngine;
 
-shared_ptr<Mesh> Mesh::Load_Mesh(string fullpath)
+shared_ptr<Mesh> Mesh::Load_Mesh(const string& fullpath)
 {
 	auto it = Engine::asset_manager->cache_mesh.find(fullpath);
 	if (it != Engine::asset_manager->cache_mesh.end())
@@ -22,16 +22,12 @@ shared_ptr<Mesh> Mesh::Load_Mesh(string fullpath)
 	}
 	else //ファイルから読み込み
 	{
-		int path_i = fullpath.find_last_of("\\") + 1;//7
-		int ext_i = fullpath.find_last_of(".");//10
-		string pathname = fullpath.substr(0, path_i); //ファイルまでのディレクトリ
-		string filename = fullpath.substr(path_i, ext_i - path_i); //ファイル名
-		shared_ptr<Mesh> mesh = make_shared<Mesh>();
-		mesh->name = filename;
-		mesh->file_path = pathname;
+		int path_i = fullpath.find_last_of("\\") + 1;
+		int ext_i = fullpath.find_last_of(".");
+		const string filename = fullpath.substr(path_i, ext_i - path_i); //ファイル名
+		shared_ptr<Mesh> mesh;
 
-		const string bin = fullpath + ".mesh";
-		ifstream in_bin(bin, ios::binary);
+		ifstream in_bin(fullpath, ios::binary);
 		if (in_bin.is_open())
 		{
 			stringstream bin_s_stream;
@@ -39,8 +35,8 @@ shared_ptr<Mesh> Mesh::Load_Mesh(string fullpath)
 			cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
 			binaryInputArchive(mesh);
 
-			mesh->name = (string)filename;
-			mesh->file_path = (string)pathname;
+			mesh->name = filename;
+			mesh->file_path = fullpath;
 
 			// 頂点バッファの生成
 			{
@@ -52,7 +48,7 @@ shared_ptr<Mesh> Mesh::Load_Mesh(string fullpath)
 				bd.MiscFlags = 0;
 				bd.StructureByteStride = 0;
 				D3D11_SUBRESOURCE_DATA InitData = {};
-				InitData.pSysMem = &mesh->vertices[0]; // 頂点のアドレス
+				InitData.pSysMem = &mesh->vertices[0];
 				InitData.SysMemPitch = 0;
 				InitData.SysMemSlicePitch = 0;
 				HRESULT hr = DxSystem::device->CreateBuffer(&bd, &InitData, mesh->vertex_buffer.GetAddressOf());
@@ -62,17 +58,14 @@ shared_ptr<Mesh> Mesh::Load_Mesh(string fullpath)
 			// インデックスバッファの生成
 			{
 				D3D11_BUFFER_DESC bd = {};
-				//bd.Usage                      = D3D11_USAGE_DEFAULT;
 				bd.Usage = D3D11_USAGE_IMMUTABLE;
 				bd.ByteWidth = sizeof(u_int) * mesh->indices.size();
-				//bd.ByteWidth = sizeof(u_int) * inverse_indices.size();
 				bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 				bd.CPUAccessFlags = 0;
 				bd.MiscFlags = 0;
 				bd.StructureByteStride = 0;
 				D3D11_SUBRESOURCE_DATA InitData = {};
-				InitData.pSysMem = &mesh->indices[0];				// 頂点のアドレス
-				//InitData.pSysMem = &inverse_indices[0];				// 頂点のアドレス
+				InitData.pSysMem = &mesh->indices[0];
 				InitData.SysMemPitch = 0;
 				InitData.SysMemSlicePitch = 0;
 				HRESULT hr = DxSystem::device->CreateBuffer(&bd, &InitData, mesh->index_buffer.GetAddressOf());

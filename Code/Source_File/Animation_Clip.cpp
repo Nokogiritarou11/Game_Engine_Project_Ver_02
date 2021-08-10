@@ -19,7 +19,7 @@ shared_ptr<Animation_Clip> Animation_Clip::Load_Clip(string fullpath)
 	}
 	else //ƒtƒ@ƒCƒ‹‚©‚ç“Ç‚İ‚İ
 	{
-		shared_ptr<Animation_Clip> clip = make_shared<Animation_Clip>();
+		shared_ptr<Animation_Clip> clip;
 
 		const string bin = fullpath;
 		ifstream in_bin(bin, ios::binary);

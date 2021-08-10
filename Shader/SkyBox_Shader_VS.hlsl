@@ -1,13 +1,14 @@
 #include "SkyBox_Shader.hlsli"
 #include "Scene_Constants.hlsli"
 
+cbuffer CONSTANT_BUFFER : register(b1)
+{
+    float4x4 world;
+};
+
 VS_SKY_OUT main
 (
-    float3 position : POSITION,
-    float3 normal : NORMAL,
-    float2 texcoord : TEXCOORD,
-    float4 bone_weights : WEIGHTS,
-    uint4 bone_indices : BONES
+    float3 position : POSITION
 )
 {
 	VS_SKY_OUT vout;

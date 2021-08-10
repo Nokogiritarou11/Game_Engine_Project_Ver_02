@@ -57,7 +57,8 @@ namespace BeastEngine
 		};
 		Texture_Info texture_info[5];
 
-		static std::shared_ptr<Material> Create(const std::string& Material_Pass, const std::string& Material_Name);
+		static std::shared_ptr<Material> Create(const std::string& vertex_path, const std::string& pixel_path = "", const std::string& geometry_path = "");
+		static std::shared_ptr<Material> Load_Material(const std::string& fullpath);
 		void Save(const std::string& path = "");
 		void Set_Texture(Texture_Type texture_type, const std::string& filepath, const std::string& filename);
 		void Set_Shader(const std::string& shader_path, BeastEngine::Shader::Shader_Type shader_type);
@@ -69,7 +70,6 @@ namespace BeastEngine
 		RS_State rasterizer_state = RS_State::Cull_Back;
 		DS_State depth_stencil_state = DS_State::LEqual;
 
-		static void Initialize(std::shared_ptr<Material>& mat, std::string Material_FullPass);
 		void Set_Texture_All();
 		void Set_Shader_All();
 		void Active_Texture(bool Use_Material = true);
@@ -85,7 +85,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Object>(this), name, color, shader_info, texture_info, blend_state, rasterizer_state, depth_stencil_state, render_queue);
+			archive(cereal::base_class<BeastEngine::Object>(this), name, color, shader_info, texture_info, blend_state, rasterizer_state, depth_stencil_state, render_queue, self_save_pass);
 		}
 	};
 }

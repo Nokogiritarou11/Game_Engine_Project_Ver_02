@@ -73,17 +73,6 @@ shared_ptr<Texture> Texture::Load(string filename)
 
 		if (hr == S_OK)
 		{
-			//HRESULT CreateShaderResourceViewEx(
-			//	ID3D11Device* pDevice,
-			//	const Image* srcImages,
-			//	size_t nimages,
-			//	const TexMetadata& metadata,
-			//	D3D11_USAGE usage,
-			//	unsigned int bindFlags,
-			//	unsigned int cpuAccessFlags,
-			//	unsigned int miscFlags,
-			//	bool forceSRGB,
-			//	ID3D11ShaderResourceView** ppSRV);
 			hr = CreateShaderResourceViewEx(
 				DxSystem::device.Get(),
 				image.GetImages(),

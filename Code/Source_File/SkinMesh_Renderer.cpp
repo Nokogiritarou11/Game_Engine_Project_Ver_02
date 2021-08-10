@@ -62,11 +62,14 @@ void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 		shadow_shader = Shader::Create("Shader/Standard_Shadow_Shader_VS.hlsl", Shader::Shader_Type::Vertex);
 	}
 
-	compute_shader = Compute_Shader::Create("Shader/SkinMesh_CS.hlsl");
+	if (!compute_shader)
+	{
+		compute_shader = Compute_Shader::Create("Shader/SkinMesh_CS.hlsl");
+	}
 
 	if (file_path != "")
 	{
-		Set_Mesh(Mesh::Load_Mesh(file_path + file_name));
+		Set_Mesh(Mesh::Load_Mesh(file_path));
 	}
 
 	Set_Active(Get_Enabled());
@@ -153,22 +156,11 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 		if (mesh != Mesh_Data)
 		{
 			mesh = Mesh_Data;
-			file_name = mesh->name;
 			file_path = mesh->file_path;
 			//マテリアル
 			for (auto& pass : mesh->default_material_passes)
 			{
-				shared_ptr<Material> Mat = make_shared<Material>();
-				ifstream in_bin(pass, ios::binary);
-				if (in_bin.is_open())
-				{
-					stringstream bin_s_stream;
-					bin_s_stream << in_bin.rdbuf();
-					cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
-					binaryInputArchive(Mat);
-					Material::Initialize(Mat, pass);
-					material.emplace_back(Mat);
-				}
+				material.push_back(Material::Load_Material(pass));
 			}
 
 			//コンピュートシェーダー設定
@@ -266,8 +258,12 @@ void SkinMesh_Renderer::Render_Shadow()
 		DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 		for (auto& subset : mesh->subsets)
 		{
-			//シェーダーリソースのバインド
-			shadow_shader->Activate(); //PS,VSSetShader
+			//シェーダーのバインド
+			DxSystem::device_context->GSSetShader(nullptr, nullptr, 0);
+			DxSystem::device_context->PSSetShader(nullptr, nullptr, 0);
+			DxSystem::device_context->HSSetShader(nullptr, nullptr, 0);
+			DxSystem::device_context->DSSetShader(nullptr, nullptr, 0);
+			shadow_shader->Activate();
 			// ↑で設定したリソースを利用してポリゴンを描画する。
 			DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
 		}
@@ -312,7 +308,7 @@ bool SkinMesh_Renderer::Draw_ImGui()
 	{
 		ImGui::Text(u8"現在のメッシュ::");
 		ImGui::SameLine();
-		ImGui::Text(file_name.c_str());
+		ImGui::Text(mesh->file_path.c_str());
 
 		int ID_mat = 0;
 		if (mesh)

@@ -41,7 +41,6 @@ namespace BeastEngine
 
 		void Reset();
 
-		std::string file_name;
 		std::string file_path;
 
 		static std::shared_ptr<BeastEngine::Shader> shadow_shader;
@@ -54,7 +53,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Renderer>(this), file_name, file_path, bones);
+			archive(cereal::base_class<BeastEngine::Renderer>(this), file_path, bones);
 		}
 	};
 }

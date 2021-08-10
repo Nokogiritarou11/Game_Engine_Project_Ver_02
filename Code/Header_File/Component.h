@@ -24,6 +24,8 @@ namespace BeastEngine
 
 	protected:
 		virtual void Set_Active(bool value) {};
+		Component() = default;
+
 	private:
 		friend class cereal::access;
 		template<class Archive>

@@ -53,7 +53,7 @@ namespace BeastEngine
 		//指定したパスのメッシュを読み込む
 		//第1引数にメッシュまでのパス
 		//第2引数にファイル名(拡張子はいらない)を入力する
-		static std::shared_ptr<BeastEngine::Model_Data> Load_Model(const char* file_path, const char* fbx_filename, const char* ignoreRootMotionNodeName = nullptr);
+		static std::shared_ptr<BeastEngine::Model_Data> Load_Model(const std::string& file_path, const std::string& fbx_filename);
 
 	private:
 		// ノードデータを構築

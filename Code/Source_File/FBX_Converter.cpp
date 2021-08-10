@@ -31,12 +31,12 @@ void FBX_Converter::Draw_ImGui()
 			{
 				int path_i = path.find_last_of("\\") + 1;//7
 				int ext_i = path.find_last_of(".");//10
-				string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
-				string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
-				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+				const string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
+				const string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
+				const string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 				if (extname == ".fbx")
 				{
-					model = Model_Data::Load_Model(pathname.c_str(), filename.c_str());
+					model = Model_Data::Load_Model(pathname, filename);
 					++load_state;
 				}
 				else
@@ -80,7 +80,7 @@ void FBX_Converter::Draw_ImGui()
 	ImGui::End();
 }
 
-void FBX_Converter::Direct_Load(const char* file_path, const char* fbx_filename, bool convert_mesh, bool convert_animation, bool convert_prefab)
+void FBX_Converter::Direct_Load(const string& file_path, const string& fbx_filename, bool convert_mesh, bool convert_animation, bool convert_prefab)
 {
 	model = Model_Data::Load_Model(file_path, fbx_filename);
 	Load_From_FBX(convert_mesh, convert_animation, convert_prefab);
@@ -98,7 +98,6 @@ void FBX_Converter::Load_From_FBX(bool& convert_mesh, bool& convert_animation, b
 			shared_ptr<GameObject> g = Create_GameObject(mesh->name);
 			g->transform->Set_Parent(obj->transform);
 			shared_ptr<Mesh_Renderer> renderer = g->Add_Component<Mesh_Renderer>();
-			renderer->file_name = mesh->name;
 			renderer->file_path = model->file_path;
 
 			Vector3 translate;
@@ -146,7 +145,6 @@ void FBX_Converter::Load_From_FBX(bool& convert_mesh, bool& convert_animation, b
 			shared_ptr<GameObject> g = Create_GameObject(model->meshes[i]->name);
 			g->transform->Set_Parent(obj->transform);
 			shared_ptr<SkinMesh_Renderer> renderer = g->Add_Component<SkinMesh_Renderer>();
-			renderer->file_name = model->meshes[i]->name;
 			renderer->file_path = model->file_path;
 			rend_list.push_back(g);
 		}

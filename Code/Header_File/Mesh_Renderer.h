@@ -10,7 +10,7 @@ namespace BeastEngine
 	class Mesh_Renderer : public BeastEngine::Renderer
 	{
 	public:
-		void Set_Mesh(std::shared_ptr<BeastEngine::Mesh> Mesh_Data); //メッシュデータを設定する
+		void Set_Mesh(std::shared_ptr<BeastEngine::Mesh> mesh_data); //メッシュデータを設定する
 
 	private:
 		std::shared_ptr<BeastEngine::Mesh> mesh;
@@ -38,7 +38,6 @@ namespace BeastEngine
 
 		void Reset();
 
-		std::string file_name;
 		std::string file_path;
 
 		static std::shared_ptr<BeastEngine::Shader> shadow_shader;
@@ -50,7 +49,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Renderer>(this), file_name, file_path);
+			archive(cereal::base_class<BeastEngine::Renderer>(this), file_path);
 		}
 	};
 }

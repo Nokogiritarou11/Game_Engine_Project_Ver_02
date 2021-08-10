@@ -8,10 +8,6 @@
     <FxCompile Include="Shader\SkyBox_Shader_PS.hlsl" />
     <FxCompile Include="Shader\2D_Shader_VS.hlsl" />
     <FxCompile Include="Shader\2D_Shader_PS.hlsl" />
-    <FxCompile Include="Shader\SkinMesh_Shader_VS.hlsl" />
-    <FxCompile Include="Shader\Mesh_Shader_VS.hlsl" />
-    <FxCompile Include="Shader\SkinMesh_ShadowMap_Shader_VS.hlsl" />
-    <FxCompile Include="Shader\Mesh_ShadowMap_Shader_VS.hlsl" />
     <FxCompile Include="Code\Shader\2D.fx" />
     <FxCompile Include="Shader\Debug_Shader_VS.hlsl" />
     <FxCompile Include="Shader\Debug_Shader_PS.hlsl" />
