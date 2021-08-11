@@ -42,7 +42,6 @@ namespace BeastEngine
 		void Set_Dx_Settings();
 
 		int bit_Debug_Mode = 0;
-		Microsoft::WRL::ComPtr<ID3D11Buffer> constant_buffer_debug;
 		std::shared_ptr<BeastEngine::Material> material;
 
 		struct Vertex
@@ -50,7 +49,7 @@ namespace BeastEngine
 			Vertex() {}
 			Vertex(const btVector3& p, const btVector3& c);
 			float pos[3];
-			float color[3];
+			float color[4];
 		};
 		struct Line
 		{
@@ -67,9 +66,8 @@ namespace BeastEngine
 		struct VertexData
 		{
 			BeastEngine::Vector3 pos;
-			BeastEngine::Vector3 col;
+			BeastEngine::Vector4 col;
 		};
-		const size_t max_line = 30000;
 		std::vector<Line> lines;
 
 		int grid_length;

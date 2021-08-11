@@ -12,6 +12,8 @@
 #include "Animator.h"
 #include "Include_ImGui.h"
 #include "System_Function.h"
+#include "Engine.h"
+#include "Asset_Manager.h"
 #include "Debug.h"
 using namespace std;
 using namespace BeastEngine;
@@ -98,7 +100,7 @@ void FBX_Converter::Load_From_FBX(bool& convert_mesh, bool& convert_animation, b
 			shared_ptr<GameObject> g = Create_GameObject(mesh->name);
 			g->transform->Set_Parent(obj->transform);
 			shared_ptr<Mesh_Renderer> renderer = g->Add_Component<Mesh_Renderer>();
-			renderer->file_path = model->file_path;
+			renderer->file_path = model->file_path + mesh->name + ".mesh";
 
 			Vector3 translate;
 			Quaternion rotation;
@@ -140,12 +142,12 @@ void FBX_Converter::Load_From_FBX(bool& convert_mesh, bool& convert_animation, b
 		obj->Add_Component<Animator>();
 
 		vector<shared_ptr<GameObject>> rend_list;
-		for (size_t i = 0; i < model->meshes.size(); ++i)
+		for (auto& mesh : model->meshes)
 		{
-			shared_ptr<GameObject> g = Create_GameObject(model->meshes[i]->name);
+			shared_ptr<GameObject> g = Create_GameObject(mesh->name);
 			g->transform->Set_Parent(obj->transform);
 			shared_ptr<SkinMesh_Renderer> renderer = g->Add_Component<SkinMesh_Renderer>();
-			renderer->file_path = model->file_path;
+			renderer->file_path = model->file_path + mesh->name + ".mesh";
 			rend_list.push_back(g);
 		}
 
@@ -269,6 +271,7 @@ void FBX_Converter::Convert_Animation(vector<shared_ptr<GameObject>>& bones)
 		shared_ptr<Animation_Clip> clip = make_shared<Animation_Clip>();
 		clip->name = animation.name;
 		clip->length = animation.secondsLength;
+		Engine::asset_manager->Registration_Asset(clip);
 
 		clip->animations.resize(model->bones.size());
 
@@ -344,6 +347,7 @@ shared_ptr<GameObject> FBX_Converter::Create_GameObject(string n)
 	shared_ptr<GameObject> obj = make_shared<GameObject>();
 	obj->Add_Component<Transform>();
 	obj->name = n;
+	Engine::asset_manager->Registration_Asset(obj);
 
 	return obj;
 }

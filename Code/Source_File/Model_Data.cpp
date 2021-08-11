@@ -9,6 +9,8 @@
 #include <assert.h>
 #include "DxSystem.h"
 #include "Material.h"
+#include "Asset_Manager.h"
+#include "Engine.h"
 using namespace std;
 using namespace fbxsdk;
 using namespace BeastEngine;
@@ -237,6 +239,7 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 
 	meshes.emplace_back(make_shared<Mesh>());
 	shared_ptr<Mesh> mesh = meshes.back();
+	Engine::asset_manager->Registration_Asset(mesh);
 	mesh->name = fbxNode->GetName();
 	mesh->subsets.resize(fbxMaterialCount > 0 ? fbxMaterialCount : 1);
 
@@ -277,7 +280,7 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 		//EmissionTexture
 		GetTexture(surface_material, FbxSurfaceMaterial::sEmissive, mat);
 
-		mat->Save(file_path);
+		mat->Save(new_mat_path);
 		default_material_passes.push_back(new_mat_path);
 	}
 

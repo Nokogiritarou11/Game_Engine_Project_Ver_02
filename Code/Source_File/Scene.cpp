@@ -6,6 +6,7 @@
 #include "Transform.h"
 #include "GameObject.h"
 #include "Engine.h"
+#include "Asset_Manager.h"
 #include "Shadow_Manager.h"
 #include <typeinfo>
 using namespace std;
@@ -17,6 +18,7 @@ shared_ptr<GameObject> Scene::Instance_GameObject(std::string name)
 	obj->Add_Component<Transform>();
 	gameobject_list.emplace_back(obj);
 	obj->name = name;
+	Engine::asset_manager->Registration_Asset(obj);
 	return obj;
 }
 

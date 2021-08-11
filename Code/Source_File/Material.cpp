@@ -145,6 +145,7 @@ void Material::Save(const string& path)
 	else
 	{
 		save_path = path;
+		self_save_pass = path;
 	}
 	ofstream ss(save_path, ios::binary);
 	{

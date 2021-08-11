@@ -6,13 +6,12 @@ cbuffer CbColor : register(b2)
 };
 
 Texture2D shadowMap : register(t0);
-Texture2D diffuseMap : register(t1);
-
-Texture2D normalMap : register(t3);
-
 SamplerComparisonState ShadowMapSamplerState : register(s0);
+
+Texture2D diffuseMap : register(t1);
 SamplerState diffuseMapSamplerState : register(s1);
 
+Texture2D normalMap : register(t3);
 SamplerState normalMapSamplerState : register(s3);
 
 float4 main(VS_OUT pin) : SV_TARGET

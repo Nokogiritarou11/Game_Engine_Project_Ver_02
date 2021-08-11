@@ -72,11 +72,11 @@ void Sprite_Renderer::Set_Active(bool value)
 {
 	if (value)
 	{
-		if (gameobject->Get_Active())
+		if (!is_called)
 		{
-			if (Get_Enabled())
+			if (gameobject->Get_Active())
 			{
-				if (!is_called)
+				if (Get_Enabled())
 				{
 					Engine::render_manager->Add(static_pointer_cast<Sprite_Renderer>(shared_from_this()));
 					is_called = true;

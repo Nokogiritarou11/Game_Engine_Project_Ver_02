@@ -16,18 +16,18 @@ using namespace DirectX;
 SkyBox::SkyBox()
 {
 	material = Material::Create("Shader\\SkyBox_Shader_VS.hlsl", "Shader\\SkyBox_Shader_PS.hlsl");
-	material->Set_Texture(Material::Texture_Type::Main, "Default_Resource\\Model\\sphere\\skyboxes\\envmap_miramar\\", "envmap_miramar.dds");
+	material->Set_Texture(Material::Texture_Type::Main, "Default_Resource\\Image\\SkyBox\\", "envmap_miramar.dds");
 
 	constexpr int u_max = 10;
 	constexpr int v_max = 10;
-	u_int vertex_count = ((u_max - 2) * v_max) + 2;
+	constexpr u_int vertex_count = ((u_max - 2) * v_max) + 2;
 	index_count = (((u_max - 3) * (v_max) * 2) + (v_max * 2)) * 3;
 
 	float sphereYaw, spherePitch = 0.0f;
 	Matrix Rotationx, Rotationy;
+	Vector3 currVertPos;
 
 	vector<Vector3> vertices(vertex_count);
-	Vector3 currVertPos = { 0.0f, 0.0f, 1.0f };
 
 	vertices[0] = { 0.0f, 0.0f, 1.0f };
 	vertices[vertex_count - 1] = { 0.0f, 0.0f, -1.0f };

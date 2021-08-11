@@ -79,13 +79,13 @@ void SkinMesh_Renderer::Set_Active(bool value)
 {
 	if (value)
 	{
-		if (mesh)
+		if (!is_called)
 		{
-			if (gameobject->Get_Active_In_Hierarchy())
+			if (mesh)
 			{
-				if (Get_Enabled())
+				if (gameobject->Get_Active_In_Hierarchy())
 				{
-					if (!is_called)
+					if (Get_Enabled())
 					{
 						Engine::render_manager->Add(static_pointer_cast<SkinMesh_Renderer>(shared_from_this()));
 						is_called = true;
