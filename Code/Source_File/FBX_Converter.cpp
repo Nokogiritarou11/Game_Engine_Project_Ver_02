@@ -67,6 +67,7 @@ void FBX_Converter::Draw_ImGui()
 			{
 				Load_From_FBX(convert_mesh, convert_animation, convert_prefab);
 				Debug::Log(u8"FBX‚Ì•ÏŠ·‚ªŠ®—¹‚µ‚Ü‚µ‚½");
+				model.reset();
 				load_state = 0;
 			}
 		}
@@ -74,6 +75,7 @@ void FBX_Converter::Draw_ImGui()
 		{
 			if (ImGui::Button(u8"ƒLƒƒƒ“ƒZƒ‹"))
 			{
+				model.reset();
 				load_state = 0;
 			}
 		}
@@ -242,7 +244,7 @@ void FBX_Converter::Bone_Decompose(vector<Matrix>& matrixes, vector<shared_ptr<G
 {
 	{
 		size_t i = 0;
-		for (;i < bones.size(); ++i)
+		for (; i < bones.size(); ++i)
 		{
 			if (bones[i]->transform == trans) break;
 		}

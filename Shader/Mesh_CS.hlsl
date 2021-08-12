@@ -1,3 +1,5 @@
+#include "Scene_Constants.hlsli"
+
 struct VERTEX_IN
 {
 	float3 position;
@@ -8,14 +10,6 @@ struct VERTEX_IN
 	uint4  bone_indices;
 };
 
-struct VERTEX_OUT
-{
-	float3 position;
-	float3 normal;
-	float3 tangent;
-	float2 texcoord;
-};
-
 cbuffer CbMesh : register(b1)
 {
 	float4x4 world;
@@ -24,7 +18,7 @@ cbuffer CbMesh : register(b1)
 // In
 StructuredBuffer<VERTEX_IN> vertex_in : register(t0);
 // Out
-RWStructuredBuffer<VERTEX_OUT> vertex_out : register(u0);
+RWStructuredBuffer<VERTEX> vertex_out : register(u0);
 
 [numthreads(64, 1, 1)]
 void main(uint3 dispatch : SV_DispatchThreadID)

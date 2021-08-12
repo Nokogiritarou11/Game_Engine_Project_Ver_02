@@ -25,12 +25,12 @@ namespace BeastEngine
 		BeastEngine::Vector3 Get_max() { return max; }
 		BeastEngine::Vector3 Get_size() { return size; }
 
-		void Set_center(BeastEngine::Vector3 value);
-		void Set_center(float x, float y, float z);
-		void Set_size(BeastEngine::Vector3 value);
-		void Set_size(float x, float y, float z);
+		void Set_center(const BeastEngine::Vector3& value);
+		void Set_center(const float& x, const float& y, const float& z);
+		void Set_size(const BeastEngine::Vector3& value);
+		void Set_size(const float& x, const  float& y, const float& z);
 
-		bool Get_Is_Culling_Frustum(std::shared_ptr<BeastEngine::Transform>& trans, std::array<BeastEngine::Vector4, 6>& planes);
+		bool Get_Is_Culling_Frustum(const std::shared_ptr<BeastEngine::Transform>& trans, const  std::array<BeastEngine::Vector4, 6>& planes);
 
 	private:
 		BeastEngine::Vector3 center;

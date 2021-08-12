@@ -1,5 +1,10 @@
-#include "SkyBox_Shader.hlsli"
 #include "Scene_Constants.hlsli"
+
+struct VS_SKY_OUT
+{
+    float4 position : SV_POSITION;
+    float3 texcoord : TEXCOORD;
+};
 
 TextureCube cubemap : register(t1);
 SamplerState diffuseMapSamplerState : register(s1);

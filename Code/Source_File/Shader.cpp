@@ -38,7 +38,83 @@ HRESULT Shader::Compile(WCHAR* filename, LPCSTR method, LPCSTR shaderModel, ID3D
 	return hr;
 }
 
-shared_ptr<Shader> Shader::Create(string shader_path, Shader_Type shader_type)
+void Shader::Reflect_Resource_Buffer(const ComPtr<ID3D11ShaderReflection>& reflector)
+{
+	D3D11_SHADER_DESC shaderdesc;
+	reflector->GetDesc(&shaderdesc);
+
+	// リフレクション
+	for (size_t i = 0; i < shaderdesc.BoundResources; ++i)
+	{
+		D3D11_SHADER_INPUT_BIND_DESC desc;
+		HRESULT hr = reflector->GetResourceBindingDesc(i, &desc);
+		assert(SUCCEEDED(hr));
+
+		if (desc.Type == D3D10_SHADER_INPUT_TYPE::D3D10_SIT_CBUFFER)
+		{
+			// コンスタントバッファ
+			// 0番はエンジン予約バッファなので飛ばす
+			if (desc.BindPoint != 0)
+			{
+				auto cb = reflector->GetConstantBufferByName(desc.Name);
+				D3D11_SHADER_BUFFER_DESC bdesc;
+				cb->GetDesc(&bdesc);
+
+				ConstantBuffer_Info info;
+				info.name = desc.Name;
+				info.register_number = desc.BindPoint;
+				info.byte_size = bdesc.Size;
+
+				for (size_t j = 0; j < bdesc.Variables; ++j)
+				{
+					auto v = cb->GetVariableByIndex(j);
+					D3D11_SHADER_VARIABLE_DESC vdesc;
+					v->GetDesc(&vdesc);
+					auto t = v->GetType();
+					D3D11_SHADER_TYPE_DESC tdesc;
+					t->GetDesc(&tdesc);
+
+					Parameter_Type type;
+					if (tdesc.Class == D3D10_SVC_SCALAR)
+					{
+						if (tdesc.Type == D3D10_SVT_INT || tdesc.Type == D3D10_SVT_UINT) { type = Parameter_Type::INT; }
+						else if (tdesc.Type == D3D10_SVT_FLOAT) { type = Parameter_Type::FLOAT; }
+					}
+					else if (tdesc.Class == D3D10_SVC_VECTOR)
+					{
+						if (vdesc.Size == 8) { type = Parameter_Type::VECTOR2; }
+						else if (vdesc.Size == 12) { type = Parameter_Type::VECTOR3; }
+						else if (vdesc.Size == 16) { type = Parameter_Type::VECTOR4; }
+					}
+					else if (tdesc.Class == D3D10_SVC_MATRIX_ROWS || tdesc.Class == D3D10_SVC_MATRIX_COLUMNS)
+					{
+						type = Parameter_Type::MATRIX;
+					}
+					else
+					{
+						assert(false);
+					}
+
+					Parameter_Info p_info = { vdesc.Name, type, vdesc.Size, vdesc.StartOffset };
+					info.parameters.emplace_back(p_info);
+				}
+				constant_buffer_info.emplace_back(info);
+			}
+		}
+		else if (desc.Type == D3D10_SHADER_INPUT_TYPE::D3D10_SIT_TEXTURE)
+		{
+			// テクスチャ
+			// 0番はエンジン予約(シャドウテクスチャ)なので飛ばす
+			if (desc.BindPoint != 0)
+			{
+				Texture_Info info = { desc.Name, desc.BindPoint };
+				texture_info.emplace_back(info);
+			}
+		}
+	}
+}
+
+shared_ptr<Shader> Shader::Create(const string& shader_path, const Shader_Type& shader_type)
 {
 	auto it = Engine::asset_manager->cache_shader.find(shader_path);
 	if (it != Engine::asset_manager->cache_shader.end())
@@ -75,40 +151,50 @@ shared_ptr<Shader> Shader::Create(string shader_path, Shader_Type shader_type)
 }
 
 //	シェーダー単体コンパイル
-bool Vertex_Shader::Initialize(string filename)
+bool Vertex_Shader::Initialize(const string& filename)
 {
 	HRESULT hr = S_OK;
-
-	ComPtr<ID3DBlob> VSBlob = nullptr;
-	// 頂点シェーダ
 
 	setlocale(LC_ALL, "japanese");
 	wchar_t FileName[MAX_PATH] = { 0 };
 	size_t ret = 0;
 	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
 
-	hr = Compile(FileName, "main", "vs_5_0", VSBlob.GetAddressOf());
+	// 頂点シェーダ
+	ComPtr<ID3DBlob> blob = nullptr;
+
+	hr = Compile(FileName, "main", "vs_5_0", blob.GetAddressOf());
 	assert(SUCCEEDED(hr));
 
 	// 頂点シェーダ生成
-	hr = DxSystem::device->CreateVertexShader(VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), nullptr, vs.GetAddressOf());
+	hr = DxSystem::device->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, vs.GetAddressOf());
 	assert(SUCCEEDED(hr));
 
-	// Reflect shader info
-	ID3D11ShaderReflection* pVertexShaderReflection = nullptr;
-	hr = D3DReflect(VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&pVertexShaderReflection);
+	// リフレクション
+	ID3D11ShaderReflection* reflector = nullptr;
+	hr = D3DReflect(blob->GetBufferPointer(), blob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&reflector);
 	assert(SUCCEEDED(hr));
 
+	Reflect_Resource_Buffer(reflector);
+	Reflect_InputLayout(reflector, blob);
+
+	//開放
+	reflector->Release();
+	return true;
+}
+
+void Vertex_Shader::Reflect_InputLayout(const ComPtr<ID3D11ShaderReflection>& reflector, ComPtr<ID3DBlob>& blob)
+{
 	// Get shader info
 	D3D11_SHADER_DESC shaderDesc;
-	pVertexShaderReflection->GetDesc(&shaderDesc);
+	reflector->GetDesc(&shaderDesc);
 
 	// Read input layout description from shader info
 	std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc;
-	for (UINT32 i = 0; i < shaderDesc.InputParameters; i++)
+	for (UINT32 i = 0; i < shaderDesc.InputParameters; ++i)
 	{
 		D3D11_SIGNATURE_PARAMETER_DESC paramDesc;
-		pVertexShaderReflection->GetInputParameterDesc(i, &paramDesc);
+		reflector->GetInputParameterDesc(i, &paramDesc);
 
 		// fill out input element desc
 		D3D11_INPUT_ELEMENT_DESC elementDesc;
@@ -150,94 +236,127 @@ bool Vertex_Shader::Initialize(string filename)
 	}
 
 	// Try to create Input Layout
-	hr = DxSystem::device->CreateInputLayout(&inputLayoutDesc[0], inputLayoutDesc.size(), VSBlob->GetBufferPointer(), VSBlob->GetBufferSize(), vertex_layout.GetAddressOf());
+	HRESULT hr = DxSystem::device->CreateInputLayout(&inputLayoutDesc[0], inputLayoutDesc.size(), blob->GetBufferPointer(), blob->GetBufferSize(), vertex_layout.GetAddressOf());
 	assert(SUCCEEDED(hr));
-	//Free allocation shader reflection memory
-	pVertexShaderReflection->Release();
-	return true;
 }
 
-bool Geometry_Shader::Initialize(string filename)
+bool Geometry_Shader::Initialize(const string& filename)
 {
 	HRESULT hr = S_OK;
+
+	setlocale(LC_ALL, "japanese");
+	wchar_t FileName[MAX_PATH] = { 0 };
+	size_t ret = 0;
+	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
 
 	// ジオメトリシェーダ
+	ComPtr<ID3DBlob> blob = nullptr;
+
+	hr = Compile(FileName, "main", "gs_5_0", &blob);
+	assert(SUCCEEDED(hr));
+
+	hr = DxSystem::device->CreateGeometryShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, gs.GetAddressOf());
+	assert(SUCCEEDED(hr));
+
+	// リフレクション
+	ID3D11ShaderReflection* reflector = nullptr;
+	hr = D3DReflect(blob->GetBufferPointer(), blob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&reflector);
+	assert(SUCCEEDED(hr));
+
+	Reflect_Resource_Buffer(reflector);
+
+	//開放
+	reflector->Release();
+	return true;
+}
+
+bool Pixel_Shader::Initialize(const string& filename)
+{
+	HRESULT hr = S_OK;
+
 	setlocale(LC_ALL, "japanese");
 	wchar_t FileName[MAX_PATH] = { 0 };
 	size_t ret = 0;
 	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
-
-	ComPtr<ID3DBlob> GSBlob = nullptr;
-	hr = Compile(FileName, "main", "gs_5_0", &GSBlob);
-	if (FAILED(hr))
-	{
-		return false;
-	}
-	hr = DxSystem::device->CreateGeometryShader(GSBlob->GetBufferPointer(), GSBlob->GetBufferSize(), nullptr, gs.GetAddressOf());
-	assert(SUCCEEDED(hr));
-	return true;
-}
-
-bool Pixel_Shader::Initialize(string filename)
-{
-	HRESULT hr = S_OK;
 
 	// ピクセルシェーダ
-	setlocale(LC_ALL, "japanese");
-	wchar_t FileName[MAX_PATH] = { 0 };
-	size_t ret = 0;
-	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
+	ComPtr<ID3DBlob> blob = nullptr;
 
-	ComPtr<ID3DBlob> PSBlob = nullptr;
-	hr = Compile(FileName, "main", "ps_5_0", &PSBlob);
-	if (FAILED(hr))
-	{
-		return false;
-	}
-	hr = DxSystem::device->CreatePixelShader(PSBlob->GetBufferPointer(), PSBlob->GetBufferSize(), nullptr, ps.GetAddressOf());
+	hr = Compile(FileName, "main", "ps_5_0", &blob);
 	assert(SUCCEEDED(hr));
+
+	hr = DxSystem::device->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, ps.GetAddressOf());
+	assert(SUCCEEDED(hr));
+
+	// リフレクション
+	ID3D11ShaderReflection* reflector = nullptr;
+	hr = D3DReflect(blob->GetBufferPointer(), blob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&reflector);
+	assert(SUCCEEDED(hr));
+
+	Reflect_Resource_Buffer(reflector);
+
+	//開放
+	reflector->Release();
 	return true;
 }
 
-bool Hull_Shader::Initialize(string filename)
+bool Hull_Shader::Initialize(const string& filename)
 {
 	HRESULT hr = S_OK;
 
-	// ハルシェーダ
 	setlocale(LC_ALL, "japanese");
 	wchar_t FileName[MAX_PATH] = { 0 };
 	size_t ret = 0;
 	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
 
-	ComPtr<ID3DBlob> HSBlob = nullptr;
-	hr = Compile(FileName, "main", "hs_5_0", &HSBlob);
-	if (FAILED(hr))
-	{
-		return false;
-	}
-	hr = DxSystem::device->CreateHullShader(HSBlob->GetBufferPointer(), HSBlob->GetBufferSize(), nullptr, hs.GetAddressOf());
+	// ハルシェーダ
+	ComPtr<ID3DBlob> blob = nullptr;
+
+	hr = Compile(FileName, "main", "hs_5_0", &blob);
 	assert(SUCCEEDED(hr));
+
+	hr = DxSystem::device->CreateHullShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, hs.GetAddressOf());
+	assert(SUCCEEDED(hr));
+
+	// リフレクション
+	ID3D11ShaderReflection* reflector = nullptr;
+	hr = D3DReflect(blob->GetBufferPointer(), blob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&reflector);
+	assert(SUCCEEDED(hr));
+
+	Reflect_Resource_Buffer(reflector);
+
+	//開放
+	reflector->Release();
 	return true;
 }
 
-bool Domain_Shader::Initialize(string filename)
+bool Domain_Shader::Initialize(const string& filename)
 {
 	HRESULT hr = S_OK;
 
-	// ハルシェーダ
 	setlocale(LC_ALL, "japanese");
 	wchar_t FileName[MAX_PATH] = { 0 };
 	size_t ret = 0;
 	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
 
-	ComPtr<ID3DBlob> DSBlob = nullptr;
-	hr = Compile(FileName, "main", "ds_5_0", &DSBlob);
-	if (FAILED(hr))
-	{
-		return false;
-	}
-	hr = DxSystem::device->CreateDomainShader(DSBlob->GetBufferPointer(), DSBlob->GetBufferSize(), nullptr, ds.GetAddressOf());
+	// ハルシェーダ
+	ComPtr<ID3DBlob> blob = nullptr;
+
+	hr = Compile(FileName, "main", "ds_5_0", &blob);
 	assert(SUCCEEDED(hr));
+
+	hr = DxSystem::device->CreateDomainShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, ds.GetAddressOf());
+	assert(SUCCEEDED(hr));
+
+	// リフレクション
+	ID3D11ShaderReflection* reflector = nullptr;
+	hr = D3DReflect(blob->GetBufferPointer(), blob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&reflector);
+	assert(SUCCEEDED(hr));
+
+	Reflect_Resource_Buffer(reflector);
+
+	//開放
+	reflector->Release();
 	return true;
 }
 

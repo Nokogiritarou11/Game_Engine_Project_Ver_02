@@ -9,6 +9,7 @@
 #include <assert.h>
 #include "DxSystem.h"
 #include "Material.h"
+#include "Texture.h"
 #include "Asset_Manager.h"
 #include "Engine.h"
 using namespace std;
@@ -268,20 +269,17 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 
 		shared_ptr<Material> mat = Material::Create("Shader\\Standard_Shader_VS.hlsl", "Shader\\Standard_Shader_PS.hlsl");
 		mat->name = material_name;
-
-		//Main(Diffuse)Texture
-		GetTexture(surface_material, FbxSurfaceMaterial::sDiffuse, mat);
-		//SpecularTexture
-		GetTexture(surface_material, FbxSurfaceMaterial::sSpecular, mat);
-		//NormalTexture
-		GetTexture(surface_material, FbxSurfaceMaterial::sNormalMap, mat);
-		//HeightTexture
-		GetTexture(surface_material, FbxSurfaceMaterial::sBump, mat);
-		//EmissionTexture
-		GetTexture(surface_material, FbxSurfaceMaterial::sEmissive, mat);
-
+		mat->Set_Texture("diffuseMap", Texture::Load("Default_Resource\\Image\\Default_Texture.png"));
+		mat->Set_Texture("normalMap", Texture::Load("Default_Resource\\Image\\Default_NormalMap.png"));
 		mat->Save(new_mat_path);
 		default_material_passes.push_back(new_mat_path);
+
+		//FBX内のテクスチャを解凍
+		GetTexture(surface_material, FbxSurfaceMaterial::sDiffuse);
+		GetTexture(surface_material, FbxSurfaceMaterial::sSpecular);
+		GetTexture(surface_material, FbxSurfaceMaterial::sNormalMap);
+		GetTexture(surface_material, FbxSurfaceMaterial::sBump);
+		GetTexture(surface_material, FbxSurfaceMaterial::sEmissive);
 	}
 
 	// サブセットの頂点インデックス範囲設定
@@ -763,55 +761,16 @@ int Model_Data::FindNodeIndex(const char* name)
 	return -1;
 }
 
-void Model_Data::GetTexture(const FbxSurfaceMaterial* fbx_mat, const char* fbx_tex_type, shared_ptr<Material> mat)
+void Model_Data::GetTexture(const FbxSurfaceMaterial* fbx_mat, const char* fbx_tex_type)
 {
 	const FbxProperty property = fbx_mat->FindProperty(fbx_tex_type);
 	if (property.IsValid())
 	{
 		const int number_of_textures = property.GetSrcObjectCount<FbxFileTexture>();
 
-		Material::Texture_Type type;
-		if (fbx_tex_type == FbxSurfaceMaterial::sDiffuse)
-		{
-			type = Material::Texture_Type::Main;
-		}
-		else if (fbx_tex_type == FbxSurfaceMaterial::sSpecular)
-		{
-			type = Material::Texture_Type::Specular;
-		}
-		else if (fbx_tex_type == FbxSurfaceMaterial::sNormalMap)
-		{
-			type = Material::Texture_Type::Normal;
-		}
-		else if (fbx_tex_type == FbxSurfaceMaterial::sBump)
-		{
-			type = Material::Texture_Type::Height;
-		}
-		else if (fbx_tex_type == FbxSurfaceMaterial::sEmissive)
-		{
-			type = Material::Texture_Type::Emission;
-		}
-
 		if (number_of_textures)
 		{
 			const FbxFileTexture* file_texture = property.GetSrcObject<FbxFileTexture>();
-			if (file_texture)
-			{
-				//画像読み込み
-				const char* filename = file_texture->GetRelativeFileName();
-				mat->Set_Texture(type, file_path, filename);
-			}
-		}
-		else
-		{
-			if (type == Material::Texture_Type::Main)
-			{
-				mat->Set_Texture(type, "Default_Resource\\Image\\", "Default_Texture.png");
-			}
-			else if (type == Material::Texture_Type::Normal)
-			{
-				mat->Set_Texture(type, "Default_Resource\\Image\\", "Default_NormalMap.png");
-			}
 		}
 	}
 }

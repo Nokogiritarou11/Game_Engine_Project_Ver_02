@@ -13,7 +13,7 @@ namespace BeastEngine
 	public:
 		SkyBox();
 
-		void Render(BeastEngine::Vector3& pos);
+		void Render(const BeastEngine::Vector3& pos);
 
 	private:
 		std::shared_ptr<BeastEngine::Material> material;
@@ -21,6 +21,5 @@ namespace BeastEngine
 		UINT index_count;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> vertex_buffer; // 天球頂点バッファ
 		Microsoft::WRL::ComPtr<ID3D11Buffer> index_buffer; // 天球インデックスバッファ
-		Microsoft::WRL::ComPtr<ID3D11Buffer> constant_buffer_skybox; //コンスタントバッファ
 	};
 }

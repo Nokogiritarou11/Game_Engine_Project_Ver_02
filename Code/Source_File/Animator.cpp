@@ -32,7 +32,7 @@ void Animator::Initialize(shared_ptr<GameObject> obj)
 
 void Animator::Set_Default_Pose()
 {
-	for (auto state : controller->state_machines)
+	for (auto& state : controller->state_machines)
 	{
 		if (state->clip)
 		{

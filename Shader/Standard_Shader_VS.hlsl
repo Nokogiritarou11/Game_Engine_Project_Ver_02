@@ -1,23 +1,25 @@
 #include "Scene_Constants.hlsli"
 
-VS_OUT main(
-	float3 position : POSITION,
-	float3 normal : NORMAL,
-	float3 tangent : TANGENT,
-	float2 texcoord : TEXCOORD
-)
+struct VS_OUT
 {
-	VS_OUT vout;
+    float4 position : SV_POSITION;
+    float4 normal : NORMAL;
+    float4 tangent : TANGENT;
+    float2 texcoord : TEXCOORD;
+    float4 sdwcoord : SHADOW_COORD;
+};
 
-	float4 pos = float4(position, 1.0f);
-	float4 nor = float4(normal, 0.0f);
-	float4 tan = float4(tangent, 0.0f);
+VS_OUT main(VERTEX input)
+{
+    VS_OUT vout;
 
-	vout.position = mul(viewProjection, pos);
-	vout.normal = nor;
-	vout.tangent = tan;
-	vout.texcoord = texcoord;
-	vout.sdwcoord = mul(shadowMatrix, pos + vout.normal * bias);
+    float4 pos = float4(input.position, 1.0f);
 
-	return vout;
+    vout.position = mul(viewProjection, pos);
+    vout.normal = float4(input.normal, 0.0f);
+    vout.tangent = float4(input.tangent, 0.0f);
+    vout.texcoord = input.texcoord;
+    vout.sdwcoord = mul(shadowMatrix, pos + vout.normal * bias);
+
+    return vout;
 }

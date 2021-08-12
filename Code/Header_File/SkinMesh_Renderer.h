@@ -25,7 +25,6 @@ namespace BeastEngine
 		};
 
 		static Microsoft::WRL::ComPtr <ID3D11Buffer> constant_buffer_mesh;  //コンスタントバッファ(メッシュデータ)
-		static Microsoft::WRL::ComPtr <ID3D11Buffer> constant_buffer_color; //コンスタントバッファ(カラー)
 
 		Constant_Buffer_Mesh buffer_mesh;
 		std::vector<std::weak_ptr<BeastEngine::Transform>> bones;
@@ -43,7 +42,6 @@ namespace BeastEngine
 
 		std::string file_path;
 
-		static std::shared_ptr<BeastEngine::Shader> shadow_shader;
 		std::shared_ptr<BeastEngine::Compute_Shader> compute_shader;
 		Microsoft::WRL::ComPtr <ID3D11Buffer> vertex_buffer;
 

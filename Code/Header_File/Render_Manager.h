@@ -16,6 +16,7 @@ namespace BeastEngine
 	class Renderer;
 	class Render_Texture;
 	class SkyBox;
+	class Material;
 
 	class Render_Manager
 	{
@@ -23,14 +24,18 @@ namespace BeastEngine
 		Render_Manager();
 
 		void Reset();
-		void Add(std::shared_ptr<BeastEngine::Mesh_Renderer> m_rend);
-		void Add(std::shared_ptr<BeastEngine::SkinMesh_Renderer> m_rend);
-		void Add(std::shared_ptr<BeastEngine::Sprite_Renderer> m_rend);
-		void Add(std::shared_ptr<BeastEngine::Camera> mono);
+		void Add(const std::shared_ptr<BeastEngine::Mesh_Renderer>& m_rend);
+		void Add(const std::shared_ptr<BeastEngine::SkinMesh_Renderer>& m_rend);
+		void Add(const std::shared_ptr<BeastEngine::Sprite_Renderer>& m_rend);
+		void Add(const std::shared_ptr<BeastEngine::Camera>& mono);
 		void Render();
 
 		std::unique_ptr<BeastEngine::Render_Texture> scene_texture;
 		std::unique_ptr<BeastEngine::Render_Texture> game_texture;
+
+		std::shared_ptr<BeastEngine::Material> sprite_material;
+		std::shared_ptr<BeastEngine::Material> shadow_material;
+
 	private:
 		struct Render_Obj
 		{
@@ -62,16 +67,18 @@ namespace BeastEngine
 
 		//Rendererの生存チェック
 		void Check_Renderer();
-		void Culling_Renderer(BeastEngine::Vector3& view_pos, std::array<BeastEngine::Vector4, 6>& planes);
+		void Culling_Renderer(const BeastEngine::Vector3& view_pos, const std::array<BeastEngine::Vector4, 6>& planes);
 		void Sort_Renderer();
 
 		void Render_Scene();
 		void Render_Game();
 
-		void Render_Sky(BeastEngine::Vector3& pos);
-		void Render_Shadow(std::shared_ptr<BeastEngine::Transform>& camera_transform);
-		void Render_Shadow_Directional(BeastEngine::Vector4 color, float intensity, std::shared_ptr<BeastEngine::Transform>& light_transform, std::shared_ptr<BeastEngine::Transform>& camera_transform);
-		void Render_3D(std::shared_ptr<BeastEngine::Camera>& camera);
+		void Render_Sky(const BeastEngine::Vector3& pos);
+		void Render_Shadow(const std::shared_ptr<BeastEngine::Transform>& camera_transform);
+		void Render_Shadow_Directional(const BeastEngine::Vector3& color, const float& intensity, const std::shared_ptr<BeastEngine::Transform>& light_transform, const std::shared_ptr<BeastEngine::Transform>& camera_transform);
+		void Render_3D(const std::shared_ptr<BeastEngine::Camera>& camera);
 		void Render_2D();
+
+		void Update_Constant_Buffer();
 	};
 }

@@ -1,5 +1,10 @@
 #include "Scene_Constants.hlsli"
-#include "Debug_Shader.hlsli"
+
+struct VS_DEBUG_OUT
+{
+    float4 position : SV_POSITION;
+    float4 color : COLOR;
+};
 
 float4 main(VS_DEBUG_OUT pin) : SV_TARGET
 {

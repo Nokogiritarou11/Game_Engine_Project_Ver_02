@@ -46,6 +46,10 @@ Render_Manager::Render_Manager()
 	Engine::asset_manager->Registration_Asset(shadow_camera);
 	shadow_camera->transform = shadow_camera_transform;
 	shadow_camera->is_orthographic = true;
+
+	//デフォルトマテリアル
+	shadow_material = Material::Create("Shader/Standard_Shadow_Shader_VS.hlsl");
+	sprite_material = Material::Create("Shader\\2D_Shader_VS.hlsl", "Shader\\2D_Shader_PS.hlsl");
 }
 
 void Render_Manager::Reset()
@@ -71,19 +75,19 @@ void Render_Manager::Reset()
 	camera_list.clear();
 }
 
-void Render_Manager::Add(shared_ptr<Mesh_Renderer> m_rend)
+void Render_Manager::Add(const shared_ptr<Mesh_Renderer>& m_rend)
 {
 	renderer_3D_list.emplace_back(m_rend);
 }
-void Render_Manager::Add(shared_ptr<SkinMesh_Renderer> m_rend)
+void Render_Manager::Add(const shared_ptr<SkinMesh_Renderer>& m_rend)
 {
 	renderer_3D_list.emplace_back(m_rend);
 }
-void Render_Manager::Add(shared_ptr<Sprite_Renderer> m_rend)
+void Render_Manager::Add(const shared_ptr<Sprite_Renderer>& m_rend)
 {
 	renderer_2D_list.emplace_back(m_rend);
 }
-void Render_Manager::Add(shared_ptr<Camera> mono)
+void Render_Manager::Add(const shared_ptr<Camera>& mono)
 {
 	camera_list.emplace_back(mono);
 }
@@ -135,7 +139,7 @@ void Render_Manager::Check_Renderer()
 	}
 }
 
-void Render_Manager::Culling_Renderer(Vector3& view_pos, array<Vector4, 6>& planes)
+void Render_Manager::Culling_Renderer(const Vector3& view_pos, const array<Vector4, 6>& planes)
 {
 	shared_ptr<Renderer> p_rend;
 	for (auto& r : renderer_3D_list)
@@ -158,8 +162,8 @@ void Render_Manager::Culling_Renderer(Vector3& view_pos, array<Vector4, 6>& plan
 
 void Render_Manager::Sort_Renderer()
 {
-	sort(alpha_list.begin(), alpha_list.end(), [](const Render_Obj& a, const Render_Obj& b) {return (a.queue == b.queue) ? (a.z_distance > b.z_distance) : (a.queue < b.queue);});
-	sort(opaque_list.begin(), opaque_list.end(), [](const Render_Obj& a, const Render_Obj& b) {return (a.queue == b.queue) ? (a.z_distance < b.z_distance) : (a.queue < b.queue);});
+	sort(alpha_list.begin(), alpha_list.end(), [](const Render_Obj& a, const Render_Obj& b) {return (a.queue == b.queue) ? (a.z_distance > b.z_distance) : (a.queue < b.queue); });
+	sort(opaque_list.begin(), opaque_list.end(), [](const Render_Obj& a, const Render_Obj& b) {return (a.queue == b.queue) ? (a.z_distance < b.z_distance) : (a.queue < b.queue); });
 }
 
 void Render_Manager::Render()
@@ -185,14 +189,7 @@ void Render_Manager::Render_Scene()
 		buffer_scene.view_projection_matrix = Engine::editor->debug_camera->view_projection_matrix;
 		DxSystem::device_context->VSSetConstantBuffers(0, 1, constant_buffer_scene.GetAddressOf());
 		DxSystem::device_context->PSSetConstantBuffers(0, 1, constant_buffer_scene.GetAddressOf());
-		UINT subresourceIndex = 0;
-		D3D11_MAPPED_SUBRESOURCE mapped;
-		auto hr = DxSystem::device_context->Map(constant_buffer_scene.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
-		if (SUCCEEDED(hr))
-		{
-			memcpy(mapped.pData, &buffer_scene, sizeof(Constant_Buffer_Scene));
-			DxSystem::device_context->Unmap(constant_buffer_scene.Get(), subresourceIndex);
-		}
+		Update_Constant_Buffer();
 
 		Render_Sky(Engine::editor->debug_camera_transform->Get_Position());
 		Render_3D(Engine::editor->debug_camera);
@@ -232,14 +229,7 @@ void Render_Manager::Render_Game()
 					buffer_scene.view_projection_matrix = camera->view_projection_matrix;
 					DxSystem::device_context->VSSetConstantBuffers(0, 1, constant_buffer_scene.GetAddressOf());
 					DxSystem::device_context->PSSetConstantBuffers(0, 1, constant_buffer_scene.GetAddressOf());
-					UINT subresourceIndex = 0;
-					D3D11_MAPPED_SUBRESOURCE mapped;
-					auto hr = DxSystem::device_context->Map(constant_buffer_scene.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
-					if (SUCCEEDED(hr))
-					{
-						memcpy(mapped.pData, &buffer_scene, sizeof(Constant_Buffer_Scene));
-						DxSystem::device_context->Unmap(constant_buffer_scene.Get(), subresourceIndex);
-					}
+					Update_Constant_Buffer();
 
 					Render_Sky(camera->transform->Get_Position());
 					Render_3D(camera);
@@ -260,7 +250,7 @@ void Render_Manager::Render_Game()
 	}
 }
 
-void Render_Manager::Render_3D(shared_ptr<Camera>& camera)
+void Render_Manager::Render_3D(const shared_ptr<Camera>& camera)
 {
 	//トポロジー設定
 	DxSystem::device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -298,34 +288,39 @@ void Render_Manager::Render_3D(shared_ptr<Camera>& camera)
 
 void Render_Manager::Render_2D()
 {
-	//トポロジー設定
-	DxSystem::device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-
-	//ブレンドステート設定
-	DxSystem::device_context->OMSetBlendState(DxSystem::Get_Blend_State(BS_State::Alpha), nullptr, 0xFFFFFFFF);
-	Renderer::binding_blend_state = BS_State::Alpha;
-	//ラスタライザ―設定
-	DxSystem::device_context->RSSetState(DxSystem::Get_Rasterizer_State(RS_State::Cull_None));
-	Renderer::binding_rasterizer_state = RS_State::Cull_None;
-	//デプスステンシルステート設定
-	DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(DS_State::None_No_Write), 1);
-	Renderer::binding_depth_stencil_State = DS_State::None_No_Write;
-
-	shared_ptr<Renderer> p_rend = nullptr;
-	for (auto& r : renderer_2D_list)
+	if (!renderer_2D_list.empty())
 	{
-		p_rend = r.lock();
-		if (p_rend->gameobject->Get_Active_In_Hierarchy())
+		//トポロジー設定
+		DxSystem::device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+		//ブレンドステート設定
+		DxSystem::device_context->OMSetBlendState(DxSystem::Get_Blend_State(BS_State::Alpha), nullptr, 0xFFFFFFFF);
+		Renderer::binding_blend_state = BS_State::Alpha;
+		//ラスタライザ―設定
+		DxSystem::device_context->RSSetState(DxSystem::Get_Rasterizer_State(RS_State::Cull_None));
+		Renderer::binding_rasterizer_state = RS_State::Cull_None;
+		//デプスステンシルステート設定
+		DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(DS_State::None_No_Write), 1);
+		Renderer::binding_depth_stencil_State = DS_State::None_No_Write;
+
+		sprite_material->Active();
+
+		shared_ptr<Renderer> p_rend = nullptr;
+		for (auto& r : renderer_2D_list)
 		{
-			if (p_rend->Get_Enabled())
+			p_rend = r.lock();
+			if (p_rend->gameobject->Get_Active_In_Hierarchy())
 			{
-				p_rend->Render();
+				if (p_rend->Get_Enabled())
+				{
+					p_rend->Render();
+				}
 			}
 		}
 	}
 }
 
-void Render_Manager::Render_Sky(Vector3& pos)
+void Render_Manager::Render_Sky(const Vector3& pos)
 {
 	//トポロジー設定
 	DxSystem::device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -343,7 +338,7 @@ void Render_Manager::Render_Sky(Vector3& pos)
 	skybox->Render(pos);
 }
 
-void Render_Manager::Render_Shadow(std::shared_ptr<Transform>& camera_transform)
+void Render_Manager::Render_Shadow(const shared_ptr<Transform>& camera_transform)
 {
 	for (vector<weak_ptr<Light>>::iterator itr = Engine::light_manager->light_list.begin(); itr != Engine::light_manager->light_list.end();)
 	{
@@ -364,7 +359,7 @@ void Render_Manager::Render_Shadow(std::shared_ptr<Transform>& camera_transform)
 	}
 }
 
-void Render_Manager::Render_Shadow_Directional(Vector4 color, float intensity, std::shared_ptr<Transform>& light_transform, std::shared_ptr<Transform>& camera_transform)
+void Render_Manager::Render_Shadow_Directional(const Vector3& color, const float& intensity, const shared_ptr<Transform>& light_transform, const shared_ptr<Transform>& camera_transform)
 {
 	shadow_camera->orthographic_size = Engine::shadow_manager->shadow_distance;
 
@@ -382,18 +377,11 @@ void Render_Manager::Render_Shadow_Directional(Vector4 color, float intensity, s
 	buffer_scene.shadow_matrix = shadow_camera->view_projection_matrix * SHADOW_BIAS;
 	const Vector3 forward = light_transform->Get_Forward();
 	buffer_scene.light_direction = { forward.x, forward.y, forward.z, 0 };
-	buffer_scene.light_color = { color.x, color.y, color.z };
+	buffer_scene.light_color = color;
 	buffer_scene.bias = Engine::shadow_manager->shadow_bias;
 
 	DxSystem::device_context->VSSetConstantBuffers(0, 1, constant_buffer_scene.GetAddressOf());
-	UINT subresourceIndex = 0;
-	D3D11_MAPPED_SUBRESOURCE mapped;
-	auto hr = DxSystem::device_context->Map(constant_buffer_scene.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
-	if (SUCCEEDED(hr))
-	{
-		memcpy(mapped.pData, &buffer_scene, sizeof(Constant_Buffer_Scene));
-		DxSystem::device_context->Unmap(constant_buffer_scene.Get(), subresourceIndex);
-	}
+	Update_Constant_Buffer();
 
 	Engine::shadow_manager->Set_Shadow_Map_Texture();
 	//トポロジー設定
@@ -411,6 +399,8 @@ void Render_Manager::Render_Shadow_Directional(Vector4 color, float intensity, s
 	Culling_Renderer(shadow_camera->transform->Get_Position(), shadow_camera->frustum_planes);
 	Sort_Renderer();
 
+	shadow_material->Active();
+
 	shared_ptr<Renderer> p_rend = nullptr;
 	for (auto& r : opaque_list)
 	{
@@ -424,4 +414,16 @@ void Render_Manager::Render_Shadow_Directional(Vector4 color, float intensity, s
 		}
 	}
 	opaque_list.clear();
+}
+
+void Render_Manager::Update_Constant_Buffer()
+{
+	UINT subresourceIndex = 0;
+	D3D11_MAPPED_SUBRESOURCE mapped;
+	auto hr = DxSystem::device_context->Map(constant_buffer_scene.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+	if (SUCCEEDED(hr))
+	{
+		memcpy(mapped.pData, &buffer_scene, sizeof(Constant_Buffer_Scene));
+		DxSystem::device_context->Unmap(constant_buffer_scene.Get(), subresourceIndex);
+	}
 }

@@ -1,6 +1,15 @@
 #include "Scene_Constants.hlsli"
 
-cbuffer CbColor : register(b2)
+struct VS_OUT
+{
+    float4 position : SV_POSITION;
+    float4 normal : NORMAL;
+    float4 tangent : TANGENT;
+    float2 texcoord : TEXCOORD;
+    float4 sdwcoord : SHADOW_COORD;
+};
+
+cbuffer CbColor : register(b1)
 {
     float4 materialColor;
 };
@@ -27,8 +36,8 @@ float4 main(VS_OUT pin) : SV_TARGET
 	//                 |Tx Ty Tz|
 	// normal = |x y z||Bx By Bz|
 	//                 |Nx Ny Nz|
-    float3 N = normalize(pin.normal.xyz);
-    float3 T = normalize(pin.tangent.xyz);
+    float3 N = pin.normal.xyz;
+    float3 T = pin.tangent.xyz;
     float3 B = normalize(cross(N, T));
     N = normalize((normal_map_colour.x * T) + (normal_map_colour.y * B) + (normal_map_colour.z * N));
 

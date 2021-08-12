@@ -1,7 +1,13 @@
 #include "Scene_Constants.hlsli"
-#include "Debug_Shader.hlsli"
 
-VS_DEBUG_OUT main(
+struct VS_DEBUG_OUT
+{
+    float4 position : SV_POSITION;
+    float4 color : COLOR;
+};
+
+VS_DEBUG_OUT main
+(
 	float3 position : POSITION,
     float4 color : COLOR
 )

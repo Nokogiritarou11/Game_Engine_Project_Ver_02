@@ -13,7 +13,7 @@ using namespace std;
 using namespace DirectX;
 using namespace BeastEngine;
 
-shared_ptr<Texture> Texture::Load(string filename)
+shared_ptr<Texture> Texture::Load(const string& texture_path)
 {
 	HRESULT hr = S_OK;
 
@@ -23,9 +23,9 @@ shared_ptr<Texture> Texture::Load(string filename)
 	setlocale(LC_ALL, "japanese");
 	wchar_t FileName[MAX_PATH] = { 0 };
 	size_t ret = 0;
-	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
+	mbstowcs_s(&ret, FileName, MAX_PATH, texture_path.c_str(), _TRUNCATE);
 
-	auto it = Engine::asset_manager->cache_texture.find(filename);
+	auto it = Engine::asset_manager->cache_texture.find(texture_path);
 	if (it != Engine::asset_manager->cache_texture.end())
 	{
 		return it->second;
@@ -96,12 +96,12 @@ shared_ptr<Texture> Texture::Load(string filename)
 
 		//	サンプラステート作成
 		D3D11_SAMPLER_DESC sd = {};
-		sd.Filter = D3D11_FILTER_ANISOTROPIC;		// 異方性フィルタ
-		sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;	    // U
-		sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;	    // V
-		sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;	    // W
+		sd.Filter = D3D11_FILTER_ANISOTROPIC;	  // 異方性フィルタ
+		sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP; // U
+		sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP; // V
+		sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP; // W
 		sd.MipLODBias = 0;
-		sd.MaxAnisotropy = 16;						        // 最大異方性(1Pixelあたりのテクスチャ点数)
+		sd.MaxAnisotropy = 4; // 最大異方性(1Pixelあたりのテクスチャ点数)
 		sd.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 		sd.MinLOD = 0;
 		sd.MaxLOD = D3D11_FLOAT32_MAX;
@@ -110,31 +110,41 @@ shared_ptr<Texture> Texture::Load(string filename)
 			&sd, texture->sampler.GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
-		Engine::asset_manager->cache_texture.insert(make_pair(filename, texture));
+		Engine::asset_manager->cache_texture.insert(make_pair(texture_path, texture));
 		Engine::asset_manager->Registration_Asset(texture);
+		texture->path = texture_path;
 		return texture;
 	}
 
 	return nullptr;
 }
 
-void Texture::Set(UINT Slot, BOOL flg)
+void Texture::Set(UINT Slot, Shader::Shader_Type type)
 {
-	if (flg == FALSE)
-	{
-		ID3D11ShaderResourceView* rtv[1] = { NULL };
-		ID3D11SamplerState* ss[1] = { NULL };
-		DxSystem::device_context->PSSetShaderResources(Slot, 1, rtv);
-		DxSystem::device_context->PSSetSamplers(Slot, 1, ss);
-		DxSystem::device_context->DSSetShaderResources(Slot, 1, rtv);
-		DxSystem::device_context->DSSetSamplers(Slot, 1, ss);
-		return;
-	}
 	if (shader_resource_view)
 	{
-		DxSystem::device_context->PSSetShaderResources(Slot, 1, shader_resource_view.GetAddressOf());
-		DxSystem::device_context->PSSetSamplers(Slot, 1, sampler.GetAddressOf());
-		DxSystem::device_context->DSSetShaderResources(Slot, 1, shader_resource_view.GetAddressOf());
-		DxSystem::device_context->DSSetSamplers(Slot, 1, sampler.GetAddressOf());
+		switch (type)
+		{
+			case BeastEngine::Shader::Shader_Type::Vertex:
+				DxSystem::device_context->VSSetShaderResources(Slot, 1, shader_resource_view.GetAddressOf());
+				DxSystem::device_context->VSSetSamplers(Slot, 1, sampler.GetAddressOf());
+				break;
+			case BeastEngine::Shader::Shader_Type::Geometry:
+				DxSystem::device_context->GSSetShaderResources(Slot, 1, shader_resource_view.GetAddressOf());
+				DxSystem::device_context->GSSetSamplers(Slot, 1, sampler.GetAddressOf());
+				break;
+			case BeastEngine::Shader::Shader_Type::Pixel:
+				DxSystem::device_context->PSSetShaderResources(Slot, 1, shader_resource_view.GetAddressOf());
+				DxSystem::device_context->PSSetSamplers(Slot, 1, sampler.GetAddressOf());
+				break;
+			case BeastEngine::Shader::Shader_Type::Hull:
+				DxSystem::device_context->HSSetShaderResources(Slot, 1, shader_resource_view.GetAddressOf());
+				DxSystem::device_context->HSSetSamplers(Slot, 1, sampler.GetAddressOf());
+				break;
+			case BeastEngine::Shader::Shader_Type::Domain:
+				DxSystem::device_context->DSSetShaderResources(Slot, 1, shader_resource_view.GetAddressOf());
+				DxSystem::device_context->DSSetSamplers(Slot, 1, sampler.GetAddressOf());
+				break;
+		}
 	}
 }

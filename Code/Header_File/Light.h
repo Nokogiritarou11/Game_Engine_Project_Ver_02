@@ -12,7 +12,7 @@ namespace BeastEngine
 	class Light : public BeastEngine::Behaviour
 	{
 	public:
-		BeastEngine::Vector4 color = { 0.5f ,0.5f ,0.5f ,1.0f };
+		BeastEngine::Vector3 color = { 0.5f ,0.5f ,0.5f };
 		float intensity = 1;
 
 	private:

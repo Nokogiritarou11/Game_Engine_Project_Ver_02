@@ -164,7 +164,7 @@ void Debug_Draw_Manager::Set_Dx_Settings()
 	DxSystem::device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
 	// シェーダ
-	material->Active_Shader();
+	material->Active();
 
 	// ステート
 	DxSystem::device_context->RSSetState(DxSystem::Get_Rasterizer_State(RS_State::Wire));

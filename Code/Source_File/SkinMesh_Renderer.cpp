@@ -21,8 +21,6 @@ using namespace DirectX;
 using namespace BeastEngine;
 
 ComPtr <ID3D11Buffer> SkinMesh_Renderer::constant_buffer_mesh;
-ComPtr <ID3D11Buffer> SkinMesh_Renderer::constant_buffer_color;
-shared_ptr<Shader> SkinMesh_Renderer::shadow_shader;
 
 void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 {
@@ -43,23 +41,6 @@ void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 		bd.StructureByteStride = 0;
 		HRESULT hr = DxSystem::device->CreateBuffer(&bd, nullptr, constant_buffer_mesh.GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
-	}
-	if (!constant_buffer_color)
-	{
-		D3D11_BUFFER_DESC bd = {};
-		bd.Usage = D3D11_USAGE_DYNAMIC;
-		bd.ByteWidth = sizeof(Constant_Buffer_Color);
-		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		bd.MiscFlags = 0;
-		bd.StructureByteStride = 0;
-		HRESULT hr = DxSystem::device->CreateBuffer(&bd, nullptr, constant_buffer_color.GetAddressOf());
-		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
-	}
-
-	if (!shadow_shader)
-	{
-		shadow_shader = Shader::Create("Shader/Standard_Shadow_Shader_VS.hlsl", Shader::Shader_Type::Vertex);
 	}
 
 	if (!compute_shader)
@@ -200,22 +181,8 @@ void SkinMesh_Renderer::Render()
 		DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 		for (auto& subset : mesh->subsets)
 		{
-			//マテリアルコンスタントバッファ
-			DxSystem::device_context->PSSetConstantBuffers(2, 1, constant_buffer_color.GetAddressOf());
-			{
-				UINT subresourceIndex = 0;
-				D3D11_MAPPED_SUBRESOURCE mapped;
-				auto hr = DxSystem::device_context->Map(constant_buffer_color.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
-				if (SUCCEEDED(hr))
-				{
-					memcpy(mapped.pData, &material[subset.material_ID]->color, sizeof(Vector4));
-					DxSystem::device_context->Unmap(constant_buffer_color.Get(), subresourceIndex);
-				}
-			}
-
-			material[subset.material_ID]->Active_Texture(); //PSSetSamplar PSSetShaderResources
-			//シェーダーリソースのバインド
-			material[subset.material_ID]->Active_Shader(); //PSSetShader
+			//マテリアル設定
+			material[subset.material_ID]->Active();
 
 			//ブレンドステート設定
 			if (binding_blend_state != material[subset.material_ID]->blend_state)
@@ -258,13 +225,6 @@ void SkinMesh_Renderer::Render_Shadow()
 		DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 		for (auto& subset : mesh->subsets)
 		{
-			//シェーダーのバインド
-			DxSystem::device_context->GSSetShader(nullptr, nullptr, 0);
-			DxSystem::device_context->PSSetShader(nullptr, nullptr, 0);
-			DxSystem::device_context->HSSetShader(nullptr, nullptr, 0);
-			DxSystem::device_context->DSSetShader(nullptr, nullptr, 0);
-			shadow_shader->Activate();
-			// ↑で設定したリソースを利用してポリゴンを描画する。
 			DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
 		}
 	}

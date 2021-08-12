@@ -9,8 +9,6 @@
 
 namespace BeastEngine
 {
-	class Material;
-
 	class Model_Data
 	{
 	public:
@@ -72,6 +70,6 @@ namespace BeastEngine
 
 		int rootMotionNodeIndex = -1;
 
-		void GetTexture(const FbxSurfaceMaterial* fbx_mat, const char* fbx_tex_type, std::shared_ptr<BeastEngine::Material> mat);
+		void GetTexture(const FbxSurfaceMaterial* fbx_mat, const char* fbx_tex_type);
 	};
 }

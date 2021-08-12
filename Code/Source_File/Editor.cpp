@@ -665,8 +665,8 @@ void Editor::SceneView_Render()
 	Engine::render_manager->scene_texture->Set_Screen_Size((int)window_width, (int)window_height);
 	ImGui::Image((void*)Engine::render_manager->scene_texture->shader_resource_view_render.Get(), ImVec2(window_width, window_height));
 
-	static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
-	static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
+	static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::OPERATION::TRANSLATE);
+	static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::MODE::LOCAL);
 
 	if (ImGui::IsWindowHovered())
 	{
@@ -693,20 +693,20 @@ void Editor::SceneView_Render()
 		if (!ImGui::IsMouseDown(1))
 		{
 			if (ImGui::IsKeyPressed(87)) //w
-				mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+				mCurrentGizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 			if (ImGui::IsKeyPressed(69)) //e
-				mCurrentGizmoOperation = ImGuizmo::ROTATE;
+				mCurrentGizmoOperation = ImGuizmo::OPERATION::ROTATE;
 			if (ImGui::IsKeyPressed(82)) //r
-				mCurrentGizmoOperation = ImGuizmo::SCALE;
+				mCurrentGizmoOperation = ImGuizmo::OPERATION::SCALE;
 			if (ImGui::IsKeyPressed(88)) //x
 			{
-				if (mCurrentGizmoMode == ImGuizmo::LOCAL)
+				if (mCurrentGizmoMode == ImGuizmo::MODE::LOCAL)
 				{
-					mCurrentGizmoMode = ImGuizmo::WORLD;
+					mCurrentGizmoMode = ImGuizmo::MODE::WORLD;
 				}
 				else
 				{
-					mCurrentGizmoMode = ImGuizmo::LOCAL;
+					mCurrentGizmoMode = ImGuizmo::MODE::LOCAL;
 				}
 			}
 		}

@@ -7,8 +7,7 @@
 #include "Material.h"
 #include "Texture.h"
 #include "Mesh.h"
-//#include "Engine.h"
-//#include "FBX_Converter.h"
+#include "Renderer.h"
 using namespace std;
 using namespace BeastEngine;
 using namespace DirectX;
@@ -16,7 +15,7 @@ using namespace DirectX;
 SkyBox::SkyBox()
 {
 	material = Material::Create("Shader\\SkyBox_Shader_VS.hlsl", "Shader\\SkyBox_Shader_PS.hlsl");
-	material->Set_Texture(Material::Texture_Type::Main, "Default_Resource\\Image\\SkyBox\\", "envmap_miramar.dds");
+	material->Set_Texture("cubemap", Texture::Load("Default_Resource\\Image\\SkyBox\\envmap_miramar.dds"));
 
 	constexpr int u_max = 10;
 	constexpr int v_max = 10;
@@ -131,40 +130,17 @@ SkyBox::SkyBox()
 		HRESULT hr = DxSystem::device->CreateBuffer(&bd, &InitData, index_buffer.GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
-
-	// 定数バッファの生成
-	{
-		D3D11_BUFFER_DESC bd = {};
-		bd.Usage = D3D11_USAGE_DYNAMIC;
-		bd.ByteWidth = sizeof(Matrix);
-		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		bd.MiscFlags = 0;
-		bd.StructureByteStride = 0;
-		HRESULT hr = DxSystem::device->CreateBuffer(&bd, nullptr, constant_buffer_skybox.GetAddressOf());
-		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
-	}
 }
 
-void SkyBox::Render(Vector3& pos)
+void SkyBox::Render(const Vector3& pos)
 {
-	//シェーダーリソースのバインド
-	material->texture[static_cast<int>(Material::Texture_Type::Main)]->Set(1);
-	material->Active_Shader();
-
 	// 定数バッファ更新
 	constexpr float sky_dimension = 5000;
-	const Matrix cbSkyBox = Matrix::CreateScale(sky_dimension) * Matrix::CreateTranslation(pos);
+	Matrix world = Matrix::CreateScale(sky_dimension) * Matrix::CreateTranslation(pos);
+	material->Set_Matrix("world", world);
 
-	DxSystem::device_context->VSSetConstantBuffers(1, 1, constant_buffer_skybox.GetAddressOf());
-	UINT subresourceIndex = 0;
-	D3D11_MAPPED_SUBRESOURCE mapped;
-	auto hr = DxSystem::device_context->Map(constant_buffer_skybox.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
-	if (SUCCEEDED(hr))
-	{
-		memcpy(mapped.pData, &cbSkyBox, sizeof(Matrix));
-		DxSystem::device_context->Unmap(constant_buffer_skybox.Get(), subresourceIndex);
-	}
+	//シェーダーリソースのバインド
+	material->Active();
 
 	// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
 	UINT stride = sizeof(Vector3);

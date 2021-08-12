@@ -20,8 +20,6 @@ using namespace std;
 using namespace DirectX;
 using namespace BeastEngine;
 
-shared_ptr<Material> Sprite_Renderer::default_material;
-
 void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 {
 	enabled_old = enabled;
@@ -50,11 +48,6 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 	res.pSysMem = v;
 
 	DxSystem::device->CreateBuffer(&bd, &res, vertex_buffer.GetAddressOf());
-
-	if (!default_material)
-	{
-		default_material = Material::Create("Shader\\2D_Shader_VS.hlsl", "Shader\\2D_Shader_PS.hlsl");
-	}
 
 	if (file_path != "")
 	{
@@ -185,27 +178,22 @@ void Sprite_Renderer::Render()
 		data[2].color = color;
 		data[3].color = color;
 
-		default_material->Active_Shader();
-
 		//	頂点バッファの指定
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
-		DxSystem::device_context->IASetVertexBuffers(
-			0, 1, vertex_buffer.GetAddressOf(), // スロット, 数, バッファ
-			&stride,		// １頂点のサイズ
-			&offset			// 開始位置
-		);
+		DxSystem::device_context->IASetVertexBuffers(0, 1, vertex_buffer.GetAddressOf(), &stride, &offset);
+
 		UINT subresourceIndex = 0;
 		D3D11_MAPPED_SUBRESOURCE mapped;
 		auto hr = DxSystem::device_context->Map(vertex_buffer.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
 		if (SUCCEEDED(hr))
 		{
-			memcpy(mapped.pData, data, sizeof(Vertex) * 4);
+			memcpy(mapped.pData, data, sizeof(data));
 			DxSystem::device_context->Unmap(vertex_buffer.Get(), subresourceIndex);
 		}
 
 		//テクスチャの設定
-		texture->Set(1);
+		texture->Set(1, Shader::Shader_Type::Pixel);
 
 		DxSystem::device_context->Draw(4, 0);
 	}

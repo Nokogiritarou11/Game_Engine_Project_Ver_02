@@ -2,6 +2,8 @@
 #include "DxSystem.h"
 #include "Shader.h"
 #include <unordered_map>
+#include <cstddef>
+#include "cereal/types/unordered_map.hpp"
 
 namespace BeastEngine
 {
@@ -9,73 +11,112 @@ namespace BeastEngine
 	class Mesh_Renderer;
 	class Sprite_Renderer;
 	class SkyBox;
+	class Render_Manager;
 	class Debug_Draw_Manager;
 	class Texture;
 
 	class Material : public BeastEngine::Object
 	{
 	public:
-		std::string name;
-		std::shared_ptr<BeastEngine::Shader> shader[5];
-		std::shared_ptr<BeastEngine::Texture> texture[5];
-
-		BeastEngine::Vector4 color = { 1,1,1,1 };
 		int render_queue = 2000;
-
-		struct Shader_Info
-		{
-			std::string shader_pass;
-			std::string shader_name;
-			std::string shader_fullpass;
-			template<class Archive>
-			void serialize(Archive& archive, std::uint32_t const version)
-			{
-				archive(shader_pass, shader_name, shader_fullpass);
-			}
-		};
-		Shader_Info shader_info[5];
-
-		enum class Texture_Type
-		{
-			Main,
-			Specular,
-			Normal,
-			Height,
-			Emission,
-			//追加したらMaterialのテクスチャ配列と情報配列のサイズ,Active_Texture()を書き換えること
-		};
-		struct Texture_Info
-		{
-			std::string texture_pass;
-			std::string texture_name;
-			std::string texture_fullpass;
-			template<class Archive>
-			void serialize(Archive& archive, std::uint32_t const version)
-			{
-				archive(texture_pass, texture_name, texture_fullpass);
-			}
-		};
-		Texture_Info texture_info[5];
 
 		static std::shared_ptr<Material> Create(const std::string& vertex_path, const std::string& pixel_path = "", const std::string& geometry_path = "");
 		static std::shared_ptr<Material> Load_Material(const std::string& fullpath);
+
 		void Save(const std::string& path = "");
-		void Set_Texture(Texture_Type texture_type, const std::string& filepath, const std::string& filename);
-		void Set_Shader(const std::string& shader_path, BeastEngine::Shader::Shader_Type shader_type);
+		void Set_Shader(const std::string& path, BeastEngine::Shader::Shader_Type shader_type);
+
+		void Set_Texture(const std::string& texture_name, const std::shared_ptr<BeastEngine::Texture>& texture);
+		void Set_Int(const std::string& int_name, int& value);
+		void Set_Float(const std::string& float_name, float& value);
+		void Set_Vector2(const std::string& vector_name, BeastEngine::Vector2& value);
+		void Set_Vector3(const std::string& vector_name, BeastEngine::Vector3& value);
+		void Set_Vector4(const std::string& vector_name, BeastEngine::Vector4& value);
+		void Set_Matrix(const std::string& matrix_name, BeastEngine::Matrix& value);
 
 	private:
+		struct Shader_Info
+		{
+			std::string shader_path;
+			std::shared_ptr<BeastEngine::Shader> shader;
+
+		private:
+			friend class cereal::access;
+			template<class Archive>
+			void serialize(Archive& archive)
+			{
+				archive(shader_path);
+			}
+		};
+
+		struct ConstantBuffer_Info
+		{
+			UINT register_number = 0;
+			std::vector<Shader::Shader_Type> staging_shader;
+			std::vector<std::byte> byte_data;
+			Microsoft::WRL::ComPtr <ID3D11Buffer> constant_buffer;
+
+		private:
+			friend class cereal::access;
+			template<class Archive>
+			void serialize(Archive& archive)
+			{
+				archive(register_number, staging_shader, byte_data);
+			}
+		};
+
+		struct Parameter_Info
+		{
+			Shader::Parameter_Type type;
+			std::string parent_name;
+			UINT size = 0;
+			UINT offset = 0;
+
+		private:
+			friend class cereal::access;
+			template<class Archive>
+			void serialize(Archive& archive)
+			{
+				archive(type, parent_name, size, offset);
+			}
+		};
+
+		struct Texture_Info
+		{
+			UINT register_number = 0;
+			std::vector<Shader::Shader_Type> staging_shader;
+			std::string texture_path;
+			std::shared_ptr<BeastEngine::Texture> texture;
+
+		private:
+			friend class cereal::access;
+			template<class Archive>
+			void serialize(Archive& archive)
+			{
+				archive(register_number, staging_shader, texture_path);
+			}
+		};
+
 		std::string self_save_pass;
+		Shader_Info shader_info[5];
+
+		std::unordered_map<std::string, ConstantBuffer_Info> constant_buffer_info;
+		std::unordered_map<std::string, Parameter_Info> parameter_info;
+		std::unordered_map<std::string, Texture_Info> texture_info;
 
 		BS_State blend_state = BS_State::Off;
 		RS_State rasterizer_state = RS_State::Cull_Back;
 		DS_State depth_stencil_state = DS_State::LEqual;
 
-		void Set_Texture_All();
-		void Set_Shader_All();
-		void Active_Texture(bool Use_Material = true);
-		void Active_Shader();
+		void Reflect_Shader();
+		void Set_Parameter(const std::string& parameter_name, void* value, const Shader::Parameter_Type& type);
+		void Initialize_Texture();
+		void Initialize_Shader();
+		void Active();
+
 		void Draw_ImGui();
 
+		friend class BeastEngine::Render_Manager;
 		friend class BeastEngine::Debug_Draw_Manager;
 		friend class BeastEngine::SkyBox;
 		friend class BeastEngine::SkinMesh_Renderer;
@@ -85,7 +126,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Object>(this), name, color, shader_info, texture_info, blend_state, rasterizer_state, depth_stencil_state, render_queue, self_save_pass);
+			archive(cereal::base_class<BeastEngine::Object>(this), self_save_pass, shader_info, constant_buffer_info, parameter_info, texture_info, render_queue, blend_state, rasterizer_state, depth_stencil_state);
 		}
 	};
 }
@@ -93,5 +134,3 @@ namespace BeastEngine
 CEREAL_REGISTER_TYPE(BeastEngine::Material)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Object, BeastEngine::Material)
 CEREAL_CLASS_VERSION(BeastEngine::Material, 1)
-CEREAL_CLASS_VERSION(BeastEngine::Material::Shader_Info, 1)
-CEREAL_CLASS_VERSION(BeastEngine::Material::Texture_Info, 1)

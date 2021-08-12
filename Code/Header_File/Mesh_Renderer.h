@@ -4,7 +4,7 @@
 namespace BeastEngine
 {
 	class Mesh;
-	class Shader;
+	class Material;
 	class Compute_Shader;
 
 	class Mesh_Renderer : public BeastEngine::Renderer
@@ -32,15 +32,12 @@ namespace BeastEngine
 		};
 
 		Constant_Buffer_Mesh buffer_mesh;
-
 		static Microsoft::WRL::ComPtr <ID3D11Buffer> constant_buffer_mesh;  //コンスタントバッファ(メッシュデータ)
-		static Microsoft::WRL::ComPtr <ID3D11Buffer> constant_buffer_color; //コンスタントバッファ(カラー)
 
 		void Reset();
 
 		std::string file_path;
 
-		static std::shared_ptr<BeastEngine::Shader> shadow_shader;
 		std::shared_ptr<BeastEngine::Compute_Shader> compute_shader;
 		Microsoft::WRL::ComPtr <ID3D11Buffer> vertex_buffer;
 
