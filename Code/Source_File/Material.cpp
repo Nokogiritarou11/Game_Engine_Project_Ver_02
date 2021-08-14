@@ -645,6 +645,14 @@ void Material::Draw_ImGui()
 					Set_Vector4(p_name, r);
 					Save();
 				}
+				ImGui::SameLine(window_width * 0.4f);
+				ImGui::SetNextItemWidth(-FLT_MIN);
+				if (ImGui::DragFloat4("##float4_color", v))
+				{
+					Vector4 r = { v[0], v[1], v[2], v[3] };
+					Set_Vector4(p_name, r);
+					Save();
+				}
 			}
 			else if (info.second.type == Shader::Parameter_Type::MATRIX)
 			{
