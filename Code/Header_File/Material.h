@@ -34,6 +34,14 @@ namespace BeastEngine
 		void Set_Vector4(const std::string& vector_name, BeastEngine::Vector4& value);
 		void Set_Matrix(const std::string& matrix_name, BeastEngine::Matrix& value);
 
+		std::shared_ptr<BeastEngine::Texture> Get_Texture(const std::string& texture_name);
+		int Get_Int(const std::string& int_name);
+		float Get_Float(const std::string& float_name);
+		BeastEngine::Vector2 Get_Vector2(const std::string& vector_name);
+		BeastEngine::Vector3 Get_Vector3(const std::string& vector_name);
+		BeastEngine::Vector4 Get_Vector4(const std::string& vector_name);
+		BeastEngine::Matrix Get_Matrix(const std::string& matrix_name);
+
 	private:
 		struct Shader_Info
 		{
@@ -109,6 +117,7 @@ namespace BeastEngine
 		DS_State depth_stencil_state = DS_State::LEqual;
 
 		void Reflect_Shader();
+		void Create_ConstantBuffer(ConstantBuffer_Info& info, const UINT& size);
 		void Set_Parameter(const std::string& parameter_name, void* value, const Shader::Parameter_Type& type);
 		void Initialize_Texture();
 		void Initialize_Shader();
