@@ -10,12 +10,12 @@ Shadow_Manager::Shadow_Manager()
 {
 	Set_Shadow_Map_Texture_Size(shadow_map_texture_size);
 	material_shadow = Material::Create("Shader/Standard_Shadow_Shader_VS.hlsl", "Shader/Standard_Shadow_Shader_PS.hlsl");
-	gaussian_filter = make_unique<Gaussian_Filter>(Vector2(static_cast<float>(shadow_map_texture_size), static_cast<float>(shadow_map_texture_size)), DXGI_FORMAT_R32G32_FLOAT, 0.1f);
+	gaussian_filter = make_unique<Gaussian_Filter>(Vector2(static_cast<float>(shadow_map_texture_size), static_cast<float>(shadow_map_texture_size)), DXGI_FORMAT_R32G32_FLOAT, 0.05f);
 
 	//	サンプラステート作成
-	float boarderColor[4] = { FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX };
+	float boarderColor[4] = {0,0,0,0 };
 	D3D11_SAMPLER_DESC sd = {};
-	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;	  // 異方性フィルタ
+	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 	sd.AddressU = D3D11_TEXTURE_ADDRESS_BORDER; // U
 	sd.AddressV = D3D11_TEXTURE_ADDRESS_BORDER; // V
 	sd.AddressW = D3D11_TEXTURE_ADDRESS_BORDER; // W

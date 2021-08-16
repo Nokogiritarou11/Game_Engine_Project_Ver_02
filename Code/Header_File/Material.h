@@ -116,7 +116,7 @@ namespace BeastEngine
 
 		BS_State blend_state = BS_State::Off;
 		RS_State rasterizer_state = RS_State::Cull_Back;
-		DS_State depth_stencil_state = DS_State::LEqual;
+		DS_State depth_stencil_state = DS_State::GEqual;
 
 		void Reflect_Shader();
 		void Create_ConstantBuffer(ConstantBuffer_Info& info, const UINT& size);

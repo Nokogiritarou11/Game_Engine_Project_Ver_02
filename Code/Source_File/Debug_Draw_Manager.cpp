@@ -123,7 +123,7 @@ void Debug_Draw_Manager::Render_Grid(shared_ptr<Transform>& trans)
 	UINT offset = 0;
 	DxSystem::device_context->IASetVertexBuffers(0, 1, grid_vertex_buffer.GetAddressOf(), &stride, &offset);
 
-	DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(DS_State::Less_No_Write), 1);
+	DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(DS_State::GEqual_No_Write), 1);
 
 	//•`‰æ
 	DxSystem::device_context->Draw(count[0] * 4, 0);

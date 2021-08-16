@@ -25,17 +25,19 @@ void Camera::Update(float screen_x, float screen_y)
 	static const Matrix reverse = { 1,0,0,0,
 									0,1,0,0,
 									0,0,-1,0,
-									0,0,0,1 };
+									0,0,1,1 };
 
 	if (is_orthographic)
 	{
 		projection_matrix = XMMatrixOrthographicRH(orthographic_size, orthographic_size, near_z, far_z);
+		projection_matrix = projection_matrix * reverse;
 	}
 	else
 	{
 		float fov_y = XMConvertToRadians(fov);	// ‰æŠp
 		float aspect = screen_x / screen_y;	// ‰æ–Ê”ä—¦
 		projection_matrix = XMMatrixPerspectiveFovRH(fov_y, aspect, near_z, far_z);
+		projection_matrix = projection_matrix * reverse;
 		Engine::particle_manager->Camera_Update(transform, fov_y, near_z, far_z, aspect);
 	}
 

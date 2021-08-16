@@ -16,7 +16,7 @@ void Render_Texture::Clear()
 {
 	float clearColor[4] = { 0,1,0,0 };
 	DxSystem::device_context->ClearRenderTargetView(render_target_view.Get(), clearColor);
-	DxSystem::device_context->ClearDepthStencilView(depth_stencil_view.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	DxSystem::device_context->ClearDepthStencilView(depth_stencil_view.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 0, 0);
 }
 
 void Render_Texture::Set_Screen_Size(const int& x, const int& y)

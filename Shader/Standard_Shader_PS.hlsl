@@ -59,9 +59,10 @@ float4 main(VS_OUT pin) : SV_TARGET
     float variance = d.y - d_sq; // σ^2 = E(x^2) - E(x^2)
 
     // 確率上の最大値の算出
-    float p_max = saturate((variance) / (variance + ((pin.sdwcoord.z - d.x) * (pin.sdwcoord.z - d.x))));
+    float md = d.x - pin.sdwcoord.z;
+    float p_max = saturate(variance / (variance + (md * md)));
     // 影の色
-    float3 shadowColor = max(pin.sdwcoord.z < d.x, lerp(float3(0.75f, 0.75f, 0.75f), 1.0f, p_max));
+    float3 shadowColor = max(pin.sdwcoord.z > d.x, lerp(float3(0.75f, 0.75f, 0.75f), 1.0f, p_max));
 
     float3 Ka = mapdiff.rgb * (1 - diffuse_factor) * 0.8;
     float3 Kd = mapdiff.rgb * diffuse_factor * 1.5f;

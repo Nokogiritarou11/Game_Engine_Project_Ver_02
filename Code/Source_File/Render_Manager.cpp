@@ -391,8 +391,8 @@ void Render_Manager::Render_Shadow_Directional(const Vector3& color, const float
 	DxSystem::device_context->RSSetState(DxSystem::Get_Rasterizer_State(RS_State::Cull_Back));
 	Renderer::binding_rasterizer_state = RS_State::Cull_Back;
 	//デプスステンシルステート設定
-	DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(DS_State::LEqual), 1);
-	Renderer::binding_depth_stencil_State = DS_State::LEqual;
+	DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(DS_State::GEqual), 1);
+	Renderer::binding_depth_stencil_State = DS_State::GEqual;
 
 	Culling_Renderer(shadow_camera->transform->Get_Position(), shadow_camera->frustum_planes);
 	Sort_Renderer();
