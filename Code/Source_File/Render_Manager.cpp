@@ -25,8 +25,8 @@ using Microsoft::WRL::ComPtr;
 
 Render_Manager::Render_Manager()
 {
-	scene_texture = make_unique<Render_Texture>();
-	game_texture = make_unique<Render_Texture>();
+	scene_texture = make_unique<Render_Texture>(1920, 1080, true, DXGI_FORMAT_R16G16B16A16_UNORM);
+	game_texture = make_unique<Render_Texture>(1920, 1080, true, DXGI_FORMAT_R16G16B16A16_UNORM);
 	skybox = make_unique<SkyBox>();
 
 	// 定数バッファの生成
@@ -48,7 +48,6 @@ Render_Manager::Render_Manager()
 	shadow_camera->is_orthographic = true;
 
 	//デフォルトマテリアル
-	shadow_material = Material::Create("Shader/Standard_Shadow_Shader_VS.hlsl");
 	sprite_material = Material::Create("Shader\\2D_Shader_VS.hlsl", "Shader\\2D_Shader_PS.hlsl");
 }
 
@@ -184,7 +183,6 @@ void Render_Manager::Render_Scene()
 	//通常描画
 	{
 		scene_texture->Set_Render_Target();
-		scene_texture->Clear();
 		// シーン用定数バッファ更新
 		buffer_scene.view_projection_matrix = Engine::editor->debug_camera->view_projection_matrix;
 		DxSystem::device_context->VSSetConstantBuffers(0, 1, constant_buffer_scene.GetAddressOf());
@@ -220,7 +218,6 @@ void Render_Manager::Render_Game()
 					//通常描画
 #if _DEBUG
 					game_texture->Set_Render_Target();
-					game_texture->Clear();
 #else
 						// レンダーターゲットビュー設定
 					DxSystem::Set_Default_View();
@@ -383,6 +380,7 @@ void Render_Manager::Render_Shadow_Directional(const Vector3& color, const float
 	DxSystem::device_context->VSSetConstantBuffers(0, 1, constant_buffer_scene.GetAddressOf());
 	Update_Constant_Buffer();
 
+	//シャドウ用ステージング
 	Engine::shadow_manager->Set_Shadow_Map_Texture();
 	//トポロジー設定
 	DxSystem::device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -393,13 +391,11 @@ void Render_Manager::Render_Shadow_Directional(const Vector3& color, const float
 	DxSystem::device_context->RSSetState(DxSystem::Get_Rasterizer_State(RS_State::Cull_Back));
 	Renderer::binding_rasterizer_state = RS_State::Cull_Back;
 	//デプスステンシルステート設定
-	DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(DS_State::Less), 1);
-	Renderer::binding_depth_stencil_State = DS_State::Less;
+	DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(DS_State::LEqual), 1);
+	Renderer::binding_depth_stencil_State = DS_State::LEqual;
 
 	Culling_Renderer(shadow_camera->transform->Get_Position(), shadow_camera->frustum_planes);
 	Sort_Renderer();
-
-	shadow_material->Active();
 
 	shared_ptr<Renderer> p_rend = nullptr;
 	for (auto& r : opaque_list)
@@ -414,6 +410,11 @@ void Render_Manager::Render_Shadow_Directional(const Vector3& color, const float
 		}
 	}
 	opaque_list.clear();
+
+	//ラスタライザ―設定
+	DxSystem::device_context->RSSetState(DxSystem::Get_Rasterizer_State(RS_State::Cull_None));
+	Renderer::binding_rasterizer_state = RS_State::Cull_None;
+	Engine::shadow_manager->Filtering_Gaussian();
 }
 
 void Render_Manager::Update_Constant_Buffer()

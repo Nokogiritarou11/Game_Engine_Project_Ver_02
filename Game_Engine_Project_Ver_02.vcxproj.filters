@@ -15,6 +15,11 @@
     <FxCompile Include="Shader\Mesh_CS.hlsl" />
     <FxCompile Include="Shader\Standard_Shader_VS.hlsl" />
     <FxCompile Include="Shader\Standard_Shadow_Shader_VS.hlsl" />
+    <FxCompile Include="Shader\Standard_Shadow_Shader_PS.hlsl" />
+    <FxCompile Include="Shader\Gaussian_Shader_x_VS.hlsl" />
+    <FxCompile Include="Shader\Gaussian_Shader_y_VS.hlsl" />
+    <FxCompile Include="Shader\Gaussian_Shader_x_PS.hlsl" />
+    <FxCompile Include="Shader\Gaussian_Shader_y_PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Source_File\Object.cpp" />
@@ -93,6 +98,7 @@
     <ClCompile Include="Code\Source_File\Sphere_Collider.cpp" />
     <ClCompile Include="Code\Source_File\Capsule_Collider.cpp" />
     <ClCompile Include="Code\Source_File\Compute_Shader.cpp" />
+    <ClCompile Include="Code\Source_File\Gaussian_Filter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -289,10 +295,12 @@
     <ClInclude Include="Code\Header_File\Capsule_Collider.h" />
     <ClInclude Include="Code\Header_File\Project_Settings.h" />
     <ClInclude Include="Code\Header_File\Compute_Shader.h" />
+    <ClInclude Include="Code\Header_File\Gaussian_Filter.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />
     <None Include="Script\Header\MonoBehaviour_Example.h" />
     <None Include="Script\Source\MonoBehaviour_Example.cpp" />
+    <None Include="Shader\Gaussian_Shader.hlsli" />
   </ItemGroup>
 </Project>

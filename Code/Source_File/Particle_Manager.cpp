@@ -63,8 +63,9 @@ void Particle_Manager::Camera_Update(std::shared_ptr<Transform>& camera_trans, f
 	auto g_position = ::Effekseer::Vector3D(pos.x, pos.y, pos.z);
 
 	// “Š‰es—ñ‚ðÝ’è
-	renderer->SetProjectionMatrix(::Effekseer::Matrix44().PerspectiveFovRH(
-		FOV, aspect, near_z, far_z));
+	static const ::Effekseer::Matrix44 reverse = {};
+
+	renderer->SetProjectionMatrix(::Effekseer::Matrix44().PerspectiveFovRH(FOV, aspect, near_z, far_z));
 
 	Vector3 focus = pos + camera_trans->Get_Forward();
 	auto g_focus = ::Effekseer::Vector3D(focus.x, focus.y, focus.z);
@@ -93,10 +94,10 @@ void Particle_Manager::Update()
 				{
 					Effekseer::Matrix43 mat;
 					Matrix m = p_eff->transform->Get_World_Matrix();
-					mat.Value[0][0] = m._11;mat.Value[0][1] = m._12;mat.Value[0][2] = m._13;
-					mat.Value[1][0] = m._21;mat.Value[1][1] = m._22;mat.Value[1][2] = m._23;
-					mat.Value[2][0] = m._31;mat.Value[2][1] = m._32;mat.Value[2][2] = m._33;
-					mat.Value[3][0] = m._41;mat.Value[3][1] = m._42;mat.Value[3][2] = m._43;
+					mat.Value[0][0] = m._11; mat.Value[0][1] = m._12; mat.Value[0][2] = m._13;
+					mat.Value[1][0] = m._21; mat.Value[1][1] = m._22; mat.Value[1][2] = m._23;
+					mat.Value[2][0] = m._31; mat.Value[2][1] = m._32; mat.Value[2][2] = m._33;
+					mat.Value[3][0] = m._41; mat.Value[3][1] = m._42; mat.Value[3][2] = m._43;
 					manager->SetBaseMatrix(p_eff->handle, mat);
 					manager->SetSpeed(p_eff->handle, p_eff->play_speed);
 				}

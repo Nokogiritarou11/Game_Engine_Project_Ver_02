@@ -29,9 +29,9 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 	transform = obj->transform;
 
 	Vertex v[] = {
-		Vector3(-0.5f, 0.5f,0),  Vector2(0,0), Vector4(1,1,1,1), //左上
+		Vector3(-0.5f, 0.5f,0), Vector2(0,0), Vector4(1,1,1,1), //左上
 		Vector3(0.5f, 0.5f,0),  Vector2(1,0), Vector4(1,1,1,1), //右上
-		Vector3(-0.5f,-0.5f,0),  Vector2(0,1), Vector4(1,1,1,1), //左下
+		Vector3(-0.5f,-0.5f,0), Vector2(0,1), Vector4(1,1,1,1), //左下
 		Vector3(0.5f,-0.5f,0),  Vector2(1,1), Vector4(1,1,1,1), //右下
 	};
 
@@ -237,8 +237,8 @@ bool Sprite_Renderer::Draw_ImGui()
 			string path = System_Function::Get_Open_File_Name("png", "\\Resouces\\Image");
 			if (path != "")
 			{
-				int path_i = path.find_last_of("\\") + 1;//7
-				int ext_i = path.find_last_of(".");//10
+				int path_i = path.find_last_of("\\") + 1;
+				int ext_i = path.find_last_of(".");
 				string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
 				string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
 				string filename = path.substr(path_i, ext_i - path_i); //ファイル名

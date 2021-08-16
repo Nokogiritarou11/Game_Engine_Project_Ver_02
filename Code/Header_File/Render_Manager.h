@@ -34,7 +34,6 @@ namespace BeastEngine
 		std::unique_ptr<BeastEngine::Render_Texture> game_texture;
 
 		std::shared_ptr<BeastEngine::Material> sprite_material;
-		std::shared_ptr<BeastEngine::Material> shadow_material;
 
 	private:
 		struct Render_Obj

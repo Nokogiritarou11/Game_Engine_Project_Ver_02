@@ -562,6 +562,34 @@ void Material::Draw_ImGui()
 	{
 		const float window_width = ImGui::GetWindowContentRegionWidth();
 
+		if (ImGui::TreeNode(u8"シェーダー"))
+		{
+			static const char* s_name[] = { "VS : ", "GS : ", "PS : ", "HS : ", "DS : " };
+			for (size_t i = 0; i < 5; ++i)
+			{
+				ImGui::PushID(i);
+				const string& path = shader_info[i].shader_path;
+				const int& path_i = path.find_last_of("\\") + 1;
+				const string& filename = path.substr(path_i, path.size()); //ファイル名
+
+				ImGui::Text(s_name[i]);
+				ImGui::SameLine();
+				ImGui::Text(filename.c_str());
+				ImGui::SameLine(window_width - 25.0f);
+				if (ImGui::Button(u8"選択"))
+				{
+					const string& path = System_Function::Get_Open_File_Name("png", "\\Resouces\\Image");
+					if (path != "")
+					{
+						Set_Shader(path, static_cast<Shader::Shader_Type>(i));
+						Save();
+					}
+				}
+				ImGui::PopID();
+			}
+			ImGui::TreePop();
+		}
+
 		//テクスチャ
 		const ImVec2& size = ImVec2(100.0f, 100.0f);
 		const ImVec2& uv0 = ImVec2(0.0f, 0.0f);
@@ -645,6 +673,7 @@ void Material::Draw_ImGui()
 					Set_Vector4(p_name, r);
 					Save();
 				}
+				ImGui::Dummy({ 0,0 });
 				ImGui::SameLine(window_width * 0.4f);
 				ImGui::SetNextItemWidth(-FLT_MIN);
 				if (ImGui::DragFloat4("##float4_color", v))

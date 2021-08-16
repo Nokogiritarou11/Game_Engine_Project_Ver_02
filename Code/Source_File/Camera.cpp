@@ -22,6 +22,11 @@ void Camera::Initialize(std::shared_ptr<GameObject> obj)
 void Camera::Update(float screen_x, float screen_y)
 {
 	// プロジェクション行列を作成
+	static const Matrix reverse = { 1,0,0,0,
+									0,1,0,0,
+									0,0,-1,0,
+									0,0,0,1 };
+
 	if (is_orthographic)
 	{
 		projection_matrix = XMMatrixOrthographicRH(orthographic_size, orthographic_size, near_z, far_z);

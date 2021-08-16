@@ -74,7 +74,7 @@ void Shader::Reflect_Resource_Buffer(const ComPtr<ID3D11ShaderReflection>& refle
 					D3D11_SHADER_TYPE_DESC tdesc;
 					t->GetDesc(&tdesc);
 
-					Parameter_Type type;
+					Parameter_Type type = Parameter_Type::INT;
 					if (tdesc.Class == D3D10_SVC_SCALAR)
 					{
 						if (tdesc.Type == D3D10_SVT_INT || tdesc.Type == D3D10_SVT_UINT) { type = Parameter_Type::INT; }

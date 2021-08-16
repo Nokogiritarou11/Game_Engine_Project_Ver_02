@@ -10,8 +10,10 @@ namespace BeastEngine
 	class SkinMesh_Renderer;
 	class Mesh_Renderer;
 	class Sprite_Renderer;
+	class Gaussian_Filter;
 	class SkyBox;
 	class Render_Manager;
+	class Shadow_Manager;
 	class Debug_Draw_Manager;
 	class Texture;
 
@@ -126,7 +128,9 @@ namespace BeastEngine
 		void Draw_ImGui();
 
 		friend class BeastEngine::Render_Manager;
+		friend class BeastEngine::Shadow_Manager;
 		friend class BeastEngine::Debug_Draw_Manager;
+		friend class BeastEngine::Gaussian_Filter;
 		friend class BeastEngine::SkyBox;
 		friend class BeastEngine::SkinMesh_Renderer;
 		friend class BeastEngine::Mesh_Renderer;

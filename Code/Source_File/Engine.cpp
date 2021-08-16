@@ -20,6 +20,7 @@
 #include "Editor.h"
 #include "Render_Texture.h"
 #include "SkyBox.h"
+#include "Gaussian_Filter.h"
 #include "System_Function.h"
 #include "Project_Settings.h"
 using namespace std;
