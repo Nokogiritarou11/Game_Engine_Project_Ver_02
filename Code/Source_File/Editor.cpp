@@ -954,8 +954,12 @@ void Editor::Scene_Setting_Menu_Render()
 					Engine::shadow_manager->shadow_bias = settings->shadow_bias;
 					Engine::scene_manager->Save_Settings();
 				}
-				if (ImGui::DragFloat(u8"‹——£", &settings->shadow_distance, 0.1f, 0.1f))
+				if (ImGui::DragFloat(u8"‹——£", &settings->shadow_distance, 0.1f, 1.0f))
 				{
+					if (settings->shadow_distance <= 0)
+					{
+						settings->shadow_distance = 1;
+					}
 					Engine::shadow_manager->shadow_distance = settings->shadow_distance;
 					Engine::scene_manager->Save_Settings();
 				}

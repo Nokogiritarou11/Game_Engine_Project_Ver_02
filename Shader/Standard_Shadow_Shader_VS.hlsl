@@ -6,11 +6,14 @@ struct VS_SHADOW_OUT
     float4 depth : TEXCOORD; //ê[ìxíl
 };
 
-VS_SHADOW_OUT main(VERTEX input)
+// í∏ì_èÓïÒ
+StructuredBuffer<VERTEX> vertex : register(t0);
+
+VS_SHADOW_OUT main(uint index : SV_VertexID)
 {
     VS_SHADOW_OUT vout;
 
-    vout.position = mul(viewProjection, float4(input.position, 1.0f));
+    vout.position = mul(viewProjection, float4(vertex[index].position, 1.0f));
     vout.depth = vout.position;
 
     return vout;

@@ -46,26 +46,22 @@ float4 main(VS_OUT pin) : SV_TARGET
     float diffuse_factor = saturate(dot(N, L));
     diffuse_factor = diffuse_factor * diffuse_factor;
 
-	// ƒVƒƒƒhƒEƒ}ƒbƒv‚Ì[“x’l‚Æ”äŠr‚·‚é.
-    /*
-    float3 shadowCoord = pin.sdwcoord.xyz / pin.sdwcoord.w;
-    float3 shadowColor = float3(0.75f, 0.75f, 0.75f);
-    float shadowThreshold = shadowMap.SampleCmpLevelZero(ShadowMapSamplerState, shadowCoord.xy, shadowCoord.z);
-    shadowColor = lerp(shadowColor, float3(1.0f, 1.0f, 1.0f), shadowThreshold);
-    */
     float2 d = shadowMap.Sample(ShadowMapSamplerState, pin.sdwcoord.xy).rg;
     // •ªŽU‚ÌŒvŽZ
     float d_sq = d.x * d.x; // E(x)^2
-    float variance = d.y - d_sq; // ƒÐ^2 = E(x^2) - E(x^2)
+    float variance = max(bias, d.y - d_sq); // ƒÐ^2 = E(x^2) - E(x^2)
 
     // Šm—¦ã‚ÌÅ‘å’l‚ÌŽZo
     float md = d.x - pin.sdwcoord.z;
     float p_max = saturate(variance / (variance + (md * md)));
-    // ‰e‚ÌF
-    float3 shadowColor = max(pin.sdwcoord.z > d.x, lerp(float3(0.75f, 0.75f, 0.75f), 1.0f, p_max));
 
-    float3 Ka = mapdiff.rgb * (1 - diffuse_factor) * 0.8;
-    float3 Kd = mapdiff.rgb * diffuse_factor * 1.5f;
+    p_max = ReduceLightBleeding(p_max, 0.9f);
+
+    // ‰e‚ÌF
+    float3 shadowColor = max(pin.sdwcoord.z >= d.x, lerp(float3(0.85f, 0.85f, 0.85f), 1.0f, p_max));
+
+    float3 Ka = mapdiff.rgb * (1 - diffuse_factor) * 0.8f;
+    float3 Kd = mapdiff.rgb * diffuse_factor * 1.2f;
     outcolor.rgb = (Ka + Kd) * shadowColor;
     outcolor.a = mapdiff.a;
 

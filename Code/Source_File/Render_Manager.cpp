@@ -360,8 +360,8 @@ void Render_Manager::Render_Shadow_Directional(const Vector3& color, const float
 {
 	shadow_camera->orthographic_size = Engine::shadow_manager->shadow_distance;
 
-	const Vector3 Look_pos = camera_transform->Get_Position() + camera_transform->Get_Forward() * (Engine::shadow_manager->shadow_distance * 0.5f);
-	shadow_camera->transform->Set_Position(Look_pos - light_transform->Get_Forward() * 800.0f);
+	const Vector3 Look_pos = camera_transform->Get_Position() + camera_transform->Get_Forward() * (Engine::shadow_manager->shadow_distance * 0.5f); shadow_camera->transform->Set_Position(Look_pos - light_transform->Get_Forward() * 50.0f);
+	shadow_camera->far_z = 100;
 	shadow_camera->transform->Set_Rotation(shadow_camera->transform->Look_At(Look_pos));
 	shadow_camera->Update(0, 0);
 

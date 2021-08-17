@@ -21,7 +21,7 @@ namespace BeastEngine
 		};
 		struct Constant_Buffer_Color
 		{
-			BeastEngine::Vector4	material_color;
+			BeastEngine::Vector4 material_color;
 		};
 
 		static Microsoft::WRL::ComPtr <ID3D11Buffer> constant_buffer_mesh;  //コンスタントバッファ(メッシュデータ)
@@ -41,9 +41,7 @@ namespace BeastEngine
 		void Reset();
 
 		std::string file_path;
-
 		std::shared_ptr<BeastEngine::Compute_Shader> compute_shader;
-		Microsoft::WRL::ComPtr <ID3D11Buffer> vertex_buffer;
 
 		friend class FBX_Converter;
 		friend class Animator;

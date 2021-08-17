@@ -37,9 +37,7 @@ namespace BeastEngine
 		void Reset();
 
 		std::string file_path;
-
 		std::shared_ptr<BeastEngine::Compute_Shader> compute_shader;
-		Microsoft::WRL::ComPtr <ID3D11Buffer> vertex_buffer;
 
 		friend class FBX_Converter;
 		friend class cereal::access;

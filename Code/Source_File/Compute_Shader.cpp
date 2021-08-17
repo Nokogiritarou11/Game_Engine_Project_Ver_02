@@ -130,6 +130,7 @@ void Compute_Shader::Create_Buffer_Result(UINT size, UINT count, void* init_data
 		assert(SUCCEEDED(hr));
 	}
 
+	//UAV
 	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
 	memset(&uavDesc, 0, sizeof(uavDesc));
 
@@ -140,6 +141,18 @@ void Compute_Shader::Create_Buffer_Result(UINT size, UINT count, void* init_data
 
 	hr = DxSystem::device->CreateUnorderedAccessView(buffer_result.Get(), &uavDesc, uav_result.GetAddressOf());
 	assert(SUCCEEDED(hr));
+
+	//SRV
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	memset(&srvDesc, 0, sizeof(srvDesc));
+
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
+	srvDesc.BufferEx.FirstElement = 0;
+	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	srvDesc.BufferEx.NumElements = count;
+
+	hr = DxSystem::device->CreateShaderResourceView(buffer_result.Get(), &srvDesc, srv_result.GetAddressOf());
+	assert(SUCCEEDED(hr));
 }
 
 void Compute_Shader::Run()
@@ -148,7 +161,10 @@ void Compute_Shader::Run()
 	DxSystem::device_context->CSSetShader(cs.Get(), NULL, 0);
 	DxSystem::device_context->CSSetShaderResources(0, 1, srv_input.GetAddressOf());
 	DxSystem::device_context->CSSetUnorderedAccessViews(0, 1, uav_result.GetAddressOf(), 0);
-	DxSystem::device_context->Dispatch(128, 1, 1);
+	DxSystem::device_context->Dispatch(256, 1, 1);
+
+	ID3D11UnorderedAccessView* const pUAV[1] = { NULL };
+	DxSystem::device_context->CSSetUnorderedAccessViews(0, 1, pUAV, 0);
 }
 
 ComPtr<ID3D11Buffer> Compute_Shader::Get_Copy_Buffer()

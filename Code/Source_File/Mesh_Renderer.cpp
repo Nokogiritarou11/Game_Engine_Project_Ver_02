@@ -92,25 +92,7 @@ void Mesh_Renderer::Recalculate_Frame()
 				DxSystem::device_context->Unmap(constant_buffer_mesh.Get(), subresourceIndex);
 			}
 		}
-
 		compute_shader->Run();
-		{
-			HRESULT hr;
-			UINT subresourceIndex = 0;
-			D3D11_MAPPED_SUBRESOURCE mapped_v, mapped_c;
-			hr = DxSystem::device_context->Map(vertex_buffer.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped_v);
-			if (SUCCEEDED(hr))
-			{
-				ComPtr<ID3D11Buffer>& buf = compute_shader->Get_Copy_Buffer();
-				hr = DxSystem::device_context->Map(buf.Get(), subresourceIndex, D3D11_MAP_READ, 0, &mapped_c);
-				if (SUCCEEDED(hr))
-				{
-					memcpy(mapped_v.pData, mapped_c.pData, sizeof(Mesh::vertex_default_buffer) * mesh->vertices.size());
-					DxSystem::device_context->Unmap(buf.Get(), subresourceIndex);
-				}
-				DxSystem::device_context->Unmap(vertex_buffer.Get(), subresourceIndex);
-			}
-		}
 
 		//AABB更新
 		world_old = transform->Get_World_Matrix();
@@ -137,19 +119,6 @@ void Mesh_Renderer::Set_Mesh(shared_ptr<Mesh> mesh_data)
 			compute_shader->Create_Buffer_Input(sizeof(Mesh::vertex), mesh->vertices.size(), &mesh->vertices[0]);
 			compute_shader->Create_Buffer_Result(sizeof(Mesh::vertex_default_buffer), mesh->vertices.size(), nullptr);
 
-			//	頂点バッファ作成
-			D3D11_BUFFER_DESC bd;
-			ZeroMemory(&bd, sizeof(bd));
-			bd.Usage = D3D11_USAGE_DYNAMIC;
-			bd.ByteWidth = sizeof(Mesh::vertex_default_buffer) * mesh->vertices.size();
-			bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-			bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-			D3D11_SUBRESOURCE_DATA InitData = {};
-			InitData.pSysMem = &mesh->vertices[0]; // 頂点のアドレス
-			InitData.SysMemPitch = 0;
-			InitData.SysMemSlicePitch = 0;
-			DxSystem::device->CreateBuffer(&bd, &InitData, vertex_buffer.GetAddressOf());
-
 			//AABB
 			bounds = mesh->boundingbox;
 			Set_Active(Get_Enabled());
@@ -167,9 +136,6 @@ void Mesh_Renderer::Render()
 		}
 
 		// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
-		UINT stride = sizeof(Mesh::vertex_default_buffer);
-		UINT offset = 0;
-		DxSystem::device_context->IASetVertexBuffers(0, 1, vertex_buffer.GetAddressOf(), &stride, &offset);
 		DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 		for (auto& subset : mesh->subsets)
 		{
@@ -195,6 +161,7 @@ void Mesh_Renderer::Render()
 				binding_depth_stencil_State = material[subset.material_ID]->depth_stencil_state;
 			}
 
+			DxSystem::device_context->VSSetShaderResources(0, 1, compute_shader->Get_SRV().GetAddressOf());
 			// ↑で設定したリソースを利用してポリゴンを描画する。
 			DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
 		}
@@ -211,12 +178,10 @@ void Mesh_Renderer::Render_Shadow()
 		}
 
 		// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
-		UINT stride = sizeof(Mesh::vertex_default_buffer);
-		UINT offset = 0;
-		DxSystem::device_context->IASetVertexBuffers(0, 1, vertex_buffer.GetAddressOf(), &stride, &offset);
 		DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 		for (auto& subset : mesh->subsets)
 		{
+			DxSystem::device_context->VSSetShaderResources(0, 1, compute_shader->Get_SRV().GetAddressOf());
 			DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
 		}
 	}

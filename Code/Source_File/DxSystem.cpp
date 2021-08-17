@@ -88,7 +88,7 @@ HRESULT DxSystem::Create_Device()
 	}
 	else
 		DXGI_debug->ReportLiveObjects(DXGI_DEBUG_D3D11, DXGI_DEBUG_RLO_DETAIL);
-	*/
+		*/
 #endif
 	///*
 	//Žg—p‰Â”\‚ÈMSAA‚ðŽæ“¾
