@@ -11,7 +11,7 @@ using namespace std;
 Particle_Manager::Particle_Manager()
 {
 	// エフェクトのレンダラーの作成
-	renderer = EffekseerRendererDX11::Renderer::Create(DxSystem::device.Get(), DxSystem::device_context.Get(), 8000);
+	renderer = EffekseerRendererDX11::Renderer::Create(DxSystem::device.Get(), DxSystem::device_context.Get(), 8000, D3D11_COMPARISON_GREATER_EQUAL, true);
 
 	// エフェクトのマネージャーの作成
 	manager = Effekseer::Manager::Create(8000);
@@ -29,6 +29,23 @@ Particle_Manager::Particle_Manager()
 	manager->SetTextureLoader(renderer->CreateTextureLoader());
 	manager->SetModelLoader(renderer->CreateModelLoader());
 	manager->SetMaterialLoader(renderer->CreateMaterialLoader());
+
+	reverse.Values[0][0] = 1.0f;
+	reverse.Values[0][1] = 0.0f;
+	reverse.Values[0][2] = 0.0f;
+	reverse.Values[0][3] = 0.0f;
+	reverse.Values[1][0] = 0.0f;
+	reverse.Values[1][1] = 1.0f;
+	reverse.Values[1][2] = 0.0f;
+	reverse.Values[1][3] = 0.0f;
+	reverse.Values[2][0] = 0.0f;
+	reverse.Values[2][1] = 0.0f;
+	reverse.Values[2][2] = -1.0f;
+	reverse.Values[2][3] = 0.0f;
+	reverse.Values[3][0] = 0.0f;
+	reverse.Values[3][1] = 0.0f;
+	reverse.Values[3][2] = 1.0f;
+	reverse.Values[3][3] = 1.0f;
 }
 
 Particle_Manager::~Particle_Manager()
@@ -43,11 +60,6 @@ Particle_Manager::~Particle_Manager()
 		manager.Reset();
 		manager = nullptr;
 	}
-	for (auto pair : effect_cache)
-	{
-		pair.second->Release();
-		pair.second = nullptr;
-	}
 }
 
 void Particle_Manager::Add(weak_ptr<Particle> particle)
@@ -60,22 +72,22 @@ void Particle_Manager::Camera_Update(std::shared_ptr<Transform>& camera_trans, f
 	Vector3 pos = camera_trans->Get_Position();
 
 	// 視点位置を確定
-	auto g_position = ::Effekseer::Vector3D(pos.x, pos.y, pos.z);
+	auto g_position = Effekseer::Vector3D(pos.x, pos.y, pos.z);
 
 	// 投影行列を設定
-	static const ::Effekseer::Matrix44 reverse = {};
-
-	renderer->SetProjectionMatrix(::Effekseer::Matrix44().PerspectiveFovRH(FOV, aspect, near_z, far_z));
+	Effekseer::Matrix44 perspective;
+	Effekseer::Matrix44::Mul(perspective, Effekseer::Matrix44().PerspectiveFovRH(FOV, aspect, near_z, far_z), reverse);
+	renderer->SetProjectionMatrix(Effekseer::Matrix44().PerspectiveFovRH(FOV, aspect, near_z, far_z));
 
 	Vector3 focus = pos + camera_trans->Get_Forward();
-	auto g_focus = ::Effekseer::Vector3D(focus.x, focus.y, focus.z);
+	auto g_focus = Effekseer::Vector3D(focus.x, focus.y, focus.z);
 
 	Vector3 up = camera_trans->Get_Up();
-	auto g_up = ::Effekseer::Vector3D(up.x, up.y, up.z);
+	auto g_up = Effekseer::Vector3D(up.x, up.y, up.z);
 
 	// カメラ行列を設定
 	renderer->SetCameraMatrix(
-		::Effekseer::Matrix44().LookAtRH(g_position, g_focus, g_up));
+		Effekseer::Matrix44().LookAtRH(g_position, g_focus, g_up));
 
 }
 

@@ -28,6 +28,6 @@ namespace BeastEngine
 	private:
 		std::vector<std::weak_ptr<BeastEngine::Particle>> particle_list;
 		EffekseerRendererDX11::RendererRef renderer = nullptr;
-
+		Effekseer::Matrix44 reverse;
 	};
 }
