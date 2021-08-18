@@ -26,5 +26,7 @@ namespace BeastEngine
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv_input;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv_result;
 		Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> uav_result;
+
+		UINT contents_count;
 	};
 }

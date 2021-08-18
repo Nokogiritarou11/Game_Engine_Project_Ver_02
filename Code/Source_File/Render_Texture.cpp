@@ -109,64 +109,108 @@ bool Render_Texture::Create_Depth_Stencil()
 
 bool Render_Texture::Create_Render_Tartget_View()
 {
-	// 2次元テクスチャの設定
-	D3D11_TEXTURE2D_DESC texDesc;
-	memset(&texDesc, 0, sizeof(texDesc));
-	texDesc.Usage = D3D11_USAGE_DEFAULT;
-	texDesc.Format = color_format;
-	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	texDesc.Width = screen_x;
-	texDesc.Height = screen_y;
-	texDesc.CPUAccessFlags = 0;
-	texDesc.MipLevels = 1;
-	texDesc.ArraySize = 1;
+	{
+		// 2次元テクスチャの設定
+		D3D11_TEXTURE2D_DESC texDesc;
+		memset(&texDesc, 0, sizeof(texDesc));
+		texDesc.Usage = D3D11_USAGE_DEFAULT;
+		texDesc.Format = color_format;
+		texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+		texDesc.Width = screen_x;
+		texDesc.Height = screen_y;
+		texDesc.CPUAccessFlags = 0;
+		texDesc.MipLevels = 1;
+		texDesc.ArraySize = 1;
+		if (use_msaa)
+		{
+			texDesc.SampleDesc = DxSystem::MSAA;
+		}
+		else
+		{
+			texDesc.SampleDesc.Count = 1;
+			texDesc.SampleDesc.Quality = 0;
+		}
+		// 2次元テクスチャの生成
+		HRESULT hr = DxSystem::device->CreateTexture2D(&texDesc, nullptr, texture_render_target.GetAddressOf());
+
+		// レンダーターゲットビューの設定
+		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
+		memset(&rtvDesc, 0, sizeof(rtvDesc));
+		rtvDesc.Format = texDesc.Format;
+		if (use_msaa)
+		{
+			rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
+		}
+		else
+		{
+			rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+		}
+		rtvDesc.Texture2D.MipSlice = 0;
+
+		// レンダーターゲットビューの生成
+		hr = DxSystem::device->CreateRenderTargetView(texture_render_target.Get(), &rtvDesc, render_target_view.GetAddressOf());
+
+		// シェーダリソースビューの設定
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		memset(&srvDesc, 0, sizeof(srvDesc));
+		srvDesc.Format = texDesc.Format;
+		if (use_msaa)
+		{
+			srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
+		}
+		else
+		{
+			srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		}
+		srvDesc.Texture2D.MipLevels = 1;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+
+		// シェーダリソースビューの生成
+		hr = DxSystem::device->CreateShaderResourceView(texture_render_target.Get(), &srvDesc, shader_resource_view_render.GetAddressOf());
+	}
+
 	if (use_msaa)
 	{
-		texDesc.SampleDesc = DxSystem::MSAA;
-	}
-	else
-	{
+		// 2次元テクスチャの設定
+		D3D11_TEXTURE2D_DESC texDesc;
+		memset(&texDesc, 0, sizeof(texDesc));
+		texDesc.Usage = D3D11_USAGE_DEFAULT;
+		texDesc.Format = color_format;
+		texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		texDesc.Width = screen_x;
+		texDesc.Height = screen_y;
+		texDesc.CPUAccessFlags = 0;
+		texDesc.MipLevels = 1;
+		texDesc.ArraySize = 1;
 		texDesc.SampleDesc.Count = 1;
 		texDesc.SampleDesc.Quality = 0;
-	}
-	//texDesc.SampleDesc.Count = 1;
-	// 2次元テクスチャの生成
-	HRESULT hr = DxSystem::device->CreateTexture2D(&texDesc, nullptr, texture_render_target.GetAddressOf());
+		// 2次元テクスチャの生成
+		HRESULT hr = DxSystem::device->CreateTexture2D(&texDesc, nullptr, texture_render_resolve.GetAddressOf());
 
-	// レンダーターゲットビューの設定
-	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
-	memset(&rtvDesc, 0, sizeof(rtvDesc));
-	rtvDesc.Format = texDesc.Format;
-	if (use_msaa)
-	{
-		rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
-	}
-	else
-	{
-		rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-	}
-	rtvDesc.Texture2D.MipSlice = 0;
-
-	// レンダーターゲットビューの生成
-	hr = DxSystem::device->CreateRenderTargetView(texture_render_target.Get(), &rtvDesc, render_target_view.GetAddressOf());
-
-	// シェーダリソースビューの設定
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	memset(&srvDesc, 0, sizeof(srvDesc));
-	srvDesc.Format = texDesc.Format;
-	if (use_msaa)
-	{
-		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
-	}
-	else
-	{
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		memset(&srvDesc, 0, sizeof(srvDesc));
+		srvDesc.Format = color_format;
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = 1;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		// シェーダリソースビューの生成
+		hr = DxSystem::device->CreateShaderResourceView(texture_render_resolve.Get(), &srvDesc, shader_resource_view_resolve.GetAddressOf());
 	}
-	srvDesc.Texture2D.MipLevels = 1;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-
-	// シェーダリソースビューの生成
-	hr = DxSystem::device->CreateShaderResourceView(texture_render_target.Get(), &srvDesc, shader_resource_view_render.GetAddressOf());
 
 	return true;
+}
+
+Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& Render_Texture::Get_Texture()
+{
+	if (use_msaa)
+	{
+		DxSystem::device_context->ResolveSubresource(texture_render_resolve.Get(), 0, texture_render_target.Get(), 0, color_format);
+		return shader_resource_view_resolve;
+	}
+	else
+	{
+		return shader_resource_view_render;
+	}
+
+	return shader_resource_view_render;
 }

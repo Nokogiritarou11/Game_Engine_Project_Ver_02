@@ -102,6 +102,17 @@ void Compute_Shader::Create_Buffer_Input(UINT size, UINT count, void* init_data)
 
 	hr = DxSystem::device->CreateShaderResourceView(buffer_input.Get(), &srvDesc, srv_input.GetAddressOf());
 	assert(SUCCEEDED(hr));
+
+	UINT c = 1;
+	while (true)
+	{
+		if (count <= c * 64)
+		{
+			contents_count = c;
+			break;
+		}
+		c *= 2;
+	}
 }
 
 void Compute_Shader::Create_Buffer_Result(UINT size, UINT count, void* init_data)
@@ -161,7 +172,8 @@ void Compute_Shader::Run()
 	DxSystem::device_context->CSSetShader(cs.Get(), NULL, 0);
 	DxSystem::device_context->CSSetShaderResources(0, 1, srv_input.GetAddressOf());
 	DxSystem::device_context->CSSetUnorderedAccessViews(0, 1, uav_result.GetAddressOf(), 0);
-	DxSystem::device_context->Dispatch(256, 1, 1);
+
+	DxSystem::device_context->Dispatch(contents_count, 1, 1);
 
 	ID3D11UnorderedAccessView* const pUAV[1] = { NULL };
 	DxSystem::device_context->CSSetUnorderedAccessViews(0, 1, pUAV, 0);

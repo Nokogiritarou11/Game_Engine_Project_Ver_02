@@ -30,6 +30,8 @@ namespace BeastEngine
 		void Add(const std::shared_ptr<BeastEngine::Camera>& mono);
 		void Render();
 
+		bool render_game = true;
+		bool render_scene = false;
 		std::unique_ptr<BeastEngine::Render_Texture> scene_texture;
 		std::unique_ptr<BeastEngine::Render_Texture> game_texture;
 

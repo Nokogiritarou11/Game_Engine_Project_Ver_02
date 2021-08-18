@@ -659,11 +659,18 @@ void Editor::SceneView_Render()
 	window_flags |= ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
 
 	ImGui::Begin(u8"ƒV[ƒ“", NULL, window_flags);
-	//const float titleBarHeight = ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2.0f + 10;
 	const float window_width = ImGui::GetCurrentWindow()->InnerRect.GetWidth() - 8;
 	const float window_height = ImGui::GetCurrentWindow()->InnerRect.GetHeight() - 8;
-	Engine::render_manager->scene_texture->Set_Screen_Size((int)window_width, (int)window_height);
-	ImGui::Image((void*)Engine::render_manager->scene_texture->Get_Texture().Get(), ImVec2(window_width, window_height));
+	if (!ImGui::IsWindowCollapsed())
+	{
+		Engine::render_manager->render_scene = true;
+		Engine::render_manager->scene_texture->Set_Screen_Size((int)window_width, (int)window_height);
+		ImGui::Image((void*)Engine::render_manager->scene_texture->Get_Texture().Get(), ImVec2(window_width, window_height));
+	}
+	else
+	{
+		Engine::render_manager->render_scene = false;
+	}
 
 	static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::OPERATION::TRANSLATE);
 	static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::MODE::LOCAL);
@@ -748,57 +755,65 @@ void Editor::GameView_Render()
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_NoCollapse;
 
-	Engine::render_manager->game_texture->Set_Screen_Size(1920, 1080);
-	constexpr float aspect_lock = 1920.0f / 1080.0f;
 
 	ImGui::Begin(u8"ƒQ[ƒ€", NULL, window_flags);
 	const ImGuiWindow* p_win = ImGui::GetCurrentWindow();
 	const Vector2 p_win_size = { p_win->InnerRect.GetWidth() - 8, p_win->InnerRect.GetHeight() - 8 };
-	if (p_win_size != game_view_size)
+
+	if (!ImGui::IsWindowCollapsed())
 	{
-		game_view_size = p_win_size;
-		game_view_render_size = game_view_size;
-		game_view_aspect = game_view_size.x / game_view_size.y;
+		Engine::render_manager->render_game = true;
+		Engine::render_manager->game_texture->Set_Screen_Size(1920, 1080);
+		constexpr float aspect_lock = 1920.0f / 1080.0f;
+		if (p_win_size != game_view_size)
+		{
+			game_view_size = p_win_size;
+			game_view_render_size = game_view_size;
+			game_view_aspect = game_view_size.x / game_view_size.y;
+
+			if (aspect_lock < game_view_aspect) //‰¡‚Ì‚Ù‚¤‚ªŠù’è‚æ‚è’·‚¢‚Æ‚«
+			{
+				game_view_render_size.x = game_view_render_size.y * aspect_lock;
+			}
+			else //c‚ª’·‚¢‚Æ‚«
+			{
+				game_view_render_size.y = game_view_render_size.x / aspect_lock;
+			}
+		}
+
+		const ImVec2 pos = ImGui::GetCursorScreenPos();
+		game_view_position = { pos.x,pos.y + game_view_size.y };
 
 		if (aspect_lock < game_view_aspect) //‰¡‚Ì‚Ù‚¤‚ªŠù’è‚æ‚è’·‚¢‚Æ‚«
 		{
-			game_view_render_size.x = game_view_render_size.y * aspect_lock;
+			ImGui::Dummy({});
+			ImGui::SameLine((game_view_size.x - game_view_render_size.x) * 0.5f);
 		}
-		else //c‚ª’·‚¢‚Æ‚«
+		else
 		{
-			game_view_render_size.y = game_view_render_size.x / aspect_lock;
+			ImGui::Dummy({ 0, (game_view_size.y - game_view_render_size.y) * 0.5f });
 		}
-	}
 
-	const ImVec2 pos = ImGui::GetCursorScreenPos();
-	game_view_position = { pos.x,pos.y + game_view_size.y };
+		ImGui::Image((void*)Engine::render_manager->game_texture->Get_Texture().Get(), ImVec2(game_view_render_size.x, game_view_render_size.y));
 
-	if (aspect_lock < game_view_aspect) //‰¡‚Ì‚Ù‚¤‚ªŠù’è‚æ‚è’·‚¢‚Æ‚«
-	{
-		ImGui::Dummy({});
-		ImGui::SameLine((game_view_size.x - game_view_render_size.x) * 0.5f);
+		game_view_center_position = { pos.x + game_view_size.x / 2 ,pos.y + game_view_size.y / 2 };
+
+		if (ImGui::IsWindowFocused())
+		{
+			if (ImGui::IsKeyPressed(27) && !render_cursor) //ESC
+			{
+				render_cursor = true;
+			}
+		}
+		if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0))
+		{
+			render_cursor = false;
+		}
 	}
 	else
 	{
-		ImGui::Dummy({ 0, (game_view_size.y - game_view_render_size.y) * 0.5f });
+		Engine::render_manager->render_game = false;
 	}
-
-	ImGui::Image((void*)Engine::render_manager->game_texture->Get_Texture().Get(), ImVec2(game_view_render_size.x, game_view_render_size.y));
-
-	game_view_center_position = { pos.x + game_view_size.x / 2 ,pos.y + game_view_size.y / 2 };
-
-	if (ImGui::IsWindowFocused())
-	{
-		if (ImGui::IsKeyPressed(27) && !render_cursor) //ESC
-		{
-			render_cursor = true;
-		}
-	}
-	if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0))
-	{
-		render_cursor = false;
-	}
-
 	ImGui::End();
 }
 

@@ -55,10 +55,10 @@ float4 main(VS_OUT pin) : SV_TARGET
     float md = d.x - pin.sdwcoord.z;
     float p_max = saturate(variance / (variance + (md * md)));
 
-    p_max = ReduceLightBleeding(p_max, 0.9f);
+    p_max = ReduceLightBleeding(p_max, 0.65f);
 
     // ‰e‚ÌF
-    float3 shadowColor = max(pin.sdwcoord.z >= d.x, lerp(float3(0.85f, 0.85f, 0.85f), 1.0f, p_max));
+    float3 shadowColor = max(pin.sdwcoord.z > d.x, lerp(float3(0.8f, 0.8f, 0.8f), 1.0f, p_max));
 
     float3 Ka = mapdiff.rgb * (1 - diffuse_factor) * 0.8f;
     float3 Kd = mapdiff.rgb * diffuse_factor * 1.2f;

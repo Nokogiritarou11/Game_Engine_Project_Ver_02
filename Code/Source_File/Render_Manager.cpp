@@ -168,10 +168,14 @@ void Render_Manager::Sort_Renderer()
 void Render_Manager::Render()
 {
 	Check_Renderer();
-	Render_Game();
-#if _DEBUG
-	Render_Scene();
-#endif
+	if (render_game)
+	{
+		Render_Game();
+	}
+	if (render_scene)
+	{
+		Render_Scene();
+	}
 }
 
 void Render_Manager::Render_Scene()
@@ -361,7 +365,8 @@ void Render_Manager::Render_Shadow_Directional(const Vector3& color, const float
 	shadow_camera->orthographic_size = Engine::shadow_manager->shadow_distance;
 
 	const Vector3 Look_pos = camera_transform->Get_Position() + camera_transform->Get_Forward() * (Engine::shadow_manager->shadow_distance * 0.5f); shadow_camera->transform->Set_Position(Look_pos - light_transform->Get_Forward() * 50.0f);
-	shadow_camera->far_z = 100;
+	shadow_camera->far_z = 60;
+	shadow_camera->near_z = 10;
 	shadow_camera->transform->Set_Rotation(shadow_camera->transform->Look_At(Look_pos));
 	shadow_camera->Update(0, 0);
 

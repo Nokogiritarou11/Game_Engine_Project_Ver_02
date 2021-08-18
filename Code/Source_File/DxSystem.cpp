@@ -96,7 +96,7 @@ HRESULT DxSystem::Create_Device()
 	for (int i = 0; i <= max_count; i++)
 	{
 		UINT Quality;
-		if SUCCEEDED(device->CheckMultisampleQualityLevels(DXGI_FORMAT_D24_UNORM_S8_UINT, i, &Quality))
+		if SUCCEEDED(device->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, i, &Quality))
 		{
 			if (0 < Quality)
 			{

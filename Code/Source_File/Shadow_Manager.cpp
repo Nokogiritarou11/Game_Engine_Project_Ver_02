@@ -8,19 +8,20 @@ using namespace std;
 
 Shadow_Manager::Shadow_Manager()
 {
+	shadow_map_texture_size = 2048;
 	Set_Shadow_Map_Texture_Size(shadow_map_texture_size);
 	material_shadow = Material::Create("Shader/Standard_Shadow_Shader_VS.hlsl", "Shader/Standard_Shadow_Shader_PS.hlsl");
 	gaussian_filter = make_unique<Gaussian_Filter>(Vector2(static_cast<float>(shadow_map_texture_size), static_cast<float>(shadow_map_texture_size)), DXGI_FORMAT_R32G32_FLOAT, 0.1f);
 
 	//	サンプラステート作成
-	float boarderColor[4] = {0,0,0,0 };
+	float boarderColor[4] = {-FLT_MAX,-FLT_MAX,-FLT_MAX,-FLT_MAX };
 	D3D11_SAMPLER_DESC sd = {};
 	sd.Filter = D3D11_FILTER_ANISOTROPIC;
 	sd.AddressU = D3D11_TEXTURE_ADDRESS_BORDER; // U
 	sd.AddressV = D3D11_TEXTURE_ADDRESS_BORDER; // V
 	sd.AddressW = D3D11_TEXTURE_ADDRESS_BORDER; // W
 	sd.MipLODBias = 0;
-	sd.MaxAnisotropy = 16; // 最大異方性(1Pixelあたりのテクスチャ点数)
+	sd.MaxAnisotropy = 8; // 最大異方性(1Pixelあたりのテクスチャ点数)
 	sd.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	memcpy(sd.BorderColor, &boarderColor[0], sizeof(float) * 4);
 	sd.MinLOD = 0;
@@ -50,5 +51,5 @@ void Shadow_Manager::Filtering_Gaussian()
 void Shadow_Manager::Set_Shadow_Map_Texture_Size(u_int size)
 {
 	shadow_map_texture_size = size;
-	render_texture = make_unique<Render_Texture>(shadow_map_texture_size, shadow_map_texture_size, false, DXGI_FORMAT_R32G32_FLOAT);
+	render_texture = make_unique<Render_Texture>(shadow_map_texture_size, shadow_map_texture_size, true, DXGI_FORMAT_R32G32_FLOAT);
 }

@@ -131,7 +131,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 			float mspf = 1000.0f / fps;
 
 			Interval -= BeastEngine::Time::delta_time;
-			fps++;
+			++fps;
 			if (Interval < 0)
 			{
 				std::ostringstream outs;
