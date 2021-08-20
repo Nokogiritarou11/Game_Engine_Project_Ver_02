@@ -9,7 +9,12 @@ using Microsoft::WRL::ComPtr;
 Gaussian_Filter::Gaussian_Filter(const Vector2& size, const DXGI_FORMAT format, const float& dispersion)
 {
 	material[0] = Material::Create("Shader/Gaussian_Shader_x_VS.hlsl", "Shader/Gaussian_Shader_x_PS.hlsl");
+	material[0]->Set_Rasterizer_State(RS_State::Cull_None);
+	material[0]->Set_Depth_Stencil_State(DS_State::None_No_Write);
 	material[1] = Material::Create("Shader/Gaussian_Shader_y_VS.hlsl", "Shader/Gaussian_Shader_y_PS.hlsl");
+	material[1]->Set_Rasterizer_State(RS_State::Cull_None);
+	material[1]->Set_Depth_Stencil_State(DS_State::None_No_Write);
+
 	Create_Render_Target(size, format);
 	Set_Weight(dispersion);
 

@@ -23,11 +23,12 @@ SamplerState diffuseMapSamplerState : register(s1);
 Texture2D normalMap : register(t2);
 SamplerState normalMapSamplerState : register(s2);
 
+Texture2D ramplMap : register(t3);
+SamplerState RampMapSamplerState : register(s3);
+
 float4 main(VS_OUT pin) : SV_TARGET
 {
     float4 outcolor;
-
-    float4 mapdiff = diffuseMap.Sample(diffuseMapSamplerState, pin.texcoord) * main_color;
 
     float4 normal_map_colour = normalMap.Sample(normalMapSamplerState, pin.texcoord);
     normal_map_colour = (normal_map_colour * 2.0) - 1.0;
@@ -44,7 +45,12 @@ float4 main(VS_OUT pin) : SV_TARGET
     float3 L = normalize(-lightDirection.xyz);
 
     float diffuse_factor = saturate(dot(N, L));
+    diffuse_factor = diffuse_factor * 0.5 + 0.5f;
     diffuse_factor = diffuse_factor * diffuse_factor;
+
+    float4 mapdiff = diffuseMap.Sample(diffuseMapSamplerState, pin.texcoord) * main_color;
+
+    float4 main_level = mapdiff * ramplMap.Sample(RampMapSamplerState, float2(diffuse_factor,0));
 
     float2 d = shadowMap.Sample(ShadowMapSamplerState, pin.sdwcoord.xy).rg;
     // •ªŽU‚ÌŒvŽZ
@@ -60,9 +66,7 @@ float4 main(VS_OUT pin) : SV_TARGET
     // ‰e‚ÌF
     float3 shadowColor = max(pin.sdwcoord.z > d.x, lerp(float3(0.8f, 0.8f, 0.8f), 1.0f, p_max));
 
-    float3 Ka = mapdiff.rgb * (1 - diffuse_factor) * 0.8f;
-    float3 Kd = mapdiff.rgb * diffuse_factor * 1.2f;
-    outcolor.rgb = (Ka + Kd) * shadowColor;
+    outcolor.rgb = main_level.rgb * shadowColor;
     outcolor.a = mapdiff.a;
 
     return outcolor;

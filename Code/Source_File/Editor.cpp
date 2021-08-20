@@ -292,8 +292,6 @@ void Editor::Hierarchy_Render()
 
 	ImGui::Begin(u8"ヒエラルキー", NULL, window_flags);
 
-	static int ID = 0;
-
 	ImGui::SetNextItemOpen(true, ImGuiCond_Always);
 	if (ImGui::TreeNode(scene->name.c_str()))
 	{
@@ -305,7 +303,7 @@ void Editor::Hierarchy_Render()
 		{
 			if (obj_list->transform->parent.expired())
 			{
-				GameObject_Tree_Render(ID, obj_list, selecting, base_flags, Item_Clicked);
+				GameObject_Tree_Render(obj_list, base_flags, Item_Clicked);
 			}
 		}
 
@@ -345,7 +343,7 @@ void Editor::Hierarchy_Render()
 				{
 					if (ImGui::Selectable(u8"オブジェクトを複製"))
 					{
-						shared_ptr<GameObject> obj = active_object.lock();
+						shared_ptr<GameObject>& obj = active_object.lock();
 						weak_ptr<Transform> parent = obj->transform->Get_Parent();
 						if (!parent.expired())
 						{
@@ -393,7 +391,7 @@ void Editor::Hierarchy_Render()
 		{
 			if (ImGui::IsKeyDown(17) && ImGui::IsKeyPressed(68)) //Ctrl + D
 			{
-				shared_ptr<GameObject> obj = active_object.lock();
+				shared_ptr<GameObject>& obj = active_object.lock();
 				weak_ptr<Transform> parent = obj->transform->Get_Parent();
 				if (!parent.expired())
 				{
@@ -427,7 +425,6 @@ void Editor::Hierarchy_Render()
 			}
 		}
 	}
-	ID = 0;
 
 	ImGui::End();
 }
@@ -442,7 +439,7 @@ void Editor::Inspector_Render()
 	window_flags |= ImGuiWindowFlags_NoCollapse;
 	ImGui::Begin(u8"インスペクタ", NULL, window_flags);
 
-	shared_ptr<GameObject> obj = active_object.lock();
+	shared_ptr<GameObject>& obj = active_object.lock();
 	if (obj)
 	{
 		static bool active = false;
@@ -510,14 +507,13 @@ void Editor::Inspector_Render()
 		ImGui::Dummy({ 0,10 });
 		ImGui::Separator();
 
-		int ID = 0;
 		bool removed = true;
 		while (removed)
 		{
 			bool removed_comp = false;
 			for (auto& c : obj->component_list)
 			{
-				ImGui::PushID(ID);
+				ImGui::PushID(c->Get_Instance_ID().c_str());
 				if (!c->Draw_ImGui())
 				{
 					removed_comp = true;
@@ -525,7 +521,6 @@ void Editor::Inspector_Render()
 					break;
 				}
 				ImGui::PopID();
-				++ID;
 			}
 			removed = removed_comp;
 		}
@@ -1171,12 +1166,14 @@ void Editor::Scene_Setting_Menu_Render()
 }
 
 //オブジェクトツリー描画
-void Editor::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj, int& selecting, int flag, bool& Item_Clicked)
+void Editor::GameObject_Tree_Render(const shared_ptr<GameObject>& obj, int flag, bool& Item_Clicked)
 {
-	++ID;
-	ImGui::PushID(ID);
+	ImGui::PushID(obj->Get_Instance_ID().c_str());
 	const ImGuiTreeNodeFlags in_flag = flag;
-	if (selecting == ID) flag |= ImGuiTreeNodeFlags_Selected;
+	if (!active_object.expired())
+	{
+		if (active_object.lock() == obj) flag |= ImGuiTreeNodeFlags_Selected;
+	}
 
 	bool active = obj->Get_Active();
 	if (active) active = obj->Get_Active_In_Hierarchy();
@@ -1185,12 +1182,11 @@ void Editor::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj, 
 	{
 		bool open = false;
 		if (!active) { ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(0.f, 0.f, 0.4f)); }
-		open = ImGui::TreeNodeEx((void*)(intptr_t)obj.get(), flag, obj->name.c_str());
+		open = ImGui::TreeNodeEx(obj->name.c_str(), flag);
 		if (!active) { ImGui::PopStyleColor(); }
 
 		if (ImGui::IsItemClicked() || ImGui::IsItemClicked(1))
 		{
-			selecting = ID;
 			Activate_Select_Object(obj);
 		}
 		if (ImGui::IsItemClicked())
@@ -1200,11 +1196,12 @@ void Editor::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj, 
 
 		GameObject_DragMenu_Render(obj);
 
+		ImGui::PopID();
 		if (open)
 		{
-			for (size_t i = 0; i < obj->transform->children.size();++i)
+			for (size_t i = 0; i < obj->transform->children.size(); ++i)
 			{
-				GameObject_Tree_Render(ID, obj->transform->children[i].lock()->gameobject, selecting, in_flag, Item_Clicked);
+				GameObject_Tree_Render(obj->transform->children[i].lock()->gameobject, in_flag, Item_Clicked);
 			}
 			ImGui::TreePop();
 		}
@@ -1214,18 +1211,17 @@ void Editor::GameObject_Tree_Render(int& ID, const shared_ptr<GameObject>& obj, 
 		flag |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen; // ImGuiTreeNodeFlags_Bullet
 
 		if (!active) { ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(0.f, 0.f, 0.4f)); }
-		ImGui::TreeNodeEx((void*)(intptr_t)obj.get(), flag, obj->name.c_str());
+		ImGui::TreeNodeEx(obj->name.c_str(), flag);
 		if (!active) { ImGui::PopStyleColor(); }
 
 		if (ImGui::IsItemClicked() || ImGui::IsItemClicked(1))
 		{
-			selecting = ID;
 			Activate_Select_Object(obj);
 		}
 
 		GameObject_DragMenu_Render(obj);
+		ImGui::PopID();
 	}
-	ImGui::PopID();
 }
 
 //ヒエラルキーでのオブジェクトドラッグ
@@ -1275,7 +1271,7 @@ void Editor::GameObject_DragMenu_Render(const std::shared_ptr<GameObject>& obj)
 		{
 			if (!draging_object.expired())
 			{
-				shared_ptr<GameObject> drag_obj = draging_object.lock();
+				shared_ptr<GameObject>& drag_obj = draging_object.lock();
 				drag_obj->transform->Set_Parent(obj->transform->parent.lock());
 				drag_obj->transform->Set_Sibling_Index(obj->transform->Get_Sibling_Index());
 				draging_object.reset();
@@ -1287,9 +1283,8 @@ void Editor::GameObject_DragMenu_Render(const std::shared_ptr<GameObject>& obj)
 		{
 			if (!draging_object.expired())
 			{
-				shared_ptr<GameObject> drag_obj = draging_object.lock();
-				shared_ptr<Transform> parent = obj->transform->parent.lock();
-				drag_obj->transform->Set_Parent(parent);
+				shared_ptr<GameObject>& drag_obj = draging_object.lock();
+				drag_obj->transform->Set_Parent(obj->transform->parent.lock());
 				drag_obj->transform->Set_Sibling_Index(obj->transform->Get_Sibling_Index() + 1);
 				draging_object.reset();
 			}
@@ -1462,7 +1457,7 @@ void Editor::Set_Debug_Draw(bool value, const shared_ptr<GameObject>& obj)
 {
 	if (obj)
 	{
-		if (shared_ptr<Collider> col = obj->Get_Component<Collider>())
+		if (shared_ptr<Collider>& col = obj->Get_Component<Collider>())
 		{
 			col->Set_Debug_Draw(value);
 		}
@@ -1475,12 +1470,12 @@ void Editor::Set_Debug_Draw(bool value, const shared_ptr<GameObject>& obj)
 
 void Editor::Activate_Select_Object(const shared_ptr<GameObject>& obj)
 {
-	if (shared_ptr<GameObject> now = active_object.lock())
+	if (shared_ptr<GameObject>& now = active_object.lock())
 	{
 		Set_Debug_Draw(false, now);
 	}
 	active_object = obj;
-	if (shared_ptr<Animator> animator = obj->Get_Component<Animator>())
+	if (shared_ptr<Animator>& animator = obj->Get_Component<Animator>())
 	{
 		if (animator->controller)
 		{

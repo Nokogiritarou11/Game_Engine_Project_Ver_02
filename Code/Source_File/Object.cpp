@@ -12,18 +12,12 @@ using namespace BeastEngine;
 
 Object::Object()
 {
-	if (instance_id == "")
-	{
-		instance_id = System_Function::Create_ID();
-	}
+	instance_id = System_Function::Create_ID();
 }
 
 Object::Object(const Object& obj)
 {
-	if (instance_id == "")
-	{
-		instance_id = System_Function::Create_ID();
-	}
+	instance_id = System_Function::Create_ID();
 }
 
 Object::~Object()

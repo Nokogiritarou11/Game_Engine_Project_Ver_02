@@ -41,7 +41,8 @@ namespace BeastEngine
 		struct Render_Obj
 		{
 			std::weak_ptr<BeastEngine::Renderer> renderer;
-			int   queue;
+			int subset_number;
+			int queue;
 			float z_distance;
 		};
 

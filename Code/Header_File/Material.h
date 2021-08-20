@@ -26,7 +26,11 @@ namespace BeastEngine
 		static std::shared_ptr<Material> Load_Material(const std::string& fullpath);
 
 		void Save(const std::string& path = "");
+
 		void Set_Shader(const std::string& path, BeastEngine::Shader::Shader_Type shader_type);
+		void Set_Blend_State(BS_State state);
+		void Set_Rasterizer_State(RS_State state);
+		void Set_Depth_Stencil_State(DS_State state);
 
 		void Set_Texture(const std::string& texture_name, const std::shared_ptr<BeastEngine::Texture>& texture);
 		void Set_Int(const std::string& int_name, int& value);
@@ -114,11 +118,16 @@ namespace BeastEngine
 		std::unordered_map<std::string, Parameter_Info> parameter_info;
 		std::unordered_map<std::string, Texture_Info> texture_info;
 
+		static BS_State binding_blend_state;
+		static RS_State binding_rasterizer_state;
+		static DS_State binding_depth_stencil_State;
+
 		BS_State blend_state = BS_State::Off;
 		RS_State rasterizer_state = RS_State::Cull_Back;
 		DS_State depth_stencil_state = DS_State::GEqual;
 
 		void Reflect_Shader();
+		void Reflect_Texture();
 		void Create_ConstantBuffer(ConstantBuffer_Info& info, const UINT& size);
 		void Set_Parameter(const std::string& parameter_name, void* value, const Shader::Parameter_Type& type);
 		void Initialize_Texture();

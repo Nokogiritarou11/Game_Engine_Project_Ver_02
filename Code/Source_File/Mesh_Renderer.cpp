@@ -15,6 +15,7 @@
 #include "Material.h"
 #include "Engine.h"
 #include "Asset_Manager.h"
+#include "Debug_Draw_Manager.h"
 using Microsoft::WRL::ComPtr;
 using namespace std;
 using namespace BeastEngine;
@@ -60,7 +61,7 @@ void Mesh_Renderer::Set_Active(bool value)
 	{
 		if (!is_called)
 		{
-			if (mesh)
+			if (can_render)
 			{
 				if (gameobject->Get_Active_In_Hierarchy())
 				{
@@ -97,17 +98,19 @@ void Mesh_Renderer::Recalculate_Frame()
 		//AABB更新
 		world_old = transform->Get_World_Matrix();
 	}
-
-	recalculated_frame = true;
 }
 
 void Mesh_Renderer::Set_Mesh(shared_ptr<Mesh> mesh_data)
 {
 	if (mesh_data)
 	{
+		bool change = false;
+		if (mesh) change = true;
+
 		if (mesh != mesh_data)
 		{
 			mesh = mesh_data;
+			can_render = true;
 			file_path = mesh->file_path;
 			//マテリアル
 			for (auto& pass : mesh->default_material_passes)
@@ -115,75 +118,48 @@ void Mesh_Renderer::Set_Mesh(shared_ptr<Mesh> mesh_data)
 				material.push_back(Material::Load_Material(pass));
 			}
 
+			subset_count = static_cast<int>(mesh->subsets.size());
+
 			//コンピュートシェーダー設定
 			compute_shader->Create_Buffer_Input(sizeof(Mesh::vertex), mesh->vertices.size(), &mesh->vertices[0]);
 			compute_shader->Create_Buffer_Result(sizeof(Mesh::vertex_default_buffer), mesh->vertices.size(), nullptr);
 
 			//AABB
-			bounds = mesh->boundingbox;
+			if (change)
+			{
+				bounds = mesh->boundingbox;
+			}
 			Set_Active(Get_Enabled());
 		}
 	}
 }
 
-void Mesh_Renderer::Render()
+void Mesh_Renderer::Render(int subset_number)
 {
-	if (mesh)
+	if (can_render)
 	{
-		if (!recalculated_frame)
-		{
-			Recalculate_Frame();
-		}
+		auto& subset = mesh->subsets[subset_number];
+		//マテリアル設定
+		material[subset.material_ID]->Active();
 
-		// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
+		// バッファ設定
 		DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-		for (auto& subset : mesh->subsets)
-		{
-			//マテリアル設定
-			material[subset.material_ID]->Active();
-
-			//ブレンドステート設定
-			if (binding_blend_state != material[subset.material_ID]->blend_state)
-			{
-				DxSystem::device_context->OMSetBlendState(DxSystem::Get_Blend_State(material[subset.material_ID]->blend_state), nullptr, 0xFFFFFFFF);
-				binding_blend_state = material[subset.material_ID]->blend_state;
-			}
-			//ラスタライザ―設定
-			if (binding_rasterizer_state != material[subset.material_ID]->rasterizer_state)
-			{
-				DxSystem::device_context->RSSetState(DxSystem::Get_Rasterizer_State(material[subset.material_ID]->rasterizer_state));
-				binding_rasterizer_state = material[subset.material_ID]->rasterizer_state;
-			}
-			//デプスステンシルステート設定
-			if (binding_depth_stencil_State != material[subset.material_ID]->depth_stencil_state)
-			{
-				DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(material[subset.material_ID]->depth_stencil_state), 1);
-				binding_depth_stencil_State = material[subset.material_ID]->depth_stencil_state;
-			}
-
-			DxSystem::device_context->VSSetShaderResources(0, 1, compute_shader->Get_SRV().GetAddressOf());
-			// ↑で設定したリソースを利用してポリゴンを描画する。
-			DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
-		}
+		DxSystem::device_context->VSSetShaderResources(0, 1, compute_shader->Get_SRV().GetAddressOf());
+		// 描画
+		DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
 	}
 }
 
-void Mesh_Renderer::Render_Shadow()
+void Mesh_Renderer::Render_Shadow(int subset_number)
 {
-	if (mesh)
+	if (can_render)
 	{
-		if (!recalculated_frame)
-		{
-			Recalculate_Frame();
-		}
-
-		// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
+		// バッファ設定
 		DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-		for (auto& subset : mesh->subsets)
-		{
-			DxSystem::device_context->VSSetShaderResources(0, 1, compute_shader->Get_SRV().GetAddressOf());
-			DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
-		}
+		auto& subset = mesh->subsets[subset_number];
+		DxSystem::device_context->VSSetShaderResources(0, 1, compute_shader->Get_SRV().GetAddressOf());
+		//描画
+		DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
 	}
 }
 
@@ -222,13 +198,45 @@ bool Mesh_Renderer::Draw_ImGui()
 
 	if (open)
 	{
+		const float window_width = ImGui::GetWindowContentRegionWidth();
+
 		ImGui::Text(u8"現在のメッシュ::");
 		ImGui::SameLine();
 		ImGui::Text(mesh->name.c_str());
 
-		ImGui::Dummy(ImVec2(0, 5));
+		if (ImGui::TreeNode(u8"バンディングボックス"))
+		{
+			const Vector3 min_scaled = transform->Get_Position() + bounds.Get_center() + bounds.Get_min() * transform->Get_Scale();
+			const Vector3 max_scaled = transform->Get_Position() + bounds.Get_center() + bounds.Get_max() * transform->Get_Scale();
+			btVector3 min = { min_scaled.x, min_scaled.y, min_scaled.z };
+			btVector3 max = { max_scaled.x, max_scaled.y, max_scaled.z };
+			Engine::debug_draw_manager->drawAabb(min, max, btVector3(0.0f, 0.65f, 1.0f));
+
+			ImGui::Text(u8"中心オフセット");
+			ImGui::SameLine(window_width * 0.4f);
+			ImGui::SetNextItemWidth(-FLT_MIN);
+			const Vector3 vec_center = bounds.Get_center();
+			float center[3] = { vec_center.x, vec_center.y, vec_center.z };
+			if (ImGui::DragFloat3("##center", center, 0.1f))
+			{
+				bounds.Set_center(center[0], center[1], center[2]);
+			}
+
+			ImGui::Text(u8"サイズ");
+			ImGui::SameLine(window_width * 0.4f);
+			ImGui::SetNextItemWidth(-FLT_MIN);
+			const Vector3 vec_size = bounds.Get_size();
+			float size[3] = { vec_size.x, vec_size.y, vec_size.z };
+			if (ImGui::DragFloat3("##size", size, 0.1f))
+			{
+				bounds.Set_size(size[0], size[1], size[2]);
+			}
+
+			ImGui::TreePop();
+		}
+
 		int ID_mat = 0;
-		if (mesh)
+		if (can_render)
 		{
 			if (ImGui::TreeNode(u8"マテリアル"))
 			{

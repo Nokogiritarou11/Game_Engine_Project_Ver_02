@@ -201,11 +201,10 @@ bool Transform::Draw_ImGui()
 		}
 
 		float window_center = ImGui::GetWindowContentRegionWidth() * 0.25f;
-		float window_size = ImGui::GetWindowContentRegionWidth() * 0.75f;
 
 		ImGui::Text("Position");
 		ImGui::SameLine(window_center);
-		ImGui::SetNextItemWidth(window_size);
+		ImGui::SetNextItemWidth(-FLT_MIN);
 		if (ImGui::DragFloat3("##pos", pos, 0.05f, -FLT_MAX, FLT_MAX))
 		{
 			Set_Local_Position(pos[0], pos[1], pos[2]);
@@ -213,7 +212,7 @@ bool Transform::Draw_ImGui()
 		}
 		ImGui::Text("Rotation");
 		ImGui::SameLine(window_center);
-		ImGui::SetNextItemWidth(window_size);
+		ImGui::SetNextItemWidth(-FLT_MIN);
 		if (ImGui::DragFloat3("##rot", rot, 0.05f, -FLT_MAX, FLT_MAX))
 		{
 			Set_Local_Euler_Angles(rot[0], rot[1], rot[2]);
@@ -221,7 +220,7 @@ bool Transform::Draw_ImGui()
 		}
 		ImGui::Text("Scale");
 		ImGui::SameLine(window_center);
-		ImGui::SetNextItemWidth(window_size);
+		ImGui::SetNextItemWidth(-FLT_MIN);
 		if (ImGui::DragFloat3("##sca", scl, 0.01f, -FLT_MAX, FLT_MAX))
 		{
 			Set_Local_Scale(scl[0], scl[1], scl[2]);
@@ -236,7 +235,7 @@ bool Transform::Draw_ImGui()
 */  ///////////////////////////////////////////////////////
 Vector3 Transform::Get_Position() const
 {
-	return this->position;
+	return position;
 }
 
 void Transform::Set_Position(Vector3 V)
@@ -306,7 +305,7 @@ void Transform::Set_Position(float f1, float f2, float f3)
 
 Quaternion Transform::Get_Rotation() const
 {
-	return this->rotation;
+	return rotation;
 }
 
 void Transform::Set_Rotation(Quaternion Q)
@@ -393,7 +392,7 @@ void Transform::Set_Rotation(float f1, float f2, float f3, float f4)
 
 Vector3 Transform::Get_Scale() const
 {
-	return this->scale;
+	return scale;
 }
 
 void Transform::Set_Scale(Vector3 V)
@@ -460,7 +459,7 @@ void Transform::Set_Scale(float f1, float f2, float f3)
 
 Vector3 Transform::Get_Local_Position() const
 {
-	return this->local_position;
+	return local_position;
 }
 
 void Transform::Set_Local_Position(Vector3 V)
@@ -517,7 +516,7 @@ void Transform::Set_Local_Position(float f1, float f2, float f3)
 
 Quaternion Transform::Get_Local_Rotation() const
 {
-	return this->local_rotation;
+	return local_rotation;
 }
 
 void Transform::Set_Local_Rotation(Quaternion Q)
@@ -590,7 +589,7 @@ void Transform::Set_Local_Rotation(float f1, float f2, float f3, float f4)
 
 Vector3 Transform::Get_Local_Scale() const
 {
-	return this->local_scale;
+	return local_scale;
 }
 
 void Transform::Set_Local_Scale(Vector3 V)
@@ -647,22 +646,22 @@ void Transform::Set_Local_Scale(float f1, float f2, float f3)
 
 Vector3 Transform::Get_Forward() const
 {
-	return this->forward;
+	return forward;
 }
 
 Vector3 Transform::Get_Right() const
 {
-	return this->right;
+	return right;
 }
 
 Vector3 Transform::Get_Up() const
 {
-	return this->up;
+	return up;
 }
 
 Vector3 Transform::Get_Euler_Angles() const
 {
-	return this->rotation.To_Euler();
+	return rotation.To_Euler();
 }
 
 void Transform::Set_Euler_Angles(Vector3 V)
@@ -676,7 +675,7 @@ void Transform::Set_Euler_Angles(float f1, float f2, float f3)
 
 Vector3 Transform::Get_Local_Euler_Angles() const
 {
-	return this->local_rotation.To_Euler();
+	return local_rotation.To_Euler();
 }
 
 void Transform::Set_Local_Euler_Angles(Vector3 V)
@@ -690,7 +689,7 @@ void Transform::Set_Local_Euler_Angles(float f1, float f2, float f3)
 
 weak_ptr<Transform> Transform::Get_Parent() const
 {
-	return this->parent;
+	return parent;
 }
 
 void Transform::Set_Parent(shared_ptr<Transform> P)
@@ -814,7 +813,7 @@ void Transform::Set_Parent(shared_ptr<Transform> P, int index_insert)
 
 void Transform::On_Parent_Changed()
 {
-	shared_ptr<Transform> P = parent.lock();
+	shared_ptr<Transform>& P = parent.lock();
 	world_matrix = local_matrix * P->Get_World_Matrix();
 	world_matrix.Decompose(scale, rotation, position);
 	translation_matrix = Matrix::CreateTranslation(position);
@@ -833,12 +832,11 @@ void Transform::On_Parent_Changed()
 
 void Transform::Change_Children()
 {
-	shared_ptr<Transform> C;
 	for (weak_ptr<Transform>& child : children)
 	{
 		if (!child.expired())
 		{
-			C = child.lock();
+			shared_ptr<Transform>& C = child.lock();
 			C->On_Parent_Changed();
 		}
 	}
@@ -848,12 +846,10 @@ void Transform::Remove_Parent()
 {
 	if (shared_ptr<Transform> P = parent.lock())
 	{
-		shared_ptr<Transform> trans;
 		auto it = P->children.begin();
 		while (it != P->children.end())
 		{
-			trans = (*it).lock();
-			if (trans == static_pointer_cast<Transform>(shared_from_this()))
+			if ((*it).lock() == static_pointer_cast<Transform>(shared_from_this()))
 			{
 				P->children.erase(it);
 				break;
@@ -889,11 +885,9 @@ int Transform::Get_Sibling_Index() const
 {
 	if (shared_ptr<Transform> P = parent.lock())
 	{
-		shared_ptr<Transform> child;
 		for (size_t i = 0; i < P->children.size(); ++i)
 		{
-			child = P->children[i].lock();
-			if (child == transform)
+			if (P->children[i].lock() == transform)
 			{
 				return i;
 			}
@@ -945,7 +939,7 @@ weak_ptr<Transform> Transform::Find(std::string n)
 		size_t split_size = s.size();
 		for (size_t i = 0; i < split_size; ++i)
 		{
-			shared_ptr<Transform> trans = t_trans.lock();
+			shared_ptr<Transform>& trans = t_trans.lock();
 			bool found = false;
 			size_t child_size = trans->children.size();
 			for (size_t t = 0; t < child_size; ++t)
@@ -1083,7 +1077,7 @@ void Transform::Set_Sibling_Index(int index)
 
 Matrix Transform::Get_World_Matrix() const
 {
-	return this->world_matrix;
+	return world_matrix;
 }
 
 void Transform::Set_World_Matrix(Matrix matrix)

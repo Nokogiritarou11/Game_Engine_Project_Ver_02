@@ -116,7 +116,7 @@ void Scene::Processing_Start()
 		{
 			if (!m.expired())
 			{
-				shared_ptr<MonoBehaviour> mono = m.lock();
+				shared_ptr<MonoBehaviour>& mono = m.lock();
 				if (mono->gameobject->Get_Active_In_Hierarchy())
 				{
 					if (mono->Get_Enabled())
@@ -158,7 +158,7 @@ void Scene::Processing_Update(int state)
 	{
 		if (!m.expired())
 		{
-			shared_ptr<MonoBehaviour> mono = m.lock();
+			shared_ptr<MonoBehaviour>& mono = m.lock();
 			if (mono->gameobject->Get_Active_In_Hierarchy())
 			{
 				if (mono->Get_Enabled())

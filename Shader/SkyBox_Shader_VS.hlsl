@@ -8,7 +8,13 @@ struct VS_SKY_OUT
 
 cbuffer CONSTANT_BUFFER : register(b1)
 {
-    float4x4 world;
+    float4x4 world =
+    {
+        1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+    };
 };
 
 VS_SKY_OUT main(float3 position : POSITION)

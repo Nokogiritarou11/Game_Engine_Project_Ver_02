@@ -60,7 +60,7 @@ namespace BeastEngine
 		void MenuBar_Render();
 		void Scene_File_Menu_Render();
 		void Scene_Setting_Menu_Render();
-		void GameObject_Tree_Render(int& ID, const std::shared_ptr<BeastEngine::GameObject>& obj, int& selecting, int flag, bool& Item_Clicked);
+		void GameObject_Tree_Render(const std::shared_ptr<BeastEngine::GameObject>& obj, int flag, bool& Item_Clicked);
 		void GameObject_DragMenu_Render(const std::shared_ptr<BeastEngine::GameObject>& obj);
 
 		void ShortCut_Check();

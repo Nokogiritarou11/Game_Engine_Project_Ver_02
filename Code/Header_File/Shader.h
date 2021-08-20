@@ -42,6 +42,7 @@ namespace BeastEngine
 		{
 			std::string name;
 			Parameter_Type type;
+			std::vector<std::byte> default_value;
 			UINT size;
 			UINT offset;
 		};

@@ -24,3 +24,8 @@ float ReduceLightBleeding(float p_max, float Amount)
 {
     return linstep(Amount, 1, p_max);
 }
+
+float remap(float val, float inMin, float inMax, float outMin, float outMax)
+{
+    return clamp(outMin + (val - inMin) * (outMax - outMin) / (inMax - inMin), outMin, outMax);
+}

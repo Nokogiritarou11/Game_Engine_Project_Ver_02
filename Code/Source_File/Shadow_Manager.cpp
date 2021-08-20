@@ -10,8 +10,13 @@ Shadow_Manager::Shadow_Manager()
 {
 	shadow_map_texture_size = 2048;
 	Set_Shadow_Map_Texture_Size(shadow_map_texture_size);
-	material_shadow = Material::Create("Shader/Standard_Shadow_Shader_VS.hlsl", "Shader/Standard_Shadow_Shader_PS.hlsl");
 	gaussian_filter = make_unique<Gaussian_Filter>(Vector2(static_cast<float>(shadow_map_texture_size), static_cast<float>(shadow_map_texture_size)), DXGI_FORMAT_R32G32_FLOAT, 0.1f);
+
+	//マテリアル
+	material_shadow = Material::Create("Shader/Standard_Shadow_Shader_VS.hlsl", "Shader/Standard_Shadow_Shader_PS.hlsl");
+	material_shadow->Set_Blend_State(BS_State::Off);
+	material_shadow->Set_Rasterizer_State(RS_State::Cull_Back);
+	material_shadow->Set_Depth_Stencil_State(DS_State::GEqual);
 
 	//	サンプラステート作成
 	float boarderColor[4] = {-FLT_MAX,-FLT_MAX,-FLT_MAX,-FLT_MAX };

@@ -16,6 +16,10 @@
 using namespace std;
 using namespace BeastEngine;
 
+BS_State Material::binding_blend_state = BS_State::Off;
+RS_State Material::binding_rasterizer_state = RS_State::Cull_None;
+DS_State Material::binding_depth_stencil_State = DS_State::LEqual;
+
 shared_ptr<Material> Material::Create(const string& vertex_path, const string& pixel_path, const string& geometry_path)
 {
 	shared_ptr<Material> mat = make_shared<Material>();
@@ -54,6 +58,30 @@ shared_ptr<Material> Material::Load_Material(const string& fullpath)
 	}
 
 	return nullptr;
+}
+
+void Material::Set_Blend_State(BS_State state)
+{
+	blend_state = state;
+	static const char* blends[] = { "Off", "Alpha", "Alpha_Test", "Transparent", "Add", "Subtract", "Replace", "Multiply" };
+	if (blend_state == BS_State::Off)
+	{
+		render_queue = 2000;
+	}
+	else
+	{
+		render_queue = 3000;
+	}
+}
+
+void Material::Set_Rasterizer_State(RS_State state)
+{
+	rasterizer_state = state;
+}
+
+void Material::Set_Depth_Stencil_State(DS_State state)
+{
+	depth_stencil_state = state;
 }
 
 void Material::Set_Texture(const string& texture_name, const shared_ptr<Texture>& texture)
@@ -308,7 +336,6 @@ void Material::Reflect_Shader()
 {
 	constant_buffer_info.clear();
 	parameter_info.clear();
-	texture_info.clear();
 
 	for (size_t i = 0; i < 5; ++i)
 	{
@@ -327,56 +354,39 @@ void Material::Reflect_Shader()
 					cb_info.byte_data.resize(c_info.byte_size);
 					cb_info.staging_shader.emplace_back(static_cast<Shader::Shader_Type>(i));
 
-					Create_ConstantBuffer(cb_info, c_info.byte_size);
-
 					//パラメータ
 					for (auto& p_info : c_info.parameters)
 					{
 						auto itr = parameter_info.find(p_info.name);
 						if (itr == parameter_info.end())
 						{
+							//初期値代入
 							void* data = &cb_info.byte_data[p_info.offset];
-							if (p_info.type == Shader::Parameter_Type::INT)
-							{
-								int value = 1;
-								memcpy(data, &value, p_info.size);
-							}
-							else if (p_info.type == Shader::Parameter_Type::FLOAT)
-							{
-								float value = 1.0f;
-								memcpy(data, &value, p_info.size);
-							}
-							else if (p_info.type == Shader::Parameter_Type::VECTOR2)
-							{
-								Vector2 value = { 1.0f, 1.0f };
-								memcpy(data, &value, p_info.size);
-							}
-							else if (p_info.type == Shader::Parameter_Type::VECTOR3)
-							{
-								Vector3 value = { 1.0f, 1.0f, 1.0f };
-								memcpy(data, &value, p_info.size);
-							}
-							else if (p_info.type == Shader::Parameter_Type::VECTOR4)
-							{
-								Vector4 value = { 1.0f, 1.0f, 1.0f, 1.0f };
-								memcpy(data, &value, p_info.size);
-							}
-							else if (p_info.type == Shader::Parameter_Type::MATRIX)
-							{
-								Matrix value = Matrix::Identity;
-								memcpy(data, &value, p_info.size);
-							}
+							memcpy(data, &p_info.default_value[0], p_info.size);
 							Parameter_Info p = { p_info.type, c_info.name, p_info.size, p_info.offset };
 							parameter_info[p_info.name] = p;
 						}
 					}
+
+					Create_ConstantBuffer(cb_info, c_info.byte_size);
 				}
 				else
 				{
 					it->second.staging_shader.emplace_back(static_cast<Shader::Shader_Type>(i));
 				}
 			}
+		}
+	}
+}
 
+void Material::Reflect_Texture()
+{
+	texture_info.clear();
+
+	for (size_t i = 0; i < 5; ++i)
+	{
+		if (shared_ptr<Shader>& shader = shader_info[i].shader)
+		{
 			// テクスチャ
 			for (auto& t_info : shader->texture_info)
 			{
@@ -386,6 +396,7 @@ void Material::Reflect_Shader()
 					Texture_Info tex;
 					tex.register_number = t_info.register_number;
 					tex.staging_shader.emplace_back(static_cast<Shader::Shader_Type>(i));
+					tex.texture_path = "Default_Resource\\Image\\Default_Texture.png";
 					texture_info[t_info.name] = tex;
 				}
 				else
@@ -444,31 +455,70 @@ void Material::Set_Shader(const string& path, Shader::Shader_Type shader_type)
 		}
 	}
 
-	if (update) Reflect_Shader();
+	if (update)
+	{
+		Reflect_Shader();
+		Reflect_Texture();
+		Initialize_Shader();
+		Initialize_Texture();
+	}
 }
 
 void Material::Initialize_Shader()
 {
+	bool change = false;
 	for (size_t i = 0; i < 5; ++i)
 	{
-		Shader_Info& info = shader_info[i];
-		if (info.shader_path.empty())
+		if (shader_info[i].shader_path.empty()) continue;
+		shader_info[i].shader = Shader::Create(shader_info[i].shader_path, static_cast<Shader::Shader_Type>(i));
+		if (shared_ptr<Shader>& shader = shader_info[i].shader)
 		{
-			info.shader.reset();
-		}
-		else
-		{
-			info.shader = Shader::Create(info.shader_path, static_cast<Shader::Shader_Type>(i));
-		}
-
-		if (info.shader)
-		{
-			if (shared_ptr<Shader>& shader = info.shader)
+			// コンスタントバッファ
+			for (auto& c_info : shader->constant_buffer_info)
 			{
-				// コンスタントバッファ作成
-				for (auto& cb_info : constant_buffer_info)
+				auto it = constant_buffer_info.find(c_info.name);
+				if (it == constant_buffer_info.end())
 				{
-					Create_ConstantBuffer(cb_info.second, sizeof(std::byte) * cb_info.second.byte_data.size());
+					change = true;
+					break;
+				}
+				else
+				{
+					//パラメータ
+					for (auto& p_info : c_info.parameters)
+					{
+						auto itr = parameter_info.find(p_info.name);
+						if (itr == parameter_info.end())
+						{
+							change = true;
+							break;
+						}
+					}
+				}
+				if (change) break;
+			}
+		}
+		if (change) break;
+	}
+
+	if (change)
+	{
+		Reflect_Shader();
+	}
+	else
+	{
+		for (size_t i = 0; i < 5; ++i)
+		{
+			Shader_Info& info = shader_info[i];
+			if (info.shader)
+			{
+				if (shared_ptr<Shader>& shader = info.shader)
+				{
+					// コンスタントバッファ作成
+					for (auto& cb_info : constant_buffer_info)
+					{
+						Create_ConstantBuffer(cb_info.second, sizeof(std::byte) * cb_info.second.byte_data.size());
+					}
 				}
 			}
 		}
@@ -477,6 +527,30 @@ void Material::Initialize_Shader()
 
 void Material::Initialize_Texture()
 {
+	bool change = false;
+	for (size_t i = 0; i < 5; ++i)
+	{
+		if (shared_ptr<Shader>& shader = shader_info[i].shader)
+		{
+			// テクスチャ
+			for (auto& t_info : shader->texture_info)
+			{
+				auto it = texture_info.find(t_info.name);
+				if (it == texture_info.end())
+				{
+					change = true;
+					break;
+				}
+			}
+		}
+		if (change) break;
+	}
+
+	if (change)
+	{
+		Reflect_Texture();
+	}
+
 	for (auto& texture : texture_info)
 	{
 		texture.second.texture = Texture::Load(texture.second.texture_path);
@@ -535,6 +609,25 @@ void Material::Active()
 			info.shader->Activate();
 		}
 	}
+
+	//ブレンドステート設定
+	if (binding_blend_state != blend_state)
+	{
+		DxSystem::device_context->OMSetBlendState(DxSystem::Get_Blend_State(blend_state), nullptr, 0xFFFFFFFF);
+		binding_blend_state = blend_state;
+	}
+	//ラスタライザ―設定
+	if (binding_rasterizer_state != rasterizer_state)
+	{
+		DxSystem::device_context->RSSetState(DxSystem::Get_Rasterizer_State(rasterizer_state));
+		binding_rasterizer_state = rasterizer_state;
+	}
+	//デプスステンシルステート設定
+	if (binding_depth_stencil_State != depth_stencil_state)
+	{
+		DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(depth_stencil_state), 1);
+		binding_depth_stencil_State = depth_stencil_state;
+	}
 }
 
 void Material::Save(const string& path)
@@ -558,6 +651,7 @@ void Material::Save(const string& path)
 
 void Material::Draw_ImGui()
 {
+	ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Once);
 	if (ImGui::TreeNode(name.c_str()))
 	{
 		const float window_width = ImGui::GetWindowContentRegionWidth();
@@ -578,7 +672,7 @@ void Material::Draw_ImGui()
 				ImGui::SameLine(window_width - 25.0f);
 				if (ImGui::Button(u8"選択"))
 				{
-					const string& path = System_Function::Get_Open_File_Name("png", "\\Resouces\\Image");
+					const string& path = System_Function::Get_Open_File_Name("", "\\Shader");
 					if (path != "")
 					{
 						Set_Shader(path, static_cast<Shader::Shader_Type>(i));
@@ -599,6 +693,7 @@ void Material::Draw_ImGui()
 		const ImVec4& tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 		for (auto& info : texture_info)
 		{
+			ImGui::PushID(info.first.c_str());
 			ImGui::Text(info.first.c_str());
 			const auto& tex = info.second.texture;
 			ImGui::SameLine(window_width - size.x - frame_padding);
@@ -611,6 +706,7 @@ void Material::Draw_ImGui()
 					Save();
 				}
 			}
+			ImGui::PopID();
 		}
 
 		// パラメータ
@@ -690,37 +786,47 @@ void Material::Draw_ImGui()
 			ImGui::PopID();
 		}
 
-		static const char* depth[] = { "None", "Less", "Greater", "LEqual", "GEqual", "Equal", "NotEqual", "Always", "None_No_Write", "Less_No_Write", "Greater_No_Write", "LEqual_No_Write", "GEqual_No_Write", "Equal_No_Write", "NotEqual_No_Write", "Always_No_Write" };
-		int depth_current = static_cast<int>(depth_stencil_state);
-		ImGui::Text(u8"深度設定");
-		ImGui::SameLine(window_width * 0.6f);
-		ImGui::SetNextItemWidth(-FLT_MIN);
-		if (ImGui::Combo("##DepthMode", &depth_current, depth, IM_ARRAYSIZE(depth)))
+		if (ImGui::TreeNode(u8"レンダリング設定"))
 		{
-			depth_stencil_state = static_cast<DS_State>(depth_current);
-			Save();
-		}
+			static const char* depth[] = { "None", "Less", "Greater", "LEqual", "GEqual", "Equal", "NotEqual", "Always", "None_No_Write", "Less_No_Write", "Greater_No_Write", "LEqual_No_Write", "GEqual_No_Write", "Equal_No_Write", "NotEqual_No_Write", "Always_No_Write" };
+			int depth_current = static_cast<int>(depth_stencil_state);
+			ImGui::Text(u8"深度設定");
+			ImGui::SameLine(window_width * 0.6f);
+			ImGui::SetNextItemWidth(-FLT_MIN);
+			if (ImGui::Combo("##DepthMode", &depth_current, depth, IM_ARRAYSIZE(depth)))
+			{
+				Set_Depth_Stencil_State(static_cast<DS_State>(depth_current));
+				Save();
+			}
 
-		ImGui::Text(u8"カリング");
-		static const char* cull[] = { "Back", "Front", "None" };
-		int cull_current = static_cast<int>(rasterizer_state);
-		ImGui::SameLine(window_width * 0.6f);
-		ImGui::SetNextItemWidth(-FLT_MIN);
-		if (ImGui::Combo("##Culling", &cull_current, cull, IM_ARRAYSIZE(cull)))
-		{
-			rasterizer_state = static_cast<RS_State>(cull_current);
-			Save();
-		}
+			ImGui::Text(u8"カリング");
+			static const char* cull[] = { "Back", "Front", "None" };
+			int cull_current = static_cast<int>(rasterizer_state);
+			ImGui::SameLine(window_width * 0.6f);
+			ImGui::SetNextItemWidth(-FLT_MIN);
+			if (ImGui::Combo("##Culling", &cull_current, cull, IM_ARRAYSIZE(cull)))
+			{
+				Set_Rasterizer_State(static_cast<RS_State>(cull_current));
+				Save();
+			}
 
-		ImGui::Text(u8"ブレンド");
-		static const char* blends[] = { "Off", "Alpha", "Alpha_Test", "Transparent", "Add", "Subtract", "Replace", "Multiply" };
-		int blend_current = static_cast<int>(blend_state);
-		ImGui::SameLine(ImGui::GetWindowContentRegionWidth() * 0.6f);
-		ImGui::SetNextItemWidth(-FLT_MIN);
-		if (ImGui::Combo("##BlendMode", &blend_current, blends, IM_ARRAYSIZE(blends)))
-		{
-			blend_state = static_cast<BS_State>(blend_current);
-			Save();
+			ImGui::Text(u8"ブレンド");
+			static const char* blends[] = { "Off", "Alpha", "Alpha_Test", "Transparent", "Add", "Subtract", "Replace", "Multiply" };
+			int blend_current = static_cast<int>(blend_state);
+			ImGui::SameLine(ImGui::GetWindowContentRegionWidth() * 0.6f);
+			ImGui::SetNextItemWidth(-FLT_MIN);
+			if (ImGui::Combo("##BlendMode", &blend_current, blends, IM_ARRAYSIZE(blends)))
+			{
+				Set_Blend_State(static_cast<BS_State>(blend_current));
+				Save();
+			}
+
+			ImGui::Text(u8"描画キュー");
+			ImGui::SameLine(ImGui::GetWindowContentRegionWidth() * 0.6f);
+			ImGui::SetNextItemWidth(-FLT_MIN);
+			ImGui::InputInt("##Queue", &render_queue);
+
+			ImGui::TreePop();
 		}
 
 		ImGui::TreePop();

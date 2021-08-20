@@ -30,11 +30,11 @@ namespace BeastEngine
 		std::vector<std::weak_ptr<BeastEngine::Transform>> bones;
 
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
-		void Render() override;
-		void Render_Shadow() override;
+		void Render(int subset_number = 0) override;
+		void Render_Shadow(int subset_number = 0) override;
 		bool Draw_ImGui() override;
 		void Set_Active(bool value) override;
-		void Recalculate_Frame();
+		void Recalculate_Frame() override;
 
 		void Set_Mesh(std::shared_ptr<BeastEngine::Mesh> Mesh_Data); //メッシュデータを設定する
 

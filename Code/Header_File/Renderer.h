@@ -29,25 +29,22 @@ namespace BeastEngine
 		bool is_called = false;
 		bool enabled = true;
 		bool enabled_old = false;
-		bool recalculated_frame = false;
+		bool can_render = false;
 
 		BeastEngine::Matrix world_old;
-
-		static BS_State binding_blend_state;
-		static RS_State binding_rasterizer_state;
-		static DS_State binding_depth_stencil_State;
+		int subset_count = 0;
 
 	private:
-		virtual void Render() {};
-		virtual void Render_Shadow() {};
+		virtual void Render(int subset_number = 0) {};
+		virtual void Render_Shadow(int subset_number = 0) {};
+		virtual void Recalculate_Frame() {};
 
-		friend class Render_Texture;
 		friend class Render_Manager;
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Component>(this), enabled);
+			archive(cereal::base_class<BeastEngine::Component>(this), enabled, bounds);
 		}
 	};
 }

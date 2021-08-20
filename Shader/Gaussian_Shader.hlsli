@@ -3,10 +3,10 @@ SamplerState ColorSmp : register(s0);
 
 cbuffer CbGauss : register(b1)
 {
-    float4 weight_0;
-    float4 weight_1;
-    float2 offset;
-    float2 size;
+    float4 weight_0 = { 0.0f, 0.0f, 0.0f, 0.0f };
+    float4 weight_1 = { 0.0f, 0.0f, 0.0f, 0.0f };
+    float2 offset = { 0.0f, 0.0f };
+    float2 size = { 0.0f, 0.0f };
 };
 
 struct VSInput

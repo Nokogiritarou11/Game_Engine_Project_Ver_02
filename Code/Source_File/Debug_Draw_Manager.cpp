@@ -58,6 +58,48 @@ void Debug_Draw_Manager::flushLines()
 	lines.clear();
 }
 
+void Debug_Draw_Manager::drawLine(const btVector3& from, const btVector3& to, const btVector3& fromColor, const btVector3& toColor)
+{
+	// バッファにまとめて、あとから一括描画
+	btVector3 f = fromColor;
+	btVector3 t = toColor;
+	f[3] = 1.0f;
+	t[3] = 1.0f;
+	lines.emplace_back(Line(from, to, f, t));
+}
+
+void Debug_Draw_Manager::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
+{
+	btVector3 c = color;
+	c[3] = 1.0f;
+	lines.emplace_back(Line(from, to, c, c));
+}
+
+Debug_Draw_Manager::Vertex::Vertex(const btVector3& p, const btVector3& c)
+{
+	pos[0] = p[0];
+	pos[1] = p[1];
+	pos[2] = p[2];
+	color[0] = c[0];
+	color[1] = c[1];
+	color[2] = c[2];
+	color[3] = c[3];
+}
+
+void Debug_Draw_Manager::Set_Dx_Settings()
+{
+	// プリミティブ形状
+	DxSystem::device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+	// シェーダ
+	material->Active();
+
+	DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(DS_State::GEqual_No_Write), 1);
+	// ステート
+	DxSystem::device_context->RSSetState(DxSystem::Get_Rasterizer_State(RS_State::Wire));
+	DxSystem::device_context->OMSetBlendState(DxSystem::Get_Blend_State(BS_State::Alpha), nullptr, 0xffffffff);
+}
+
 void Debug_Draw_Manager::Render_Grid(shared_ptr<Transform>& trans)
 {
 	Set_Dx_Settings();
@@ -123,58 +165,13 @@ void Debug_Draw_Manager::Render_Grid(shared_ptr<Transform>& trans)
 	UINT offset = 0;
 	DxSystem::device_context->IASetVertexBuffers(0, 1, grid_vertex_buffer.GetAddressOf(), &stride, &offset);
 
-	DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(DS_State::GEqual_No_Write), 1);
-
 	//描画
 	DxSystem::device_context->Draw(count[0] * 4, 0);
 	DxSystem::device_context->Draw(count[1] * 4, count[0] * 4);
 }
 
-void Debug_Draw_Manager::drawLine(const btVector3& from, const btVector3& to, const btVector3& fromColor, const btVector3& toColor)
-{
-	// バッファにまとめて、あとから一括描画
-	btVector3 f = fromColor;
-	btVector3 t = toColor;
-	f[3] = 1.0f;
-	t[3] = 1.0f;
-	lines.emplace_back(Line(from, to, f, t));
-}
-
-void Debug_Draw_Manager::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
-{
-	btVector3 c = color;
-	c[3] = 1.0f;
-	lines.emplace_back(Line(from, to, c, c));
-}
-
-Debug_Draw_Manager::Vertex::Vertex(const btVector3& p, const btVector3& c)
-{
-	pos[0] = p[0];
-	pos[1] = p[1];
-	pos[2] = p[2];
-	color[0] = c[0];
-	color[1] = c[1];
-	color[2] = c[2];
-	color[3] = c[3];
-}
-
-void Debug_Draw_Manager::Set_Dx_Settings()
-{
-	// プリミティブ形状
-	DxSystem::device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-
-	// シェーダ
-	material->Active();
-
-	// ステート
-	DxSystem::device_context->RSSetState(DxSystem::Get_Rasterizer_State(RS_State::Wire));
-	DxSystem::device_context->OMSetBlendState(DxSystem::Get_Blend_State(BS_State::Alpha), nullptr, 0xffffffff);
-}
-
 void Debug_Draw_Manager::Render_Collider()
 {
 	Set_Dx_Settings();
-	DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(DS_State::None_No_Write), 0);
-
 	Engine::bulletphysics_manager->Render_Debug();
 }

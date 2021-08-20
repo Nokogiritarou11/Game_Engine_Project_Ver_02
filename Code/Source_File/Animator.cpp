@@ -40,7 +40,7 @@ void Animator::Set_Default_Pose()
 
 			for (auto& anim : clip->animations)
 			{
-				shared_ptr t_trans = transform->Find(anim.Target_Path).lock();
+				shared_ptr<Transform>& t_trans = transform->Find(anim.Target_Path).lock();
 				if (t_trans)
 				{
 					auto it = pose_default.find(anim.Target_Path);

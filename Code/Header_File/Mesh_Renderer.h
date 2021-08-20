@@ -16,11 +16,11 @@ namespace BeastEngine
 		std::shared_ptr<BeastEngine::Mesh> mesh;
 
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
-		void Render() override;
-		void Render_Shadow() override;
+		void Render(int subset_number = 0) override;
+		void Render_Shadow(int subset_number = 0) override;
 		bool Draw_ImGui() override;
 		void Set_Active(bool value) override;
-		void Recalculate_Frame();
+		void Recalculate_Frame() override;
 
 		struct Constant_Buffer_Mesh
 		{

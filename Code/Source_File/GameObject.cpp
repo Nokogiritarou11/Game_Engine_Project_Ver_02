@@ -60,7 +60,7 @@ void GameObject::Release()
 	{
 		for (int i = 0; i < transform->Get_Child_Count(); ++i)
 		{
-			if (shared_ptr<Transform> child = transform->Get_Child(i).lock())
+			if (shared_ptr<Transform>& child = transform->Get_Child(i).lock())
 			{
 				GameObject::Destroy(child->gameobject);
 			}
@@ -125,10 +125,9 @@ void GameObject::Set_Child_Active(bool value)
 {
 	if (transform->Get_Child_Count())
 	{
-		shared_ptr<Transform> c_trans;
 		for (int i = 0; i < transform->Get_Child_Count(); ++i)
 		{
-			c_trans = transform->Get_Child(i).lock();
+			shared_ptr<Transform>& c_trans = transform->Get_Child(i).lock();
 			for (auto& com : c_trans->gameobject->component_list)
 			{
 				com->Set_Active(value);

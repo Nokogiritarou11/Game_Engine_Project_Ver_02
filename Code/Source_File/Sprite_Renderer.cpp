@@ -57,6 +57,7 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 	{
 		texture = Texture::Load("Default_Resource\\Image\\Default_Texture.png");
 	}
+	can_render = true;
 
 	Set_Active(Get_Enabled());
 }
@@ -79,9 +80,9 @@ void Sprite_Renderer::Set_Active(bool value)
 	}
 }
 
-void Sprite_Renderer::Render()
+void Sprite_Renderer::Recalculate_Frame()
 {
-	if (texture)
+	if (can_render)
 	{
 		//頂点データ設定
 		Vertex data[4];
@@ -105,8 +106,6 @@ void Sprite_Renderer::Render()
 		data[3].pos.z = 0.0f;
 
 		// 中心座標を原点へ
-		//float mx = trans_pos.x + trans->Width * 0.5f;
-		//float my = trans_pos.y + trans->Height * 0.5f;
 		float mx = trans_pos.x + size.x * 0.5f;
 		float my = trans_pos.y + size.y * 0.5f;
 		data[0].pos.x -= mx; data[0].pos.y -= my;
@@ -178,10 +177,6 @@ void Sprite_Renderer::Render()
 		data[2].color = color;
 		data[3].color = color;
 
-		//	頂点バッファの指定
-		UINT stride = sizeof(Vertex);
-		UINT offset = 0;
-		DxSystem::device_context->IASetVertexBuffers(0, 1, vertex_buffer.GetAddressOf(), &stride, &offset);
 
 		UINT subresourceIndex = 0;
 		D3D11_MAPPED_SUBRESOURCE mapped;
@@ -191,10 +186,21 @@ void Sprite_Renderer::Render()
 			memcpy(mapped.pData, data, sizeof(data));
 			DxSystem::device_context->Unmap(vertex_buffer.Get(), subresourceIndex);
 		}
+	}
+}
 
+void Sprite_Renderer::Render(int subset_number)
+{
+	if (can_render)
+	{
+		//	頂点バッファの指定
+		UINT stride = sizeof(Vertex);
+		UINT offset = 0;
+		DxSystem::device_context->IASetVertexBuffers(0, 1, vertex_buffer.GetAddressOf(), &stride, &offset);
 		//テクスチャの設定
 		texture->Set(1, Shader::Shader_Type::Pixel);
 
+		// 描画
 		DxSystem::device_context->Draw(4, 0);
 	}
 }
@@ -228,23 +234,35 @@ bool Sprite_Renderer::Draw_ImGui()
 
 	if (open)
 	{
-		ImGui::Text(u8"現在のテクスチャ::");
-		ImGui::SameLine();
-		ImGui::Text(file_name.c_str());
-		ImGui::SameLine();
-		if (ImGui::Button(u8"テクスチャを選択"))
+		const float window_width = ImGui::GetWindowContentRegionWidth();
 		{
-			string path = System_Function::Get_Open_File_Name("png", "\\Resouces\\Image");
-			if (path != "")
+			const ImVec2& size = ImVec2(100.0f, 100.0f);
+			const ImVec2& uv0 = ImVec2(0.0f, 0.0f);
+			const ImVec2& uv1 = ImVec2(1.0f, 1.0f);
+			const int& frame_padding = 3;
+			const ImVec4& bg_col = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			const ImVec4& tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+			ImGui::Text(u8"現在のテクスチャ::");
+			ImGui::SameLine();
+			ImGui::Text(file_name.c_str());
+
+			ImGui::Dummy({ 0,0 });
+			ImGui::SameLine(window_width - size.x - frame_padding);
+			if (ImGui::ImageButton((void*)texture->Get_Resource().Get(), size, uv0, uv1, frame_padding, bg_col, tint_col))
 			{
-				int path_i = path.find_last_of("\\") + 1;
-				int ext_i = path.find_last_of(".");
-				string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
-				string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
-				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
-				texture = Texture::Load(path);
-				file_path = pathname;
-				file_name = filename + extname;
+				string path = System_Function::Get_Open_File_Name("png", "\\Resouces\\Image");
+				if (path != "")
+				{
+					int path_i = path.find_last_of("\\") + 1;
+					int ext_i = path.find_last_of(".");
+					string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
+					string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
+					string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+					texture = Texture::Load(path);
+					file_path = pathname;
+					file_name = filename + extname;
+				}
 			}
 		}
 
@@ -252,19 +270,29 @@ bool Sprite_Renderer::Draw_ImGui()
 		int edit_uv_origin[2] = { static_cast<int>(uv_origin.x), static_cast<int>(uv_origin.y) };
 		int edit_uv_size[2] = { static_cast<int>(uv_size.x),static_cast<int>(uv_size.y) };
 
-		if (ImGui::DragFloat2(u8"表示サイズ", edit_size, 0.1f, -FLT_MAX, FLT_MAX))
+		ImGui::Text(u8"表示サイズ");
+		ImGui::SameLine(window_width * 0.4f);
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		if (ImGui::DragFloat2("##size", edit_size, 0.1f, -FLT_MAX, FLT_MAX))
 		{
 			size = { edit_size[0],edit_size[1] };
 		}
-		if (ImGui::DragInt2(u8"UV始点", edit_uv_origin, 0, INT_MAX))
+
+		ImGui::Text(u8"UV始点");
+		ImGui::SameLine(window_width * 0.4f);
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		if (ImGui::DragInt2("##uv_origin", edit_uv_origin, 0, INT_MAX))
 		{
 			uv_origin = { static_cast<float>(edit_uv_origin[0]),static_cast<float>(edit_uv_origin[1]) };
 		}
-		if (ImGui::DragInt2(u8"UVサイズ", edit_uv_size, 0, INT_MAX))
+
+		ImGui::Text(u8"UVサイズ");
+		ImGui::SameLine(window_width * 0.4f);
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		if (ImGui::DragInt2("##uv_size", edit_uv_size, 0, INT_MAX))
 		{
 			uv_size = { static_cast<float>(edit_uv_size[0]),static_cast<float>(edit_uv_size[1]) };
 		}
-
 
 		float edit_color[4] = { color.x,color.y,color.z,color.w };
 		if (ImGui::ColorEdit4("Color", edit_color))

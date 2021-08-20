@@ -77,14 +77,29 @@ void Shader::Reflect_Resource_Buffer(const ComPtr<ID3D11ShaderReflection>& refle
 					Parameter_Type type = Parameter_Type::INT;
 					if (tdesc.Class == D3D10_SVC_SCALAR)
 					{
-						if (tdesc.Type == D3D10_SVT_INT || tdesc.Type == D3D10_SVT_UINT) { type = Parameter_Type::INT; }
-						else if (tdesc.Type == D3D10_SVT_FLOAT) { type = Parameter_Type::FLOAT; }
+						if (tdesc.Type == D3D10_SVT_INT || tdesc.Type == D3D10_SVT_UINT)
+						{
+							type = Parameter_Type::INT;
+						}
+						else if (tdesc.Type == D3D10_SVT_FLOAT)
+						{
+							type = Parameter_Type::FLOAT;
+						}
 					}
 					else if (tdesc.Class == D3D10_SVC_VECTOR)
 					{
-						if (vdesc.Size == 8) { type = Parameter_Type::VECTOR2; }
-						else if (vdesc.Size == 12) { type = Parameter_Type::VECTOR3; }
-						else if (vdesc.Size == 16) { type = Parameter_Type::VECTOR4; }
+						if (vdesc.Size == 8)
+						{
+							type = Parameter_Type::VECTOR2;
+						}
+						else if (vdesc.Size == 12)
+						{
+							type = Parameter_Type::VECTOR3;
+						}
+						else if (vdesc.Size == 16)
+						{
+							type = Parameter_Type::VECTOR4;
+						}
 					}
 					else if (tdesc.Class == D3D10_SVC_MATRIX_ROWS || tdesc.Class == D3D10_SVC_MATRIX_COLUMNS)
 					{
@@ -95,7 +110,10 @@ void Shader::Reflect_Resource_Buffer(const ComPtr<ID3D11ShaderReflection>& refle
 						assert(false);
 					}
 
-					Parameter_Info p_info = { vdesc.Name, type, vdesc.Size, vdesc.StartOffset };
+					vector<std::byte> default_value(vdesc.Size);
+					memcpy(&default_value[0], vdesc.DefaultValue, vdesc.Size);
+
+					Parameter_Info p_info = { vdesc.Name, type, default_value, vdesc.Size, vdesc.StartOffset };
 					info.parameters.emplace_back(p_info);
 				}
 				constant_buffer_info.emplace_back(info);

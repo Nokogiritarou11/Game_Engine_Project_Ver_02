@@ -49,6 +49,9 @@ Render_Manager::Render_Manager()
 
 	//デフォルトマテリアル
 	sprite_material = Material::Create("Shader\\2D_Shader_VS.hlsl", "Shader\\2D_Shader_PS.hlsl");
+	sprite_material->Set_Blend_State(BS_State::Alpha);
+	sprite_material->Set_Rasterizer_State(RS_State::Cull_None);
+	sprite_material->Set_Depth_Stencil_State(DS_State::None_No_Write);
 }
 
 void Render_Manager::Reset()
@@ -93,7 +96,6 @@ void Render_Manager::Add(const shared_ptr<Camera>& mono)
 
 void Render_Manager::Check_Renderer()
 {
-	shared_ptr<Renderer> p_rend;
 	//3Dオブジェクト
 	{
 		bool expired = false;
@@ -101,8 +103,7 @@ void Render_Manager::Check_Renderer()
 		{
 			if (!r.expired())
 			{
-				p_rend = r.lock();
-				p_rend->recalculated_frame = false;
+				r.lock()->Recalculate_Frame();
 			}
 			else
 			{
@@ -122,8 +123,7 @@ void Render_Manager::Check_Renderer()
 		{
 			if (!r.expired())
 			{
-				p_rend = r.lock();
-				p_rend->recalculated_frame = false;
+				r.lock()->Recalculate_Frame();
 			}
 			else
 			{
@@ -140,20 +140,22 @@ void Render_Manager::Check_Renderer()
 
 void Render_Manager::Culling_Renderer(const Vector3& view_pos, const array<Vector4, 6>& planes)
 {
-	shared_ptr<Renderer> p_rend;
 	for (auto& r : renderer_3D_list)
 	{
-		p_rend = r.lock();
+		shared_ptr<Renderer>& p_rend = r.lock();
 		if (!p_rend->bounds.Get_Is_Culling_Frustum(p_rend->transform, planes))
 		{
-			Render_Obj obj = { r, p_rend->material[0]->render_queue, Vector3::DistanceSquared(p_rend->transform->Get_Position(), view_pos) };
-			if (p_rend->material[0]->render_queue >= 3000)
+			for (int i = 0; i < p_rend->subset_count; ++i)
 			{
-				alpha_list.emplace_back(obj);
-			}
-			else
-			{
-				opaque_list.emplace_back(obj);
+				Render_Obj obj = { r, i, p_rend->material[i]->render_queue, Vector3::DistanceSquared(p_rend->transform->Get_Position(), view_pos) };
+				if (p_rend->material[i]->render_queue >= 2500)
+				{
+					alpha_list.emplace_back(obj);
+				}
+				else
+				{
+					opaque_list.emplace_back(obj);
+				}
 			}
 		}
 	}
@@ -168,6 +170,7 @@ void Render_Manager::Sort_Renderer()
 void Render_Manager::Render()
 {
 	Check_Renderer();
+
 	if (render_game)
 	{
 		Render_Game();
@@ -193,7 +196,7 @@ void Render_Manager::Render_Scene()
 		DxSystem::device_context->PSSetConstantBuffers(0, 1, constant_buffer_scene.GetAddressOf());
 		Update_Constant_Buffer();
 
-		Render_Sky(Engine::editor->debug_camera_transform->Get_Position());
+		Render_Sky(shadow_camera_transform->Get_Position());
 		Render_3D(Engine::editor->debug_camera);
 		Engine::particle_manager->Render();
 
@@ -204,13 +207,12 @@ void Render_Manager::Render_Scene()
 
 void Render_Manager::Render_Game()
 {
-	shared_ptr<Camera> camera = nullptr;
 	bool expired = false;
 	for (auto& c : camera_list)
 	{
 		if (!c.expired())
 		{
-			camera = c.lock();
+			shared_ptr<Camera>& camera = c.lock();
 			if (camera->gameobject->Get_Active_In_Hierarchy())
 			{
 				if (camera->Get_Enabled())
@@ -260,21 +262,21 @@ void Render_Manager::Render_3D(const shared_ptr<Camera>& camera)
 	Culling_Renderer(camera->transform->Get_Position(), camera->frustum_planes);
 	Sort_Renderer();
 
-	shared_ptr<Renderer> p_rend = nullptr;
 	for (auto& r : opaque_list)
 	{
-		p_rend = r.renderer.lock();
+		shared_ptr<Renderer>& p_rend = r.renderer.lock();
 		if (p_rend->gameobject->Get_Active_In_Hierarchy())
 		{
 			if (p_rend->Get_Enabled())
 			{
-				p_rend->Render();
+				p_rend->Render(r.subset_number);
 			}
 		}
 	}
+
 	for (auto& r : alpha_list)
 	{
-		p_rend = r.renderer.lock();
+		shared_ptr<Renderer>& p_rend = r.renderer.lock();
 		if (p_rend->gameobject->Get_Active_In_Hierarchy())
 		{
 			if (p_rend->Get_Enabled())
@@ -293,23 +295,11 @@ void Render_Manager::Render_2D()
 	{
 		//トポロジー設定
 		DxSystem::device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-
-		//ブレンドステート設定
-		DxSystem::device_context->OMSetBlendState(DxSystem::Get_Blend_State(BS_State::Alpha), nullptr, 0xFFFFFFFF);
-		Renderer::binding_blend_state = BS_State::Alpha;
-		//ラスタライザ―設定
-		DxSystem::device_context->RSSetState(DxSystem::Get_Rasterizer_State(RS_State::Cull_None));
-		Renderer::binding_rasterizer_state = RS_State::Cull_None;
-		//デプスステンシルステート設定
-		DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(DS_State::None_No_Write), 1);
-		Renderer::binding_depth_stencil_State = DS_State::None_No_Write;
-
 		sprite_material->Active();
 
-		shared_ptr<Renderer> p_rend = nullptr;
 		for (auto& r : renderer_2D_list)
 		{
-			p_rend = r.lock();
+			shared_ptr<Renderer>& p_rend = r.lock();
 			if (p_rend->gameobject->Get_Active_In_Hierarchy())
 			{
 				if (p_rend->Get_Enabled())
@@ -325,17 +315,6 @@ void Render_Manager::Render_Sky(const Vector3& pos)
 {
 	//トポロジー設定
 	DxSystem::device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	//ブレンドステート設定
-	DxSystem::device_context->OMSetBlendState(DxSystem::Get_Blend_State(BS_State::Off), nullptr, 0xFFFFFFFF);
-	Renderer::binding_blend_state = BS_State::Off;
-	//ラスタライザ―設定
-	DxSystem::device_context->RSSetState(DxSystem::Get_Rasterizer_State(RS_State::Cull_None));
-	Renderer::binding_rasterizer_state = RS_State::Cull_None;
-	//デプスステンシルステート設定
-	DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(DS_State::None_No_Write), 1);
-	Renderer::binding_depth_stencil_State = DS_State::None_No_Write;
-
 	skybox->Render(pos);
 }
 
@@ -389,36 +368,23 @@ void Render_Manager::Render_Shadow_Directional(const Vector3& color, const float
 	Engine::shadow_manager->Set_Shadow_Map_Texture();
 	//トポロジー設定
 	DxSystem::device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//ブレンドステート設定
-	DxSystem::device_context->OMSetBlendState(DxSystem::Get_Blend_State(BS_State::Off), nullptr, 0xFFFFFFFF);
-	Renderer::binding_blend_state = BS_State::Off;
-	//ラスタライザ―設定
-	DxSystem::device_context->RSSetState(DxSystem::Get_Rasterizer_State(RS_State::Cull_Back));
-	Renderer::binding_rasterizer_state = RS_State::Cull_Back;
-	//デプスステンシルステート設定
-	DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(DS_State::GEqual), 1);
-	Renderer::binding_depth_stencil_State = DS_State::GEqual;
 
 	Culling_Renderer(shadow_camera->transform->Get_Position(), shadow_camera->frustum_planes);
 	Sort_Renderer();
 
-	shared_ptr<Renderer> p_rend = nullptr;
 	for (auto& r : opaque_list)
 	{
-		p_rend = r.renderer.lock();
+		shared_ptr<Renderer>& p_rend = r.renderer.lock();
 		if (p_rend->gameobject->Get_Active_In_Hierarchy())
 		{
 			if (p_rend->Get_Enabled())
 			{
-				p_rend->Render_Shadow();
+				p_rend->Render_Shadow(r.subset_number);
 			}
 		}
 	}
 	opaque_list.clear();
 
-	//ラスタライザ―設定
-	DxSystem::device_context->RSSetState(DxSystem::Get_Rasterizer_State(RS_State::Cull_None));
-	Renderer::binding_rasterizer_state = RS_State::Cull_None;
 	Engine::shadow_manager->Filtering_Gaussian();
 }
 
