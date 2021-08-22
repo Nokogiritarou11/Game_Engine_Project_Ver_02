@@ -15,6 +15,8 @@
 #include "Engine.h"
 #include "Asset_Manager.h"
 #include "Debug.h"
+#include "Material.h"
+#include "Texture.h"
 using namespace std;
 using namespace BeastEngine;
 
@@ -39,6 +41,10 @@ void FBX_Converter::Draw_ImGui()
 				if (extname == ".fbx")
 				{
 					model = Model_Data::Load_Model(pathname, filename);
+					convert_mesh = true;
+					convert_material = true;
+					convert_animation = true;
+					convert_prefab = true;
 					++load_state;
 				}
 				else
@@ -51,23 +57,29 @@ void FBX_Converter::Draw_ImGui()
 	else if (load_state == 1)
 	{
 		ImGui::Text(model->name.c_str());
-		static bool convert_mesh = true;
-		static bool convert_animation = true;
-		static bool convert_prefab = true;
 		ImGui::Checkbox(u8"メッシュデータに変換する", &convert_mesh);
+		ImGui::Checkbox(u8"マテリアルに変換する", &convert_material);
 		if (!model->bones.empty())
 		{
 			ImGui::Checkbox(u8"アニメーションデータに変換する", &convert_animation);
 		}
+		else
+		{
+			convert_animation = false;
+		}
 		ImGui::Checkbox(u8"プレハブデータに変換する", &convert_prefab);
 
-		if (convert_mesh || convert_animation || convert_prefab)
+		if (convert_mesh || convert_material || convert_animation || convert_prefab)
 		{
 			if (ImGui::Button(u8"変換開始"))
 			{
-				Load_From_FBX(convert_mesh, convert_animation, convert_prefab);
+				Load_From_FBX(convert_mesh, convert_material, convert_animation, convert_prefab);
 				Debug::Log(u8"FBXの変換が完了しました");
 				model.reset();
+				convert_mesh = false;
+				convert_material = false;
+				convert_animation = false;
+				convert_prefab = false;
 				load_state = 0;
 			}
 		}
@@ -76,6 +88,10 @@ void FBX_Converter::Draw_ImGui()
 			if (ImGui::Button(u8"キャンセル"))
 			{
 				model.reset();
+				convert_mesh = false;
+				convert_material = false;
+				convert_animation = false;
+				convert_prefab = false;
 				load_state = 0;
 			}
 		}
@@ -84,13 +100,7 @@ void FBX_Converter::Draw_ImGui()
 	ImGui::End();
 }
 
-void FBX_Converter::Direct_Load(const string& file_path, const string& fbx_filename, bool convert_mesh, bool convert_animation, bool convert_prefab)
-{
-	model = Model_Data::Load_Model(file_path, fbx_filename);
-	Load_From_FBX(convert_mesh, convert_animation, convert_prefab);
-}
-
-void FBX_Converter::Load_From_FBX(bool& convert_mesh, bool& convert_animation, bool& convert_prefab)
+void FBX_Converter::Load_From_FBX(bool& convert_mesh, bool& convert_material, bool& convert_animation, bool& convert_prefab)
 {
 	shared_ptr<GameObject> obj = Create_GameObject(model->name);
 
@@ -116,14 +126,32 @@ void FBX_Converter::Load_From_FBX(bool& convert_mesh, bool& convert_animation, b
 		}
 
 		obj->transform->Set_Scale(0.01f, 0.01f, 0.01f);
+
 		if (convert_mesh)
 		{
 			Convert_Mesh();
 		}
+
 		if (convert_prefab)
 		{
 			Resources::Create_Prefab(obj);
 		}
+
+		if (convert_material)
+		{
+			for (auto& path : model->default_material_passes)
+			{
+				int path_i = path.find_last_of("\\") + 1;
+				int ext_i = path.find_last_of(".");
+				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+				shared_ptr<Material> mat = Material::Create("Shader\\Standard_Shader_VS.hlsl", "Shader\\Standard_Shader_PS.hlsl");
+				mat->name = filename;
+				mat->Set_Texture("diffuseMap", Texture::Load("Default_Resource\\Image\\Default_Texture.png"));
+				mat->Set_Texture("normalMap", Texture::Load("Default_Resource\\Image\\Default_NormalMap.png"));
+				mat->Save(path);
+			}
+		}
+
 		for each (shared_ptr<GameObject> g in rend_list)
 		{
 			g->transform->gameobject.reset();
@@ -195,17 +223,35 @@ void FBX_Converter::Load_From_FBX(bool& convert_mesh, bool& convert_animation, b
 		}
 
 		obj->transform->Set_Scale(0.01f, 0.01f, 0.01f);
+
 		if (convert_animation)
 		{
 			Convert_Animation(bone_list);
 		}
+
 		if (convert_mesh)
 		{
 			Convert_Mesh();
 		}
+
 		if (convert_prefab)
 		{
 			Resources::Create_Prefab(obj);
+		}
+
+		if (convert_material)
+		{
+			for (auto& path : model->default_material_passes)
+			{
+				int path_i = path.find_last_of("\\") + 1;
+				int ext_i = path.find_last_of(".");
+				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+				shared_ptr<Material> mat = Material::Create("Shader\\Standard_Shader_VS.hlsl", "Shader\\Standard_Shader_PS.hlsl");
+				mat->name = filename;
+				mat->Set_Texture("diffuseMap", Texture::Load("Default_Resource\\Image\\Default_Texture.png"));
+				mat->Set_Texture("normalMap", Texture::Load("Default_Resource\\Image\\Default_NormalMap.png"));
+				mat->Save(path);
+			}
 		}
 
 		for each (shared_ptr<GameObject> g in rend_list)

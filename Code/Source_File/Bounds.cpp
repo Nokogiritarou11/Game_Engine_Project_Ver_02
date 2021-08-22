@@ -36,8 +36,9 @@ bool Bounds::Get_Is_Culling_Frustum(const shared_ptr<Transform>& trans, const ar
 	bool cull = false;
 
 	const Vector3& position = trans->Get_Position();
-	const Vector3 min_scaled = min * trans->Get_Scale();
-	const Vector3 max_scaled = max * trans->Get_Scale();
+	const Vector3& scale = trans->Get_Scale();
+	const Vector3 min_scaled = (center + min) * scale;
+	const Vector3 max_scaled = (center + max) * scale;
 
 	for (int planeID = 0; planeID < 6; ++planeID)
 	{

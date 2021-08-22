@@ -31,8 +31,9 @@ namespace BeastEngine
 		bool enabled_old = false;
 		bool can_render = false;
 
-		BeastEngine::Matrix world_old;
 		int subset_count = 0;
+		std::vector<int> subset_material_index;
+		BeastEngine::Matrix world_old;
 
 	private:
 		virtual void Render(int subset_number = 0) {};

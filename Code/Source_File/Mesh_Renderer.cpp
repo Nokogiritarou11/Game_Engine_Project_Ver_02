@@ -13,7 +13,9 @@
 #include "Compute_Shader.h"
 #include "Mesh.h"
 #include "Material.h"
+#include "Texture.h"
 #include "Engine.h"
+#include "Shadow_Manager.h"
 #include "Asset_Manager.h"
 #include "Debug_Draw_Manager.h"
 using Microsoft::WRL::ComPtr;
@@ -119,6 +121,11 @@ void Mesh_Renderer::Set_Mesh(shared_ptr<Mesh> mesh_data)
 			}
 
 			subset_count = static_cast<int>(mesh->subsets.size());
+			subset_material_index.resize(subset_count);
+			for (int i = 0; i < subset_count; ++i)
+			{
+				subset_material_index[i] = mesh->subsets[i].material_ID;
+			}
 
 			//コンピュートシェーダー設定
 			compute_shader->Create_Buffer_Input(sizeof(Mesh::vertex), mesh->vertices.size(), &mesh->vertices[0]);
@@ -136,31 +143,34 @@ void Mesh_Renderer::Set_Mesh(shared_ptr<Mesh> mesh_data)
 
 void Mesh_Renderer::Render(int subset_number)
 {
-	if (can_render)
-	{
-		auto& subset = mesh->subsets[subset_number];
-		//マテリアル設定
-		material[subset.material_ID]->Active();
-
-		// バッファ設定
-		DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-		DxSystem::device_context->VSSetShaderResources(0, 1, compute_shader->Get_SRV().GetAddressOf());
-		// 描画
-		DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
-	}
+	// バッファ設定
+	auto& subset = mesh->subsets[subset_number];
+	DxSystem::device_context->VSSetShaderResources(0, 1, compute_shader->Get_SRV().GetAddressOf());
+	DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+	//マテリアル設定
+	material[subset.material_ID]->Active();
+	// 描画
+	DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
 }
 
 void Mesh_Renderer::Render_Shadow(int subset_number)
 {
-	if (can_render)
+	// バッファ設定
+	auto& subset = mesh->subsets[subset_number];
+	DxSystem::device_context->VSSetShaderResources(0, 1, compute_shader->Get_SRV().GetAddressOf());
+	DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+	//マテリアル設定
+	auto& mat = material[subset.material_ID];
+	if (mat->texture_info.empty())
 	{
-		// バッファ設定
-		DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-		auto& subset = mesh->subsets[subset_number];
-		DxSystem::device_context->VSSetShaderResources(0, 1, compute_shader->Get_SRV().GetAddressOf());
-		//描画
-		DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
+		Engine::shadow_manager->Set_Default_Shadow_Alpha();
 	}
+	else
+	{
+		mat->main_texture->Set(1, Shader::Shader_Type::Pixel);
+	}
+	//描画
+	DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
 }
 
 void Mesh_Renderer::Reset()
@@ -206,8 +216,8 @@ bool Mesh_Renderer::Draw_ImGui()
 
 		if (ImGui::TreeNode(u8"バンディングボックス"))
 		{
-			const Vector3 min_scaled = transform->Get_Position() + bounds.Get_center() + bounds.Get_min() * transform->Get_Scale();
-			const Vector3 max_scaled = transform->Get_Position() + bounds.Get_center() + bounds.Get_max() * transform->Get_Scale();
+			const Vector3& min_scaled = transform->Get_Position() + (bounds.Get_center() + bounds.Get_min()) * transform->Get_Scale();
+			const Vector3& max_scaled = transform->Get_Position() + (bounds.Get_center() + bounds.Get_max()) * transform->Get_Scale();
 			btVector3 min = { min_scaled.x, min_scaled.y, min_scaled.z };
 			btVector3 max = { max_scaled.x, max_scaled.y, max_scaled.z };
 			Engine::debug_draw_manager->drawAabb(min, max, btVector3(0.0f, 0.65f, 1.0f));
@@ -246,6 +256,31 @@ bool Mesh_Renderer::Draw_ImGui()
 					mat->Draw_ImGui();
 					++ID_mat;
 					ImGui::PopID();
+				}
+
+				if (ImGui::TreeNode(u8"シェーダー一括変更"))
+				{
+					static const char* s_name[] = { "VS", "GS", "PS", "HS", "DS" };
+					for (size_t i = 0; i < 5; ++i)
+					{
+						ImGui::PushID(i);
+						ImGui::Text(s_name[i]);
+						ImGui::SameLine(window_width - 25.0f);
+						if (ImGui::Button(u8"選択"))
+						{
+							const string& path = System_Function::Get_Open_File_Name("", "\\Shader");
+							if (path != "")
+							{
+								for (auto& mat : material)
+								{
+									mat->Set_Shader(path, static_cast<Shader::Shader_Type>(i));
+									mat->Save();
+								}
+							}
+						}
+						ImGui::PopID();
+					}
+					ImGui::TreePop();
 				}
 				ImGui::TreePop();
 			}

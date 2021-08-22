@@ -1,6 +1,6 @@
 #include "Scene_Constants.hlsli"
 
-struct VS_OUT
+struct VERTEX_OUT
 {
     float4 position : SV_POSITION;
     float4 normal : NORMAL;
@@ -12,9 +12,9 @@ struct VS_OUT
 // í∏ì_èÓïÒ
 StructuredBuffer<VERTEX> vertex : register(t0);
 
-VS_OUT main(uint index : SV_VertexID)
+VERTEX_OUT main(uint index : SV_VertexID)
 {
-    VS_OUT vout;
+    VERTEX_OUT vout;
 
     float4 pos = float4(vertex[index].position, 1.0f);
 

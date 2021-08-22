@@ -252,20 +252,37 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 		string material_name = surface_material->GetName();
 
 		string new_mat_path = file_path + material_name + ".mat";
-		mesh->default_material_passes.push_back(new_mat_path);
 
+		{
+			bool cashed = false;
+			size_t mat_size = mesh->default_material_passes.size();
+			for (size_t i = 0; i < mat_size; ++i)
+			{
+				if (mesh->default_material_passes[i] == new_mat_path)
+				{
+					cashed = true;
+					subset.material_ID = i;
+					break;
+				}
+			}
+			if (cashed) continue;
+		}
+
+		mesh->default_material_passes.push_back(new_mat_path);
 		subset.material_ID = mesh->default_material_passes.size() - 1;
 
-		bool cashed = false;
-		for (u_int i = 0; i < default_material_passes.size(); i++)
 		{
-			if (default_material_passes[i] == new_mat_path)
+			bool cashed = false;
+			for (auto& path : default_material_passes)
 			{
-				cashed = true;
-				break;
+				if (path == new_mat_path)
+				{
+					cashed = true;
+					break;
+				}
 			}
+			if (cashed) continue;
 		}
-		if (cashed) continue;
 
 		shared_ptr<Material> mat = Material::Create("Shader\\Standard_Shader_VS.hlsl", "Shader\\Standard_Shader_PS.hlsl");
 		mat->name = material_name;

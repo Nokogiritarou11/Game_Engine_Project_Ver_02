@@ -46,6 +46,8 @@ Render_Manager::Render_Manager()
 	Engine::asset_manager->Registration_Asset(shadow_camera);
 	shadow_camera->transform = shadow_camera_transform;
 	shadow_camera->is_orthographic = true;
+	shadow_camera->far_z = 60;
+	shadow_camera->near_z = 10;
 
 	//デフォルトマテリアル
 	sprite_material = Material::Create("Shader\\2D_Shader_VS.hlsl", "Shader\\2D_Shader_PS.hlsl");
@@ -143,18 +145,21 @@ void Render_Manager::Culling_Renderer(const Vector3& view_pos, const array<Vecto
 	for (auto& r : renderer_3D_list)
 	{
 		shared_ptr<Renderer>& p_rend = r.lock();
-		if (!p_rend->bounds.Get_Is_Culling_Frustum(p_rend->transform, planes))
+		if (p_rend->can_render)
 		{
-			for (int i = 0; i < p_rend->subset_count; ++i)
+			if (!p_rend->bounds.Get_Is_Culling_Frustum(p_rend->transform, planes))
 			{
-				Render_Obj obj = { r, i, p_rend->material[i]->render_queue, Vector3::DistanceSquared(p_rend->transform->Get_Position(), view_pos) };
-				if (p_rend->material[i]->render_queue >= 2500)
+				for (int i = 0; i < p_rend->subset_count; ++i)
 				{
-					alpha_list.emplace_back(obj);
-				}
-				else
-				{
-					opaque_list.emplace_back(obj);
+					Render_Obj obj = { r, i, p_rend->material[p_rend->subset_material_index[i]]->render_queue, Vector3::DistanceSquared(p_rend->transform->Get_Position(), view_pos) };
+					if (p_rend->material[p_rend->subset_material_index[i]]->render_queue >= 2500)
+					{
+						alpha_list.emplace_back(obj);
+					}
+					else
+					{
+						opaque_list.emplace_back(obj);
+					}
 				}
 			}
 		}
@@ -342,10 +347,7 @@ void Render_Manager::Render_Shadow(const shared_ptr<Transform>& camera_transform
 void Render_Manager::Render_Shadow_Directional(const Vector3& color, const float& intensity, const shared_ptr<Transform>& light_transform, const shared_ptr<Transform>& camera_transform)
 {
 	shadow_camera->orthographic_size = Engine::shadow_manager->shadow_distance;
-
 	const Vector3 Look_pos = camera_transform->Get_Position() + camera_transform->Get_Forward() * (Engine::shadow_manager->shadow_distance * 0.5f); shadow_camera->transform->Set_Position(Look_pos - light_transform->Get_Forward() * 50.0f);
-	shadow_camera->far_z = 60;
-	shadow_camera->near_z = 10;
 	shadow_camera->transform->Set_Rotation(shadow_camera->transform->Look_At(Look_pos));
 	shadow_camera->Update(0, 0);
 

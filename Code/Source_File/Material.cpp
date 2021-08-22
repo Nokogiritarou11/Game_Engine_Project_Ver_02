@@ -68,6 +68,10 @@ void Material::Set_Blend_State(BS_State state)
 	{
 		render_queue = 2000;
 	}
+	else if (blend_state == BS_State::Alpha_Test)
+	{
+		render_queue = 2450;
+	}
 	else
 	{
 		render_queue = 3000;
@@ -334,6 +338,9 @@ Matrix Material::Get_Matrix(const string& matrix_name)
 
 void Material::Reflect_Shader()
 {
+	std::unordered_map<std::string, ConstantBuffer_Info> copy_constant_buffer_info = constant_buffer_info;
+	std::unordered_map<std::string, Parameter_Info> copy_parameter_info = parameter_info;
+
 	constant_buffer_info.clear();
 	parameter_info.clear();
 
@@ -360,15 +367,31 @@ void Material::Reflect_Shader()
 						auto itr = parameter_info.find(p_info.name);
 						if (itr == parameter_info.end())
 						{
-							//初期値代入
 							void* data = &cb_info.byte_data[p_info.offset];
-							memcpy(data, &p_info.default_value[0], p_info.size);
+
+							bool initialized = false;
+							auto copy_it = copy_parameter_info.find(p_info.name);
+							if (copy_it != copy_parameter_info.end())
+							{
+								if (copy_it->second.type == p_info.type)
+								{
+									//変更前のデーターをコピー
+									ConstantBuffer_Info& b_info = copy_constant_buffer_info.find(copy_it->second.parent_name)->second;
+									memcpy(data, &b_info.byte_data[copy_it->second.offset], p_info.size);
+									initialized = true;
+								}
+							}
+
+							//初期値代入
+							if (!initialized)
+							{
+								memcpy(data, &p_info.default_value[0], p_info.size);
+							}
+							//作成
 							Parameter_Info p = { p_info.type, c_info.name, p_info.size, p_info.offset };
 							parameter_info[p_info.name] = p;
 						}
 					}
-
-					Create_ConstantBuffer(cb_info, c_info.byte_size);
 				}
 				else
 				{
@@ -377,10 +400,55 @@ void Material::Reflect_Shader()
 			}
 		}
 	}
+
+	if (!copy_constant_buffer_info.empty() && !self_save_pass.empty())
+	{
+		Save();
+	}
+}
+
+void Material::Reflect_Shader(Shader::Shader_Type type)
+{
+	if (shared_ptr<Shader>& shader = shader_info[static_cast<int>(type)].shader)
+	{
+		// コンスタントバッファ
+		for (auto& c_info : shader->constant_buffer_info)
+		{
+			auto it = constant_buffer_info.find(c_info.name);
+			if (it == constant_buffer_info.end())
+			{
+				ConstantBuffer_Info c;
+				auto& cb_info = constant_buffer_info[c_info.name] = c;
+
+				cb_info.register_number = c_info.register_number;
+				cb_info.byte_data.resize(c_info.byte_size);
+				cb_info.staging_shader.emplace_back(type);
+
+				//パラメータ
+				for (auto& p_info : c_info.parameters)
+				{
+					auto itr = parameter_info.find(p_info.name);
+					if (itr == parameter_info.end())
+					{
+						//初期値代入
+						void* data = &cb_info.byte_data[p_info.offset];
+						memcpy(data, &p_info.default_value[0], p_info.size);
+						Parameter_Info p = { p_info.type, c_info.name, p_info.size, p_info.offset };
+						parameter_info[p_info.name] = p;
+					}
+				}
+			}
+			else
+			{
+				it->second.staging_shader.emplace_back(type);
+			}
+		}
+	}
 }
 
 void Material::Reflect_Texture()
 {
+	std::unordered_map<std::string, Texture_Info> copy_texture_info = texture_info;
 	texture_info.clear();
 
 	for (size_t i = 0; i < 5; ++i)
@@ -396,13 +464,52 @@ void Material::Reflect_Texture()
 					Texture_Info tex;
 					tex.register_number = t_info.register_number;
 					tex.staging_shader.emplace_back(static_cast<Shader::Shader_Type>(i));
-					tex.texture_path = "Default_Resource\\Image\\Default_Texture.png";
+
+					// 変更前に存在するか確認
+					auto copy_it = copy_texture_info.find(t_info.name);
+					if (copy_it == copy_texture_info.end())
+					{
+						tex.texture_path = "Default_Resource\\Image\\Default_Texture.png";
+					}
+					else
+					{
+						tex.texture_path = copy_it->second.texture_path;
+					}
 					texture_info[t_info.name] = tex;
 				}
 				else
 				{
 					it->second.staging_shader.emplace_back(static_cast<Shader::Shader_Type>(i));
 				}
+			}
+		}
+	}
+
+	if (!copy_texture_info.empty() && !self_save_pass.empty())
+	{
+		Save();
+	}
+}
+
+void Material::Reflect_Texture(Shader::Shader_Type type)
+{
+	if (shared_ptr<Shader>& shader = shader_info[static_cast<int>(type)].shader)
+	{
+		// テクスチャ
+		for (auto& t_info : shader->texture_info)
+		{
+			auto it = texture_info.find(t_info.name);
+			if (it == texture_info.end())
+			{
+				Texture_Info tex;
+				tex.register_number = t_info.register_number;
+				tex.staging_shader.emplace_back(type);
+				tex.texture_path = "Default_Resource\\Image\\Default_Texture.png";
+				texture_info[t_info.name] = tex;
+			}
+			else
+			{
+				it->second.staging_shader.emplace_back(type);
 			}
 		}
 	}
@@ -434,21 +541,25 @@ void Material::Create_ConstantBuffer(ConstantBuffer_Info& info, const UINT& size
 
 void Material::Set_Shader(const string& path, Shader::Shader_Type shader_type)
 {
-	int type = static_cast<int>(shader_type);
-	Shader_Info& info = shader_info[type];
+	Shader_Info& info = shader_info[static_cast<int>(shader_type)];
 
 	bool update = false;
+	bool newer = false;
 
 	if (path.empty())
 	{
-		if (info.shader) update = true;
-		info.shader.reset();
-		info.shader_path.clear();
+		if (info.shader)
+		{
+			update = true;
+			info.shader.reset();
+			info.shader_path.clear();
+		}
 	}
 	else
 	{
 		if (info.shader_path != path)
 		{
+			if (!info.shader) newer = true;
 			info.shader_path = path;
 			info.shader = Shader::Create(path, shader_type);
 			update = true;
@@ -457,8 +568,16 @@ void Material::Set_Shader(const string& path, Shader::Shader_Type shader_type)
 
 	if (update)
 	{
-		Reflect_Shader();
-		Reflect_Texture();
+		if (newer)
+		{
+			Reflect_Shader(shader_type);
+			Reflect_Texture(shader_type);
+		}
+		else
+		{
+			Reflect_Shader();
+			Reflect_Texture();
+		}
 		Initialize_Shader();
 		Initialize_Texture();
 	}
@@ -493,6 +612,14 @@ void Material::Initialize_Shader()
 							change = true;
 							break;
 						}
+						else
+						{
+							if (p_info.type != itr->second.type)
+							{
+								change = true;
+								break;
+							}
+						}
 					}
 				}
 				if (change) break;
@@ -505,20 +632,18 @@ void Material::Initialize_Shader()
 	{
 		Reflect_Shader();
 	}
-	else
+
+	for (size_t i = 0; i < 5; ++i)
 	{
-		for (size_t i = 0; i < 5; ++i)
+		Shader_Info& info = shader_info[i];
+		if (info.shader)
 		{
-			Shader_Info& info = shader_info[i];
-			if (info.shader)
+			if (shared_ptr<Shader>& shader = info.shader)
 			{
-				if (shared_ptr<Shader>& shader = info.shader)
+				// コンスタントバッファ作成
+				for (auto& cb_info : constant_buffer_info)
 				{
-					// コンスタントバッファ作成
-					for (auto& cb_info : constant_buffer_info)
-					{
-						Create_ConstantBuffer(cb_info.second, sizeof(std::byte) * cb_info.second.byte_data.size());
-					}
+					Create_ConstantBuffer(cb_info.second, sizeof(std::byte) * cb_info.second.byte_data.size());
 				}
 			}
 		}
@@ -553,11 +678,31 @@ void Material::Initialize_Texture()
 
 	for (auto& texture : texture_info)
 	{
-		texture.second.texture = Texture::Load(texture.second.texture_path);
+		auto& info = texture.second;
+		info.texture = Texture::Load(texture.second.texture_path);
+
+		if (info.register_number == 1)
+		{
+			for (auto& stage : info.staging_shader)
+			{
+				if (stage == Shader::Shader_Type::Pixel)
+				{
+					main_texture = info.texture;
+				}
+			}
+		}
 	}
 }
 
 void Material::Active()
+{
+	Active_Shader();
+	Active_Buffer();
+	Active_Texture();
+	Active_State();
+}
+
+void Material::Active_Buffer()
 {
 	// コンスタントバッファセット
 	for (auto& i : constant_buffer_info)
@@ -585,7 +730,10 @@ void Material::Active()
 			}
 		}
 	}
+}
 
+void Material::Active_Texture()
+{
 	// テクスチャセット
 	for (auto& texture : texture_info)
 	{
@@ -595,7 +743,10 @@ void Material::Active()
 			t.texture->Set(t.register_number, stage);
 		}
 	}
+}
 
+void Material::Active_Shader()
+{
 	// シェーダーセット
 	DxSystem::device_context->VSSetShader(nullptr, nullptr, 0);
 	DxSystem::device_context->GSSetShader(nullptr, nullptr, 0);
@@ -609,7 +760,10 @@ void Material::Active()
 			info.shader->Activate();
 		}
 	}
+}
 
+void Material::Active_State()
+{
 	//ブレンドステート設定
 	if (binding_blend_state != blend_state)
 	{
@@ -731,7 +885,7 @@ void Material::Draw_ImGui()
 			else if (info.second.type == Shader::Parameter_Type::FLOAT)
 			{
 				float value = Get_Float(p_name);
-				if (ImGui::DragFloat("##float", &value))
+				if (ImGui::DragFloat("##float", &value, 0.001f, 0, 0, "%05f"))
 				{
 					Set_Float(p_name, value);
 					Save();
@@ -741,7 +895,7 @@ void Material::Draw_ImGui()
 			{
 				Vector2 value = Get_Vector2(p_name);
 				float v[2] = { value.x, value.y };
-				if (ImGui::DragFloat2("##float2", v))
+				if (ImGui::DragFloat2("##float2", v, 0.001f, 0, 0, "%04f"))
 				{
 					Vector2 r = { v[0], v[1] };
 					Set_Vector2(p_name, r);
@@ -752,7 +906,7 @@ void Material::Draw_ImGui()
 			{
 				Vector3 value = Get_Vector3(p_name);
 				float v[3] = { value.x, value.y, value.z };
-				if (ImGui::DragFloat3("##float3", v))
+				if (ImGui::DragFloat3("##float3", v, 0.001f))
 				{
 					Vector3 r = { v[0], v[1],v[2] };
 					Set_Vector3(p_name, r);
@@ -772,7 +926,7 @@ void Material::Draw_ImGui()
 				ImGui::Dummy({ 0,0 });
 				ImGui::SameLine(window_width * 0.4f);
 				ImGui::SetNextItemWidth(-FLT_MIN);
-				if (ImGui::DragFloat4("##float4_color", v))
+				if (ImGui::DragFloat4("##float4_color", v, 0.001f))
 				{
 					Vector4 r = { v[0], v[1], v[2], v[3] };
 					Set_Vector4(p_name, r);

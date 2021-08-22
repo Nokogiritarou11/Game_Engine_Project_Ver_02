@@ -41,6 +41,7 @@ namespace BeastEngine
 		void Set_Matrix(const std::string& matrix_name, BeastEngine::Matrix& value);
 
 		std::shared_ptr<BeastEngine::Texture> Get_Texture(const std::string& texture_name);
+		std::shared_ptr<BeastEngine::Texture> Get_Main_Texture() { return main_texture; }
 		int Get_Int(const std::string& int_name);
 		float Get_Float(const std::string& float_name);
 		BeastEngine::Vector2 Get_Vector2(const std::string& vector_name);
@@ -113,6 +114,7 @@ namespace BeastEngine
 
 		std::string self_save_pass;
 		Shader_Info shader_info[5];
+		std::shared_ptr<BeastEngine::Texture> main_texture;
 
 		std::unordered_map<std::string, ConstantBuffer_Info> constant_buffer_info;
 		std::unordered_map<std::string, Parameter_Info> parameter_info;
@@ -127,12 +129,19 @@ namespace BeastEngine
 		DS_State depth_stencil_state = DS_State::GEqual;
 
 		void Reflect_Shader();
+		void Reflect_Shader(Shader::Shader_Type type);
 		void Reflect_Texture();
+		void Reflect_Texture(Shader::Shader_Type type);
+
 		void Create_ConstantBuffer(ConstantBuffer_Info& info, const UINT& size);
 		void Set_Parameter(const std::string& parameter_name, void* value, const Shader::Parameter_Type& type);
 		void Initialize_Texture();
 		void Initialize_Shader();
 		void Active();
+		void Active_Buffer();
+		void Active_Texture();
+		void Active_Shader();
+		void Active_State();
 
 		void Draw_ImGui();
 

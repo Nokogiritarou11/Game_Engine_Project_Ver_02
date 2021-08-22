@@ -1,4 +1,4 @@
-struct VS_OUT
+struct VERTEX_OUT
 {
     float4 position : SV_POSITION;
     float2 texcoord : TEXCOORD;
@@ -8,7 +8,7 @@ struct VS_OUT
 Texture2D tex2d : register(t1);
 SamplerState smpState : register(s1);
 
-float4 main(VS_OUT pin) : SV_TARGET
+float4 main(VERTEX_OUT pin) : SV_TARGET
 {
 	return tex2d.Sample(smpState, pin.texcoord) * pin.color;
 }

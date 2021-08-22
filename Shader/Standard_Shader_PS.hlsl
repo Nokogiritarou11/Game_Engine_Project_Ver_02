@@ -1,6 +1,6 @@
 #include "Scene_Constants.hlsli"
 
-struct VS_OUT
+struct VERTEX_OUT
 {
     float4 position : SV_POSITION;
     float4 normal : NORMAL;
@@ -23,7 +23,7 @@ SamplerState diffuseMapSamplerState : register(s1);
 Texture2D normalMap : register(t2);
 SamplerState normalMapSamplerState : register(s2);
 
-float4 main(VS_OUT pin) : SV_TARGET
+float4 main(VERTEX_OUT pin) : SV_TARGET
 {
     float4 outcolor;
 

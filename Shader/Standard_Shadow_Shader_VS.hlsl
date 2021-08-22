@@ -3,7 +3,8 @@
 struct VS_SHADOW_OUT
 {
     float4 position : SV_POSITION;
-    float4 depth : TEXCOORD; //深度値
+    float4 depth : TEXCOORD0; //深度値
+    float2 texcoord : TEXCOORD1;
 };
 
 // 頂点情報
@@ -15,6 +16,7 @@ VS_SHADOW_OUT main(uint index : SV_VertexID)
 
     vout.position = mul(viewProjection, float4(vertex[index].position, 1.0f));
     vout.depth = vout.position;
+    vout.texcoord = vertex[index].texcoord;
 
     return vout;
 }

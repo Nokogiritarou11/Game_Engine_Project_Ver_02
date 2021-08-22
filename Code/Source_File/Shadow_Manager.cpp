@@ -1,6 +1,7 @@
 #include "Shadow_Manager.h"
 #include "Gaussian_Filter.h"
 #include "Material.h"
+#include "Texture.h"
 #include "Render_Texture.h"
 using namespace BeastEngine;
 using namespace DirectX;
@@ -14,12 +15,13 @@ Shadow_Manager::Shadow_Manager()
 
 	//マテリアル
 	material_shadow = Material::Create("Shader/Standard_Shadow_Shader_VS.hlsl", "Shader/Standard_Shadow_Shader_PS.hlsl");
-	material_shadow->Set_Blend_State(BS_State::Off);
+	material_shadow->Set_Blend_State(BS_State::Alpha_Test);
 	material_shadow->Set_Rasterizer_State(RS_State::Cull_Back);
 	material_shadow->Set_Depth_Stencil_State(DS_State::GEqual);
+	material_shadow->Set_Texture("alphaMap", Texture::Load("Default_Resource\\Image\\Default_Texture.png"));
 
 	//	サンプラステート作成
-	float boarderColor[4] = {-FLT_MAX,-FLT_MAX,-FLT_MAX,-FLT_MAX };
+	float boarderColor[4] = { -FLT_MAX,-FLT_MAX,-FLT_MAX,-FLT_MAX };
 	D3D11_SAMPLER_DESC sd = {};
 	sd.Filter = D3D11_FILTER_ANISOTROPIC;
 	sd.AddressU = D3D11_TEXTURE_ADDRESS_BORDER; // U
@@ -39,7 +41,13 @@ Shadow_Manager::Shadow_Manager()
 void Shadow_Manager::Set_Shadow_Map_Texture()
 {
 	render_texture->Set_Render_Target();
-	material_shadow->Active();
+	material_shadow->Active_Shader();
+	material_shadow->Active_State();
+}
+
+void Shadow_Manager::Set_Default_Shadow_Alpha()
+{
+	material_shadow->Active_Texture();
 }
 
 void Shadow_Manager::Set_PS_Resource()

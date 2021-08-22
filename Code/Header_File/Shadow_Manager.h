@@ -18,6 +18,7 @@ namespace BeastEngine
 
 		void Set_PS_Resource();
 		void Set_Shadow_Map_Texture();
+		void Set_Default_Shadow_Alpha();
 		void Set_Shadow_Map_Texture_Size(u_int size);
 		void Filtering_Gaussian();
 
