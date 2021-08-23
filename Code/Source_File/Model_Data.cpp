@@ -255,10 +255,10 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 
 		{
 			bool cashed = false;
-			size_t mat_size = mesh->default_material_passes.size();
+			size_t mat_size = mesh->default_material_pathes.size();
 			for (size_t i = 0; i < mat_size; ++i)
 			{
-				if (mesh->default_material_passes[i] == new_mat_path)
+				if (mesh->default_material_pathes[i] == new_mat_path)
 				{
 					cashed = true;
 					subset.material_ID = i;
@@ -268,12 +268,12 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 			if (cashed) continue;
 		}
 
-		mesh->default_material_passes.push_back(new_mat_path);
-		subset.material_ID = mesh->default_material_passes.size() - 1;
+		mesh->default_material_pathes.push_back(new_mat_path);
+		subset.material_ID = mesh->default_material_pathes.size() - 1;
 
 		{
 			bool cashed = false;
-			for (auto& path : default_material_passes)
+			for (auto& path : default_material_pathes)
 			{
 				if (path == new_mat_path)
 				{
@@ -289,7 +289,7 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 		mat->Set_Texture("diffuseMap", Texture::Load("Default_Resource\\Image\\Default_Texture.png"));
 		mat->Set_Texture("normalMap", Texture::Load("Default_Resource\\Image\\Default_NormalMap.png"));
 		mat->Save(new_mat_path);
-		default_material_passes.push_back(new_mat_path);
+		default_material_pathes.push_back(new_mat_path);
 
 		//FBX内のテクスチャを解凍
 		GetTexture(surface_material, FbxSurfaceMaterial::sDiffuse);

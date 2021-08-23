@@ -5,7 +5,6 @@ struct VERTEX_OUT
     float4 position : SV_POSITION;
     float4 normal : NORMAL;
     float4 tangent : TANGENT;
-    float4 edgecolor : COLOR;
     float2 texcoord : TEXCOORD0;
     float3 sdwcoord : TEXCOORD1;
 };
@@ -67,10 +66,7 @@ float4 main(VERTEX_OUT input) : SV_TARGET
     // 影の色
     float3 shadowColor = max(input.sdwcoord.z > d.x, lerp(float3(0.8f, 0.8f, 0.8f), 1.0f, p_max));
 
-    //アウトライン有無(無しなら0)
-    float outline = step(input.edgecolor.a, 0);
-
-    outcolor.rgb = (main_level.rgb * shadowColor) * (1.0f - outline) + (input.edgecolor.rgb * outline);
+    outcolor.rgb = main_level.rgb * shadowColor;
     outcolor.a = mapdiff.a;
 
     return outcolor;

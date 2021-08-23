@@ -21,8 +21,8 @@
     <FxCompile Include="Shader\Gaussian_Shader_x_PS.hlsl" />
     <FxCompile Include="Shader\Gaussian_Shader_y_PS.hlsl" />
     <FxCompile Include="Shader\Toon_Shader_PS.hlsl" />
-    <FxCompile Include="Shader\Toon_Outline_GS.hlsl" />
-    <FxCompile Include="Shader\Toon_Shader_VS.hlsl" />
+    <FxCompile Include="Shader\Toon_Outline_VS.hlsl" />
+    <FxCompile Include="Shader\Toon_Outline_PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Source_File\Object.cpp" />

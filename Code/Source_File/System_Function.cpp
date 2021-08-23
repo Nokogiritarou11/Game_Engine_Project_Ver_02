@@ -40,6 +40,7 @@ string System_Function::Get_Open_File_Name(string extension, string initial_dir)
 	ofn.lpstrInitialDir = w_path; // 初期フォルダ位置
 	ofn.lpstrFile = szFile;       // 選択ファイル格納
 	ofn.nMaxFile = MAX_PATH;
+
 	if (extension.empty())
 	{
 		ofn.lpstrFilter = TEXT("すべてのファイル(*.*)\0*.*\0");
@@ -72,6 +73,11 @@ string System_Function::Get_Open_File_Name(string extension, string initial_dir)
 	{
 		ofn.lpstrFilter = TEXT("Controllerファイル(*.controller*)\0*.controller*\0");
 	}
+	else if (extension == "mat")
+	{
+		ofn.lpstrFilter = TEXT("Materialファイル(*.mat*)\0*.mat*\0");
+	}
+
 	ofn.lpstrTitle = TEXT("ファイル選択");
 	ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
@@ -123,6 +129,7 @@ string System_Function::Get_Save_File_Name(string extension, string initial_dir)
 	ofn.lpstrInitialDir = w_path; // 初期フォルダ位置
 	ofn.lpstrFile = szFile;       // 選択ファイル格納
 	ofn.nMaxFile = MAX_PATH;
+
 	if (extension.empty())
 	{
 		ofn.lpstrFilter = TEXT("すべてのファイル(*.*)\0*.*\0");
@@ -155,6 +162,11 @@ string System_Function::Get_Save_File_Name(string extension, string initial_dir)
 	{
 		ofn.lpstrFilter = TEXT("Controllerファイル(*.controller*)\0*.controller*\0");
 	}
+	else if (extension == "mat")
+	{
+		ofn.lpstrFilter = TEXT("Materialファイル(*.mat*)\0*.mat*\0");
+	}
+
 	ofn.lpstrTitle = TEXT("ファイル選択");
 	ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 	ofn.lpstrTitle = TEXT("名前をつけて保存");

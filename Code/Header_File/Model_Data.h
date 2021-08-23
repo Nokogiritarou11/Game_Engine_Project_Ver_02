@@ -46,7 +46,7 @@ namespace BeastEngine
 		std::vector<Skeleton> bones;
 		std::vector<std::shared_ptr<BeastEngine::Mesh>>	meshes;
 		std::vector<Animation> animations;
-		std::vector<std::string> default_material_passes;
+		std::vector<std::string> default_material_pathes;
 
 		//指定したパスのメッシュを読み込む
 		//第1引数にメッシュまでのパス

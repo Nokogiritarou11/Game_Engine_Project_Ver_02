@@ -68,7 +68,7 @@ namespace BeastEngine
 		std::vector<BeastEngine::Matrix> inverse_matrixes;
 		std::vector<int> nodeIndices;
 
-		std::vector<std::string> default_material_passes;
+		std::vector<std::string> default_material_pathes;
 		std::string file_path;
 
 		static std::shared_ptr<BeastEngine::Mesh> Load_Mesh(const std::string& fullpath);
@@ -78,7 +78,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Object>(this), vertices, indices, subsets, default_material_passes, inverse_matrixes, boundingbox);
+			archive(cereal::base_class<BeastEngine::Object>(this), vertices, indices, subsets, default_material_pathes, inverse_matrixes, boundingbox);
 		}
 	};
 }

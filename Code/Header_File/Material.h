@@ -20,6 +20,13 @@ namespace BeastEngine
 	class Material : public BeastEngine::Object
 	{
 	public:
+		enum class Rendering_Mode
+		{
+			Opaque,
+			Cutout,
+			Transparent
+		};
+
 		int render_queue = 2000;
 
 		static std::shared_ptr<Material> Create(const std::string& vertex_path, const std::string& pixel_path = "", const std::string& geometry_path = "");
@@ -27,10 +34,11 @@ namespace BeastEngine
 
 		void Save(const std::string& path = "");
 
-		void Set_Shader(const std::string& path, BeastEngine::Shader::Shader_Type shader_type);
-		void Set_Blend_State(BS_State state);
-		void Set_Rasterizer_State(RS_State state);
-		void Set_Depth_Stencil_State(DS_State state);
+		void Set_Rendering_Mode(Rendering_Mode mode);
+		void Set_Shader(const std::string& path, BeastEngine::Shader::Shader_Type shader_type, int pass = 0);
+		void Set_Blend_State(BS_State state, int pass = 0);
+		void Set_Rasterizer_State(RS_State state, int pass = 0);
+		void Set_Depth_Stencil_State(DS_State state, int pass = 0);
 
 		void Set_Texture(const std::string& texture_name, const std::shared_ptr<BeastEngine::Texture>& texture);
 		void Set_Int(const std::string& int_name, int& value);
@@ -40,8 +48,10 @@ namespace BeastEngine
 		void Set_Vector4(const std::string& vector_name, BeastEngine::Vector4& value);
 		void Set_Matrix(const std::string& matrix_name, BeastEngine::Matrix& value);
 
+		void Add_Pass(const std::string& vertex_path, const std::string& pixel_path = "", const std::string& geometry_path = "");
+		void Remove_Pass();
+
 		std::shared_ptr<BeastEngine::Texture> Get_Texture(const std::string& texture_name);
-		std::shared_ptr<BeastEngine::Texture> Get_Main_Texture() { return main_texture; }
 		int Get_Int(const std::string& int_name);
 		float Get_Float(const std::string& float_name);
 		BeastEngine::Vector2 Get_Vector2(const std::string& vector_name);
@@ -112,37 +122,57 @@ namespace BeastEngine
 			}
 		};
 
-		std::string self_save_pass;
-		Shader_Info shader_info[5];
-		std::shared_ptr<BeastEngine::Texture> main_texture;
+		struct Render_Pass
+		{
+			Shader_Info shader_info[5];
 
-		std::unordered_map<std::string, ConstantBuffer_Info> constant_buffer_info;
-		std::unordered_map<std::string, Parameter_Info> parameter_info;
-		std::unordered_map<std::string, Texture_Info> texture_info;
+			std::unordered_map<std::string, ConstantBuffer_Info> constant_buffer_info;
+			std::unordered_map<std::string, Parameter_Info> parameter_info;
+			std::unordered_map<std::string, Texture_Info> texture_info;
+
+			std::shared_ptr<BeastEngine::Texture> main_texture;
+
+			BS_State blend_state = BS_State::Off;
+			RS_State rasterizer_state = RS_State::Cull_Back;
+			DS_State depth_stencil_state = DS_State::GEqual;
+
+			void Reflect_Shader();
+			void Reflect_Shader(Shader::Shader_Type type);
+			void Reflect_Texture();
+			void Reflect_Texture(Shader::Shader_Type type);
+
+			void Create_ConstantBuffer(ConstantBuffer_Info& info, const UINT& size);
+			void Initialize_Texture();
+			void Initialize_Shader();
+			void Active();
+			void Active_Buffer();
+			void Active_Texture();
+			void Active_Shader();
+			void Active_State();
+
+		private:
+			friend class cereal::access;
+			template<class Archive>
+			void serialize(Archive& archive)
+			{
+				archive(shader_info, constant_buffer_info, parameter_info, texture_info, blend_state, rasterizer_state, depth_stencil_state);
+			}
+		};
+
+		std::string self_save_pass;
+		std::vector<Render_Pass> render_pass;
+		Rendering_Mode rendering_mode = Rendering_Mode::Opaque;
 
 		static BS_State binding_blend_state;
 		static RS_State binding_rasterizer_state;
 		static DS_State binding_depth_stencil_State;
 
-		BS_State blend_state = BS_State::Off;
-		RS_State rasterizer_state = RS_State::Cull_Back;
-		DS_State depth_stencil_state = DS_State::GEqual;
-
-		void Reflect_Shader();
-		void Reflect_Shader(Shader::Shader_Type type);
-		void Reflect_Texture();
-		void Reflect_Texture(Shader::Shader_Type type);
-
-		void Create_ConstantBuffer(ConstantBuffer_Info& info, const UINT& size);
 		void Set_Parameter(const std::string& parameter_name, void* value, const Shader::Parameter_Type& type);
-		void Initialize_Texture();
-		void Initialize_Shader();
-		void Active();
-		void Active_Buffer();
-		void Active_Texture();
-		void Active_Shader();
-		void Active_State();
-
+		void Active(int pass = 0);
+		void Active_Buffer(int pass = 0);
+		void Active_Texture(int pass = 0);
+		void Active_Shader(int pass = 0);
+		void Active_State(int pass = 0);
 		void Draw_ImGui();
 
 		friend class BeastEngine::Render_Manager;
@@ -157,7 +187,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Object>(this), self_save_pass, shader_info, constant_buffer_info, parameter_info, texture_info, render_queue, blend_state, rasterizer_state, depth_stencil_state);
+			archive(cereal::base_class<BeastEngine::Object>(this), rendering_mode, render_queue, self_save_pass, render_pass);
 		}
 	};
 }

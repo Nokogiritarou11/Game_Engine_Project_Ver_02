@@ -115,9 +115,9 @@ void Mesh_Renderer::Set_Mesh(shared_ptr<Mesh> mesh_data)
 			can_render = true;
 			file_path = mesh->file_path;
 			//マテリアル
-			for (auto& pass : mesh->default_material_passes)
+			for (auto& path : mesh->default_material_pathes)
 			{
-				material.push_back(Material::Load_Material(pass));
+				material.push_back(Material::Load_Material(path));
 			}
 
 			subset_count = static_cast<int>(mesh->subsets.size());
@@ -147,10 +147,14 @@ void Mesh_Renderer::Render(int subset_number)
 	auto& subset = mesh->subsets[subset_number];
 	DxSystem::device_context->VSSetShaderResources(0, 1, compute_shader->Get_SRV().GetAddressOf());
 	DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-	//マテリアル設定
-	material[subset.material_ID]->Active();
-	// 描画
-	DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
+
+	for (size_t i = 0; i < material[subset.material_ID]->render_pass.size(); ++i)
+	{
+		//マテリアル設定
+		material[subset.material_ID]->Active(i);
+		// 描画
+		DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
+	}
 }
 
 void Mesh_Renderer::Render_Shadow(int subset_number)
@@ -160,14 +164,14 @@ void Mesh_Renderer::Render_Shadow(int subset_number)
 	DxSystem::device_context->VSSetShaderResources(0, 1, compute_shader->Get_SRV().GetAddressOf());
 	DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 	//マテリアル設定
-	auto& mat = material[subset.material_ID];
-	if (mat->texture_info.empty())
+	auto& pass = material[subset.material_ID]->render_pass[0];
+	if (pass.texture_info.empty())
 	{
 		Engine::shadow_manager->Set_Default_Shadow_Alpha();
 	}
 	else
 	{
-		mat->main_texture->Set(1, Shader::Shader_Type::Pixel);
+		pass.main_texture->Set(1, Shader::Shader_Type::Pixel);
 	}
 	//描画
 	DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
@@ -253,7 +257,21 @@ bool Mesh_Renderer::Draw_ImGui()
 				for (auto& mat : material)
 				{
 					ImGui::PushID(ID_mat);
-					mat->Draw_ImGui();
+					bool open = ImGui::TreeNodeEx(mat->name.c_str(), ImGuiTreeNodeFlags_AllowItemOverlap);
+					ImGui::SameLine(window_width - 30.0f);
+					if (ImGui::Button(u8"選択"))
+					{
+						string path = System_Function::Get_Open_File_Name("mat", "\\Resouces\\Model");
+						if (path != "")
+						{
+							material[ID_mat] = Material::Load_Material(path);
+						}
+					}
+					if (open)
+					{
+						mat->Draw_ImGui();
+						ImGui::TreePop();
+					}
 					++ID_mat;
 					ImGui::PopID();
 				}

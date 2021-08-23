@@ -139,7 +139,7 @@ void FBX_Converter::Load_From_FBX(bool& convert_mesh, bool& convert_material, bo
 
 		if (convert_material)
 		{
-			for (auto& path : model->default_material_passes)
+			for (auto& path : model->default_material_pathes)
 			{
 				int path_i = path.find_last_of("\\") + 1;
 				int ext_i = path.find_last_of(".");
@@ -241,7 +241,7 @@ void FBX_Converter::Load_From_FBX(bool& convert_mesh, bool& convert_material, bo
 
 		if (convert_material)
 		{
-			for (auto& path : model->default_material_passes)
+			for (auto& path : model->default_material_pathes)
 			{
 				int path_i = path.find_last_of("\\") + 1;
 				int ext_i = path.find_last_of(".");

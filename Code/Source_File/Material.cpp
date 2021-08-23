@@ -24,9 +24,7 @@ shared_ptr<Material> Material::Create(const string& vertex_path, const string& p
 {
 	shared_ptr<Material> mat = make_shared<Material>();
 	mat->name = "material";
-	mat->Set_Shader(vertex_path, Shader::Shader_Type::Vertex);
-	mat->Set_Shader(pixel_path, Shader::Shader_Type::Pixel);
-	mat->Set_Shader(geometry_path, Shader::Shader_Type::Geometry);
+	mat->Add_Pass(vertex_path, pixel_path, geometry_path);
 	Engine::asset_manager->Registration_Asset(mat);
 	return mat;
 }
@@ -49,8 +47,15 @@ shared_ptr<Material> Material::Load_Material(const string& fullpath)
 			cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
 			binaryInputArchive(mat);
 
-			mat->Initialize_Texture();
-			mat->Initialize_Shader();
+			for (auto& pass : mat->render_pass)
+			{
+				pass.Initialize_Shader();
+				pass.Initialize_Texture();
+			}
+			if (!mat->self_save_pass.empty())
+			{
+				mat->Save();
+			}
 			Engine::asset_manager->Registration_Asset(mat);
 			Engine::asset_manager->cache_material.insert(make_pair(fullpath, mat));
 			return mat;
@@ -60,78 +65,176 @@ shared_ptr<Material> Material::Load_Material(const string& fullpath)
 	return nullptr;
 }
 
-void Material::Set_Blend_State(BS_State state)
+void Material::Add_Pass(const std::string& vertex_path, const std::string& pixel_path, const std::string& geometry_path)
 {
-	blend_state = state;
-	static const char* blends[] = { "Off", "Alpha", "Alpha_Test", "Transparent", "Add", "Subtract", "Replace", "Multiply" };
-	if (blend_state == BS_State::Off)
+	render_pass.emplace_back();
+	int pass = static_cast<int>(render_pass.size()) - 1;
+	Set_Shader(vertex_path, Shader::Shader_Type::Vertex, pass);
+	Set_Shader(pixel_path, Shader::Shader_Type::Pixel, pass);
+	Set_Shader(geometry_path, Shader::Shader_Type::Geometry, pass);
+}
+
+void Material::Remove_Pass()
+{
+	if (render_pass.size() > 1) render_pass.pop_back();
+}
+
+void Material::Set_Rendering_Mode(Rendering_Mode mode)
+{
+	rendering_mode = mode;
+	if (rendering_mode == Rendering_Mode::Opaque)
 	{
 		render_queue = 2000;
+		for (auto& pass : render_pass)
+		{
+			pass.blend_state = BS_State::Off;
+			pass.depth_stencil_state = DS_State::GEqual;
+		}
 	}
-	else if (blend_state == BS_State::Alpha_Test)
+	else if (rendering_mode == Rendering_Mode::Cutout)
 	{
 		render_queue = 2450;
+		for (auto& pass : render_pass)
+		{
+			pass.blend_state = BS_State::Alpha_Test;
+			pass.depth_stencil_state = DS_State::GEqual;
+		}
 	}
 	else
 	{
 		render_queue = 3000;
+		for (auto& pass : render_pass)
+		{
+			pass.blend_state = BS_State::Alpha;
+			pass.depth_stencil_state = DS_State::GEqual_No_Write;
+		}
 	}
 }
 
-void Material::Set_Rasterizer_State(RS_State state)
+void Material::Set_Blend_State(BS_State state, int pass)
 {
-	rasterizer_state = state;
+	render_pass[pass].blend_state = state;
 }
 
-void Material::Set_Depth_Stencil_State(DS_State state)
+void Material::Set_Rasterizer_State(RS_State state, int pass)
 {
-	depth_stencil_state = state;
+	render_pass[pass].rasterizer_state = state;
+}
+
+void Material::Set_Depth_Stencil_State(DS_State state, int pass)
+{
+	render_pass[pass].depth_stencil_state = state;
+}
+
+void Material::Set_Shader(const string& path, Shader::Shader_Type shader_type, int pass)
+{
+	Render_Pass& r_pass = render_pass[pass];
+	Shader_Info& info = r_pass.shader_info[static_cast<int>(shader_type)];
+
+	bool update = false;
+	bool newer = false;
+
+	if (path.empty())
+	{
+		if (info.shader)
+		{
+			update = true;
+			info.shader.reset();
+			info.shader_path.clear();
+		}
+	}
+	else
+	{
+		if (info.shader_path != path)
+		{
+			if (!info.shader) newer = true;
+			info.shader_path = path;
+			info.shader = Shader::Create(path, shader_type);
+			update = true;
+		}
+	}
+
+	if (update)
+	{
+		if (newer)
+		{
+			r_pass.Reflect_Shader(shader_type);
+			r_pass.Reflect_Texture(shader_type);
+		}
+		else
+		{
+			r_pass.Reflect_Shader();
+			r_pass.Reflect_Texture();
+		}
+		r_pass.Initialize_Shader();
+		r_pass.Initialize_Texture();
+	}
 }
 
 void Material::Set_Texture(const string& texture_name, const shared_ptr<Texture>& texture)
 {
-	auto it = texture_info.find(texture_name);
-	if (it == texture_info.end())
+	bool change = false;
+	for (auto& pass : render_pass)
+	{
+		auto it = pass.texture_info.find(texture_name);
+		if (it != pass.texture_info.end())
+		{
+			auto& info = it->second;
+			info.texture = texture;
+			info.texture_path = texture->Get_Path();
+
+			if (info.register_number == 1)
+			{
+				for (auto& stage : info.staging_shader)
+				{
+					if (stage == Shader::Shader_Type::Pixel)
+					{
+						pass.main_texture = info.texture;
+					}
+				}
+			}
+			change = true;
+		}
+	}
+
+	if (!change)
 	{
 		Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
-	}
-	else
-	{
-		it->second.texture = texture;
-		it->second.texture_path = texture->Get_Path();
 	}
 }
 
 void Material::Set_Parameter(const string& parameter_name, void* value, const Shader::Parameter_Type& type)
 {
-	auto it = parameter_info.find(parameter_name);
-	if (it == parameter_info.end())
+	bool change = false;
+	for (auto& pass : render_pass)
 	{
-		Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
-	}
-	else
-	{
-		Parameter_Info& info = it->second;
-		if (info.type == type)
+		auto it = pass.parameter_info.find(parameter_name);
+		if (it != pass.parameter_info.end())
 		{
-			// 定数バッファ更新
-			ConstantBuffer_Info& b_info = constant_buffer_info.find(info.parent_name)->second;
-			memcpy(&b_info.byte_data[info.offset], value, info.size);
+			Parameter_Info& info = it->second;
+			if (info.type == type)
 			{
-				UINT subresourceIndex = 0;
-				D3D11_MAPPED_SUBRESOURCE mapped;
-				auto hr = DxSystem::device_context->Map(b_info.constant_buffer.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
-				if (SUCCEEDED(hr))
+				// 定数バッファ更新
+				ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
+				memcpy(&b_info.byte_data[info.offset], value, info.size);
 				{
-					memcpy(mapped.pData, &b_info.byte_data[0], b_info.byte_data.size());
-					DxSystem::device_context->Unmap(b_info.constant_buffer.Get(), subresourceIndex);
+					UINT subresourceIndex = 0;
+					D3D11_MAPPED_SUBRESOURCE mapped;
+					auto hr = DxSystem::device_context->Map(b_info.constant_buffer.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+					if (SUCCEEDED(hr))
+					{
+						memcpy(mapped.pData, &b_info.byte_data[0], b_info.byte_data.size());
+						DxSystem::device_context->Unmap(b_info.constant_buffer.Get(), subresourceIndex);
+					}
 				}
+				change = true;
 			}
 		}
-		else
-		{
-			Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
-		}
+	}
+
+	if (!change)
+	{
+		Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
 	}
 }
 
@@ -167,176 +270,153 @@ void Material::Set_Matrix(const string& matrix_name, Matrix& value)
 
 shared_ptr<Texture> Material::Get_Texture(const string& texture_name)
 {
-	auto it = texture_info.find(texture_name);
-	if (it == texture_info.end())
+	for (auto& pass : render_pass)
 	{
-		Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
-	}
-	else
-	{
-		return it->second.texture;
+		auto it = pass.texture_info.find(texture_name);
+		if (it != pass.texture_info.end())
+		{
+			return it->second.texture;
+		}
 	}
 
+	Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
 	return nullptr;
 }
 
 int Material::Get_Int(const string& int_name)
 {
-	auto it = parameter_info.find(int_name);
-	if (it == parameter_info.end())
+	for (auto& pass : render_pass)
 	{
-		Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
-	}
-	else
-	{
-		Parameter_Info& info = it->second;
-		if (info.type == Shader::Parameter_Type::INT)
+		auto it = pass.parameter_info.find(int_name);
+		if (it != pass.parameter_info.end())
 		{
-			ConstantBuffer_Info& b_info = constant_buffer_info.find(info.parent_name)->second;
-			int value = 0;
-			memcpy(&value, &b_info.byte_data[info.offset], info.size);
-			return value;
-		}
-		else
-		{
-			Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
+			Parameter_Info& info = it->second;
+			if (info.type == Shader::Parameter_Type::INT)
+			{
+				ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
+				int value = 0;
+				memcpy(&value, &b_info.byte_data[info.offset], info.size);
+				return value;
+			}
 		}
 	}
 
+	Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
 	return 0;
 }
 
 float Material::Get_Float(const string& float_name)
 {
-	auto it = parameter_info.find(float_name);
-	if (it == parameter_info.end())
+	for (auto& pass : render_pass)
 	{
-		Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
-	}
-	else
-	{
-		Parameter_Info& info = it->second;
-		if (info.type == Shader::Parameter_Type::FLOAT)
+		auto it = pass.parameter_info.find(float_name);
+		if (it != pass.parameter_info.end())
 		{
-			ConstantBuffer_Info& b_info = constant_buffer_info.find(info.parent_name)->second;
-			float value = 0;
-			memcpy(&value, &b_info.byte_data[info.offset], info.size);
-			return value;
-		}
-		else
-		{
-			Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
+			Parameter_Info& info = it->second;
+			if (info.type == Shader::Parameter_Type::FLOAT)
+			{
+				ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
+				float value = 0;
+				memcpy(&value, &b_info.byte_data[info.offset], info.size);
+				return value;
+			}
 		}
 	}
 
+	Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
 	return 0;
 }
 
 Vector2 Material::Get_Vector2(const string& vector_name)
 {
 	Vector2 value = { 0,0 };
-	auto it = parameter_info.find(vector_name);
-	if (it == parameter_info.end())
+
+	for (auto& pass : render_pass)
 	{
-		Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
-	}
-	else
-	{
-		Parameter_Info& info = it->second;
-		if (info.type == Shader::Parameter_Type::VECTOR2)
+		auto it = pass.parameter_info.find(vector_name);
+		if (it != pass.parameter_info.end())
 		{
-			ConstantBuffer_Info& b_info = constant_buffer_info.find(info.parent_name)->second;
-			memcpy(&value, &b_info.byte_data[info.offset], info.size);
-			return value;
-		}
-		else
-		{
-			Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
+			Parameter_Info& info = it->second;
+			if (info.type == Shader::Parameter_Type::VECTOR2)
+			{
+				ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
+				memcpy(&value, &b_info.byte_data[info.offset], info.size);
+				return value;
+			}
 		}
 	}
 
+	Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
 	return value;
 }
 
 Vector3 Material::Get_Vector3(const string& vector_name)
 {
 	Vector3 value = { 0,0,0 };
-	auto it = parameter_info.find(vector_name);
-	if (it == parameter_info.end())
+	for (auto& pass : render_pass)
 	{
-		Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
-	}
-	else
-	{
-		Parameter_Info& info = it->second;
-		if (info.type == Shader::Parameter_Type::VECTOR3)
+		auto it = pass.parameter_info.find(vector_name);
+		if (it != pass.parameter_info.end())
 		{
-			ConstantBuffer_Info& b_info = constant_buffer_info.find(info.parent_name)->second;
-			memcpy(&value, &b_info.byte_data[info.offset], info.size);
-			return value;
-		}
-		else
-		{
-			Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
+			Parameter_Info& info = it->second;
+			if (info.type == Shader::Parameter_Type::VECTOR3)
+			{
+				ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
+				memcpy(&value, &b_info.byte_data[info.offset], info.size);
+				return value;
+			}
 		}
 	}
 
+	Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
 	return value;
 }
 
 Vector4 Material::Get_Vector4(const string& vector_name)
 {
 	Vector4 value = { 0,0,0,0 };
-	auto it = parameter_info.find(vector_name);
-	if (it == parameter_info.end())
+	for (auto& pass : render_pass)
 	{
-		Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
-	}
-	else
-	{
-		Parameter_Info& info = it->second;
-		if (info.type == Shader::Parameter_Type::VECTOR4)
+		auto it = pass.parameter_info.find(vector_name);
+		if (it != pass.parameter_info.end())
 		{
-			ConstantBuffer_Info& b_info = constant_buffer_info.find(info.parent_name)->second;
-			memcpy(&value, &b_info.byte_data[info.offset], info.size);
-			return value;
-		}
-		else
-		{
-			Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
+			Parameter_Info& info = it->second;
+			if (info.type == Shader::Parameter_Type::VECTOR4)
+			{
+				ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
+				memcpy(&value, &b_info.byte_data[info.offset], info.size);
+				return value;
+			}
 		}
 	}
 
+	Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
 	return value;
 }
 
 Matrix Material::Get_Matrix(const string& matrix_name)
 {
 	Matrix value = Matrix::Identity;
-	auto it = parameter_info.find(matrix_name);
-	if (it == parameter_info.end())
+	for (auto& pass : render_pass)
 	{
-		Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
-	}
-	else
-	{
-		Parameter_Info& info = it->second;
-		if (info.type == Shader::Parameter_Type::MATRIX)
+		auto it = pass.parameter_info.find(matrix_name);
+		if (it != pass.parameter_info.end())
 		{
-			ConstantBuffer_Info& b_info = constant_buffer_info.find(info.parent_name)->second;
-			memcpy(&value, &b_info.byte_data[info.offset], info.size);
-			return value;
-		}
-		else
-		{
-			Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
+			Parameter_Info& info = it->second;
+			if (info.type == Shader::Parameter_Type::MATRIX)
+			{
+				ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
+				memcpy(&value, &b_info.byte_data[info.offset], info.size);
+				return value;
+			}
 		}
 	}
 
+	Debug::Log(u8"指定したシェーダーパラメーターが見つかりません");
 	return value;
 }
 
-void Material::Reflect_Shader()
+void Material::Render_Pass::Reflect_Shader()
 {
 	std::unordered_map<std::string, ConstantBuffer_Info> copy_constant_buffer_info = constant_buffer_info;
 	std::unordered_map<std::string, Parameter_Info> copy_parameter_info = parameter_info;
@@ -400,14 +480,9 @@ void Material::Reflect_Shader()
 			}
 		}
 	}
-
-	if (!copy_constant_buffer_info.empty() && !self_save_pass.empty())
-	{
-		Save();
-	}
 }
 
-void Material::Reflect_Shader(Shader::Shader_Type type)
+void Material::Render_Pass::Reflect_Shader(Shader::Shader_Type type)
 {
 	if (shared_ptr<Shader>& shader = shader_info[static_cast<int>(type)].shader)
 	{
@@ -446,7 +521,7 @@ void Material::Reflect_Shader(Shader::Shader_Type type)
 	}
 }
 
-void Material::Reflect_Texture()
+void Material::Render_Pass::Reflect_Texture()
 {
 	std::unordered_map<std::string, Texture_Info> copy_texture_info = texture_info;
 	texture_info.clear();
@@ -484,14 +559,9 @@ void Material::Reflect_Texture()
 			}
 		}
 	}
-
-	if (!copy_texture_info.empty() && !self_save_pass.empty())
-	{
-		Save();
-	}
 }
 
-void Material::Reflect_Texture(Shader::Shader_Type type)
+void Material::Render_Pass::Reflect_Texture(Shader::Shader_Type type)
 {
 	if (shared_ptr<Shader>& shader = shader_info[static_cast<int>(type)].shader)
 	{
@@ -515,7 +585,7 @@ void Material::Reflect_Texture(Shader::Shader_Type type)
 	}
 }
 
-void Material::Create_ConstantBuffer(ConstantBuffer_Info& info, const UINT& size)
+void Material::Render_Pass::Create_ConstantBuffer(ConstantBuffer_Info& info, const UINT& size)
 {
 	HRESULT hr;
 
@@ -539,51 +609,7 @@ void Material::Create_ConstantBuffer(ConstantBuffer_Info& info, const UINT& size
 	}
 }
 
-void Material::Set_Shader(const string& path, Shader::Shader_Type shader_type)
-{
-	Shader_Info& info = shader_info[static_cast<int>(shader_type)];
-
-	bool update = false;
-	bool newer = false;
-
-	if (path.empty())
-	{
-		if (info.shader)
-		{
-			update = true;
-			info.shader.reset();
-			info.shader_path.clear();
-		}
-	}
-	else
-	{
-		if (info.shader_path != path)
-		{
-			if (!info.shader) newer = true;
-			info.shader_path = path;
-			info.shader = Shader::Create(path, shader_type);
-			update = true;
-		}
-	}
-
-	if (update)
-	{
-		if (newer)
-		{
-			Reflect_Shader(shader_type);
-			Reflect_Texture(shader_type);
-		}
-		else
-		{
-			Reflect_Shader();
-			Reflect_Texture();
-		}
-		Initialize_Shader();
-		Initialize_Texture();
-	}
-}
-
-void Material::Initialize_Shader()
+void Material::Render_Pass::Initialize_Shader()
 {
 	bool change = false;
 	for (size_t i = 0; i < 5; ++i)
@@ -650,7 +676,7 @@ void Material::Initialize_Shader()
 	}
 }
 
-void Material::Initialize_Texture()
+void Material::Render_Pass::Initialize_Texture()
 {
 	bool change = false;
 	for (size_t i = 0; i < 5; ++i)
@@ -694,7 +720,7 @@ void Material::Initialize_Texture()
 	}
 }
 
-void Material::Active()
+void Material::Render_Pass::Active()
 {
 	Active_Shader();
 	Active_Buffer();
@@ -702,7 +728,7 @@ void Material::Active()
 	Active_State();
 }
 
-void Material::Active_Buffer()
+void Material::Render_Pass::Active_Buffer()
 {
 	// コンスタントバッファセット
 	for (auto& i : constant_buffer_info)
@@ -732,7 +758,7 @@ void Material::Active_Buffer()
 	}
 }
 
-void Material::Active_Texture()
+void Material::Render_Pass::Active_Texture()
 {
 	// テクスチャセット
 	for (auto& texture : texture_info)
@@ -745,7 +771,7 @@ void Material::Active_Texture()
 	}
 }
 
-void Material::Active_Shader()
+void Material::Render_Pass::Active_Shader()
 {
 	// シェーダーセット
 	DxSystem::device_context->VSSetShader(nullptr, nullptr, 0);
@@ -762,7 +788,7 @@ void Material::Active_Shader()
 	}
 }
 
-void Material::Active_State()
+void Material::Render_Pass::Active_State()
 {
 	//ブレンドステート設定
 	if (binding_blend_state != blend_state)
@@ -782,6 +808,31 @@ void Material::Active_State()
 		DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(depth_stencil_state), 1);
 		binding_depth_stencil_State = depth_stencil_state;
 	}
+}
+
+void Material::Active(int pass)
+{
+	render_pass[pass].Active();
+}
+
+void Material::Active_Buffer(int pass)
+{
+	render_pass[pass].Active_Shader();
+}
+
+void Material::Active_Texture(int pass)
+{
+	render_pass[pass].Active_Texture();
+}
+
+void Material::Active_Shader(int pass)
+{
+	render_pass[pass].Active_Shader();
+}
+
+void Material::Active_State(int pass)
+{
+	render_pass[pass].Active_State();
 }
 
 void Material::Save(const string& path)
@@ -805,184 +856,215 @@ void Material::Save(const string& path)
 
 void Material::Draw_ImGui()
 {
-	ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Once);
-	if (ImGui::TreeNode(name.c_str()))
+	const float window_width = ImGui::GetWindowContentRegionWidth();
+
+	static const char* mode_name[] = { "Opaque","Cutout","Transparent" };
+	int mode_current = static_cast<int>(rendering_mode);
+	ImGui::Text(u8"描画タイプ");
+	ImGui::SameLine(window_width * 0.6f);
+	ImGui::SetNextItemWidth(-FLT_MIN);
+	if (ImGui::Combo("##Rendering_Mode", &mode_current, mode_name, IM_ARRAYSIZE(mode_name)))
 	{
-		const float window_width = ImGui::GetWindowContentRegionWidth();
+		Set_Rendering_Mode(static_cast<Rendering_Mode>(mode_current));
+		Save();
+	}
 
-		if (ImGui::TreeNode(u8"シェーダー"))
+	for (size_t i = 0; i < render_pass.size(); ++i)
+	{
+		Render_Pass& pass = render_pass[i];
+		const string pass_label = to_string(i + 1) + u8"パス目";
+		ImGui::PushID(pass_label.c_str());
+		ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Once);
+		if (ImGui::TreeNode(pass_label.c_str()))
 		{
-			static const char* s_name[] = { "VS : ", "GS : ", "PS : ", "HS : ", "DS : " };
-			for (size_t i = 0; i < 5; ++i)
+			if (ImGui::TreeNode(u8"シェーダー"))
 			{
-				ImGui::PushID(i);
-				const string& path = shader_info[i].shader_path;
-				const int& path_i = path.find_last_of("\\") + 1;
-				const string& filename = path.substr(path_i, path.size()); //ファイル名
-
-				ImGui::Text(s_name[i]);
-				ImGui::SameLine();
-				ImGui::Text(filename.c_str());
-				ImGui::SameLine(window_width - 25.0f);
-				if (ImGui::Button(u8"選択"))
+				static const char* s_name[] = { "VS : ", "GS : ", "PS : ", "HS : ", "DS : " };
+				for (size_t t = 0; t < 5; ++t)
 				{
-					const string& path = System_Function::Get_Open_File_Name("", "\\Shader");
-					if (path != "")
+					ImGui::PushID(t);
+					const string& path = pass.shader_info[t].shader_path;
+					const int& path_i = path.find_last_of("\\") + 1;
+					const string& filename = path.substr(path_i, path.size()); //ファイル名
+
+					ImGui::Text(s_name[t]);
+					ImGui::SameLine();
+					ImGui::Text(filename.c_str());
+					ImGui::SameLine(window_width - 25.0f);
+					if (ImGui::Button(u8"選択"))
 					{
-						Set_Shader(path, static_cast<Shader::Shader_Type>(i));
+						const string& path = System_Function::Get_Open_File_Name("", "\\Shader");
+						if (path != "")
+						{
+							Set_Shader(path, static_cast<Shader::Shader_Type>(t), i);
+							Save();
+						}
+					}
+					ImGui::PopID();
+				}
+				ImGui::TreePop();
+			}
+
+			//テクスチャ
+			const ImVec2& size = ImVec2(100.0f, 100.0f);
+			const ImVec2& uv0 = ImVec2(0.0f, 0.0f);
+			const ImVec2& uv1 = ImVec2(1.0f, 1.0f);
+			const int& frame_padding = 3;
+			const ImVec4& bg_col = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			const ImVec4& tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+			for (auto& info : pass.texture_info)
+			{
+				ImGui::PushID(info.first.c_str());
+				ImGui::Text(info.first.c_str());
+				const auto& tex = info.second.texture;
+				ImGui::SameLine(window_width - size.x - frame_padding);
+				if (ImGui::ImageButton((void*)tex->Get_Resource().Get(), size, uv0, uv1, frame_padding, bg_col, tint_col))
+				{
+					string path = System_Function::Get_Open_File_Name("png", "\\Resouces\\Model");
+					if (!path.empty())
+					{
+						Set_Texture(info.first, Texture::Load(path));
 						Save();
 					}
 				}
 				ImGui::PopID();
 			}
-			ImGui::TreePop();
-		}
 
-		//テクスチャ
-		const ImVec2& size = ImVec2(100.0f, 100.0f);
-		const ImVec2& uv0 = ImVec2(0.0f, 0.0f);
-		const ImVec2& uv1 = ImVec2(1.0f, 1.0f);
-		const int& frame_padding = 3;
-		const ImVec4& bg_col = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
-		const ImVec4& tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-		for (auto& info : texture_info)
-		{
-			ImGui::PushID(info.first.c_str());
-			ImGui::Text(info.first.c_str());
-			const auto& tex = info.second.texture;
-			ImGui::SameLine(window_width - size.x - frame_padding);
-			if (ImGui::ImageButton((void*)tex->Get_Resource().Get(), size, uv0, uv1, frame_padding, bg_col, tint_col))
+			// パラメータ
+			for (auto& info : pass.parameter_info)
 			{
-				string path = System_Function::Get_Open_File_Name("png", "\\Resouces\\Model");
-				if (!path.empty())
-				{
-					Set_Texture(info.first, Texture::Load(path));
-					Save();
-				}
-			}
-			ImGui::PopID();
-		}
+				const string& p_name = info.first;
+				ImGui::PushID(p_name.c_str());
+				ImGui::Text(p_name.c_str());
 
-		// パラメータ
-		for (auto& info : parameter_info)
-		{
-			const string& p_name = info.first;
-			ImGui::PushID(p_name.c_str());
-			ImGui::Text(p_name.c_str());
-
-			ImGui::SameLine(window_width * 0.4f);
-			ImGui::SetNextItemWidth(-FLT_MIN);
-
-			if (info.second.type == Shader::Parameter_Type::INT)
-			{
-				int value = Get_Int(p_name);
-				if (ImGui::DragInt("##int", &value))
-				{
-					Set_Int(p_name, value);
-					Save();
-				}
-			}
-			else if (info.second.type == Shader::Parameter_Type::FLOAT)
-			{
-				float value = Get_Float(p_name);
-				if (ImGui::DragFloat("##float", &value, 0.001f, 0, 0, "%05f"))
-				{
-					Set_Float(p_name, value);
-					Save();
-				}
-			}
-			else if (info.second.type == Shader::Parameter_Type::VECTOR2)
-			{
-				Vector2 value = Get_Vector2(p_name);
-				float v[2] = { value.x, value.y };
-				if (ImGui::DragFloat2("##float2", v, 0.001f, 0, 0, "%04f"))
-				{
-					Vector2 r = { v[0], v[1] };
-					Set_Vector2(p_name, r);
-					Save();
-				}
-			}
-			else if (info.second.type == Shader::Parameter_Type::VECTOR3)
-			{
-				Vector3 value = Get_Vector3(p_name);
-				float v[3] = { value.x, value.y, value.z };
-				if (ImGui::DragFloat3("##float3", v, 0.001f))
-				{
-					Vector3 r = { v[0], v[1],v[2] };
-					Set_Vector3(p_name, r);
-					Save();
-				}
-			}
-			else if (info.second.type == Shader::Parameter_Type::VECTOR4)
-			{
-				Vector4 value = Get_Vector4(p_name);
-				float v[4] = { value.x, value.y, value.z, value.w };
-				if (ImGui::ColorEdit4("##float4_color", v))
-				{
-					Vector4 r = { v[0], v[1], v[2], v[3] };
-					Set_Vector4(p_name, r);
-					Save();
-				}
-				ImGui::Dummy({ 0,0 });
 				ImGui::SameLine(window_width * 0.4f);
 				ImGui::SetNextItemWidth(-FLT_MIN);
-				if (ImGui::DragFloat4("##float4_color", v, 0.001f))
+
+				if (info.second.type == Shader::Parameter_Type::INT)
 				{
-					Vector4 r = { v[0], v[1], v[2], v[3] };
-					Set_Vector4(p_name, r);
+					int value = Get_Int(p_name);
+					if (ImGui::DragInt("##int", &value))
+					{
+						Set_Int(p_name, value);
+						Save();
+					}
+				}
+				else if (info.second.type == Shader::Parameter_Type::FLOAT)
+				{
+					float value = Get_Float(p_name);
+					if (ImGui::DragFloat("##float", &value, 0.001f, 0, 0, "%05f"))
+					{
+						Set_Float(p_name, value);
+						Save();
+					}
+				}
+				else if (info.second.type == Shader::Parameter_Type::VECTOR2)
+				{
+					Vector2 value = Get_Vector2(p_name);
+					float v[2] = { value.x, value.y };
+					if (ImGui::DragFloat2("##float2", v, 0.001f, 0, 0, "%04f"))
+					{
+						Vector2 r = { v[0], v[1] };
+						Set_Vector2(p_name, r);
+						Save();
+					}
+				}
+				else if (info.second.type == Shader::Parameter_Type::VECTOR3)
+				{
+					Vector3 value = Get_Vector3(p_name);
+					float v[3] = { value.x, value.y, value.z };
+					if (ImGui::DragFloat3("##float3", v, 0.001f))
+					{
+						Vector3 r = { v[0], v[1],v[2] };
+						Set_Vector3(p_name, r);
+						Save();
+					}
+				}
+				else if (info.second.type == Shader::Parameter_Type::VECTOR4)
+				{
+					Vector4 value = Get_Vector4(p_name);
+					float v[4] = { value.x, value.y, value.z, value.w };
+					if (ImGui::ColorEdit4("##float4_color", v))
+					{
+						Vector4 r = { v[0], v[1], v[2], v[3] };
+						Set_Vector4(p_name, r);
+						Save();
+					}
+					ImGui::Dummy({ 0,0 });
+					ImGui::SameLine(window_width * 0.4f);
+					ImGui::SetNextItemWidth(-FLT_MIN);
+					if (ImGui::DragFloat4("##float4_color", v, 0.001f))
+					{
+						Vector4 r = { v[0], v[1], v[2], v[3] };
+						Set_Vector4(p_name, r);
+						Save();
+					}
+				}
+				else if (info.second.type == Shader::Parameter_Type::MATRIX)
+				{
+					ImGui::Dummy({ 0,0 }); // GUI非対応
+				}
+				ImGui::PopID();
+			}
+
+			if (ImGui::TreeNode(u8"レンダリング設定"))
+			{
+				static const char* depth[] = { "None", "Less", "Greater", "LEqual", "GEqual", "Equal", "NotEqual", "Always", "None_No_Write", "Less_No_Write", "Greater_No_Write", "LEqual_No_Write", "GEqual_No_Write", "Equal_No_Write", "NotEqual_No_Write", "Always_No_Write" };
+				int depth_current = static_cast<int>(pass.depth_stencil_state);
+				ImGui::Text(u8"深度設定");
+				ImGui::SameLine(window_width * 0.6f);
+				ImGui::SetNextItemWidth(-FLT_MIN);
+				if (ImGui::Combo("##DepthMode", &depth_current, depth, IM_ARRAYSIZE(depth)))
+				{
+					Set_Depth_Stencil_State(static_cast<DS_State>(depth_current), i);
 					Save();
 				}
-			}
-			else if (info.second.type == Shader::Parameter_Type::MATRIX)
-			{
-				ImGui::Dummy({ 0,0 }); // GUI非対応
-			}
-			ImGui::PopID();
-		}
 
-		if (ImGui::TreeNode(u8"レンダリング設定"))
-		{
-			static const char* depth[] = { "None", "Less", "Greater", "LEqual", "GEqual", "Equal", "NotEqual", "Always", "None_No_Write", "Less_No_Write", "Greater_No_Write", "LEqual_No_Write", "GEqual_No_Write", "Equal_No_Write", "NotEqual_No_Write", "Always_No_Write" };
-			int depth_current = static_cast<int>(depth_stencil_state);
-			ImGui::Text(u8"深度設定");
-			ImGui::SameLine(window_width * 0.6f);
-			ImGui::SetNextItemWidth(-FLT_MIN);
-			if (ImGui::Combo("##DepthMode", &depth_current, depth, IM_ARRAYSIZE(depth)))
-			{
-				Set_Depth_Stencil_State(static_cast<DS_State>(depth_current));
-				Save();
-			}
+				ImGui::Text(u8"カリング");
+				static const char* cull[] = { "Back", "Front", "None" };
+				int cull_current = static_cast<int>(pass.rasterizer_state);
+				ImGui::SameLine(window_width * 0.6f);
+				ImGui::SetNextItemWidth(-FLT_MIN);
+				if (ImGui::Combo("##Culling", &cull_current, cull, IM_ARRAYSIZE(cull)))
+				{
+					Set_Rasterizer_State(static_cast<RS_State>(cull_current), i);
+					Save();
+				}
 
-			ImGui::Text(u8"カリング");
-			static const char* cull[] = { "Back", "Front", "None" };
-			int cull_current = static_cast<int>(rasterizer_state);
-			ImGui::SameLine(window_width * 0.6f);
-			ImGui::SetNextItemWidth(-FLT_MIN);
-			if (ImGui::Combo("##Culling", &cull_current, cull, IM_ARRAYSIZE(cull)))
-			{
-				Set_Rasterizer_State(static_cast<RS_State>(cull_current));
-				Save();
-			}
+				ImGui::Text(u8"ブレンド");
+				static const char* blends[] = { "Off", "Alpha", "Alpha_Test", "Transparent", "Add", "Subtract", "Replace", "Multiply" };
+				int blend_current = static_cast<int>(pass.blend_state);
+				ImGui::SameLine(window_width * 0.6f);
+				ImGui::SetNextItemWidth(-FLT_MIN);
+				if (ImGui::Combo("##BlendMode", &blend_current, blends, IM_ARRAYSIZE(blends)))
+				{
+					Set_Blend_State(static_cast<BS_State>(blend_current), i);
+					Save();
+				}
 
-			ImGui::Text(u8"ブレンド");
-			static const char* blends[] = { "Off", "Alpha", "Alpha_Test", "Transparent", "Add", "Subtract", "Replace", "Multiply" };
-			int blend_current = static_cast<int>(blend_state);
-			ImGui::SameLine(ImGui::GetWindowContentRegionWidth() * 0.6f);
-			ImGui::SetNextItemWidth(-FLT_MIN);
-			if (ImGui::Combo("##BlendMode", &blend_current, blends, IM_ARRAYSIZE(blends)))
-			{
-				Set_Blend_State(static_cast<BS_State>(blend_current));
-				Save();
-			}
+				ImGui::Text(u8"描画キュー");
+				ImGui::SameLine(window_width * 0.6f);
+				ImGui::SetNextItemWidth(-FLT_MIN);
+				ImGui::InputInt("##Queue", &render_queue);
 
-			ImGui::Text(u8"描画キュー");
-			ImGui::SameLine(ImGui::GetWindowContentRegionWidth() * 0.6f);
-			ImGui::SetNextItemWidth(-FLT_MIN);
-			ImGui::InputInt("##Queue", &render_queue);
+				ImGui::TreePop();
+			}
 
 			ImGui::TreePop();
 		}
+		ImGui::PopID();
+	}
 
-		ImGui::TreePop();
+	ImGui::Separator();
+	ImGui::Dummy({ 0,0 });
+	ImGui::SameLine(window_width - 120.0f);
+	if (ImGui::Button(u8"パス追加", { 60,0 }))
+	{
+		Add_Pass("Shader\\Standard_Shader_VS.hlsl", "Shader\\Standard_Shader_PS.hlsl");
+	}
+	ImGui::SameLine();
+	if (ImGui::Button(u8"パス削除", { 60,0 }))
+	{
+		Remove_Pass();
 	}
 }
