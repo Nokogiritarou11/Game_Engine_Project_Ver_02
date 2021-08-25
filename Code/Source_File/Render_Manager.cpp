@@ -196,9 +196,14 @@ void Render_Manager::Render_Scene()
 	{
 		scene_texture->Set_Render_Target();
 		// シーン用定数バッファ更新
-		buffer_scene.view_projection_matrix = Engine::editor->debug_camera->view_projection_matrix;
 		DxSystem::device_context->VSSetConstantBuffers(0, 1, constant_buffer_scene.GetAddressOf());
 		DxSystem::device_context->PSSetConstantBuffers(0, 1, constant_buffer_scene.GetAddressOf());
+
+		const Vector3& pos = Engine::editor->debug_camera_transform->Get_Position();
+		buffer_scene.camera_position = Vector4(pos.x, pos.y, pos.z, 0);
+		const Vector3& dir = Engine::editor->debug_camera_transform->Get_Forward();
+		buffer_scene.camera_direction = Vector4(dir.x, dir.y, dir.z, 0);
+		buffer_scene.view_projection_matrix = Engine::editor->debug_camera->view_projection_matrix;
 		Update_Constant_Buffer();
 
 		Render_Sky(shadow_camera_transform->Get_Position());
@@ -234,9 +239,14 @@ void Render_Manager::Render_Game()
 					DxSystem::Set_Default_View();
 #endif
 					// シーン用定数バッファ更新
-					buffer_scene.view_projection_matrix = camera->view_projection_matrix;
 					DxSystem::device_context->VSSetConstantBuffers(0, 1, constant_buffer_scene.GetAddressOf());
 					DxSystem::device_context->PSSetConstantBuffers(0, 1, constant_buffer_scene.GetAddressOf());
+
+					const Vector3& pos = camera->transform->Get_Position();
+					buffer_scene.camera_position = Vector4(pos.x, pos.y, pos.z, 0);
+					const Vector3& dir = camera->transform->Get_Forward();
+					buffer_scene.camera_direction = Vector4(dir.x, dir.y, dir.z, 0);
+					buffer_scene.view_projection_matrix = camera->view_projection_matrix;
 					Update_Constant_Buffer();
 
 					Render_Sky(camera->transform->Get_Position());
@@ -358,7 +368,13 @@ void Render_Manager::Render_Shadow_Directional(const Vector3& color, const float
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.5f, 0.5f, 0.0f, 1.0f };
 	buffer_scene.shadow_matrix = shadow_camera->view_projection_matrix * SHADOW_BIAS;
-	const Vector3 forward = light_transform->Get_Forward();
+
+	const Vector3& pos = shadow_camera->transform->Get_Position();
+	buffer_scene.camera_position = Vector4(pos.x, pos.y, pos.z, 0);
+	const Vector3& dir = shadow_camera->transform->Get_Forward();
+	buffer_scene.camera_direction = Vector4(dir.x, dir.y, dir.z, 0);
+
+	const Vector3& forward = light_transform->Get_Forward();
 	buffer_scene.light_direction = { forward.x, forward.y, forward.z, 0 };
 	buffer_scene.light_color = color;
 	buffer_scene.bias = Engine::shadow_manager->shadow_bias;

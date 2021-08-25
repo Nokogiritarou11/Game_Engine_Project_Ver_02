@@ -38,6 +38,9 @@ namespace BeastEngine
 			BeastEngine::Vector3 position;
 			BeastEngine::Vector3 normal;
 			BeastEngine::Vector3 tangent;
+			BeastEngine::Vector3 origin_position;
+			BeastEngine::Vector3 origin_normal;
+			BeastEngine::Vector3 origin_tangent;
 			BeastEngine::Vector2 texcoord;
 		};
 

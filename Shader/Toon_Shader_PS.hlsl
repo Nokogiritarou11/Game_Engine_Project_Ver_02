@@ -48,7 +48,7 @@ float4 main(VERTEX_OUT input) : SV_TARGET
     diffuse_factor = diffuse_factor * 0.5 + 0.5f;
     diffuse_factor = diffuse_factor * diffuse_factor;
 
-    float4 mapdiff = diffuseMap.Sample(diffuseMapSamplerState, input.texcoord) * main_color;
+    float4 mapdiff = diffuseMap.Sample(diffuseMapSamplerState, input.texcoord) * main_color * float4(lightcolor, 1);
 
     float4 main_level = mapdiff * ramplMap.Sample(RampMapSamplerState, float2(diffuse_factor, 0));
 

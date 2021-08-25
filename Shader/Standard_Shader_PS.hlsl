@@ -27,7 +27,7 @@ float4 main(VERTEX_OUT pin) : SV_TARGET
 {
     float4 outcolor;
 
-    float4 mapdiff = diffuseMap.Sample(diffuseMapSamplerState, pin.texcoord) * main_color;
+    float4 mapdiff = diffuseMap.Sample(diffuseMapSamplerState, pin.texcoord) * main_color * float4(lightcolor, 1);
 
     float4 normal_map_colour = normalMap.Sample(normalMapSamplerState, pin.texcoord);
     normal_map_colour = (normal_map_colour * 2.0) - 1.0;

@@ -21,7 +21,7 @@ VERTEX_OUT main(uint index : SV_VertexID)
     VERTEX_OUT vout;
 
     float4 pos = float4(vertex[index].position, 1.0f);
-    vout.position = mul(viewProjection, pos + float4(normalize(vertex[index].origin_position), 0) * outline_size * 2);
+    vout.position = mul(viewProjection, pos + float4(vertex[index].normal, 0) * outline_size);
     vout.edgecolor = float4(outline_color, 1.0f);
     vout.texcoord = vertex[index].texcoord;
 

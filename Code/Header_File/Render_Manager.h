@@ -60,6 +60,8 @@ namespace BeastEngine
 		{
 			BeastEngine::Matrix	 view_projection_matrix;
 			BeastEngine::Matrix	 shadow_matrix;
+			BeastEngine::Vector4 camera_direction;
+			BeastEngine::Vector4 camera_position;
 			BeastEngine::Vector4 light_direction;
 			BeastEngine::Vector3 light_color;
 			float	bias;

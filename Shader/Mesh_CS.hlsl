@@ -32,5 +32,10 @@ void main(uint3 dispatch : SV_DispatchThreadID)
 
     vertex_out[num].normal = normalize(mul(world, nor)).xyz;
     vertex_out[num].tangent = normalize(mul(world, tan)).xyz;
+
+    vertex_out[num].origin_position = vertex_in[num].position;
+    vertex_out[num].origin_normal = vertex_in[num].normal;
+    vertex_out[num].origin_tangent = vertex_in[num].tangent;
+
     vertex_out[num].texcoord = vertex_in[num].texcoord;
 }

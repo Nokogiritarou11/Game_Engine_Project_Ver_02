@@ -42,6 +42,11 @@ void main(uint3 dispatch : SV_DispatchThreadID)
 	vertex_out[num].position = p;
 
 	vertex_out[num].normal = normalize(n);
-	vertex_out[num].tangent = normalize(t);
+    vertex_out[num].tangent = normalize(t);
+
+    vertex_out[num].origin_position = vertex_in[num].position;
+    vertex_out[num].origin_normal = vertex_in[num].normal;
+    vertex_out[num].origin_tangent = vertex_in[num].tangent;
+
 	vertex_out[num].texcoord = vertex_in[num].texcoord;
 }
