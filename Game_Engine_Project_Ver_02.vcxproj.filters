@@ -21,7 +21,6 @@
     <FxCompile Include="Shader\Gaussian_Shader_x_PS.hlsl" />
     <FxCompile Include="Shader\Gaussian_Shader_y_PS.hlsl" />
     <FxCompile Include="Shader\Toon_Shader_PS.hlsl" />
-    <FxCompile Include="Shader\Toon_Outline_VS.hlsl" />
     <FxCompile Include="Shader\Toon_Outline_PS.hlsl" />
     <FxCompile Include="Shader\Toon_Outline_Normal_VS.hlsl" />
     <FxCompile Include="Shader\Toon_Outline_Position_VS.hlsl" />

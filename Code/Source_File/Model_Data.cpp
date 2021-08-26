@@ -8,8 +8,6 @@
 #include <fstream>
 #include <assert.h>
 #include "DxSystem.h"
-#include "Material.h"
-#include "Texture.h"
 #include "Asset_Manager.h"
 #include "Engine.h"
 using namespace std;
@@ -284,11 +282,6 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 			if (cashed) continue;
 		}
 
-		shared_ptr<Material> mat = Material::Create("Shader\\Standard_Shader_VS.hlsl", "Shader\\Standard_Shader_PS.hlsl");
-		mat->name = material_name;
-		mat->Set_Texture("diffuseMap", Texture::Load("Default_Resource\\Image\\Default_Texture.png"));
-		mat->Set_Texture("normalMap", Texture::Load("Default_Resource\\Image\\Default_NormalMap.png"));
-		mat->Save(new_mat_path);
 		default_material_pathes.push_back(new_mat_path);
 
 		//FBX内のテクスチャを解凍

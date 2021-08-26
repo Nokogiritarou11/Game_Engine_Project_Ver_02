@@ -48,7 +48,6 @@ namespace BeastEngine
 		{
 			u_int index_start = 0; // start number of index buffer
 			u_int index_count = 0; // number of vertices (indices)
-			BeastEngine::Vector4 color = { 1,1,1,1 };
 			u_int material_ID = 0;
 
 		private:
@@ -56,7 +55,7 @@ namespace BeastEngine
 			template<class Archive>
 			void serialize(Archive& archive, std::uint32_t const version)
 			{
-				archive(index_start, index_count, color, material_ID);
+				archive(index_start, index_count, material_ID);
 			}
 		};
 

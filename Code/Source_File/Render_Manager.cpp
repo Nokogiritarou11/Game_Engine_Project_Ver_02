@@ -206,7 +206,7 @@ void Render_Manager::Render_Scene()
 		buffer_scene.view_projection_matrix = Engine::editor->debug_camera->view_projection_matrix;
 		Update_Constant_Buffer();
 
-		Render_Sky(shadow_camera_transform->Get_Position());
+		Render_Sky(Engine::editor->debug_camera_transform->Get_Position());
 		Render_3D(Engine::editor->debug_camera);
 		Engine::particle_manager->Render();
 
