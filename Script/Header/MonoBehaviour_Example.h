@@ -45,6 +45,7 @@ namespace BeastEngine
 }
 
 //以下マクロのクラス名部分を書き換え
+REGISTER_COMPONENT(Hoge)
 CEREAL_REGISTER_TYPE(BeastEngine::Hoge)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::MonoBehaviour, BeastEngine::Hoge)
 CEREAL_CLASS_VERSION(BeastEngine::Hoge, 1)

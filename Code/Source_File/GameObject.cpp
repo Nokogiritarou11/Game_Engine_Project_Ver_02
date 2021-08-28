@@ -95,13 +95,13 @@ bool GameObject::Get_Active_In_Hierarchy()
 {
 	if (active)
 	{
-		if (transform->Get_Parent().expired())
+		if (shared_ptr<Transform>& obj = transform->Get_Parent().lock())
 		{
-			return active;
+			return obj->gameobject->Get_Active_In_Hierarchy();
 		}
 		else
 		{
-			return transform->Get_Parent().lock()->gameobject->Get_Active_In_Hierarchy();
+			return active;
 		}
 	}
 	return active;

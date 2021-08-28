@@ -297,6 +297,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Script\Source\Character_Parameter.cpp" />
+    <ClCompile Include="Script\Source\Player_Camera_Controller.cpp" />
+    <ClCompile Include="Script\Source\Player_Move.cpp" />
+    <ClCompile Include="Script\Source\Player_State_Manager.cpp" />
     <None Include="Script\Source\MonoBehaviour_Example.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -804,6 +808,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Script\Header\Player_Camera_Controller.h" />
+    <ClInclude Include="Script\Header\Player_State_Manager.h" />
+    <ClInclude Include="Script\Header\Character_Parameter.h" />
+    <ClInclude Include="Script\Header\Player_Move.h" />
     <None Include="Script\Header\MonoBehaviour_Example.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

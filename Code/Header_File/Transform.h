@@ -59,7 +59,7 @@ namespace BeastEngine
 
 		std::weak_ptr<Transform> Get_Child(int index);											//Transformの指定したインデックスの子を返す
 		int						 Get_Child_Count();												//Transformが子をいくつ保持しているかを返す(子が居ない場合、０)
-		std::weak_ptr<Transform> Find(std::string n);
+
 		int						 Get_Sibling_Index() const;										//ヒエラルキー上でその階層(兄弟関係)の中で何番目かを返す
 		void					 Set_Sibling_Index(int index);									//ヒエラルキー上でその階層(兄弟関係)の中での順番をインデックスで指定する
 
@@ -67,7 +67,7 @@ namespace BeastEngine
 		void					 Set_World_Matrix(BeastEngine::Matrix matrix);					//Transformのワールド変換行列を直接設定する
 
 		//Function
-
+		std::weak_ptr<Transform> Find(std::string n);											//Transform以下のオブジェクトを検索する
 		BeastEngine::Quaternion	 Look_At(BeastEngine::Vector3 pos);								//TransformのForwardを指定した座標へ向ける
 
 	private:

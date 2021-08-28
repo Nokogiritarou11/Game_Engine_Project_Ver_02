@@ -124,8 +124,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 		}
 		else
 		{
-			BeastEngine::Time::delta_time = //1/60.0f;
-				(GetTickCount64() - before) * 0.001f * BeastEngine::Time::time_scale;
+			BeastEngine::Time::delta_time = (GetTickCount64() - before) * 0.001f * BeastEngine::Time::time_scale;
 
 			before = GetTickCount64();
 			float mspf = 1000.0f / fps;

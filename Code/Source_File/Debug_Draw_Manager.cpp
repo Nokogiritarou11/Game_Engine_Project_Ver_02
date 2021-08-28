@@ -12,6 +12,9 @@ using Microsoft::WRL::ComPtr;
 Debug_Draw_Manager::Debug_Draw_Manager()
 {
 	material = Material::Create("Shader\\Debug_Shader_VS.hlsl", "Shader\\Debug_Shader_PS.hlsl");
+	material->Set_Blend_State(BS_State::Alpha);
+	material->Set_Depth_Stencil_State(DS_State::GEqual_No_Write);
+	material->Set_Rasterizer_State(RS_State::Wire);
 	lines.clear();
 
 	grid_length = 80;
@@ -93,11 +96,6 @@ void Debug_Draw_Manager::Set_Dx_Settings()
 
 	// シェーダ
 	material->Active();
-
-	DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(DS_State::GEqual_No_Write), 1);
-	// ステート
-	DxSystem::device_context->RSSetState(DxSystem::Get_Rasterizer_State(RS_State::Wire));
-	DxSystem::device_context->OMSetBlendState(DxSystem::Get_Blend_State(BS_State::Alpha), nullptr, 0xffffffff);
 }
 
 void Debug_Draw_Manager::Render_Grid(shared_ptr<Transform>& trans)

@@ -93,13 +93,11 @@ void Particle_Manager::Camera_Update(std::shared_ptr<Transform>& camera_trans, f
 
 void Particle_Manager::Update()
 {
-	shared_ptr<Particle> p_eff = nullptr;
 	bool expired = false;
 	for (auto& p : particle_list)
 	{
-		if (!p.expired())
+		if (shared_ptr<Particle>& p_eff = p.lock())
 		{
-			p_eff = p.lock();
 			if (p_eff->gameobject->Get_Active_In_Hierarchy())
 			{
 				if (Engine::particle_manager->manager->Exists(p_eff->handle))

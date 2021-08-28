@@ -140,7 +140,7 @@ void Collider::Initialize_MonoBehaviour()
 {
 	for (auto& com : gameobject->component_list)
 	{
-		shared_ptr<MonoBehaviour> buff = dynamic_pointer_cast<MonoBehaviour>(com);
+		shared_ptr<MonoBehaviour>& buff = dynamic_pointer_cast<MonoBehaviour>(com);
 		if (buff != nullptr)
 		{
 			send_list.emplace_back(buff);
@@ -235,36 +235,30 @@ void Collider::Update_Simulation()
 
 void Collider::Call_OnTrigger_Enter(Collision& collision)
 {
-	shared_ptr<MonoBehaviour> mono;
 	for (auto& m : send_list)
 	{
-		if (!m.expired())
+		if (shared_ptr<MonoBehaviour>& mono = m.lock())
 		{
-			mono = m.lock();
 			mono->OnTrigger_Enter(collision);
 		}
 	}
 }
 void Collider::Call_OnTrigger_Stay(Collision& collision)
 {
-	shared_ptr<MonoBehaviour> mono;
 	for (auto& m : send_list)
 	{
-		if (!m.expired())
+		if (shared_ptr<MonoBehaviour>& mono = m.lock())
 		{
-			mono = m.lock();
 			mono->OnTrigger_Stay(collision);
 		}
 	}
 }
 void Collider::Call_OnTrigger_Exit(Collision& collision)
 {
-	shared_ptr<MonoBehaviour> mono;
 	for (auto& m : send_list)
 	{
-		if (!m.expired())
+		if (shared_ptr<MonoBehaviour>& mono = m.lock())
 		{
-			mono = m.lock();
 			mono->OnTrigger_Exit(collision);
 		}
 	}
@@ -272,36 +266,30 @@ void Collider::Call_OnTrigger_Exit(Collision& collision)
 
 void Collider::Call_OnCollision_Enter(Collision& collision)
 {
-	shared_ptr<MonoBehaviour> mono;
 	for (auto& m : send_list)
 	{
-		if (!m.expired())
+		if (shared_ptr<MonoBehaviour>& mono = m.lock())
 		{
-			mono = m.lock();
 			mono->OnCollision_Enter(collision);
 		}
 	}
 }
 void Collider::Call_OnCollision_Stay(Collision& collision)
 {
-	shared_ptr<MonoBehaviour> mono;
 	for (auto& m : send_list)
 	{
-		if (!m.expired())
+		if (shared_ptr<MonoBehaviour>& mono = m.lock())
 		{
-			mono = m.lock();
 			mono->OnCollision_Stay(collision);
 		}
 	}
 }
 void Collider::Call_OnCollision_Exit(Collision& collision)
 {
-	shared_ptr<MonoBehaviour> mono;
 	for (auto& m : send_list)
 	{
-		if (!m.expired())
+		if (shared_ptr<MonoBehaviour>& mono = m.lock())
 		{
-			mono = m.lock();
 			mono->OnCollision_Exit(collision);
 		}
 	}

@@ -103,6 +103,10 @@
     <ClCompile Include="Code\Source_File\Capsule_Collider.cpp" />
     <ClCompile Include="Code\Source_File\Compute_Shader.cpp" />
     <ClCompile Include="Code\Source_File\Gaussian_Filter.cpp" />
+    <ClCompile Include="Script\Source\Character_Parameter.cpp" />
+    <ClCompile Include="Script\Source\Player_Move.cpp" />
+    <ClCompile Include="Script\Source\Player_State_Manager.cpp" />
+    <ClCompile Include="Script\Source\Player_Camera_Controller.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -300,6 +304,10 @@
     <ClInclude Include="Code\Header_File\Project_Settings.h" />
     <ClInclude Include="Code\Header_File\Compute_Shader.h" />
     <ClInclude Include="Code\Header_File\Gaussian_Filter.h" />
+    <ClInclude Include="Script\Header\Character_Parameter.h" />
+    <ClInclude Include="Script\Header\Player_State_Manager.h" />
+    <ClInclude Include="Script\Header\Player_Move.h" />
+    <ClInclude Include="Script\Header\Player_Camera_Controller.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

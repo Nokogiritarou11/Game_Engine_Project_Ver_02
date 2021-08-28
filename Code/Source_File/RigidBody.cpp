@@ -64,6 +64,7 @@ void RigidBody::Create()
 	rigidbody->setLinearFactor(btVector3(linear_factor.x, linear_factor.y, linear_factor.z));
 	rigidbody->setAngularFactor(btVector3(angular_factor.x, angular_factor.y, angular_factor.z));
 	rigidbody->setGravity(btVector3(gravity.x, gravity.y, gravity.z));
+	rigidbody->setFriction(0);
 }
 
 void RigidBody::Resize()

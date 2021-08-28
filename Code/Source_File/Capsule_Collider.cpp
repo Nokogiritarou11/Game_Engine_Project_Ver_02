@@ -66,7 +66,7 @@ bool Capsule_Collider::Draw_ImGui()
 
 		ImGui::Text(u8"îºåa");
 		ImGui::SameLine(window_center);
-		ImGui::SetNextItemWidth(window_center);
+		ImGui::SetNextItemWidth(-FLT_MIN);
 		float rad = radius;
 		if (ImGui::DragFloat("##Capsule_Radius", &rad, 0.1f))
 		{
@@ -75,7 +75,7 @@ bool Capsule_Collider::Draw_ImGui()
 
 		ImGui::Text(u8"çÇÇ≥");
 		ImGui::SameLine(window_center);
-		ImGui::SetNextItemWidth(window_center);
+		ImGui::SetNextItemWidth(-FLT_MIN);
 		float hei = height;
 		if (ImGui::DragFloat("##Capsule_Height", &hei, 0.1f))
 		{

@@ -330,22 +330,24 @@ void Editor::Hierarchy_Render()
 				}
 			}
 			ImGui::Separator();
-			if (!active_object.expired())
+
+			if (shared_ptr<GameObject>& obj = active_object.lock())
 			{
+				bool deleted = false;
 				if (ImGui::Selectable(u8"オブジェクトを削除"))
 				{
-					GameObject::Destroy(active_object.lock());
 					Select_Reset();
+					GameObject::Destroy(obj);
 					selecting = -1;
+					deleted = true;
 				}
 
-				if (!active_object.expired())
+				if (!deleted)
 				{
 					if (ImGui::Selectable(u8"オブジェクトを複製"))
 					{
-						shared_ptr<GameObject>& obj = active_object.lock();
-						weak_ptr<Transform> parent = obj->transform->Get_Parent();
-						if (!parent.expired())
+						auto& parent = obj->transform->Get_Parent().lock();
+						if (parent)
 						{
 							obj->transform->Set_Parent(nullptr);
 						}
@@ -358,10 +360,10 @@ void Editor::Hierarchy_Render()
 							}
 						}
 
-						if (!parent.expired())
+						if (parent)
 						{
-							obj->transform->Set_Parent(parent.lock());
-							Resources::Load_Prefab("Default_Resource\\System\\copy.prefab")->transform->Set_Parent(parent.lock());
+							obj->transform->Set_Parent(parent);
+							Resources::Load_Prefab("Default_Resource\\System\\copy.prefab")->transform->Set_Parent(parent);
 						}
 						else
 						{
@@ -371,14 +373,14 @@ void Editor::Hierarchy_Render()
 
 					if (ImGui::Selectable(u8"オブジェクトをプレハブ化"))
 					{
-						Resources::Create_Prefab(active_object.lock());
+						Resources::Create_Prefab(obj);
 					}
 
-					if (!active_object.lock()->transform->parent.expired())
+					if (!obj->transform->parent.expired())
 					{
 						if (ImGui::Selectable(u8"オブジェクトの親子関係を解除"))
 						{
-							active_object.lock()->transform->Set_Parent(nullptr);
+							obj->transform->Set_Parent(nullptr);
 						}
 					}
 				}
@@ -387,41 +389,43 @@ void Editor::Hierarchy_Render()
 		}
 		ImGui::TreePop();
 
-		if (ImGui::IsWindowFocused() && !active_object.expired())
+		if (ImGui::IsWindowFocused())
 		{
-			if (ImGui::IsKeyDown(17) && ImGui::IsKeyPressed(68)) //Ctrl + D
+			if (shared_ptr<GameObject>& obj = active_object.lock())
 			{
-				shared_ptr<GameObject>& obj = active_object.lock();
-				weak_ptr<Transform> parent = obj->transform->Get_Parent();
-				if (!parent.expired())
+				if (ImGui::IsKeyDown(17) && ImGui::IsKeyPressed(68)) //Ctrl + D
 				{
-					obj->transform->Set_Parent(nullptr);
-				}
-
-				{
-					ofstream ss("Default_Resource\\System\\copy.prefab", ios::binary);
+					shared_ptr<Transform> parent = obj->transform->Get_Parent().lock();
+					if (parent)
 					{
-						cereal::BinaryOutputArchive o_archive(ss);
-						o_archive(obj);
+						obj->transform->Set_Parent(nullptr);
+					}
+
+					{
+						ofstream ss("Default_Resource\\System\\copy.prefab", ios::binary);
+						{
+							cereal::BinaryOutputArchive o_archive(ss);
+							o_archive(obj);
+						}
+					}
+
+					if (parent)
+					{
+						obj->transform->Set_Parent(parent);
+						Resources::Load_Prefab("Default_Resource\\System\\copy.prefab")->transform->Set_Parent(parent);
+					}
+					else
+					{
+						Resources::Load_Prefab("Default_Resource\\System\\copy.prefab");
 					}
 				}
 
-				if (!parent.expired())
+				if (ImGui::IsKeyPressed(46)) //Delete
 				{
-					obj->transform->Set_Parent(parent.lock());
-					Resources::Load_Prefab("Default_Resource\\System\\copy.prefab")->transform->Set_Parent(parent.lock());
+					Select_Reset();
+					GameObject::Destroy(obj);
+					selecting = -1;
 				}
-				else
-				{
-					Resources::Load_Prefab("Default_Resource\\System\\copy.prefab");
-				}
-			}
-
-			if (ImGui::IsKeyPressed(46)) //Delete
-			{
-				GameObject::Destroy(active_object.lock());
-				Select_Reset();
-				selecting = -1;
 			}
 		}
 	}
@@ -439,8 +443,7 @@ void Editor::Inspector_Render()
 	window_flags |= ImGuiWindowFlags_NoCollapse;
 	ImGui::Begin(u8"インスペクタ", NULL, window_flags);
 
-	shared_ptr<GameObject>& obj = active_object.lock();
-	if (obj)
+	if (shared_ptr<GameObject>& obj = active_object.lock())
 	{
 		static bool active = false;
 		if (active_object_old.lock() != obj)
@@ -714,12 +717,11 @@ void Editor::SceneView_Render()
 		}
 	}
 
-	if (!active_object.expired())
+	if (auto& obj = active_object.lock())
 	{
 		static Matrix matrix;
 
-		shared_ptr<Transform> trans = active_object.lock()->transform;
-		matrix = trans->Get_World_Matrix();
+		matrix = obj->transform->Get_World_Matrix();
 
 		ImVec2 winPos = ImGui::GetWindowPos();
 		ImGuizmo::SetRect(winPos.x + 4, winPos.y + 16, window_width, window_height);
@@ -735,7 +737,7 @@ void Editor::SceneView_Render()
 
 		if (ImGuizmo::IsUsing())
 		{
-			trans->Set_World_Matrix(matrix);
+			obj->transform->Set_World_Matrix(matrix);
 		}
 	}
 	ImGui::End();
@@ -1170,9 +1172,9 @@ void Editor::GameObject_Tree_Render(const shared_ptr<GameObject>& obj, int flag,
 {
 	ImGui::PushID(obj->Get_Instance_ID().c_str());
 	const ImGuiTreeNodeFlags in_flag = flag;
-	if (!active_object.expired())
+	if (shared_ptr<GameObject>& active_obj = active_object.lock())
 	{
-		if (active_object.lock() == obj) flag |= ImGuiTreeNodeFlags_Selected;
+		if (active_obj == obj) flag |= ImGuiTreeNodeFlags_Selected;
 	}
 
 	bool active = obj->Get_Active();
@@ -1240,7 +1242,7 @@ void Editor::GameObject_DragMenu_Render(const std::shared_ptr<GameObject>& obj)
 	{
 		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DragDrop_Object"))
 		{
-			if (!draging_object.expired() && draging_object.lock() != obj)
+			if (draging_object.lock() != obj)
 			{
 				ImGui::OpenPopup(Menu_Label.c_str());
 			}
@@ -1259,9 +1261,9 @@ void Editor::GameObject_DragMenu_Render(const std::shared_ptr<GameObject>& obj)
 		string s_set = obj_name + s1;
 		if (ImGui::Selectable(s_set.c_str()))
 		{
-			if (!draging_object.expired())
+			if (shared_ptr<GameObject>& drag_obj = draging_object.lock())
 			{
-				draging_object.lock()->transform->Set_Parent(obj->transform);
+				drag_obj->transform->Set_Parent(obj->transform);
 				draging_object.reset();
 			}
 		}
@@ -1269,9 +1271,8 @@ void Editor::GameObject_DragMenu_Render(const std::shared_ptr<GameObject>& obj)
 		s_set = obj_name + s2;
 		if (ImGui::Selectable(s_set.c_str()))
 		{
-			if (!draging_object.expired())
+			if (shared_ptr<GameObject>& drag_obj = draging_object.lock())
 			{
-				shared_ptr<GameObject>& drag_obj = draging_object.lock();
 				drag_obj->transform->Set_Parent(obj->transform->parent.lock());
 				drag_obj->transform->Set_Sibling_Index(obj->transform->Get_Sibling_Index());
 				draging_object.reset();
@@ -1281,9 +1282,8 @@ void Editor::GameObject_DragMenu_Render(const std::shared_ptr<GameObject>& obj)
 		s_set = obj_name + s3;
 		if (ImGui::Selectable(s_set.c_str()))
 		{
-			if (!draging_object.expired())
+			if (shared_ptr<GameObject>& drag_obj = draging_object.lock())
 			{
-				shared_ptr<GameObject>& drag_obj = draging_object.lock();
 				drag_obj->transform->Set_Parent(obj->transform->parent.lock());
 				drag_obj->transform->Set_Sibling_Index(obj->transform->Get_Sibling_Index() + 1);
 				draging_object.reset();

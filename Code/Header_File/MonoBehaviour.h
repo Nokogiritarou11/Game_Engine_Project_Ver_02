@@ -1,6 +1,7 @@
 #pragma once
 #include <stdio.h>
 #include "Behaviour.h"
+#include "Transform.h"
 #include "Debug.h"
 #include "Input.h"
 #include "Cursor.h"
@@ -28,23 +29,23 @@ namespace BeastEngine
 	class MonoBehaviour : public BeastEngine::Behaviour
 	{
 	private:
-		virtual void Awake() {};      //初めてアクティブになった時に一回だけ呼ばれる(Enableに依存し、ゲームオブジェクトのActiveを無視する)
-		virtual void Start() {};      //初めてアクティブになった時に一回だけ呼ばれる(ゲームオブジェクトのActiveと自身のEnableに依存する)
-		virtual void Update() {};     //アクティブ時に毎フレーム呼ばれる
-		virtual void LateUpdate() {}; //アクティブ時に毎フレーム、Updateのあとに呼ばれる
+		virtual void Awake() {}      //初めてアクティブになった時に一回だけ呼ばれる(Enableに依存し、ゲームオブジェクトのActiveを無視する)
+		virtual void Start() {}      //初めてアクティブになった時に一回だけ呼ばれる(ゲームオブジェクトのActiveと自身のEnableに依存する)
+		virtual void Update() {}     //アクティブ時に毎フレーム呼ばれる
+		virtual void LateUpdate() {} //アクティブ時に毎フレーム、Updateのあとに呼ばれる
 
-		virtual void OnEnable() {};  //アクティブになった時に呼ばれる
-		virtual void OnDisable() {}; //非アクティブになった時に呼ばれる
-		virtual void OnDestroy() {}; //削除時に呼ばれる
+		virtual void OnEnable() {}  //アクティブになった時に呼ばれる
+		virtual void OnDisable() {} //非アクティブになった時に呼ばれる
+		virtual void OnDestroy() {} //削除時に呼ばれる
 
-		virtual void OnTrigger_Enter(BeastEngine::Collision& collision) {};	  //このオブジェクトにアタッチされたコライダーが他コライダーに接触したとき
-		virtual void OnCollision_Enter(BeastEngine::Collision& collision) {}; //非トリガー時
+		virtual void OnTrigger_Enter(BeastEngine::Collision& collision) {}	  //このオブジェクトにアタッチされたコライダーが他コライダーに接触したとき
+		virtual void OnCollision_Enter(BeastEngine::Collision& collision) {} //非トリガー時
 
-		virtual void OnTrigger_Stay(BeastEngine::Collision& collision) {};	  //接触がにフレーム以上続いたとき(接触が維持される限り毎フレーム)
-		virtual void OnCollision_Stay(BeastEngine::Collision& collision) {};  //非トリガー時
+		virtual void OnTrigger_Stay(BeastEngine::Collision& collision) {}	  //接触がにフレーム以上続いたとき(接触が維持される限り毎フレーム)
+		virtual void OnCollision_Stay(BeastEngine::Collision& collision) {}  //非トリガー時
 
-		virtual void OnTrigger_Exit(BeastEngine::Collision& collision) {};	  //接触していたコライダーと離れたとき
-		virtual void OnCollision_Exit(BeastEngine::Collision& collision) {};  //非トリガー時
+		virtual void OnTrigger_Exit(BeastEngine::Collision& collision) {}	  //接触していたコライダーと離れたとき
+		virtual void OnCollision_Exit(BeastEngine::Collision& collision) {}  //非トリガー時
 
 		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
 		void Set_Active(bool value) override;

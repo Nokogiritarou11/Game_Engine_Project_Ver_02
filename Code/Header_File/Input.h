@@ -1,8 +1,8 @@
 #pragma once
-#include <Windows.h>
-#include <wrl.h>
-#include <stdio.h>
 #include "Original_Math.h"
+#include <Windows.h>
+#include <Xinput.h>
+#pragma comment(lib,"xinput.lib ")
 
 
 namespace BeastEngine
@@ -130,6 +130,24 @@ namespace BeastEngine
 		RightAlt = 0xA5,
 	};
 
+	enum class Button_Code
+	{
+		DPad_Up,
+		DPad_Down,
+		DPad_Left,
+		DPad_Right,
+		Start,
+		Back,
+		Left_Thumb,
+		Right_Thumb,
+		Left_Shoulder,
+		Right_Shoulder,
+		A,
+		B,
+		X,
+		Y,
+	};
+
 	class Input
 	{
 	public:
@@ -146,7 +164,37 @@ namespace BeastEngine
 		static BeastEngine::Vector2 Get_Mouse_Position();
 		static BeastEngine::Vector2 Get_Mouse_Relative_Position();
 
+		static bool Get_Pad_Button(Button_Code button, int pad_id = 0);
+		static bool Get_Pad_Button_Down(Button_Code button, int pad_id = 0);
+		static bool Get_Pad_Button_Up(Button_Code button, int pad_id = 0);
+
+		static float Get_Pad_Trigger_Left(int pad_id = 0);
+		static float Get_Pad_Trigger_Right(int pad_id = 0);
+
+		static BeastEngine::Vector2 Get_Pad_Axis_Left(int pad_id = 0);
+		static BeastEngine::Vector2 Get_Pad_Axis_Right(int pad_id = 0);
+
 	private:
+		struct Controller_Input_Result
+		{
+			bool buttons[14];
+			float left_trigger;
+			float right_trigger;
+			Vector2 left_axis;
+			Vector2 right_axis;
+		};
+
+		struct Controller_State
+		{
+			XINPUT_STATE state;
+			bool is_connected;
+			Controller_Input_Result result;
+			Controller_Input_Result result_old;
+
+			void Update();
+		};
+
+		static Controller_State controller_state[4];
 
 		static BYTE key_state[256];
 		static BYTE key_state_old[256];

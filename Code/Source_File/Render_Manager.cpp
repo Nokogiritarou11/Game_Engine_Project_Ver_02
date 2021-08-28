@@ -103,9 +103,9 @@ void Render_Manager::Check_Renderer()
 		bool expired = false;
 		for (auto& r : renderer_3D_list)
 		{
-			if (!r.expired())
+			if (auto& rend = r.lock())
 			{
-				r.lock()->Recalculate_Frame();
+				rend->Recalculate_Frame();
 			}
 			else
 			{
@@ -123,9 +123,9 @@ void Render_Manager::Check_Renderer()
 		bool expired = false;
 		for (auto& r : renderer_2D_list)
 		{
-			if (!r.expired())
+			if (auto& rend = r.lock())
 			{
-				r.lock()->Recalculate_Frame();
+				rend->Recalculate_Frame();
 			}
 			else
 			{
@@ -220,9 +220,8 @@ void Render_Manager::Render_Game()
 	bool expired = false;
 	for (auto& c : camera_list)
 	{
-		if (!c.expired())
+		if (shared_ptr<Camera>& camera = c.lock())
 		{
-			shared_ptr<Camera>& camera = c.lock();
 			if (camera->gameobject->Get_Active_In_Hierarchy())
 			{
 				if (camera->Get_Enabled())
@@ -337,20 +336,21 @@ void Render_Manager::Render_Shadow(const shared_ptr<Transform>& camera_transform
 {
 	for (vector<weak_ptr<Light>>::iterator itr = Engine::light_manager->light_list.begin(); itr != Engine::light_manager->light_list.end();)
 	{
-		if (itr->expired())
+		if (shared_ptr<Light>& m_light = itr->lock())
 		{
-			itr = Engine::light_manager->light_list.erase(itr);
-			continue;
-		}
-		shared_ptr<Light> m_light = itr->lock();
-		if (m_light->gameobject->Get_Active_In_Hierarchy())
-		{
-			if (m_light->Get_Enabled())
+			if (m_light->gameobject->Get_Active_In_Hierarchy())
 			{
-				Render_Shadow_Directional(m_light->color, m_light->intensity, m_light->transform, camera_transform);
+				if (m_light->Get_Enabled())
+				{
+					Render_Shadow_Directional(m_light->color, m_light->intensity, m_light->transform, camera_transform);
+				}
+				++itr;
 			}
 		}
-		++itr;
+		else
+		{
+			itr = Engine::light_manager->light_list.erase(itr);
+		}
 	}
 }
 

@@ -13,20 +13,21 @@ void Animator_Manager::Update()
 {
 	for (list<weak_ptr<Animator>>::iterator itr = animator_list.begin(); itr != animator_list.end();)
 	{
-		if (itr->expired())
+		if (auto& animator = itr->lock())
+		{
+			if (animator->gameobject->Get_Active_In_Hierarchy())
+			{
+				if (animator->Get_Enabled())
+				{
+					animator->Update();
+				}
+			}
+			++itr;
+		}
+		else
 		{
 			itr = animator_list.erase(itr);
-			continue;
 		}
-		shared_ptr<Animator> animator = itr->lock();
-		if (animator->gameobject->Get_Active_In_Hierarchy())
-		{
-			if (animator->Get_Enabled())
-			{
-				animator->Update();
-			}
-		}
-		++itr;
 	}
 }
 

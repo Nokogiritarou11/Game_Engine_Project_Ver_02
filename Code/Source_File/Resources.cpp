@@ -16,8 +16,8 @@ void Resources::Create_Prefab(shared_ptr<GameObject> gameobject)
 {
 	string path = "Resouces\\Prefab\\" + gameobject->name + ".prefab";
 
-	weak_ptr<Transform> parent = gameobject->transform->Get_Parent();
-	if (!parent.expired())
+	auto& parent = gameobject->transform->Get_Parent().lock();
+	if (parent)
 	{
 		gameobject->transform->Set_Parent(nullptr);
 	}
@@ -45,9 +45,9 @@ void Resources::Create_Prefab(shared_ptr<GameObject> gameobject)
 		}
 	}
 
-	if (!parent.expired())
+	if (parent)
 	{
-		gameobject->transform->Set_Parent(parent.lock());
+		gameobject->transform->Set_Parent(parent);
 	}
 
 	//Debug::Log(u8"Resouces\\Prefab\\ˆÈ‰º‚É" + gameobject->name + u8"‚ðƒvƒŒƒnƒu‰»‚µ‚Ü‚µ‚½");
