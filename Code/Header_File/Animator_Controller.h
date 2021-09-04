@@ -39,6 +39,7 @@ namespace BeastEngine
 
 	private:
 		int current_state_index = 0;
+		int current_transition_index = 0;
 
 		void Save();
 		void Save_As();

@@ -30,14 +30,14 @@ namespace BeastEngine
 
 		struct Keyframe
 		{
-			float						seconds;
+			float					seconds;
 			std::vector<Key_Pose>	nodeKeys;
 		};
 		struct Animation
 		{
-			std::string					name;
-			float						secondsLength;
-			std::vector<Keyframe>		keyframes;
+			std::string			  name;
+			float				  secondsLength;
+			std::vector<Keyframe> keyframes;
 		};
 
 		std::string name;
@@ -69,7 +69,5 @@ namespace BeastEngine
 		int FindNodeIndex(const char* name);
 
 		int rootMotionNodeIndex = -1;
-
-		void GetTexture(const FbxSurfaceMaterial* fbx_mat, const char* fbx_tex_type);
 	};
 }

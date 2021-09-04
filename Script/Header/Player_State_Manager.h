@@ -15,9 +15,11 @@ namespace BeastEngine
 		void Update() override;
 		bool Draw_ImGui() override;
 
+		void Get_Input();
+
 		std::weak_ptr<Character_Parameter> parameter;
 		std::weak_ptr<Player_Move> player_move;
-
+		std::weak_ptr<Animator> animator;
 
 
 		// シリアライズ関数

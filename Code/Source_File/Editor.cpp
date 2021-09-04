@@ -165,6 +165,7 @@ void Editor::Main_Window_Render()
 	ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 	MenuBar_Render();
+
 	ImGui::End();
 }
 
@@ -211,52 +212,53 @@ struct Debug_Logger
 	{
 		ImGuiWindowFlags window_flags = 0;
 		window_flags |= ImGuiWindowFlags_NoCollapse;
-		ImGui::Begin(title, NULL, window_flags);
-
-		// Options menu
-		if (ImGui::BeginPopup("Options"))
+		if (ImGui::Begin(title, NULL, window_flags))
 		{
-			ImGui::Checkbox(u8"自動スクロール", &AutoScroll);
-			ImGui::EndPopup();
-		}
-
-		// Main window
-		if (ImGui::Button(u8"オプション"))
-			ImGui::OpenPopup("Options");
-		ImGui::SameLine();
-		bool clear = ImGui::Button(u8"消去");
-		ImGui::SameLine();
-		bool copy = ImGui::Button(u8"コピー");
-
-		//ImGui::Separator();
-		ImGui::BeginChild("scrolling", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
-
-		if (clear)
-			Clear();
-		if (copy)
-			ImGui::LogToClipboard();
-
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-		const char* buf = Buf.begin();
-		const char* buf_end = Buf.end();
-		ImGuiListClipper clipper;
-		clipper.Begin(LineOffsets.Size);
-		while (clipper.Step())
-		{
-			for (int line_no = clipper.DisplayStart; line_no < clipper.DisplayEnd; line_no++)
+			// Options menu
+			if (ImGui::BeginPopup("Options"))
 			{
-				const char* line_start = buf + LineOffsets[line_no];
-				const char* line_end = (line_no + 1 < LineOffsets.Size) ? (buf + LineOffsets[line_no + 1] - 1) : buf_end;
-				ImGui::TextUnformatted(line_start, line_end);
+				ImGui::Checkbox(u8"自動スクロール", &AutoScroll);
+				ImGui::EndPopup();
 			}
+
+			// Main window
+			if (ImGui::Button(u8"オプション"))
+				ImGui::OpenPopup("Options");
+			ImGui::SameLine();
+			bool clear = ImGui::Button(u8"消去");
+			ImGui::SameLine();
+			bool copy = ImGui::Button(u8"コピー");
+
+			//ImGui::Separator();
+			ImGui::BeginChild("scrolling", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
+
+			if (clear)
+				Clear();
+			if (copy)
+				ImGui::LogToClipboard();
+
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+			const char* buf = Buf.begin();
+			const char* buf_end = Buf.end();
+			ImGuiListClipper clipper;
+			clipper.Begin(LineOffsets.Size);
+			while (clipper.Step())
+			{
+				for (int line_no = clipper.DisplayStart; line_no < clipper.DisplayEnd; line_no++)
+				{
+					const char* line_start = buf + LineOffsets[line_no];
+					const char* line_end = (line_no + 1 < LineOffsets.Size) ? (buf + LineOffsets[line_no + 1] - 1) : buf_end;
+					ImGui::TextUnformatted(line_start, line_end);
+				}
+			}
+			clipper.End();
+			ImGui::PopStyleVar();
+
+			if (AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+				ImGui::SetScrollHereY(1.0f);
+
+			ImGui::EndChild();
 		}
-		clipper.End();
-		ImGui::PopStyleVar();
-
-		if (AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
-			ImGui::SetScrollHereY(1.0f);
-
-		ImGui::EndChild();
 		ImGui::End();
 	}
 };
@@ -290,63 +292,112 @@ void Editor::Hierarchy_Render()
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_NoCollapse;
 
-	ImGui::Begin(u8"ヒエラルキー", NULL, window_flags);
-
-	ImGui::SetNextItemOpen(true, ImGuiCond_Always);
-	if (ImGui::TreeNode(scene->name.c_str()))
+	if (ImGui::Begin(u8"ヒエラルキー", NULL, window_flags))
 	{
-		static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
-		static int selecting = -1;
-		bool Item_Clicked = false;
-
-		for (auto& obj_list : scene->gameobject_list)
+		ImGui::SetNextItemOpen(true, ImGuiCond_Always);
+		if (ImGui::TreeNode(scene->name.c_str()))
 		{
-			if (obj_list->transform->parent.expired())
-			{
-				GameObject_Tree_Render(obj_list, base_flags, Item_Clicked);
-			}
-		}
+			static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+			static int selecting = -1;
+			bool Item_Clicked = false;
 
-		if (!Item_Clicked && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0))
-		{
-			Set_Debug_Draw(false, active_object.lock());
-			active_object.reset();
-			active_object_old.reset();
-			selecting = -1;
-		}
-
-		if (ImGui::BeginPopupContextWindow(u8"ヒエラルキーサブ"))
-		{
-			if (ImGui::Selectable(u8"新規オブジェクトを追加"))
+			for (auto& obj_list : scene->gameobject_list)
 			{
-				scene->Instance_GameObject(u8"GameObject");
-			}
-			if (ImGui::Selectable(u8"プレハブを読み込む"))
-			{
-				string path = System_Function::Get_Open_File_Name("prefab", "\\Resouces\\Prefab");
-				if (path != "")
+				if (obj_list->transform->parent.expired())
 				{
-					Resources::Load_Prefab(path);
+					GameObject_Tree_Render(obj_list, base_flags, Item_Clicked);
 				}
 			}
-			ImGui::Separator();
 
-			if (shared_ptr<GameObject>& obj = active_object.lock())
+			if (!Item_Clicked && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0))
 			{
-				bool deleted = false;
-				if (ImGui::Selectable(u8"オブジェクトを削除"))
-				{
-					Select_Reset();
-					GameObject::Destroy(obj);
-					selecting = -1;
-					deleted = true;
-				}
+				Set_Debug_Draw(false, active_object.lock());
+				active_object.reset();
+				active_object_old.reset();
+				selecting = -1;
+			}
 
-				if (!deleted)
+			if (ImGui::BeginPopupContextWindow(u8"ヒエラルキーサブ"))
+			{
+				if (ImGui::Selectable(u8"新規オブジェクトを追加"))
 				{
-					if (ImGui::Selectable(u8"オブジェクトを複製"))
+					scene->Instance_GameObject(u8"GameObject");
+				}
+				if (ImGui::Selectable(u8"プレハブを読み込む"))
+				{
+					string path = System_Function::Get_Open_File_Name("prefab", "\\Resouces\\Prefab");
+					if (path != "")
 					{
-						auto& parent = obj->transform->Get_Parent().lock();
+						Resources::Load_Prefab(path);
+					}
+				}
+				ImGui::Separator();
+
+				if (shared_ptr<GameObject>& obj = active_object.lock())
+				{
+					bool deleted = false;
+					if (ImGui::Selectable(u8"オブジェクトを削除"))
+					{
+						Select_Reset();
+						GameObject::Destroy(obj);
+						selecting = -1;
+						deleted = true;
+					}
+
+					if (!deleted)
+					{
+						if (ImGui::Selectable(u8"オブジェクトを複製"))
+						{
+							auto& parent = obj->transform->Get_Parent().lock();
+							if (parent)
+							{
+								obj->transform->Set_Parent(nullptr);
+							}
+
+							{
+								ofstream ss("Default_Resource\\System\\copy.prefab", ios::binary);
+								{
+									cereal::BinaryOutputArchive o_archive(ss);
+									o_archive(obj);
+								}
+							}
+
+							if (parent)
+							{
+								obj->transform->Set_Parent(parent);
+								Resources::Load_Prefab("Default_Resource\\System\\copy.prefab")->transform->Set_Parent(parent);
+							}
+							else
+							{
+								Resources::Load_Prefab("Default_Resource\\System\\copy.prefab");
+							}
+						}
+
+						if (ImGui::Selectable(u8"オブジェクトをプレハブ化"))
+						{
+							Resources::Create_Prefab(obj);
+						}
+
+						if (!obj->transform->parent.expired())
+						{
+							if (ImGui::Selectable(u8"オブジェクトの親子関係を解除"))
+							{
+								obj->transform->Set_Parent(nullptr);
+							}
+						}
+					}
+				}
+				ImGui::EndPopup();
+			}
+			ImGui::TreePop();
+
+			if (ImGui::IsWindowFocused())
+			{
+				if (shared_ptr<GameObject>& obj = active_object.lock())
+				{
+					if (ImGui::IsKeyDown(17) && ImGui::IsKeyPressed(68)) //Ctrl + D
+					{
+						shared_ptr<Transform> parent = obj->transform->Get_Parent().lock();
 						if (parent)
 						{
 							obj->transform->Set_Parent(nullptr);
@@ -371,60 +422,12 @@ void Editor::Hierarchy_Render()
 						}
 					}
 
-					if (ImGui::Selectable(u8"オブジェクトをプレハブ化"))
+					if (ImGui::IsKeyPressed(46)) //Delete
 					{
-						Resources::Create_Prefab(obj);
+						Select_Reset();
+						GameObject::Destroy(obj);
+						selecting = -1;
 					}
-
-					if (!obj->transform->parent.expired())
-					{
-						if (ImGui::Selectable(u8"オブジェクトの親子関係を解除"))
-						{
-							obj->transform->Set_Parent(nullptr);
-						}
-					}
-				}
-			}
-			ImGui::EndPopup();
-		}
-		ImGui::TreePop();
-
-		if (ImGui::IsWindowFocused())
-		{
-			if (shared_ptr<GameObject>& obj = active_object.lock())
-			{
-				if (ImGui::IsKeyDown(17) && ImGui::IsKeyPressed(68)) //Ctrl + D
-				{
-					shared_ptr<Transform> parent = obj->transform->Get_Parent().lock();
-					if (parent)
-					{
-						obj->transform->Set_Parent(nullptr);
-					}
-
-					{
-						ofstream ss("Default_Resource\\System\\copy.prefab", ios::binary);
-						{
-							cereal::BinaryOutputArchive o_archive(ss);
-							o_archive(obj);
-						}
-					}
-
-					if (parent)
-					{
-						obj->transform->Set_Parent(parent);
-						Resources::Load_Prefab("Default_Resource\\System\\copy.prefab")->transform->Set_Parent(parent);
-					}
-					else
-					{
-						Resources::Load_Prefab("Default_Resource\\System\\copy.prefab");
-					}
-				}
-
-				if (ImGui::IsKeyPressed(46)) //Delete
-				{
-					Select_Reset();
-					GameObject::Destroy(obj);
-					selecting = -1;
 				}
 			}
 		}
@@ -441,126 +444,127 @@ void Editor::Inspector_Render()
 
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_NoCollapse;
-	ImGui::Begin(u8"インスペクタ", NULL, window_flags);
-
-	if (shared_ptr<GameObject>& obj = active_object.lock())
+	if (ImGui::Begin(u8"インスペクタ", NULL, window_flags))
 	{
-		static bool active = false;
-		if (active_object_old.lock() != obj)
+		if (shared_ptr<GameObject>& obj = active_object.lock())
 		{
-			active = obj->Get_Active();
-			active_object_old = active_object;
-		}
-
-		//選択時
-		if (ImGui::Checkbox("##active", &active))
-		{
-			obj->Set_Active(active);
-		}
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(-FLT_MIN);
-		ImGui::InputText("##Name", &obj->name);
-
-		const unique_ptr<Project_Settings>& settings = Engine::scene_manager->settings;
-		ImGui::Text(u8"タグ");
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth() * -0.5f);
-		if (ImGui::BeginCombo("##Tag", obj->tag.data()))
-		{
-			const size_t tag_size = settings->tag.size();
-			for (size_t i = 0; i < tag_size; ++i)
+			static bool active = false;
+			if (active_object_old.lock() != obj)
 			{
-				const string& select_tag = settings->tag[i];
-				const bool is_selected = (obj->tag == select_tag);
-				if (ImGui::Selectable(select_tag.data(), is_selected))
+				active = obj->Get_Active();
+				active_object_old = active_object;
+			}
+
+			//選択時
+			if (ImGui::Checkbox("##active", &active))
+			{
+				obj->Set_Active(active);
+			}
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(-FLT_MIN);
+			ImGui::InputText("##Name", &obj->name);
+
+			const unique_ptr<Project_Settings>& settings = Engine::scene_manager->settings;
+			ImGui::Text(u8"タグ");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth() * -0.5f);
+			if (ImGui::BeginCombo("##Tag", obj->tag.data()))
+			{
+				const size_t tag_size = settings->tag.size();
+				for (size_t i = 0; i < tag_size; ++i)
 				{
-					obj->tag = select_tag;
+					const string& select_tag = settings->tag[i];
+					const bool is_selected = (obj->tag == select_tag);
+					if (ImGui::Selectable(select_tag.data(), is_selected))
+					{
+						obj->tag = select_tag;
+					}
+
+					if (is_selected) ImGui::SetItemDefaultFocus();
 				}
-
-				if (is_selected) ImGui::SetItemDefaultFocus();
+				ImGui::EndCombo();
 			}
-			ImGui::EndCombo();
-		}
 
-		ImGui::SameLine();
-		ImGui::Text(u8"レイヤー");
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(-FLT_MIN);
-		if (ImGui::BeginCombo("##Layer", settings->layer[obj->layer].data()))
-		{
-			array<string, 32>& layer = settings->layer;
-			size_t layer_size = 0;
-			for (; layer_size < 32; ++layer_size)
+			ImGui::SameLine();
+			ImGui::Text(u8"レイヤー");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(-FLT_MIN);
+			if (ImGui::BeginCombo("##Layer", settings->layer[obj->layer].data()))
 			{
-				if (layer[layer_size].empty()) break;
-			}
-			for (size_t i = 0; i < layer_size; ++i)
-			{
-				const bool is_selected = (obj->layer == i);
-				if (ImGui::Selectable(settings->layer[i].data(), is_selected))
+				array<string, 32>& layer = settings->layer;
+				size_t layer_size = 0;
+				for (; layer_size < 32; ++layer_size)
 				{
-					obj->layer = i;
+					if (layer[layer_size].empty()) break;
 				}
-
-				if (is_selected) ImGui::SetItemDefaultFocus();
-			}
-			ImGui::EndCombo();
-		}
-
-		ImGui::Dummy({ 0,10 });
-		ImGui::Separator();
-
-		bool removed = true;
-		while (removed)
-		{
-			bool removed_comp = false;
-			for (auto& c : obj->component_list)
-			{
-				ImGui::PushID(c->Get_Instance_ID().c_str());
-				if (!c->Draw_ImGui())
+				for (size_t i = 0; i < layer_size; ++i)
 				{
-					removed_comp = true;
+					const bool is_selected = (obj->layer == i);
+					if (ImGui::Selectable(settings->layer[i].data(), is_selected))
+					{
+						obj->layer = i;
+					}
+
+					if (is_selected) ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+
+			ImGui::Dummy({ 0,10 });
+			ImGui::Separator();
+
+			bool removed = true;
+			while (removed)
+			{
+				bool removed_comp = false;
+				for (auto& c : obj->component_list)
+				{
+					ImGui::PushID(c->Get_Instance_ID().c_str());
+					if (!c->Draw_ImGui())
+					{
+						removed_comp = true;
+						ImGui::PopID();
+						break;
+					}
 					ImGui::PopID();
-					break;
 				}
-				ImGui::PopID();
+				removed = removed_comp;
 			}
-			removed = removed_comp;
-		}
-		ImGui::Separator();
+			ImGui::Separator();
 
-		ImGui::Dummy({ 0.0f, 10.0f });
-		if (ImGui::Button(u8"コンポーネントを追加", ImVec2(-FLT_MIN, 0.0f)))
-		{
-			ImGui::OpenPopup(u8"コンポーネントリスト");
-		}
-		ImGui::SetNextWindowSize(ImVec2(300, 250));
-		if (ImGui::BeginPopup(u8"コンポーネントリスト"))
-		{
-			ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0, 0.5f));
-			auto& component_map = Component_Data::Component_Factory::getMap();
-			for (auto it = component_map->begin(); it != component_map->end(); ++it)
+			ImGui::Dummy({ 0.0f, 10.0f });
+			if (ImGui::Button(u8"コンポーネントを追加", ImVec2(-FLT_MIN, 0.0f)))
 			{
-				if (ImGui::Button(it->first.c_str(), ImVec2(-FLT_MIN, 0.0f)))
-				{
-					if (obj->Add_Component(it->first))
-					{
-						Set_Debug_Draw(true, obj);
-					}
-					else
-					{
-						Debug::Log(u8"このコンポーネントは一つのオブジェクトに複数アタッチできません");
-					}
-					ImGui::CloseCurrentPopup();
-				}
+				ImGui::OpenPopup(u8"コンポーネントリスト");
 			}
-			ImGui::PopStyleVar();
-			ImGui::EndPopup();
+			ImGui::SetNextWindowSize(ImVec2(300, 250));
+			if (ImGui::BeginPopup(u8"コンポーネントリスト"))
+			{
+				ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0, 0.5f));
+				auto& component_map = Component_Data::Component_Factory::getMap();
+				for (auto it = component_map->begin(); it != component_map->end(); ++it)
+				{
+					if (ImGui::Button(it->first.c_str(), ImVec2(-FLT_MIN, 0.0f)))
+					{
+						if (obj->Add_Component(it->first))
+						{
+							Set_Debug_Draw(true, obj);
+						}
+						else
+						{
+							Debug::Log(u8"このコンポーネントは一つのオブジェクトに複数アタッチできません");
+						}
+						ImGui::CloseCurrentPopup();
+					}
+				}
+				ImGui::PopStyleVar();
+				ImGui::EndPopup();
+			}
 		}
-	}
-	else
-	{
-		ImGui::Text(u8"オブジェクトが選択されていません");
+		else
+		{
+			ImGui::Text(u8"オブジェクトが選択されていません");
+		}
 	}
 
 	ImGui::End();
@@ -571,79 +575,80 @@ void Editor::ScenePlayer_Render()
 {
 	ImGuiWindowFlags window_flags = 0;
 	window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
-	ImGui::Begin(u8"シーン再生", NULL, window_flags);
+	if (ImGui::Begin(u8"シーン再生", NULL, window_flags))
+	{
+		bool Running = Engine::scene_manager->run;
 
-	bool Running = Engine::scene_manager->run;
-
-	if (Running)
-	{
-		ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.0f, 1.0f, 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.0f, 0.7f, 0.85f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.0f, 0.6f, 1.0f));
-	}
-	ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.5f - 50);
-	if (ImGui::Button(ICON_FA_PLAY, ImVec2(30, 0)))
-	{
-		if (!Running)
-		{
-			if (!Engine::scene_manager->pause)
-			{
-				Cursor::cursor_lock_mode = CursorLock_Mode::None;
-				Cursor::visible = true;
-				ImGui::SetWindowFocus(u8"ゲーム");
-				Select_Reset();
-				Engine::scene_manager->Start_Debug_Scene();
-			}
-			else
-			{
-				Engine::audio_manager->Resume();
-			}
-			render_cursor = false;
-			Engine::scene_manager->run = true;
-			Engine::scene_manager->pause = false;
-		}
-	}
-	if (Running)
-	{
-		ImGui::PopStyleColor(3);
-	}
-
-	ImGui::SameLine();
-	bool Pausing = Engine::scene_manager->pause;
-	if (Pausing)
-	{
-		ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.0f, 1.0f, 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.0f, 0.7f, 0.85f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.0f, 0.6f, 1.0f));
-	}
-	if (ImGui::Button(ICON_FA_PAUSE, ImVec2(30, 0)))
-	{
 		if (Running)
 		{
-			render_cursor = true;
-			Engine::scene_manager->run = false;
-			Engine::scene_manager->pause = true;
-			Engine::audio_manager->Suspend();
+			ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.0f, 1.0f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.0f, 0.7f, 0.85f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.0f, 0.6f, 1.0f));
 		}
-	}
-	if (Pausing)
-	{
-		ImGui::PopStyleColor(3);
-	}
-
-	ImGui::SameLine();
-	if (ImGui::Button(ICON_FA_STOP, ImVec2(30, 0)))
-	{
-		if (Running || Pausing)
+		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.5f - 50);
+		if (ImGui::Button(ICON_FA_PLAY, ImVec2(30, 0)))
 		{
-			ImGui::SetWindowFocus(u8"シーン");
-			Cursor::cursor_lock_mode = CursorLock_Mode::None;
-			Cursor::visible = true;
-			Select_Reset();
-			render_cursor = true;
-			Engine::scene_manager->run = false;
-			Engine::scene_manager->pause = false;
-			Engine::scene_manager->End_Debug_Scene();
+			if (!Running)
+			{
+				if (!Engine::scene_manager->pause)
+				{
+					Cursor::cursor_lock_mode = CursorLock_Mode::None;
+					Cursor::visible = true;
+					ImGui::SetWindowFocus(u8"ゲーム");
+					Select_Reset();
+					Engine::scene_manager->Start_Debug_Scene();
+				}
+				else
+				{
+					Engine::audio_manager->Resume();
+				}
+				render_cursor = false;
+				Engine::scene_manager->run = true;
+				Engine::scene_manager->pause = false;
+			}
+		}
+		if (Running)
+		{
+			ImGui::PopStyleColor(3);
+		}
+
+		ImGui::SameLine();
+		bool Pausing = Engine::scene_manager->pause;
+		if (Pausing)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.0f, 1.0f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.0f, 0.7f, 0.85f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.0f, 0.6f, 1.0f));
+		}
+		if (ImGui::Button(ICON_FA_PAUSE, ImVec2(30, 0)))
+		{
+			if (Running)
+			{
+				render_cursor = true;
+				Engine::scene_manager->run = false;
+				Engine::scene_manager->pause = true;
+				Engine::audio_manager->Suspend();
+			}
+		}
+		if (Pausing)
+		{
+			ImGui::PopStyleColor(3);
+		}
+
+		ImGui::SameLine();
+		if (ImGui::Button(ICON_FA_STOP, ImVec2(30, 0)))
+		{
+			if (Running || Pausing)
+			{
+				ImGui::SetWindowFocus(u8"シーン");
+				Cursor::cursor_lock_mode = CursorLock_Mode::None;
+				Cursor::visible = true;
+				Select_Reset();
+				render_cursor = true;
+				Engine::scene_manager->run = false;
+				Engine::scene_manager->pause = false;
+				Engine::scene_manager->End_Debug_Scene();
+			}
 		}
 	}
 
@@ -656,90 +661,91 @@ void Editor::SceneView_Render()
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
 
-	ImGui::Begin(u8"シーン", NULL, window_flags);
-	const float window_width = ImGui::GetCurrentWindow()->InnerRect.GetWidth() - 8;
-	const float window_height = ImGui::GetCurrentWindow()->InnerRect.GetHeight() - 8;
-	if (!ImGui::IsWindowCollapsed())
+	if (ImGui::Begin(u8"シーン", NULL, window_flags))
 	{
+		const float window_width = ImGui::GetCurrentWindow()->InnerRect.GetWidth() - 8;
+		const float window_height = ImGui::GetCurrentWindow()->InnerRect.GetHeight() - 8;
+
 		Engine::render_manager->render_scene = true;
 		Engine::render_manager->scene_texture->Set_Screen_Size((int)window_width, (int)window_height);
 		ImGui::Image((void*)Engine::render_manager->scene_texture->Get_Texture().Get(), ImVec2(window_width, window_height));
+
+		static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::OPERATION::TRANSLATE);
+		static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::MODE::LOCAL);
+
+		if (ImGui::IsWindowHovered())
+		{
+			if (ImGui::IsMouseDown(1))
+			{
+				ImGui::SetWindowFocus();
+			}
+			else
+			{
+				ImGuiIO& io = ImGui::GetIO();
+				float mouse_wheel = io.MouseWheel;
+				if (mouse_wheel != 0.0f)
+				{
+					Vector3 move = debug_camera_transform->Get_Forward() * mouse_wheel * 5;
+					debug_camera_transform->Set_Position(debug_camera_transform->Get_Position() + move);
+				}
+			}
+		}
+
+		if (ImGui::IsWindowFocused())
+		{
+			Debug_Camera_Update();
+
+			if (!ImGui::IsMouseDown(1))
+			{
+				if (ImGui::IsKeyPressed(87)) //w
+					mCurrentGizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+				if (ImGui::IsKeyPressed(69)) //e
+					mCurrentGizmoOperation = ImGuizmo::OPERATION::ROTATE;
+				if (ImGui::IsKeyPressed(82)) //r
+					mCurrentGizmoOperation = ImGuizmo::OPERATION::SCALE;
+				if (ImGui::IsKeyPressed(88)) //x
+				{
+					if (mCurrentGizmoMode == ImGuizmo::MODE::LOCAL)
+					{
+						mCurrentGizmoMode = ImGuizmo::MODE::WORLD;
+					}
+					else
+					{
+						mCurrentGizmoMode = ImGuizmo::MODE::LOCAL;
+					}
+				}
+			}
+		}
+
+		if (auto& obj = active_object.lock())
+		{
+			static Matrix matrix;
+
+			matrix = obj->transform->Get_World_Matrix();
+
+			ImVec2 winPos = ImGui::GetWindowPos();
+			ImGuizmo::SetRect(winPos.x + 4, winPos.y + 16, window_width, window_height);
+			ImGuizmo::SetDrawlist();
+
+			// 選択ノードの行列を操作する
+			ImGuizmo::Manipulate(
+				&debug_camera->view_matrix._11, &debug_camera->projection_matrix._11,	// ビュー＆プロジェクション行列
+				mCurrentGizmoOperation,		// 移動操作
+				mCurrentGizmoMode,			// ローカル空間での操作
+				&matrix._11,	// 操作するワールド行列
+				nullptr);
+
+			if (ImGuizmo::IsUsing())
+			{
+				obj->transform->Set_World_Matrix(matrix);
+			}
+		}
 	}
 	else
 	{
 		Engine::render_manager->render_scene = false;
 	}
 
-	static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::OPERATION::TRANSLATE);
-	static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::MODE::LOCAL);
-
-	if (ImGui::IsWindowHovered())
-	{
-		if (ImGui::IsMouseDown(1))
-		{
-			ImGui::SetWindowFocus();
-		}
-		else
-		{
-			ImGuiIO& io = ImGui::GetIO();
-			float mouse_wheel = io.MouseWheel;
-			if (mouse_wheel != 0.0f)
-			{
-				Vector3 move = debug_camera_transform->Get_Forward() * mouse_wheel * 5;
-				debug_camera_transform->Set_Position(debug_camera_transform->Get_Position() + move);
-			}
-		}
-	}
-
-	if (ImGui::IsWindowFocused())
-	{
-		Debug_Camera_Update();
-
-		if (!ImGui::IsMouseDown(1))
-		{
-			if (ImGui::IsKeyPressed(87)) //w
-				mCurrentGizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
-			if (ImGui::IsKeyPressed(69)) //e
-				mCurrentGizmoOperation = ImGuizmo::OPERATION::ROTATE;
-			if (ImGui::IsKeyPressed(82)) //r
-				mCurrentGizmoOperation = ImGuizmo::OPERATION::SCALE;
-			if (ImGui::IsKeyPressed(88)) //x
-			{
-				if (mCurrentGizmoMode == ImGuizmo::MODE::LOCAL)
-				{
-					mCurrentGizmoMode = ImGuizmo::MODE::WORLD;
-				}
-				else
-				{
-					mCurrentGizmoMode = ImGuizmo::MODE::LOCAL;
-				}
-			}
-		}
-	}
-
-	if (auto& obj = active_object.lock())
-	{
-		static Matrix matrix;
-
-		matrix = obj->transform->Get_World_Matrix();
-
-		ImVec2 winPos = ImGui::GetWindowPos();
-		ImGuizmo::SetRect(winPos.x + 4, winPos.y + 16, window_width, window_height);
-		ImGuizmo::SetDrawlist();
-
-		// 選択ノードの行列を操作する
-		ImGuizmo::Manipulate(
-			&debug_camera->view_matrix._11, &debug_camera->projection_matrix._11,	// ビュー＆プロジェクション行列
-			mCurrentGizmoOperation,		// 移動操作
-			mCurrentGizmoMode,			// ローカル空間での操作
-			&matrix._11,	// 操作するワールド行列
-			nullptr);
-
-		if (ImGuizmo::IsUsing())
-		{
-			obj->transform->Set_World_Matrix(matrix);
-		}
-	}
 	ImGui::End();
 }
 
@@ -752,13 +758,11 @@ void Editor::GameView_Render()
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_NoCollapse;
 
-
-	ImGui::Begin(u8"ゲーム", NULL, window_flags);
-	const ImGuiWindow* p_win = ImGui::GetCurrentWindow();
-	const Vector2 p_win_size = { p_win->InnerRect.GetWidth() - 8, p_win->InnerRect.GetHeight() - 8 };
-
-	if (!ImGui::IsWindowCollapsed())
+	if (ImGui::Begin(u8"ゲーム", NULL, window_flags))
 	{
+		const ImGuiWindow* p_win = ImGui::GetCurrentWindow();
+		const Vector2 p_win_size = { p_win->InnerRect.GetWidth() - 8, p_win->InnerRect.GetHeight() - 8 };
+
 		Engine::render_manager->render_game = true;
 		Engine::render_manager->game_texture->Set_Screen_Size(1920, 1080);
 		constexpr float aspect_lock = 1920.0f / 1080.0f;
@@ -806,11 +810,13 @@ void Editor::GameView_Render()
 		{
 			render_cursor = false;
 		}
+
 	}
 	else
 	{
 		Engine::render_manager->render_game = false;
 	}
+
 	ImGui::End();
 }
 
@@ -818,15 +824,16 @@ void Editor::Controller_Render()
 {
 	ImGuiWindowFlags window_flags = 0;
 	window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
-	ImGui::Begin(u8"アニメーター", NULL, window_flags);
-
-	if (shared_ptr<Animator_Controller> c = controller.lock())
+	if (ImGui::Begin(u8"アニメーター", NULL, window_flags))
 	{
-		c->Render_ImGui();
-	}
-	else
-	{
-		ImGui::Text(u8"アニメーションコントローラーがありません");
+		if (shared_ptr<Animator_Controller> c = controller.lock())
+		{
+			c->Render_ImGui();
+		}
+		else
+		{
+			ImGui::Text(u8"アニメーションコントローラーがありません");
+		}
 	}
 
 	ImGui::End();

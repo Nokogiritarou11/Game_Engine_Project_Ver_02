@@ -136,16 +136,16 @@ namespace BeastEngine
 		DPad_Down,
 		DPad_Left,
 		DPad_Right,
+		A,
+		B,
+		X,
+		Y,
 		Start,
 		Back,
 		Left_Thumb,
 		Right_Thumb,
 		Left_Shoulder,
 		Right_Shoulder,
-		A,
-		B,
-		X,
-		Y,
 	};
 
 	class Input

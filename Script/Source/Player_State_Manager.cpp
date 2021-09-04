@@ -9,10 +9,13 @@ void Player_State_Manager::Awake()
 {
 	parameter = Get_Component<Character_Parameter>();
 	player_move = Get_Component<Player_Move>();
+	animator = Get_Component<Animator>();
 }
 
 void Player_State_Manager::Update()
 {
+	Get_Input();
+
 	auto& param = parameter.lock();
 	auto& p_move = player_move.lock();
 
@@ -37,6 +40,16 @@ void Player_State_Manager::Update()
 				p_move->Move_Normal();
 			}
 		}
+	}
+}
+
+void Player_State_Manager::Get_Input()
+{
+	auto& anim = animator.lock();
+
+	if (Input::Get_Pad_Button_Down(Button_Code::X))
+	{
+		anim->Set_Trigger("Attack");
 	}
 }
 

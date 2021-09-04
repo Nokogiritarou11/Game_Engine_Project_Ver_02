@@ -421,6 +421,7 @@ void Animator_Controller::Render_ImGui()
 					if (ImGui::Selectable(state_machines[i]->name.data(), is_selected))
 					{
 						current_state_index = i;
+						current_transition_index = 0;
 					}
 
 					if (is_selected) ImGui::SetItemDefaultFocus();
@@ -532,8 +533,27 @@ void Animator_Controller::Render_ImGui()
 				ImGui::Text(u8"乗数");
 				ImGui::SameLine(input_padding);
 				ImGui::SetNextItemWidth(input_size);
-				ImGui::InputText("##Multiply", &current_state->multiplier_hash);
+				if (ImGui::InputText("##Multiply", &current_state->multiplier_hash))
+				{
+					if (Auto_Save) Save_As();
+				}
 				ImGui::Unindent();
+
+				ImGui::Text(u8"開始フレーム");
+				ImGui::SameLine(input_padding);
+				ImGui::SetNextItemWidth(input_size);
+				if (ImGui::DragInt("##Start_Frame", &current_state->start_frame, 1, 0, current_state->max_frame, "%d", ImGuiSliderFlags_AlwaysClamp))
+				{
+					if (Auto_Save) Save_As();
+				}
+
+				ImGui::Text(u8"終了フレーム");
+				ImGui::SameLine(input_padding);
+				ImGui::SetNextItemWidth(input_size);
+				if (ImGui::DragInt("##End_Frame", &current_state->end_frame, 1, 0, current_state->max_frame, "%d", ImGuiSliderFlags_AlwaysClamp))
+				{
+					if (Auto_Save) Save_As();
+				}
 
 				ImGui::Text(u8"ループアニメーション");
 				ImGui::SameLine(input_padding);
@@ -657,7 +677,6 @@ void Animator_Controller::Render_ImGui()
 			if (ImGui::CollapsingHeader(u8"遷移設定"))
 			{
 				ImGui::Indent();
-				static int current_transition_index = 0;
 				shared_ptr<Animator_State_Transition> current_transition;
 				bool has_transition = !current_state->transitions.empty();
 
@@ -671,7 +690,7 @@ void Animator_Controller::Render_ImGui()
 						{
 							ImGui::PushID(to_string(n).c_str());
 							const bool is_selected = (current_transition_index == n);
-							if (ImGui::Selectable(current_transition->next_state.lock()->name.data(), is_selected))
+							if (ImGui::Selectable(current_state->transitions[n]->next_state.lock()->name.data(), is_selected))
 							{
 								current_transition_index = n;
 							}
@@ -712,8 +731,7 @@ void Animator_Controller::Render_ImGui()
 						}
 						if (ImGui::BeginCombo("##Next_Select", state_machines[next_state_index]->name.data()))
 						{
-							static size_t state_size;
-							state_size = state_machines.size();
+							size_t state_size = state_machines.size();
 							for (size_t i = 0; i < state_size; ++i)
 							{
 								if (i != current_state_index)
@@ -731,6 +749,7 @@ void Animator_Controller::Render_ImGui()
 						if (ImGui::Button(u8"登録") && current_state_index != next_state_index)
 						{
 							current_state->Add_Transition(state_machines[next_state_index]);
+							current_transition_index = static_cast<int>(current_state->transitions.size() - 1);
 							next_state_index = 0;
 							if (Auto_Save) Save_As();
 							ImGui::CloseCurrentPopup();

@@ -17,10 +17,14 @@ namespace BeastEngine
 
 		float animation_speed = 1;   //çƒê∂ë¨ìx
 		std::string multiplier_hash;
+		int start_frame = 0;
+		int end_frame = -1;
 		bool  loopAnimation = false; //ÉãÅ[ÉvÇ∑ÇÈÇ©
+		bool  is_default_state = false;
+
+		int max_frame;
 		float currentSeconds = 0.0f;
 		bool  endAnimation = false;
-		bool is_default_state = false;
 
 		void Initialize(std::shared_ptr<std::unordered_map<std::string, BeastEngine::Animation_Parameter>>& p_parameters);
 		void Set_Clip(std::string fullpath);
@@ -42,7 +46,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(name, path, animation_speed, multiplier_hash, loopAnimation, is_default_state, transitions, events);
+			archive(name, path, animation_speed, multiplier_hash, start_frame, end_frame, max_frame, loopAnimation, is_default_state, transitions, events);
 		}
 	};
 }

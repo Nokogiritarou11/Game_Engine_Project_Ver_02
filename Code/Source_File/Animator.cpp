@@ -345,6 +345,8 @@ void Animator::Update()
 			const vector<Animation_Clip::Keyframe>& keyframes = animation.keys;
 
 			const int keyCount = static_cast<int>(keyframes.size());
+			bool is_end_frame = true;
+
 			for (int keyIndex = 0; keyIndex < keyCount - 1; ++keyIndex)
 			{
 				// 現在の時間がどのキーフレームの間にいるか判定する
@@ -360,8 +362,18 @@ void Animator::Update()
 					target.position = Vector3::Lerp(keyframe0.position, keyframe1.position, rate);
 					target.rotation = Quaternion::Slerp(keyframe0.rotation, keyframe1.rotation, rate);
 					target.scale = Vector3::Lerp(keyframe0.scale, keyframe1.scale, rate);
+					is_end_frame = false;
 					break;
 				}
+			}
+
+			if (is_end_frame)
+			{
+				const Animation_Clip::Keyframe& last_keyframe = keyframes[keyCount - 1];
+				Animation_Target& target = pose_playing[animation.Target_Path];
+				target.position = last_keyframe.position;
+				target.rotation = last_keyframe.rotation;
+				target.scale = last_keyframe.scale;
 			}
 		}
 
@@ -371,6 +383,8 @@ void Animator::Update()
 			const vector<Animation_Clip::Keyframe>& keyframes = animation.keys;
 
 			int keyCount = static_cast<int>(keyframes.size());
+			bool is_end_frame = true;
+
 			for (int keyIndex = 0; keyIndex < keyCount - 1; ++keyIndex)
 			{
 				// 現在の時間がどのキーフレームの間にいるか判定する
@@ -386,12 +400,31 @@ void Animator::Update()
 					target.position = Vector3::Lerp(keyframe0.position, keyframe1.position, rate);
 					target.rotation = Quaternion::Slerp(keyframe0.rotation, keyframe1.rotation, rate);
 					target.scale = Vector3::Lerp(keyframe0.scale, keyframe1.scale, rate);
+					is_end_frame = false;
 					break;
 				}
 			}
+
+			if (is_end_frame)
+			{
+				const Animation_Clip::Keyframe& last_keyframe = keyframes[keyCount - 1];
+				Animation_Target& target = pose_next[animation.Target_Path];
+				target.position = last_keyframe.position;
+				target.rotation = last_keyframe.rotation;
+				target.scale = last_keyframe.scale;
+			}
 		}
 
-		const float rate = controller->duration_timer / controller->active_transition->transition_duration;
+		float rate;
+		if (controller->active_transition->transition_duration)
+		{
+			rate = controller->duration_timer / controller->active_transition->transition_duration;
+		}
+		else
+		{
+			rate = 1;
+		}
+
 		for (auto& data : animation_data)
 		{
 			const Animation_Target& playing = pose_playing[data.first];
@@ -420,6 +453,9 @@ void Animator::Update()
 			const vector<Animation_Clip::Keyframe>& keyframes = animation.keys;
 
 			const int keyCount = static_cast<int>(keyframes.size());
+			const Animation_Clip::Keyframe& last_keyframe = keyframes[keyCount - 1];
+			bool is_end_frame = true;
+
 			for (int keyIndex = 0; keyIndex < keyCount - 1; ++keyIndex)
 			{
 				// 現在の時間がどのキーフレームの間にいるか判定する
@@ -435,8 +471,18 @@ void Animator::Update()
 					target.position = Vector3::Lerp(keyframe0.position, keyframe1.position, rate);
 					target.rotation = Quaternion::Slerp(keyframe0.rotation, keyframe1.rotation, rate);
 					target.scale = Vector3::Lerp(keyframe0.scale, keyframe1.scale, rate);
+					is_end_frame = false;
 					break;
 				}
+			}
+
+			if (is_end_frame)
+			{
+				const Animation_Clip::Keyframe& last_keyframe = keyframes[keyCount - 1];
+				Animation_Target& target = pose_playing[animation.Target_Path];
+				target.position = last_keyframe.position;
+				target.rotation = last_keyframe.rotation;
+				target.scale = last_keyframe.scale;
 			}
 		}
 		animation_data = pose_playing;
@@ -605,7 +651,7 @@ bool Animator::Draw_ImGui()
 		{
 			ImGui::Text(u8"アニメーターコントローラーが登録されていません");
 		}
-		ImGui::Dummy({0.0f, 10.0f});
+		ImGui::Dummy({ 0.0f, 10.0f });
 		if (ImGui::Button(u8"新規作成"))
 		{
 			controller = Animator_Controller::Create_New_Controller();

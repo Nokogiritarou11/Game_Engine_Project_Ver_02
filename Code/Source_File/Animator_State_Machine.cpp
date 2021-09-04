@@ -19,8 +19,20 @@ void Animator_State_Machine::Initialize(shared_ptr<unordered_map<string, Animati
 
 void Animator_State_Machine::Set_Clip(string fullpath)
 {
-	if (clip = Animation_Clip::Load_Clip(fullpath))
+	auto new_clip = Animation_Clip::Load_Clip(fullpath);
+	if (new_clip)
 	{
+		if (clip)
+		{
+			end_frame = -1;
+		}
+
+		if (end_frame < 0)
+		{
+			end_frame = new_clip->Get_Frame_Count();
+			max_frame = end_frame;
+		}
+		clip = new_clip;
 		path = fullpath;
 	}
 }
@@ -28,7 +40,9 @@ void Animator_State_Machine::Set_Clip(string fullpath)
 void Animator_State_Machine::Set_Active(float transition_offset)
 {
 	endAnimation = false;
-	currentSeconds = transition_offset * clip->Get_Length();
+	const float end_sec = end_frame * 0.0166666666666667f;
+	const float start_sec = start_frame * 0.0166666666666667f;
+	currentSeconds = transition_offset * (end_sec - start_sec) + start_sec;
 }
 
 void Animator_State_Machine::Exit()
@@ -73,11 +87,13 @@ void Animator_State_Machine::Update_Transition()
 
 void Animator_State_Machine::Update_Time()
 {
+	const float end_sec = end_frame * 0.0166666666666667f;
+
 	// ÅIƒtƒŒ[ƒ€ˆ—
 	if (endAnimation)
 	{
 		endAnimation = false;
-		currentSeconds = clip->Get_Length();
+		currentSeconds = end_sec;
 		return;
 	}
 
@@ -95,7 +111,7 @@ void Animator_State_Machine::Update_Time()
 
 	for (auto& transition : transitions)
 	{
-		if (!transition->exit_called && currentSeconds >= clip->Get_Length() * transition->exit_time)
+		if (!transition->exit_called && currentSeconds >= end_sec * transition->exit_time)
 		{
 			transition->exit_trigger = true;
 		}
@@ -109,7 +125,7 @@ void Animator_State_Machine::Update_Time()
 		}
 	}
 
-	if (currentSeconds >= clip->Get_Length())
+	if (currentSeconds >= end_sec)
 	{
 		for (auto& transition : transitions)
 		{
@@ -122,11 +138,12 @@ void Animator_State_Machine::Update_Time()
 
 		if (loopAnimation)
 		{
-			currentSeconds -= clip->Get_Length();
+			const float start_sec = start_frame * 0.0166666666666667f;
+			currentSeconds -= (end_sec - start_sec);
 		}
 		else
 		{
-			currentSeconds = clip->Get_Length();
+			currentSeconds = end_sec;
 			endAnimation = true;
 		}
 	}

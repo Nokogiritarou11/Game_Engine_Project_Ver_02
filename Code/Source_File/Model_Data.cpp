@@ -243,53 +243,57 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 	mesh->subsets.resize(fbxMaterialCount > 0 ? fbxMaterialCount : 1);
 
 	// サブセットのマテリアル設定
-	for (int index_of_material = 0; index_of_material < fbxMaterialCount; ++index_of_material)
+	if (fbxMaterialCount > 0)
 	{
-		Mesh::subset& subset = mesh->subsets.at(index_of_material); // UNIT.18
-		const FbxSurfaceMaterial* surface_material = fbxNode->GetMaterial(index_of_material);
-		string material_name = surface_material->GetName();
-
-		string new_mat_path = file_path + material_name + ".mat";
-
+		for (int index_of_material = 0; index_of_material < fbxMaterialCount; ++index_of_material)
 		{
-			bool cashed = false;
-			size_t mat_size = mesh->default_material_pathes.size();
-			for (size_t i = 0; i < mat_size; ++i)
-			{
-				if (mesh->default_material_pathes[i] == new_mat_path)
-				{
-					cashed = true;
-					subset.material_ID = i;
-					break;
-				}
-			}
-			if (cashed) continue;
-		}
+			Mesh::subset& subset = mesh->subsets.at(index_of_material); // UNIT.18
+			const FbxSurfaceMaterial* surface_material = fbxNode->GetMaterial(index_of_material);
+			string material_name = surface_material->GetName();
 
+			string new_mat_path = file_path + material_name + ".mat";
+
+			{
+				bool cashed = false;
+				size_t mat_size = mesh->default_material_pathes.size();
+				for (size_t i = 0; i < mat_size; ++i)
+				{
+					if (mesh->default_material_pathes[i] == new_mat_path)
+					{
+						cashed = true;
+						subset.material_ID = i;
+						break;
+					}
+				}
+				if (cashed) continue;
+			}
+
+			mesh->default_material_pathes.push_back(new_mat_path);
+			subset.material_ID = mesh->default_material_pathes.size() - 1;
+
+			{
+				bool cashed = false;
+				for (auto& path : default_material_pathes)
+				{
+					if (path == new_mat_path)
+					{
+						cashed = true;
+						break;
+					}
+				}
+				if (cashed) continue;
+			}
+
+			default_material_pathes.push_back(new_mat_path);
+		}
+	}
+	else
+	{
+		Mesh::subset& subset = mesh->subsets.front();
+		string new_mat_path = file_path + mesh->name + ".mat";
 		mesh->default_material_pathes.push_back(new_mat_path);
 		subset.material_ID = mesh->default_material_pathes.size() - 1;
-
-		{
-			bool cashed = false;
-			for (auto& path : default_material_pathes)
-			{
-				if (path == new_mat_path)
-				{
-					cashed = true;
-					break;
-				}
-			}
-			if (cashed) continue;
-		}
-
 		default_material_pathes.push_back(new_mat_path);
-
-		//FBX内のテクスチャを解凍
-		GetTexture(surface_material, FbxSurfaceMaterial::sDiffuse);
-		GetTexture(surface_material, FbxSurfaceMaterial::sSpecular);
-		GetTexture(surface_material, FbxSurfaceMaterial::sNormalMap);
-		GetTexture(surface_material, FbxSurfaceMaterial::sBump);
-		GetTexture(surface_material, FbxSurfaceMaterial::sEmissive);
 	}
 
 	// サブセットの頂点インデックス範囲設定
@@ -769,18 +773,4 @@ int Model_Data::FindNodeIndex(const char* name)
 		}
 	}
 	return -1;
-}
-
-void Model_Data::GetTexture(const FbxSurfaceMaterial* fbx_mat, const char* fbx_tex_type)
-{
-	const FbxProperty property = fbx_mat->FindProperty(fbx_tex_type);
-	if (property.IsValid())
-	{
-		const int number_of_textures = property.GetSrcObjectCount<FbxFileTexture>();
-
-		if (number_of_textures)
-		{
-			const FbxFileTexture* file_texture = property.GetSrcObject<FbxFileTexture>();
-		}
-	}
 }

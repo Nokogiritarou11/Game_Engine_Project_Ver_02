@@ -45,18 +45,20 @@ namespace BeastEngine
 		std::vector<Animation> animations;
 
 		float Get_Length() { return length; }
+		int Get_Frame_Count() { return frame_count; }
 
 		static std::shared_ptr<Animation_Clip> Load_Clip(std::string fullpath);
 
 	private:
 		float length;
+		int frame_count;
 
 		friend class BeastEngine::FBX_Converter;
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Object>(this), animations, length);
+			archive(cereal::base_class<BeastEngine::Object>(this), animations, length, frame_count);
 		}
 	};
 }
