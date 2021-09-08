@@ -185,30 +185,8 @@ void Mesh_Renderer::Reset()
 
 bool Mesh_Renderer::Draw_ImGui()
 {
-	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	bool open = ImGui::CollapsingHeader("Mesh_Renderer", ImGuiTreeNodeFlags_AllowItemOverlap);
-
-	bool removed = false;
-	if (ImGui::BeginPopupContextItem("Mesh_Renderer_sub"))
-	{
-		if (ImGui::Selectable(u8"コンポーネントを削除"))
-		{
-			Object::Destroy(dynamic_pointer_cast<Mesh_Renderer>(shared_from_this()));
-			removed = true;
-		}
-		ImGui::EndPopup();
-	}
-	if (removed)
-	{
-		return false;
-	}
-
-	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
-	bool enable = Get_Enabled();
-	if (ImGui::Checkbox("##enable", &enable))
-	{
-		Set_Enabled(enable);
-	}
+	bool open = false;
+	if (!Draw_ImGui_Header("Mesh_Renderer", open)) return false;
 
 	if (open)
 	{

@@ -30,6 +30,8 @@ namespace BeastEngine
 		void OnTrigger_Exit(BeastEngine::Collision& collision);    //接触していたコライダーと離れたとき
 		void OnCollision_Exit(BeastEngine::Collision& collision);  //非トリガー時
 
+		bool Draw_ImGui() override;
+
 	private:
 
 

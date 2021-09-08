@@ -167,143 +167,6 @@ void Animator::Reset_Trigger(string key)
 	}
 }
 
-void Animator::Set_Parameter_Int(string key, int value)
-{
-	auto it = parameters.find(key);
-	if (it != parameters.end())
-	{
-		if (it->second.type == Parameter_Type::Int)
-		{
-			it->second.value_int = value;
-		}
-		else
-		{
-			Debug::Log(u8"指定したパラメーターが見つかりません");
-		}
-	}
-}
-void Animator::Set_Parameter_Float(string key, float value)
-{
-	auto it = parameters.find(key);
-	if (it != parameters.end())
-	{
-		if (it->second.type == Parameter_Type::Float)
-		{
-			it->second.value_float = value;
-		}
-		else
-		{
-			Debug::Log(u8"指定したパラメーターが見つかりません");
-		}
-	}
-}
-void Animator::Set_Parameter_Bool(string key, bool value)
-{
-	auto it = parameters.find(key);
-	if (it != parameters.end())
-	{
-		if (it->second.type == Parameter_Type::Bool)
-		{
-			it->second.value_bool = value;
-		}
-		else
-		{
-			Debug::Log(u8"指定したパラメーターが見つかりません");
-		}
-	}
-}
-
-int Animator::Get_Parameter_Int(std::string key)
-{
-	auto it = parameters.find(key);
-	if (it != parameters.end())
-	{
-		if (it->second.type == Parameter_Type::Int)
-		{
-			return it->second.value_int;
-		}
-	}
-	return 0;
-}
-
-float Animator::Get_Parameter_Float(std::string key)
-{
-	auto it = parameters.find(key);
-	if (it != parameters.end())
-	{
-		if (it->second.type == Parameter_Type::Float)
-		{
-			return it->second.value_float;
-		}
-	}
-	return 0;
-}
-
-bool Animator::Get_Parameter_Bool(std::string key)
-{
-	auto it = parameters.find(key);
-	if (it != parameters.end())
-	{
-		if (it->second.type == Parameter_Type::Bool)
-		{
-			return it->second.value_bool;
-		}
-	}
-	return false;
-}
-
-void Animator::Judge_Event(Animation_Event& eve)
-{
-	if (eve.trigger)
-	{
-		auto it = parameters.find(eve.key);
-		if (it != parameters.end())
-		{
-			switch (eve.parameter.type)
-			{
-				case Parameter_Type::Int:
-					if (it->second.type == Parameter_Type::Int)
-					{
-						it->second.value_int = eve.parameter.value_int;
-					}
-					else
-					{
-						Debug::Log(u8"Eventで指定されたパラメーターの型が一致しません");
-					}
-					break;
-
-				case Parameter_Type::Float:
-					if (it->second.type == Parameter_Type::Float)
-					{
-						it->second.value_float = eve.parameter.value_float;
-					}
-					else
-					{
-						Debug::Log(u8"Eventで指定されたパラメーターの型が一致しません");
-					}
-					break;
-
-				case Parameter_Type::Bool:
-					if (it->second.type == Parameter_Type::Bool)
-					{
-						it->second.value_bool = eve.parameter.value_bool;
-					}
-					else
-					{
-						Debug::Log(u8"Eventで指定されたパラメーターの型が一致しません");
-					}
-					break;
-			}
-		}
-		else
-		{
-			Debug::Log(u8"Eventで指定されたパラメーターが見つかりません");
-		}
-		eve.trigger = false;
-		eve.called = true;
-	}
-}
-
 void Animator::Update()
 {
 	if (!playing) return;
@@ -327,18 +190,8 @@ void Animator::Update()
 	pose_next = pose_default;
 	animation_data = pose_default;
 
-	for (auto& eve : controller->playing_state_machine->events)
-	{
-		Judge_Event(eve);
-	}
-
 	if (controller->next_state_machine)
 	{
-		for (auto& eve : controller->next_state_machine->events)
-		{
-			Judge_Event(eve);
-		}
-
 		const float& current_sec = controller->playing_state_machine->currentSeconds;
 		for (auto& animation : controller->playing_state_machine->clip->animations)
 		{
@@ -516,43 +369,10 @@ void Animator::Pause()
 	playing = false;
 }
 
-void Animator::Add_Parameter(string& p_name, Parameter_Type type)
-{
-	auto it = parameters.find(p_name);
-	if (it == parameters.end())
-	{
-		Animation_Parameter parameter = {};
-		parameter.type = type;
-		parameters.insert(make_pair(p_name, parameter));
-	}
-}
-
 bool Animator::Draw_ImGui()
 {
-	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	bool open = ImGui::CollapsingHeader("Animator", ImGuiTreeNodeFlags_AllowItemOverlap);
-
-	bool removed = false;
-	if (ImGui::BeginPopupContextItem("Animator_sub"))
-	{
-		if (ImGui::Selectable(u8"コンポーネントを削除"))
-		{
-			Object::Destroy(dynamic_pointer_cast<Animator>(shared_from_this()));
-			removed = true;
-		}
-		ImGui::EndPopup();
-		if (removed)
-		{
-			return false;
-		}
-	}
-
-	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
-	bool enable = Get_Enabled();
-	if (ImGui::Checkbox("##enable", &enable))
-	{
-		Set_Enabled(enable);
-	}
+	bool open = false;
+	if (!Draw_ImGui_Header("Animator", open)) return false;
 
 	if (open)
 	{
@@ -562,95 +382,12 @@ bool Animator::Draw_ImGui()
 			ImGui::SameLine();
 			string controller_name = controller->name + ".controller";
 			ImGui::Text(controller_name.c_str());
-			ImGui::BeginChild(u8"パラメータ", ImVec2(0, 200.0f), true, ImGuiWindowFlags_MenuBar);
-
-			if (ImGui::BeginMenuBar())
-			{
-				if (ImGui::BeginMenu(u8"パタメータ追加"))
-				{
-					static string parameter_name;
-					ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue;
-					if (ImGui::BeginMenu("Int"))
-					{
-						ImGui::InputText(u8"パラメータ名", &parameter_name, input_text_flags);
-						if (ImGui::Button(u8"追加") && !parameter_name.empty())
-						{
-							Add_Parameter(parameter_name, Parameter_Type::Int);
-							parameter_name.clear();
-							ImGui::CloseCurrentPopup();
-						}
-						ImGui::EndMenu();
-					}
-					if (ImGui::BeginMenu("Float"))
-					{
-						ImGui::InputText(u8"パラメータ名", &parameter_name, input_text_flags);
-						if (ImGui::Button(u8"追加") && !parameter_name.empty())
-						{
-							Add_Parameter(parameter_name, Parameter_Type::Float);
-							parameter_name.clear();
-							ImGui::CloseCurrentPopup();
-						}
-						ImGui::EndMenu();
-					}
-					if (ImGui::BeginMenu("Bool"))
-					{
-						ImGui::InputText(u8"パラメータ名", &parameter_name, input_text_flags);
-						if (ImGui::Button(u8"追加") && !parameter_name.empty())
-						{
-							Add_Parameter(parameter_name, Parameter_Type::Bool);
-							parameter_name.clear();
-							ImGui::CloseCurrentPopup();
-						}
-						ImGui::EndMenu();
-					}
-					ImGui::EndMenu();
-				}
-				ImGui::EndMenuBar();
-			}
-
-			bool erase_parameter = false;
-			string erase_key;
-			for (auto& parameter : parameters)
-			{
-				ImGui::Spacing();
-				ImGui::Text(parameter.first.c_str());
-				ImGui::SameLine(ImGui::GetWindowContentRegionWidth() * 0.6f);
-				ImGui::PushID(parameter.first.c_str());
-				ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth() * 0.3f);
-				switch (parameter.second.type)
-				{
-					case Parameter_Type::Int:
-						ImGui::InputInt("##int", &parameter.second.value_int);
-						break;
-					case Parameter_Type::Float:
-						ImGui::InputFloat("##float", &parameter.second.value_float);
-						break;
-					case Parameter_Type::Bool:
-						ImGui::Checkbox("##bool", &parameter.second.value_bool);
-						break;
-				}
-
-				ImGui::SameLine(ImGui::GetWindowContentRegionWidth() - 20.0f);
-				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.0f, 0.0f, 1.0f });
-				if (ImGui::Button(u8" × "))
-				{
-					erase_parameter = true;
-					erase_key = parameter.first;
-				}
-				ImGui::PopStyleColor(1);
-				ImGui::PopID();
-			}
-			if (erase_parameter)
-			{
-				parameters.erase(erase_key);
-			}
-
-			ImGui::EndChild();
 		}
 		else
 		{
 			ImGui::Text(u8"アニメーターコントローラーが登録されていません");
 		}
+
 		ImGui::Dummy({ 0.0f, 10.0f });
 		if (ImGui::Button(u8"新規作成"))
 		{

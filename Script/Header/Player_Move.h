@@ -1,20 +1,17 @@
 #pragma once
 #include "MonoBehaviour.h"
+#include "Character_Mover.h"
 
 namespace BeastEngine
 {
-	class Player_Move : public MonoBehaviour
+	class Player_Move : public MonoBehaviour, public Character_Mover
 	{
 	public:
-		float move_speed = 0;
-		float run_speed = 0;
-		float turn_speed = 0;
-
-		void Move_Normal();
-		void Move_Attack();
-		void Move_Dodge();
-		void Move_Damage();
-		void Move_Guard();
+		void Move_Normal() override;
+		void Move_Attack() override;
+		void Move_Dodge() override;
+		void Move_Damage() override;
+		void Move_Guard() override;
 
 	private:
 		void Awake() override;
@@ -36,7 +33,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::MonoBehaviour>(this), run_speed, turn_speed);
+			archive(cereal::base_class<BeastEngine::MonoBehaviour>(this), cereal::base_class<BeastEngine::Character_Mover>(this));
 		}
 	};
 }
@@ -44,4 +41,5 @@ namespace BeastEngine
 REGISTER_COMPONENT(Player_Move)
 CEREAL_REGISTER_TYPE(BeastEngine::Player_Move)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::MonoBehaviour, BeastEngine::Player_Move)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Character_Mover, BeastEngine::Player_Move)
 CEREAL_CLASS_VERSION(BeastEngine::Player_Move, 1)

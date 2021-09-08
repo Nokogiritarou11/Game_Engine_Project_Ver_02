@@ -1,23 +1,35 @@
 #include "Player_Camera_Controller.h"
+#include "Character_Parameter.h"
 
 using namespace std;
 using namespace BeastEngine;
 
 void Player_Camera_Controller::Awake()
 {
-	player_transform = GameObject::Find_With_Tag("player").lock()->transform;
+	shared_ptr<GameObject>& obj = GameObject::Find_With_Tag("player").lock();
+	player_transform = obj->transform;
+	parameter = obj->Get_Component<Character_Parameter>();
 }
 
 void Player_Camera_Controller::Update()
 {
 	auto& p_trans = player_transform.lock();
+	auto& param = parameter.lock();
+
+	Vector2 left_axis = Input::Get_Pad_Axis_Left();
 
 	Vector3 follow_pos = p_trans->Get_Position();
 	follow_pos.y += 1;
-	transform->Set_Local_Position(Vector3::Lerp(transform->Get_Position(), follow_pos, follow_speed * Time::delta_time));
+	transform->Set_Local_Position(Vector3::Lerp(transform->Get_Position(), follow_pos, follow_speed * (1 + abs(left_axis.y) * 0.75f) * Time::delta_time));
 
 	Vector2 axis = Input::Get_Pad_Axis_Right();
 	Vector3 angle = { -axis.y * rotate_speed * Time::delta_time, -axis.x * rotate_speed * Time::delta_time, 0 };
+
+	if (param->moveing)
+	{
+		angle.y -= left_axis.x * rotate_speed * 0.25f * Time::delta_time;
+	}
+
 	Vector3 rot = transform->Get_Euler_Angles() + angle;
 
 	//最大角度にクランプ
@@ -27,54 +39,17 @@ void Player_Camera_Controller::Update()
 
 bool Player_Camera_Controller::Draw_ImGui()
 {
-	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	bool open = ImGui::CollapsingHeader("Player_Camera_Controller", ImGuiTreeNodeFlags_AllowItemOverlap);
-
-	bool removed = false;
-	if (ImGui::BeginPopupContextItem("Player_Camera_Controller_sub"))
-	{
-		if (ImGui::Selectable(u8"コンポーネントを削除"))
-		{
-			Object::Destroy(dynamic_pointer_cast<Player_Camera_Controller>(shared_from_this()));
-			removed = true;
-		}
-		ImGui::EndPopup();
-	}
-	if (removed)
-	{
-		return false;
-	}
-
-	ImGui::SameLine(ImGui::GetWindowContentRegionWidth() - 20.0f);
-	bool enable = Get_Enabled();
-	if (ImGui::Checkbox("##enable", &enable))
-	{
-		Set_Enabled(enable);
-	}
+	bool open = false;
+	if (!Draw_ImGui_Header("Player_Camera_Controller", open)) return false;
 
 	if (open)
 	{
 		float window_center = ImGui::GetWindowContentRegionWidth() * 0.6f;
 
-		ImGui::Text("Angle_Limit_Up");
-		ImGui::SameLine(window_center);
-		ImGui::SetNextItemWidth(-FLT_MIN);
-		ImGui::DragFloat("##Angle_Limit_Up", &angle_limit_up, 0.01f);
-
-		ImGui::Text("Angle_Limit_Down");
-		ImGui::SameLine(window_center);
-		ImGui::SetNextItemWidth(-FLT_MIN);
-		ImGui::DragFloat("##Angle_Limit_Down", &angle_limit_down, 0.01f);
-
-		ImGui::Text("Rotate_Speed");
-		ImGui::SameLine(window_center);
-		ImGui::SetNextItemWidth(-FLT_MIN);
-		ImGui::DragFloat("##Rotate_Speed", &rotate_speed, 0.01f);
-
-		ImGui::Text("Follow_Speed");
-		ImGui::SameLine(window_center);
-		ImGui::SetNextItemWidth(-FLT_MIN);
-		ImGui::DragFloat("##Follow_Speed", &follow_speed, 0.01f);
+		ImGui::LeftText_DragFloat("Angle_Limit_Up", "##Angle_Limit_Up", &angle_limit_up, window_center);
+		ImGui::LeftText_DragFloat("Angle_Limit_Down", "##Angle_Limit_Down", &angle_limit_down, window_center);
+		ImGui::LeftText_DragFloat("Rotate_Speed", "##Rotate_Speed", &rotate_speed, window_center);
+		ImGui::LeftText_DragFloat("Follow_Speed", "##Follow_Speed", &follow_speed, window_center);
 	}
 	return true;
 }

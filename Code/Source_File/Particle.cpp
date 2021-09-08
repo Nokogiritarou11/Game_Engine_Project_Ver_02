@@ -174,7 +174,7 @@ bool Particle::Draw_ImGui()
 	{
 		if (ImGui::Selectable(u8"コンポーネントを削除"))
 		{
-			Object::Destroy(dynamic_pointer_cast<Particle>(shared_from_this()));
+			Object::Destroy(dynamic_pointer_cast<Component>(shared_from_this()));
 			removed = true;
 		}
 		ImGui::EndPopup();
@@ -186,12 +186,15 @@ bool Particle::Draw_ImGui()
 
 	if (open)
 	{
-		ImGui::Text(u8"現在のパーティクル::");
+		ImGui::Text(u8"セット中::");
 		ImGui::SameLine();
 		ImGui::Text(file_name.c_str());
-		if (ImGui::Button(u8"パーティクルを選択"))
+		float window_width = ImGui::GetWindowContentRegionWidth();
+
+		ImGui::SameLine(window_width - 20.0f);
+		if (ImGui::Button(u8"選択"))
 		{
-			string path = System_Function::Get_Open_File_Name("","\\Resouces\\Effect");
+			string path = System_Function::Get_Open_File_Name("", "\\Resouces\\Effect");
 			//Debug::Log(path);
 			if (path != "")
 			{
@@ -215,14 +218,17 @@ bool Particle::Draw_ImGui()
 				Debug::Log("ファイルを開けませんでした");
 			}
 		}
-		ImGui::Dummy(ImVec2(0,3));
 
-		ImGui::DragFloat(u8"再生速度", &play_speed, 0.01f, 0.0f, FLT_MAX);
+		ImGui::Text(u8"再生速度");
+		ImGui::SameLine(window_width * 0.5f);
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		ImGui::DragFloat("##speed", &play_speed, 0.01f, 0.0f, FLT_MAX);
 
-		ImGui::Dummy(ImVec2(0,3));
-		ImGui::Checkbox(u8"アクティブ時の自動再生", &play_on_awake);
+		ImGui::Text(u8"アクティブ時の自動再生");
+		ImGui::SameLine(window_width * 0.5f);
+		ImGui::Checkbox("##play_awake", &play_on_awake);
 
-		ImGui::Dummy(ImVec2(0,3));
+		ImGui::Dummy(ImVec2(0, 3));
 		if (effect != nullptr)
 		{
 			if (ImGui::Button(ICON_FA_PLAY, ImVec2(30, 0)))

@@ -57,10 +57,7 @@ std::shared_ptr<T> BeastEngine::GameObject::Get_Component()
 		std::shared_ptr<T> buff = std::dynamic_pointer_cast<T>(com);
 		if (buff != nullptr)
 		{
-			if (typeid(shared_ptr<T>) == typeid(buff))
-			{
-				return buff;
-			}
+			return buff;
 		}
 	}
 	return nullptr;
@@ -80,10 +77,8 @@ std::shared_ptr<T> BeastEngine::GameObject::Add_Component()
 			std::shared_ptr<T> _buff = std::dynamic_pointer_cast<T>(com);
 			if (_buff != nullptr)
 			{
-				if (typeid(shared_ptr<T>) == typeid(_buff))
-				{
-					already_attach = true;
-				}
+				already_attach = true;
+				break;
 			}
 		}
 		if (!already_attach)

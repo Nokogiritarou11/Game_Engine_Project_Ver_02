@@ -26,13 +26,6 @@ namespace BeastEngine
 		bool Get_Bool(std::string key);
 		void Reset_Trigger(std::string key);
 
-		void Set_Parameter_Int(std::string key, int value);
-		void Set_Parameter_Float(std::string key, float value);
-		void Set_Parameter_Bool(std::string key, bool value);
-		int Get_Parameter_Int(std::string key);
-		float Get_Parameter_Float(std::string key);
-		bool Get_Parameter_Bool(std::string key);
-
 		std::shared_ptr<BeastEngine::Animator_Controller> controller;
 
 	private:
@@ -49,15 +42,12 @@ namespace BeastEngine
 		bool Can_Multiple() override { return false; };
 
 		void Set_Default_Pose();
-		void Add_Parameter(std::string& p_name, BeastEngine::Parameter_Type type);
-		void Judge_Event(Animation_Event& eve);
 		void Update(); //çXêV
 
 		bool playing = true;
 
 		std::string controller_path;
 
-		std::unordered_map<std::string, Animation_Parameter> parameters;
 		std::unordered_map<std::string, Animation_Target> animation_data;
 		std::unordered_map<std::string, Animation_Target> pose_default;
 		std::unordered_map<std::string, Animation_Target> pose_playing;
@@ -69,7 +59,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Behaviour>(this), controller_path, parameters);
+			archive(cereal::base_class<BeastEngine::Behaviour>(this), controller_path);
 		}
 	};
 }

@@ -18,9 +18,6 @@ namespace BeastEngine
 		std::shared_ptr<std::unordered_map<std::string, BeastEngine::Animation_Parameter>> parameters;
 		std::string save_path;
 
-		Animator_Controller() {};
-		~Animator_Controller() {};
-
 		void Initialize();
 		void Update();
 		bool Add_State_Machine(std::string& name);

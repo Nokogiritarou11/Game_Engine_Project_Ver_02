@@ -23,30 +23,8 @@ void Box_Collider::Set_Size(Vector3& new_size)
 
 bool Box_Collider::Draw_ImGui()
 {
-	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	bool open = ImGui::CollapsingHeader("Box_Collider", ImGuiTreeNodeFlags_AllowItemOverlap);
-
-	bool removed = false;
-	if (ImGui::BeginPopupContextItem("Box_Collider_sub"))
-	{
-		if (ImGui::Selectable(u8"コンポーネントを削除"))
-		{
-			Object::Destroy(dynamic_pointer_cast<Box_Collider>(shared_from_this()));
-			removed = true;
-		}
-		ImGui::EndPopup();
-	}
-	if (removed)
-	{
-		return false;
-	}
-
-	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
-	bool enable = Get_Enabled();
-	if (ImGui::Checkbox("##enable", &enable))
-	{
-		Set_Enabled(enable);
-	}
+	bool open = false;
+	if (!Draw_ImGui_Header("Box_Collider", open)) return false;
 
 	if (open)
 	{

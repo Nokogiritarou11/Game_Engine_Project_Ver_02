@@ -21,30 +21,8 @@ void Light::Initialize(std::shared_ptr<GameObject> obj)
 
 bool Light::Draw_ImGui()
 {
-	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	bool open = ImGui::CollapsingHeader("Light", ImGuiTreeNodeFlags_AllowItemOverlap);
-
-	bool removed = false;
-	if (ImGui::BeginPopupContextItem("Light_sub"))
-	{
-		if (ImGui::Selectable(u8"コンポーネントを削除"))
-		{
-			Object::Destroy(dynamic_pointer_cast<Light>(shared_from_this()));
-			removed = true;
-		}
-		ImGui::EndPopup();
-	}
-	if (removed)
-	{
-		return false;
-	}
-
-	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
-	bool enable = Get_Enabled();
-	if (ImGui::Checkbox("##enable", &enable))
-	{
-		Set_Enabled(enable);
-	}
+	bool open = false;
+	if (!Draw_ImGui_Header("Light", open)) return false;
 
 	if (open)
 	{

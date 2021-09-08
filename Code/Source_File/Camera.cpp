@@ -118,7 +118,7 @@ bool Camera::Draw_ImGui()
 	{
 		if (ImGui::Selectable(u8"コンポーネントを削除"))
 		{
-			Object::Destroy(dynamic_pointer_cast<Camera>(shared_from_this()));
+			Object::Destroy(dynamic_pointer_cast<Component>(shared_from_this()));
 			removed = true;
 		}
 		ImGui::EndPopup();

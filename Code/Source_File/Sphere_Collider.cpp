@@ -23,30 +23,8 @@ void Sphere_Collider::Set_Radius(float new_radius)
 
 bool Sphere_Collider::Draw_ImGui()
 {
-	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	bool open = ImGui::CollapsingHeader("Sphere_Collider", ImGuiTreeNodeFlags_AllowItemOverlap);
-
-	bool removed = false;
-	if (ImGui::BeginPopupContextItem("Sphere_Collider_sub"))
-	{
-		if (ImGui::Selectable(u8"コンポーネントを削除"))
-		{
-			Object::Destroy(dynamic_pointer_cast<Sphere_Collider>(shared_from_this()));
-			removed = true;
-		}
-		ImGui::EndPopup();
-	}
-	if (removed)
-	{
-		return false;
-	}
-
-	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
-	bool enable = Get_Enabled();
-	if (ImGui::Checkbox("##enable", &enable))
-	{
-		Set_Enabled(enable);
-	}
+	bool open = false;
+	if (!Draw_ImGui_Header("Sphere_Collider", open)) return false;
 
 	if (open)
 	{

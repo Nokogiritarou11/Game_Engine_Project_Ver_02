@@ -232,6 +232,7 @@
     <ClCompile Include="Code\Source_File\GameObject.cpp" />
     <ClCompile Include="Code\Source_File\Gaussian_Filter.cpp" />
     <ClCompile Include="Code\Source_File\Ghost_Object.cpp" />
+    <ClCompile Include="Code\Source_File\Include_ImGui.cpp" />
     <ClCompile Include="Code\Source_File\Input.cpp" />
     <ClCompile Include="Code\Source_File\Light.cpp" />
     <ClCompile Include="Code\Source_File\Light_Manager.cpp" />
@@ -808,6 +809,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Script\Header\Character_Mover.h" />
     <ClInclude Include="Script\Header\Player_Camera_Controller.h" />
     <ClInclude Include="Script\Header\Player_State_Manager.h" />
     <ClInclude Include="Script\Header\Character_Parameter.h" />

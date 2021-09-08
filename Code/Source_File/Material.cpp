@@ -858,12 +858,9 @@ void Material::Draw_ImGui()
 {
 	const float window_width = ImGui::GetWindowContentRegionWidth();
 
-	static const char* mode_name[] = { "Opaque","Cutout","Transparent" };
+	static const char* mode_name[] = { "Opaque", "Cutout", "Transparent" };
 	int mode_current = static_cast<int>(rendering_mode);
-	ImGui::Text(u8"描画タイプ");
-	ImGui::SameLine(window_width * 0.6f);
-	ImGui::SetNextItemWidth(-FLT_MIN);
-	if (ImGui::Combo("##Rendering_Mode", &mode_current, mode_name, IM_ARRAYSIZE(mode_name)))
+	if (ImGui::LeftText_Combo(u8"描画タイプ", "##Rendering_Mode", &mode_current, mode_name, IM_ARRAYSIZE(mode_name), window_width * 0.6f))
 	{
 		Set_Rendering_Mode(static_cast<Rendering_Mode>(mode_current));
 		Save();
@@ -935,15 +932,11 @@ void Material::Draw_ImGui()
 			{
 				const string& p_name = info.first;
 				ImGui::PushID(p_name.c_str());
-				ImGui::Text(p_name.c_str());
-
-				ImGui::SameLine(window_width * 0.4f);
-				ImGui::SetNextItemWidth(-FLT_MIN);
 
 				if (info.second.type == Shader::Parameter_Type::INT)
 				{
 					int value = Get_Int(p_name);
-					if (ImGui::DragInt("##int", &value))
+					if (ImGui::LeftText_DragInt(p_name.c_str(), "##int", &value, window_width * 0.4f))
 					{
 						Set_Int(p_name, value);
 						Save();
@@ -952,7 +945,7 @@ void Material::Draw_ImGui()
 				else if (info.second.type == Shader::Parameter_Type::FLOAT)
 				{
 					float value = Get_Float(p_name);
-					if (ImGui::DragFloat("##float", &value, 0.001f, 0, 0, "%05f"))
+					if (ImGui::LeftText_DragFloat(p_name.c_str(), "##float", &value, window_width * 0.4f, -FLT_MIN, 0.001f, "%.5f"))
 					{
 						Set_Float(p_name, value);
 						Save();
@@ -961,42 +954,32 @@ void Material::Draw_ImGui()
 				else if (info.second.type == Shader::Parameter_Type::VECTOR2)
 				{
 					Vector2 value = Get_Vector2(p_name);
-					float v[2] = { value.x, value.y };
-					if (ImGui::DragFloat2("##float2", v, 0.001f, 0, 0, "%04f"))
+					if (ImGui::LeftText_DragFloat2(p_name.c_str(), "##float2", value, window_width * 0.4f, -FLT_MIN, 0.001f, "%.4f"))
 					{
-						Vector2 r = { v[0], v[1] };
-						Set_Vector2(p_name, r);
+						Set_Vector2(p_name, value);
 						Save();
 					}
 				}
 				else if (info.second.type == Shader::Parameter_Type::VECTOR3)
 				{
 					Vector3 value = Get_Vector3(p_name);
-					float v[3] = { value.x, value.y, value.z };
-					if (ImGui::DragFloat3("##float3", v, 0.001f))
+					if (ImGui::LeftText_DragFloat3(p_name.c_str(), "##float3", value, window_width * 0.4f))
 					{
-						Vector3 r = { v[0], v[1],v[2] };
-						Set_Vector3(p_name, r);
+						Set_Vector3(p_name, value);
 						Save();
 					}
 				}
 				else if (info.second.type == Shader::Parameter_Type::VECTOR4)
 				{
 					Vector4 value = Get_Vector4(p_name);
-					float v[4] = { value.x, value.y, value.z, value.w };
-					if (ImGui::ColorEdit4("##float4_color", v))
+					if (ImGui::LeftText_ColorEdit4(p_name.c_str(), "##float4_color", value, window_width * 0.4f))
 					{
-						Vector4 r = { v[0], v[1], v[2], v[3] };
-						Set_Vector4(p_name, r);
+						Set_Vector4(p_name, value);
 						Save();
 					}
-					ImGui::Dummy({ 0,0 });
-					ImGui::SameLine(window_width * 0.4f);
-					ImGui::SetNextItemWidth(-FLT_MIN);
-					if (ImGui::DragFloat4("##float4_color", v, 0.001f))
+					if (ImGui::LeftText_DragFloat4("", "##float4", value, window_width * 0.4f))
 					{
-						Vector4 r = { v[0], v[1], v[2], v[3] };
-						Set_Vector4(p_name, r);
+						Set_Vector4(p_name, value);
 						Save();
 					}
 				}
@@ -1011,41 +994,29 @@ void Material::Draw_ImGui()
 			{
 				static const char* depth[] = { "None", "Less", "Greater", "LEqual", "GEqual", "Equal", "NotEqual", "Always", "None_No_Write", "Less_No_Write", "Greater_No_Write", "LEqual_No_Write", "GEqual_No_Write", "Equal_No_Write", "NotEqual_No_Write", "Always_No_Write" };
 				int depth_current = static_cast<int>(pass.depth_stencil_state);
-				ImGui::Text(u8"深度設定");
-				ImGui::SameLine(window_width * 0.6f);
-				ImGui::SetNextItemWidth(-FLT_MIN);
-				if (ImGui::Combo("##DepthMode", &depth_current, depth, IM_ARRAYSIZE(depth)))
+				if (ImGui::LeftText_Combo(u8"深度設定", "##DepthMode", &depth_current, depth, IM_ARRAYSIZE(depth), window_width * 0.6f))
 				{
 					Set_Depth_Stencil_State(static_cast<DS_State>(depth_current), i);
 					Save();
 				}
 
-				ImGui::Text(u8"カリング");
 				static const char* cull[] = { "Back", "Front", "None" };
 				int cull_current = static_cast<int>(pass.rasterizer_state);
-				ImGui::SameLine(window_width * 0.6f);
-				ImGui::SetNextItemWidth(-FLT_MIN);
-				if (ImGui::Combo("##Culling", &cull_current, cull, IM_ARRAYSIZE(cull)))
+				if (ImGui::LeftText_Combo(u8"カリング", "##Culling", &cull_current, cull, IM_ARRAYSIZE(cull), window_width * 0.6f))
 				{
 					Set_Rasterizer_State(static_cast<RS_State>(cull_current), i);
 					Save();
 				}
 
-				ImGui::Text(u8"ブレンド");
 				static const char* blends[] = { "Off", "Alpha", "Alpha_Test", "Transparent", "Add", "Subtract", "Replace", "Multiply" };
 				int blend_current = static_cast<int>(pass.blend_state);
-				ImGui::SameLine(window_width * 0.6f);
-				ImGui::SetNextItemWidth(-FLT_MIN);
-				if (ImGui::Combo("##BlendMode", &blend_current, blends, IM_ARRAYSIZE(blends)))
+				if (ImGui::LeftText_Combo(u8"ブレンド", "##BlendMode", &blend_current, blends, IM_ARRAYSIZE(blends), window_width * 0.6f))
 				{
 					Set_Blend_State(static_cast<BS_State>(blend_current), i);
 					Save();
 				}
 
-				ImGui::Text(u8"描画キュー");
-				ImGui::SameLine(window_width * 0.6f);
-				ImGui::SetNextItemWidth(-FLT_MIN);
-				ImGui::InputInt("##Queue", &render_queue);
+				ImGui::LeftText_InputInt(u8"描画キュー", "##Queue", &render_queue, window_width * 0.6f);
 
 				ImGui::TreePop();
 			}

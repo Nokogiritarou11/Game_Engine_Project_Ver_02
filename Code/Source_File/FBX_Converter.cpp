@@ -319,7 +319,7 @@ void FBX_Converter::Convert_Animation(vector<shared_ptr<GameObject>>& bones)
 		shared_ptr<Animation_Clip> clip = make_shared<Animation_Clip>();
 		clip->name = animation.name;
 		clip->length = animation.secondsLength;
-		clip->frame_count = animation.keyframes.size();
+		clip->frame_count = animation.keyframes.size() - 1;
 		Engine::asset_manager->Registration_Asset(clip);
 
 		clip->animations.resize(model->bones.size());

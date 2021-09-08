@@ -31,6 +31,12 @@ namespace BeastEngine
 		NotEquals
 	};
 
+	enum class State_Event_Type
+	{
+		Enter,
+		Exit
+	};
+
 	struct Animation_Parameter
 	{
 		int value_int = 0;
@@ -65,9 +71,8 @@ namespace BeastEngine
 	struct Animation_Event
 	{
 		std::string key = "";
-		bool trigger = false;
 		bool called = false;
-		float time = 0;
+		int frame = 0;
 		Animation_Parameter parameter;
 
 	private:
@@ -75,7 +80,22 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(key, time, parameter);
+			archive(key, frame, parameter);
+		}
+	};
+
+	struct State_Event
+	{
+		std::string key = "";
+		State_Event_Type type;
+		Animation_Parameter parameter;
+
+	private:
+		friend class cereal::access;
+		template<class Archive>
+		void serialize(Archive& archive, std::uint32_t const version)
+		{
+			archive(key, type, parameter);
 		}
 	};
 }
@@ -83,3 +103,4 @@ namespace BeastEngine
 CEREAL_CLASS_VERSION(BeastEngine::Animation_Parameter, 1)
 CEREAL_CLASS_VERSION(BeastEngine::Condition, 1)
 CEREAL_CLASS_VERSION(BeastEngine::Animation_Event, 1)
+CEREAL_CLASS_VERSION(BeastEngine::State_Event, 1)

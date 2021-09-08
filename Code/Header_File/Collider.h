@@ -41,6 +41,7 @@ namespace BeastEngine
 
 		void Initialize_MonoBehaviour();
 		void Draw_ImGui_Common();
+		bool Draw_ImGui_Header(std::string component_name, bool& open);
 
 		std::unique_ptr<btCollisionShape> shape;
 		std::unique_ptr<GhostObject> ghost;

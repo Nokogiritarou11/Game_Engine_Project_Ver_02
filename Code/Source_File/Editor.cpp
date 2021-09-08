@@ -513,23 +513,17 @@ void Editor::Inspector_Render()
 			ImGui::Dummy({ 0,10 });
 			ImGui::Separator();
 
-			bool removed = true;
-			while (removed)
+			for (auto& c : obj->component_list)
 			{
-				bool removed_comp = false;
-				for (auto& c : obj->component_list)
+				ImGui::PushID(c->Get_Instance_ID().c_str());
+				if (!c->Draw_ImGui())
 				{
-					ImGui::PushID(c->Get_Instance_ID().c_str());
-					if (!c->Draw_ImGui())
-					{
-						removed_comp = true;
-						ImGui::PopID();
-						break;
-					}
 					ImGui::PopID();
+					break;
 				}
-				removed = removed_comp;
+				ImGui::PopID();
 			}
+
 			ImGui::Separator();
 
 			ImGui::Dummy({ 0.0f, 10.0f });
@@ -1233,23 +1227,34 @@ void Editor::GameObject_Tree_Render(const shared_ptr<GameObject>& obj, int flag,
 	}
 }
 
+shared_ptr<GameObject> Editor::Get_Drag_Object()
+{
+	if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DragDrop_Object"))
+	{
+		if (auto& obj = draging_object.lock())
+		{
+			return obj;
+		}
+	}
+	return nullptr;
+}
+
 //ヒエラルキーでのオブジェクトドラッグ
-void Editor::GameObject_DragMenu_Render(const std::shared_ptr<GameObject>& obj)
+void Editor::GameObject_DragMenu_Render(const shared_ptr<GameObject>& obj)
 {
 	if (ImGui::BeginDragDropSource())
 	{
 		draging_object = obj;
-		int a = 0;
-		ImGui::SetDragDropPayload("DragDrop_Object", &a, sizeof(int));
+		ImGui::SetDragDropPayload("DragDrop_Object", nullptr, 0);
 		ImGui::EndDragDropSource();
 	}
 	string Menu_Label = "Drag_Object_Menu_";
 	Menu_Label += obj->name;
 	if (ImGui::BeginDragDropTarget())
 	{
-		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DragDrop_Object"))
+		if (const auto& drag = Get_Drag_Object())
 		{
-			if (draging_object.lock() != obj)
+			if (drag != obj)
 			{
 				ImGui::OpenPopup(Menu_Label.c_str());
 			}
@@ -1443,7 +1448,7 @@ void Editor::Debug_Camera_Update()
 			{
 				move -= debug_camera_transform->Get_Right() * Time::delta_time * speed;
 			}
-			debug_camera_transform->Set_Position(debug_camera_transform->Get_Position() + move);
+			debug_camera_transform->Set_Local_Position(debug_camera_transform->Get_Position() + move);
 		}
 		else
 		{

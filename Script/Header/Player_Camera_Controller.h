@@ -3,6 +3,8 @@
 
 namespace BeastEngine
 {
+	class Character_Parameter;
+
 	class Player_Camera_Controller : public MonoBehaviour
 	{
 	public:
@@ -18,6 +20,7 @@ namespace BeastEngine
 		float follow_speed;
 
 		std::weak_ptr<Transform> player_transform;
+		std::weak_ptr<Character_Parameter> parameter;
 
 
 

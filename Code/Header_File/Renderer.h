@@ -26,6 +26,8 @@ namespace BeastEngine
 		BeastEngine::Bounds bounds;
 
 	protected:
+		bool Draw_ImGui_Header(std::string component_name, bool& open);
+
 		bool is_called = false;
 		bool enabled = true;
 		bool enabled_old = false;

@@ -55,4 +55,17 @@ void Hoge::OnTrigger_Exit(BeastEngine::Collision& collision)
 void Hoge::OnCollision_Exit(BeastEngine::Collision& collision)
 {
 }
+
+bool Hoge::Draw_ImGui()
+{
+	bool open = false;
+	if (!Draw_ImGui_Header("Hoge", open)) return false;
+
+	if (open)
+	{
+		float window_center = ImGui::GetWindowContentRegionWidth() * 0.6f;
+	}
+	return true;
+}
+
 */

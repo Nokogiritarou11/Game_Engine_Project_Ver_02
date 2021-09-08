@@ -12,7 +12,8 @@ namespace BeastEngine
 		std::string name;
 		std::shared_ptr<BeastEngine::Animation_Clip> clip;
 		std::vector<std::shared_ptr<BeastEngine::Animator_State_Transition>> transitions;
-		std::vector<BeastEngine::Animation_Event> events;
+		std::vector<BeastEngine::Animation_Event> animation_events;
+		std::vector<BeastEngine::State_Event> state_events;
 		bool transition_trigger = false;
 
 		float animation_speed = 1;   //çƒê∂ë¨ìx
@@ -22,7 +23,6 @@ namespace BeastEngine
 		bool  loopAnimation = false; //ÉãÅ[ÉvÇ∑ÇÈÇ©
 		bool  is_default_state = false;
 
-		int max_frame;
 		float currentSeconds = 0.0f;
 		bool  endAnimation = false;
 
@@ -33,7 +33,8 @@ namespace BeastEngine
 		void Update_Transition();
 		void Update_Time();
 		void Add_Transition(std::shared_ptr<BeastEngine::Animator_State_Machine>& next_state);
-		void Add_Event();
+		void Add_Animation_Event();
+		void Add_State_Event();
 		void Remove_Transition(int index);
 		std::shared_ptr<BeastEngine::Animator_State_Transition> Get_Active_Transition();
 
@@ -46,7 +47,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(name, path, animation_speed, multiplier_hash, start_frame, end_frame, max_frame, loopAnimation, is_default_state, transitions, events);
+			archive(name, path, animation_speed, multiplier_hash, start_frame, end_frame, loopAnimation, is_default_state, transitions, animation_events, state_events);
 		}
 	};
 }

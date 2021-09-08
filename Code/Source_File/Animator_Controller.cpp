@@ -18,8 +18,6 @@ using namespace BeastEngine;
 
 void Animator_Controller::Initialize()
 {
-	Engine::asset_manager->Registration_Asset(shared_from_this());
-
 	if (!parameters)
 	{
 		parameters = make_shared<unordered_map<string, Animation_Parameter>>();
@@ -218,6 +216,7 @@ shared_ptr<Animator_Controller> Animator_Controller::Load_Animator_Controller(st
 		bin_s_stream << in_bin.rdbuf();
 		cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
 		binaryInputArchive(controller);
+		Engine::asset_manager->Registration_Asset(controller);
 		return controller;
 	}
 
@@ -236,6 +235,7 @@ shared_ptr<Animator_Controller> Animator_Controller::Create_New_Controller()
 		path = pathname + filename + ".controller";
 
 		shared_ptr<Animator_Controller> controller = make_shared<Animator_Controller>();
+		Engine::asset_manager->Registration_Asset(controller);
 		controller->name = filename;
 		controller->save_path = path;
 		ofstream ss(path.c_str(), ios::binary);
@@ -277,9 +277,9 @@ void Animator_Controller::Render_ImGui()
 	ImGui::SameLine();
 	ImGui::Checkbox(u8"オートセーブ", &Auto_Save);
 
-	ImGui::Dummy({0, 10.0f});
+	ImGui::Dummy({ 0, 10.0f });
 	ImGui::Separator();
-	ImGui::Dummy({0, 10.0f});
+	ImGui::Dummy({ 0, 10.0f });
 	{
 		ImGui::BeginChild("Parameters", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.25f, 0), true, ImGuiWindowFlags_MenuBar);
 
@@ -542,7 +542,7 @@ void Animator_Controller::Render_ImGui()
 				ImGui::Text(u8"開始フレーム");
 				ImGui::SameLine(input_padding);
 				ImGui::SetNextItemWidth(input_size);
-				if (ImGui::DragInt("##Start_Frame", &current_state->start_frame, 1, 0, current_state->max_frame, "%d", ImGuiSliderFlags_AlwaysClamp))
+				if (ImGui::DragInt("##Start_Frame", &current_state->start_frame, 1, 0, 0, "%d", ImGuiSliderFlags_AlwaysClamp))
 				{
 					if (Auto_Save) Save_As();
 				}
@@ -550,7 +550,7 @@ void Animator_Controller::Render_ImGui()
 				ImGui::Text(u8"終了フレーム");
 				ImGui::SameLine(input_padding);
 				ImGui::SetNextItemWidth(input_size);
-				if (ImGui::DragInt("##End_Frame", &current_state->end_frame, 1, 0, current_state->max_frame, "%d", ImGuiSliderFlags_AlwaysClamp))
+				if (ImGui::DragInt("##End_Frame", &current_state->end_frame, 1, 0, 0, "%d", ImGuiSliderFlags_AlwaysClamp))
 				{
 					if (Auto_Save) Save_As();
 				}
@@ -573,65 +573,73 @@ void Animator_Controller::Render_ImGui()
 				if (ImGui::CollapsingHeader(u8"アニメーションイベント設定"))
 				{
 					ImGui::Indent();
-					const bool has_event = !current_state->events.empty();
+					const bool has_event = !current_state->animation_events.empty();
 					if (has_event)
 					{
-						const char* event_type[3] = { "Int","Float","Bool" };
 						bool erase_event = false;
 						size_t erase_event_index = 0;
 						const float window_width = ImGui::GetWindowContentRegionWidth();
 
-						for (size_t i = 0; i < current_state->events.size(); ++i)
+						for (size_t i = 0; i < current_state->animation_events.size(); ++i)
 						{
-							Animation_Event& eve = current_state->events[i];
+							Animation_Event& eve = current_state->animation_events[i];
 							ImGui::PushID(i);
-							ImGui::Text(u8"時間(秒)");
+
+							ImGui::Text(u8"フレーム");
 							ImGui::SameLine();
 							ImGui::SetNextItemWidth(window_width * 0.1f);
-							if (ImGui::InputFloat("##event_time", &eve.time))
+							if (ImGui::InputInt("##animation_event_frame", &eve.frame))
 							{
 								if (Auto_Save) Save_As();
 							}
 
 							ImGui::SameLine();
-							ImGui::Text(u8"パラメータ名");
+							ImGui::Text(u8" パラメータ");
 							ImGui::SameLine();
 							ImGui::SetNextItemWidth(window_width * 0.25f);
-							if (ImGui::InputText("##event_key", &eve.key))
+							if (ImGui::BeginCombo("##animation_event_key", eve.key.data()))
 							{
-								if (Auto_Save) Save_As();
+								for (auto& parameter : (*parameters))
+								{
+									const bool is_selected = (eve.key == parameter.first);
+									if (ImGui::Selectable(parameter.first.data(), is_selected))
+									{
+										eve.key = parameter.first;
+										eve.parameter.type = parameter.second.type;
+										if (Auto_Save) Save_As();
+									}
+									if (is_selected) ImGui::SetItemDefaultFocus();
+								}
+								ImGui::EndCombo();
 							}
 
 							ImGui::SameLine();
-							ImGui::Text(u8"セット値");
+							ImGui::Text(u8" セット値");
 							ImGui::SameLine();
 							ImGui::SetNextItemWidth(window_width * 0.1f);
 							int current_type = static_cast<int>(eve.parameter.type);
-							ImGui::Combo("##interruption_source", &current_type, event_type, IM_ARRAYSIZE(event_type));
-							if (current_type != static_cast<int>(eve.parameter.type))
-							{
-								eve.parameter.type = static_cast<Parameter_Type>(current_type);
-								if (Auto_Save) Save_As();
-							}
-
-							ImGui::SameLine();
-							ImGui::SetNextItemWidth(window_width * 0.1f);
 							switch (current_type)
 							{
 								case 0:
-									if (ImGui::InputInt("##event_value", &eve.parameter.value_int))
+									if (ImGui::InputInt("##animation_event_value", &eve.parameter.value_int))
 									{
 										if (Auto_Save) Save_As();
 									}
 									break;
 								case 1:
-									if (ImGui::InputFloat("##event_value", &eve.parameter.value_float))
+									if (ImGui::InputFloat("##animation_event_value", &eve.parameter.value_float))
 									{
 										if (Auto_Save) Save_As();
 									}
 									break;
 								case 2:
-									if (ImGui::Checkbox("##event_value", &eve.parameter.value_bool))
+									if (ImGui::Checkbox("##animation_event_value", &eve.parameter.value_bool))
+									{
+										if (Auto_Save) Save_As();
+									}
+									break;
+								case 3:
+									if (ImGui::Checkbox("##animation_event_value", &eve.parameter.value_bool))
 									{
 										if (Auto_Save) Save_As();
 									}
@@ -651,7 +659,7 @@ void Animator_Controller::Render_ImGui()
 
 						if (erase_event)
 						{
-							current_state->events.erase(current_state->events.begin() + erase_event_index);
+							current_state->animation_events.erase(current_state->animation_events.begin() + erase_event_index);
 							if (Auto_Save) Save_As();
 						}
 					}
@@ -659,17 +667,132 @@ void Animator_Controller::Render_ImGui()
 					{
 						ImGui::Text(u8"アニメーションイベントが設定されていません");
 					}
-					ImGui::Dummy({0, 0});
-					ImGui::SameLine(ImGui::GetWindowContentRegionWidth() - 150.0f);
-					if (ImGui::Button(u8"イベント追加", ImVec2(150.0f, 0)))
+
+					ImGui::Dummy({ 0, 0 });
+					ImGui::SameLine(ImGui::GetWindowContentRegionWidth() - 200.0f);
+					if (ImGui::Button(u8"アニメーションイベント追加", ImVec2(200.0f, 0)))
 					{
-						current_state->Add_Event();
+						current_state->Add_Animation_Event();
 						if (Auto_Save) Save_As();
 					}
 					ImGui::Unindent();
 				}
 
-				ImGui::Dummy({0, 20.0f});
+				ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
+				if (ImGui::CollapsingHeader(u8"ステートイベント設定"))
+				{
+					ImGui::Indent();
+					const bool has_event = !current_state->state_events.empty();
+					if (has_event)
+					{
+						const char* event_type[] = { "Int", "Float", "Bool", "Trigger" };
+						const char* state_type[] = { "Enter", "Exit" };
+						bool erase_event = false;
+						size_t erase_event_index = 0;
+						const float window_width = ImGui::GetWindowContentRegionWidth();
+
+						for (size_t i = 0; i < current_state->state_events.size(); ++i)
+						{
+							State_Event& eve = current_state->state_events[i];
+							ImGui::PushID(i);
+
+							ImGui::Text(u8"実行条件");
+							ImGui::SameLine();
+							ImGui::SetNextItemWidth(window_width * 0.1f);
+							int current_state_type = static_cast<int>(eve.type);
+							if (ImGui::Combo("##state_condition_type", &current_state_type, state_type, IM_ARRAYSIZE(state_type)))
+							{
+								eve.type = static_cast<State_Event_Type>(current_state_type);
+								if (Auto_Save) Save_As();
+							}
+
+							ImGui::SameLine();
+							ImGui::Text(u8" パラメータ");
+							ImGui::SameLine();
+							ImGui::SetNextItemWidth(window_width * 0.25f);
+							if (ImGui::BeginCombo("##state_event_key", eve.key.data()))
+							{
+								for (auto& parameter : (*parameters))
+								{
+									const bool is_selected = (eve.key == parameter.first);
+									if (ImGui::Selectable(parameter.first.data(), is_selected))
+									{
+										eve.key = parameter.first;
+										eve.parameter.type = parameter.second.type;
+										if (Auto_Save) Save_As();
+									}
+									if (is_selected) ImGui::SetItemDefaultFocus();
+								}
+								ImGui::EndCombo();
+							}
+
+							ImGui::SameLine();
+							ImGui::Text(u8" セット値");
+							ImGui::SameLine();
+							ImGui::SetNextItemWidth(window_width * 0.1f);
+							int current_type = static_cast<int>(eve.parameter.type);
+
+							switch (current_type)
+							{
+								case 0:
+									if (ImGui::InputInt("##state_event_value", &eve.parameter.value_int))
+									{
+										if (Auto_Save) Save_As();
+									}
+									break;
+								case 1:
+									if (ImGui::InputFloat("##state_event_value", &eve.parameter.value_float))
+									{
+										if (Auto_Save) Save_As();
+									}
+									break;
+								case 2:
+									if (ImGui::Checkbox("##state_event_value", &eve.parameter.value_bool))
+									{
+										if (Auto_Save) Save_As();
+									}
+									break;
+								case 3:
+									if (ImGui::Checkbox("##state_event_value", &eve.parameter.value_bool))
+									{
+										if (Auto_Save) Save_As();
+									}
+									break;
+							}
+
+							ImGui::SameLine(window_width - 20.0f);
+							ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.0f, 0.0f, 1.0f });
+							if (ImGui::Button(u8" × "))
+							{
+								erase_event = true;
+								erase_event_index = i;
+							}
+							ImGui::PopStyleColor(1);
+							ImGui::PopID();
+						}
+
+						if (erase_event)
+						{
+							current_state->state_events.erase(current_state->state_events.begin() + erase_event_index);
+							if (Auto_Save) Save_As();
+						}
+					}
+					else
+					{
+						ImGui::Text(u8"ステートイベントが設定されていません");
+					}
+
+					ImGui::Dummy({ 0, 0 });
+					ImGui::SameLine(ImGui::GetWindowContentRegionWidth() - 200.0f);
+					if (ImGui::Button(u8"ステートイベント追加", ImVec2(200.0f, 0)))
+					{
+						current_state->Add_State_Event();
+						if (Auto_Save) Save_As();
+					}
+					ImGui::Unindent();
+				}
+
+				ImGui::Dummy({ 0, 20.0f });
 				ImGui::Unindent();
 			}
 
@@ -803,15 +926,18 @@ void Animator_Controller::Render_ImGui()
 							if (Auto_Save) Save_As();
 						}
 
-						ImGui::Indent();
-						ImGui::Text(u8"判定時間");
-						ImGui::SameLine(input_padding);
-						ImGui::SetNextItemWidth(input_size);
-						if (ImGui::InputFloat("##exit_time", &current_transition->exit_time))
+						if (current_transition->has_exit_time)
 						{
-							if (Auto_Save) Save_As();
+							ImGui::Indent();
+							ImGui::Text(u8"判定時間");
+							ImGui::SameLine(input_padding);
+							ImGui::SetNextItemWidth(input_size);
+							if (ImGui::InputFloat("##exit_time", &current_transition->exit_time))
+							{
+								if (Auto_Save) Save_As();
+							}
+							ImGui::Unindent();
 						}
-						ImGui::Unindent();
 
 						ImGui::Text(u8"遷移間隔(秒)");
 						ImGui::SameLine(input_padding);

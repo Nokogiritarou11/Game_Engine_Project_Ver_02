@@ -70,6 +70,7 @@ namespace BeastEngine
 		static int Get_Screen_Height() { return screen_height; }
 		static ID3D11DepthStencilView* Get_DepthStencilView() { return depth_stencil_view.Get(); }
 		static ID3D11RenderTargetView* Get_RenderTargetView() { return render_target_view.Get(); }
+		static ID3D11ShaderResourceView* Get_ShaderResourceView() { return shader_resource_view.Get(); }
 		static ID3D11DepthStencilState* Get_DephtStencil_State(DS_State state) { return depth_stencil_state[static_cast<int>(state)].Get(); }
 		static ID3D11RasterizerState* Get_Rasterizer_State(RS_State state) { return rasterizer_state[static_cast<int>(state)].Get(); }
 		static ID3D11BlendState* Get_Blend_State(BS_State state) { return blend_state[static_cast<int>(state)].Get(); }

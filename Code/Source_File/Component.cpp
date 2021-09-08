@@ -31,6 +31,7 @@ shared_ptr<Component> Component::Add_Component(string class_name)
 				if (typeid(*buff) == typeid(*com))
 				{
 					already_attach = true;
+					break;
 				}
 			}
 			if (!already_attach)

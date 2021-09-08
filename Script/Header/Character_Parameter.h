@@ -9,12 +9,13 @@ namespace BeastEngine
 		float Max_HP = 0;
 		float HP = 0;
 
-		bool Eventing = false;
-		bool Living = true;
-		bool Moveing = false;
-		bool Attacking = false;
-		bool Dodging = false;
-		bool Damaging = false;
+		bool eventing = false;
+		bool living = true;
+		bool moveing = false;
+		bool attacking = false;
+		bool dodging = false;
+		bool damaging = false;
+		bool guarding = false;
 
 	private:
 		void Awake() override;

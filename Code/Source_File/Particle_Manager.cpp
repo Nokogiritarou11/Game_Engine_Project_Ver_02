@@ -77,7 +77,7 @@ void Particle_Manager::Camera_Update(std::shared_ptr<Transform>& camera_trans, f
 	// “Š‰es—ñ‚ðÝ’è
 	Effekseer::Matrix44 perspective;
 	Effekseer::Matrix44::Mul(perspective, Effekseer::Matrix44().PerspectiveFovRH(FOV, aspect, near_z, far_z), reverse);
-	renderer->SetProjectionMatrix(Effekseer::Matrix44().PerspectiveFovRH(FOV, aspect, near_z, far_z));
+	renderer->SetProjectionMatrix(perspective);
 
 	Vector3 focus = pos + camera_trans->Get_Forward();
 	auto g_focus = Effekseer::Vector3D(focus.x, focus.y, focus.z);

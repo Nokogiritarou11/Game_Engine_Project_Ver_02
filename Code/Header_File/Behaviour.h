@@ -11,6 +11,9 @@ namespace BeastEngine
 		void Set_Enabled(bool value);
 		bool Get_Enabled();
 
+	protected:
+		bool Draw_ImGui_Header(std::string component_name, bool& open);
+
 	private:
 		bool enabled = true;
 		bool enabled_old = false;
