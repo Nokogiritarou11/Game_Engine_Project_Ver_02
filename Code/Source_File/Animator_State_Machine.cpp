@@ -84,6 +84,7 @@ void Animator_State_Machine::Set_Active(float transition_offset)
 						{
 							Debug::Log(u8"Eventで指定されたパラメーターの型が一致しません");
 						}
+						break;
 
 					case Parameter_Type::Trigger:
 						if (it->second.type == Parameter_Type::Trigger)
@@ -111,6 +112,16 @@ void Animator_State_Machine::Exit()
 	active_transition.reset();
 	endAnimation = false;
 	currentSeconds = 0;
+
+	for (auto& transition : transitions)
+	{
+		transition->exit_called = false;
+		transition->exit_trigger = false;
+	}
+	for (auto& eve : animation_events)
+	{
+		eve.called = false;
+	}
 
 	for (auto& eve : state_events)
 	{
@@ -152,6 +163,7 @@ void Animator_State_Machine::Exit()
 						{
 							Debug::Log(u8"Eventで指定されたパラメーターの型が一致しません");
 						}
+						break;
 
 					case Parameter_Type::Trigger:
 						if (it->second.type == Parameter_Type::Trigger)
@@ -212,7 +224,6 @@ void Animator_State_Machine::Update_Time()
 	// 最終フレーム処理
 	if (endAnimation)
 	{
-		endAnimation = false;
 		currentSeconds = end_sec;
 		return;
 	}
@@ -231,7 +242,7 @@ void Animator_State_Machine::Update_Time()
 
 	for (auto& transition : transitions)
 	{
-		if (!transition->exit_called && currentSeconds >= end_sec * transition->exit_time)
+		if (transition->has_exit_time && !transition->exit_called && currentSeconds >= end_sec * transition->exit_time)
 		{
 			transition->exit_trigger = true;
 		}

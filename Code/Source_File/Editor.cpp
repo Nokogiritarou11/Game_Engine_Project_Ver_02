@@ -298,30 +298,32 @@ void Editor::Hierarchy_Render()
 		if (ImGui::TreeNode(scene->name.c_str()))
 		{
 			static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
-			static int selecting = -1;
-			bool Item_Clicked = false;
 
+			select_object = false;
 			for (auto& obj_list : scene->gameobject_list)
 			{
 				if (obj_list->transform->parent.expired())
 				{
-					GameObject_Tree_Render(obj_list, base_flags, Item_Clicked);
+					GameObject_Tree_Render(obj_list, base_flags);
 				}
 			}
 
-			if (!Item_Clicked && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0))
+			if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0) && draging_object.expired())
 			{
 				Set_Debug_Draw(false, active_object.lock());
 				active_object.reset();
 				active_object_old.reset();
-				selecting = -1;
 			}
 
 			if (ImGui::BeginPopupContextWindow(u8"ヒエラルキーサブ"))
 			{
 				if (ImGui::Selectable(u8"新規オブジェクトを追加"))
 				{
-					scene->Instance_GameObject(u8"GameObject");
+					auto& create_obj = scene->Instance_GameObject(u8"GameObject");
+					if (auto& obj = active_object.lock())
+					{
+						create_obj->transform->Set_Parent(obj->transform);
+					}
 				}
 				if (ImGui::Selectable(u8"プレハブを読み込む"))
 				{
@@ -333,14 +335,13 @@ void Editor::Hierarchy_Render()
 				}
 				ImGui::Separator();
 
-				if (shared_ptr<GameObject>& obj = active_object.lock())
+				if (auto& obj = active_object.lock())
 				{
 					bool deleted = false;
 					if (ImGui::Selectable(u8"オブジェクトを削除"))
 					{
 						Select_Reset();
 						GameObject::Destroy(obj);
-						selecting = -1;
 						deleted = true;
 					}
 
@@ -393,11 +394,11 @@ void Editor::Hierarchy_Render()
 
 			if (ImGui::IsWindowFocused())
 			{
-				if (shared_ptr<GameObject>& obj = active_object.lock())
+				if (auto& obj = active_object.lock())
 				{
 					if (ImGui::IsKeyDown(17) && ImGui::IsKeyPressed(68)) //Ctrl + D
 					{
-						shared_ptr<Transform> parent = obj->transform->Get_Parent().lock();
+						auto& parent = obj->transform->Get_Parent().lock();
 						if (parent)
 						{
 							obj->transform->Set_Parent(nullptr);
@@ -426,7 +427,6 @@ void Editor::Hierarchy_Render()
 					{
 						Select_Reset();
 						GameObject::Destroy(obj);
-						selecting = -1;
 					}
 				}
 			}
@@ -446,7 +446,7 @@ void Editor::Inspector_Render()
 	window_flags |= ImGuiWindowFlags_NoCollapse;
 	if (ImGui::Begin(u8"インスペクタ", NULL, window_flags))
 	{
-		if (shared_ptr<GameObject>& obj = active_object.lock())
+		if (auto& obj = active_object.lock())
 		{
 			static bool active = false;
 			if (active_object_old.lock() != obj)
@@ -559,6 +559,12 @@ void Editor::Inspector_Render()
 		{
 			ImGui::Text(u8"オブジェクトが選択されていません");
 		}
+	}
+
+	//ドラッグ終了処理
+	if (ImGui::IsMouseReleased(0) && !select_object && !draging_object.expired())
+	{
+		draging_object.reset();
 	}
 
 	ImGui::End();
@@ -820,7 +826,7 @@ void Editor::Controller_Render()
 	window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
 	if (ImGui::Begin(u8"アニメーター", NULL, window_flags))
 	{
-		if (shared_ptr<Animator_Controller> c = controller.lock())
+		if (auto& c = controller.lock())
 		{
 			c->Render_ImGui();
 		}
@@ -1169,11 +1175,11 @@ void Editor::Scene_Setting_Menu_Render()
 }
 
 //オブジェクトツリー描画
-void Editor::GameObject_Tree_Render(const shared_ptr<GameObject>& obj, int flag, bool& Item_Clicked)
+void Editor::GameObject_Tree_Render(const shared_ptr<GameObject>& obj, int flag)
 {
 	ImGui::PushID(obj->Get_Instance_ID().c_str());
 	const ImGuiTreeNodeFlags in_flag = flag;
-	if (shared_ptr<GameObject>& active_obj = active_object.lock())
+	if (auto& active_obj = active_object.lock())
 	{
 		if (active_obj == obj) flag |= ImGuiTreeNodeFlags_Selected;
 	}
@@ -1183,18 +1189,28 @@ void Editor::GameObject_Tree_Render(const shared_ptr<GameObject>& obj, int flag,
 
 	if (obj->transform->Get_Child_Count())
 	{
-		bool open = false;
 		if (!active) { ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(0.f, 0.f, 0.4f)); }
-		open = ImGui::TreeNodeEx(obj->name.c_str(), flag);
+		bool open = ImGui::TreeNodeEx(obj->name.c_str(), flag);
 		if (!active) { ImGui::PopStyleColor(); }
 
-		if (ImGui::IsItemClicked() || ImGui::IsItemClicked(1))
+		if (auto& drag = draging_object.lock())
+		{
+			if (drag == obj && ImGui::IsMouseReleased(0) && ImGui::IsItemHovered())
+			{
+				Activate_Select_Object(obj);
+				select_object = true;
+			}
+		}
+
+		if (ImGui::IsItemClicked(1))
 		{
 			Activate_Select_Object(obj);
+			select_object = true;
 		}
+
 		if (ImGui::IsItemClicked())
 		{
-			Item_Clicked = true;
+			draging_object = obj;
 		}
 
 		GameObject_DragMenu_Render(obj);
@@ -1204,7 +1220,7 @@ void Editor::GameObject_Tree_Render(const shared_ptr<GameObject>& obj, int flag,
 		{
 			for (size_t i = 0; i < obj->transform->children.size(); ++i)
 			{
-				GameObject_Tree_Render(obj->transform->children[i].lock()->gameobject, in_flag, Item_Clicked);
+				GameObject_Tree_Render(obj->transform->children[i].lock()->gameobject, in_flag);
 			}
 			ImGui::TreePop();
 		}
@@ -1217,9 +1233,24 @@ void Editor::GameObject_Tree_Render(const shared_ptr<GameObject>& obj, int flag,
 		ImGui::TreeNodeEx(obj->name.c_str(), flag);
 		if (!active) { ImGui::PopStyleColor(); }
 
-		if (ImGui::IsItemClicked() || ImGui::IsItemClicked(1))
+		if (auto& drag = draging_object.lock())
+		{
+			if (drag == obj && ImGui::IsMouseReleased(0) && ImGui::IsItemHovered())
+			{
+				Activate_Select_Object(obj);
+				select_object = true;
+			}
+		}
+
+		if (ImGui::IsItemClicked(1))
 		{
 			Activate_Select_Object(obj);
+			select_object = true;
+		}
+
+		if (ImGui::IsItemClicked())
+		{
+			draging_object = obj;
 		}
 
 		GameObject_DragMenu_Render(obj);
@@ -1244,7 +1275,6 @@ void Editor::GameObject_DragMenu_Render(const shared_ptr<GameObject>& obj)
 {
 	if (ImGui::BeginDragDropSource())
 	{
-		draging_object = obj;
 		ImGui::SetDragDropPayload("DragDrop_Object", nullptr, 0);
 		ImGui::EndDragDropSource();
 	}
@@ -1252,6 +1282,7 @@ void Editor::GameObject_DragMenu_Render(const shared_ptr<GameObject>& obj)
 	Menu_Label += obj->name;
 	if (ImGui::BeginDragDropTarget())
 	{
+		select_object = true;
 		if (const auto& drag = Get_Drag_Object())
 		{
 			if (drag != obj)
@@ -1273,7 +1304,7 @@ void Editor::GameObject_DragMenu_Render(const shared_ptr<GameObject>& obj)
 		string s_set = obj_name + s1;
 		if (ImGui::Selectable(s_set.c_str()))
 		{
-			if (shared_ptr<GameObject>& drag_obj = draging_object.lock())
+			if (auto& drag_obj = draging_object.lock())
 			{
 				drag_obj->transform->Set_Parent(obj->transform);
 				draging_object.reset();
@@ -1283,7 +1314,7 @@ void Editor::GameObject_DragMenu_Render(const shared_ptr<GameObject>& obj)
 		s_set = obj_name + s2;
 		if (ImGui::Selectable(s_set.c_str()))
 		{
-			if (shared_ptr<GameObject>& drag_obj = draging_object.lock())
+			if (auto& drag_obj = draging_object.lock())
 			{
 				drag_obj->transform->Set_Parent(obj->transform->parent.lock());
 				drag_obj->transform->Set_Sibling_Index(obj->transform->Get_Sibling_Index());
@@ -1294,7 +1325,7 @@ void Editor::GameObject_DragMenu_Render(const shared_ptr<GameObject>& obj)
 		s_set = obj_name + s3;
 		if (ImGui::Selectable(s_set.c_str()))
 		{
-			if (shared_ptr<GameObject>& drag_obj = draging_object.lock())
+			if (auto& drag_obj = draging_object.lock())
 			{
 				drag_obj->transform->Set_Parent(obj->transform->parent.lock());
 				drag_obj->transform->Set_Sibling_Index(obj->transform->Get_Sibling_Index() + 1);
@@ -1469,7 +1500,7 @@ void Editor::Set_Debug_Draw(bool value, const shared_ptr<GameObject>& obj)
 {
 	if (obj)
 	{
-		if (shared_ptr<Collider>& col = obj->Get_Component<Collider>())
+		if (auto& col = obj->Get_Component<Collider>())
 		{
 			col->Set_Debug_Draw(value);
 		}
@@ -1482,12 +1513,12 @@ void Editor::Set_Debug_Draw(bool value, const shared_ptr<GameObject>& obj)
 
 void Editor::Activate_Select_Object(const shared_ptr<GameObject>& obj)
 {
-	if (shared_ptr<GameObject>& now = active_object.lock())
+	if (auto& now = active_object.lock())
 	{
 		Set_Debug_Draw(false, now);
 	}
 	active_object = obj;
-	if (shared_ptr<Animator>& animator = obj->Get_Component<Animator>())
+	if (auto& animator = obj->Get_Component<Animator>())
 	{
 		if (animator->controller)
 		{

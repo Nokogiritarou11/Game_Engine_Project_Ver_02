@@ -31,7 +31,7 @@ void Input::Update()
 #if _DEBUG
 		mouse_position_old = { Cursor::lock_position.x - Engine::editor->game_view_position.x,Engine::editor->game_view_position.y - Cursor::lock_position.y };
 #else
-		mouse_position_old = { Cursor::Lock_Pos.x - static_cast<float>(rect.left) ,static_cast<float>(rect.bottom) - Cursor::Lock_Pos.y };
+		mouse_position_old = { Cursor::lock_position.x - static_cast<float>(rect.left) ,static_cast<float>(rect.bottom) - Cursor::lock_position.y };
 #endif
 	}
 	else

@@ -234,7 +234,8 @@ void Render_Manager::Render_Game()
 #if _DEBUG
 					game_texture->Set_Render_Target();
 #else
-						// レンダーターゲットビュー設定
+					// レンダーターゲットビュー設定
+					game_texture->Set_Screen_Size(DxSystem::Get_Screen_Width(), DxSystem::Get_Screen_Height());
 					DxSystem::Set_Default_View();
 #endif
 					// シーン用定数バッファ更新

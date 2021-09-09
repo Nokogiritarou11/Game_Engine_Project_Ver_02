@@ -44,7 +44,7 @@ bool Player_Camera_Controller::Draw_ImGui()
 
 	if (open)
 	{
-		float window_center = ImGui::GetWindowContentRegionWidth() * 0.6f;
+		float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
 
 		ImGui::LeftText_DragFloat("Angle_Limit_Up", "##Angle_Limit_Up", &angle_limit_up, window_center);
 		ImGui::LeftText_DragFloat("Angle_Limit_Down", "##Angle_Limit_Down", &angle_limit_down, window_center);

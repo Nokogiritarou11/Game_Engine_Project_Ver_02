@@ -46,8 +46,8 @@ void Cursor::Update()
 			}
 			RECT rect;
 			GetWindowRect(DxSystem::hwnd, &rect);
-			Lock_Pos = { static_cast<float>(rect.left) + Screen::Get_Width() / 2, static_cast<float>(rect.top) + Screen::Get_Height() / 2 };
-			SetCursorPos(static_cast<int>(Lock_Pos.x), static_cast<int>(Lock_Pos.y));
+			lock_position = { static_cast<float>(rect.left) + Screen::Get_Width() / 2, static_cast<float>(rect.top) + Screen::Get_Height() / 2 };
+			SetCursorPos(static_cast<int>(lock_position.x), static_cast<int>(lock_position.y));
 #endif
 		}
 		else

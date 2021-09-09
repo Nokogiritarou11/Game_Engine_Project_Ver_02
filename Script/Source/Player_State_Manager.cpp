@@ -85,7 +85,7 @@ bool Player_State_Manager::Draw_ImGui()
 
 	if (open)
 	{
-		float window_center = ImGui::GetWindowContentRegionWidth() * 0.6f;
+		float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
 		ImGui::Text(u8"İ’è‚Å‚«‚éƒpƒ‰ƒ[ƒ^‚Í‚ ‚è‚Ü‚¹‚ñ");
 	}
 	return true;

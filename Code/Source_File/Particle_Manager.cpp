@@ -100,7 +100,7 @@ void Particle_Manager::Update()
 		{
 			if (p_eff->gameobject->Get_Active_In_Hierarchy())
 			{
-				if (Engine::particle_manager->manager->Exists(p_eff->handle))
+				if (manager->Exists(p_eff->handle))
 				{
 					Effekseer::Matrix43 mat;
 					Matrix m = p_eff->transform->Get_World_Matrix();
@@ -114,10 +114,10 @@ void Particle_Manager::Update()
 			}
 			else
 			{
-				if (Engine::particle_manager->manager->Exists(p_eff->handle))
+				if (manager->Exists(p_eff->handle))
 				{
 					// Ä¶‚ğ’â~‚·‚é
-					Engine::particle_manager->manager->StopEffect(p_eff->handle);
+					manager->StopEffect(p_eff->handle);
 				}
 			}
 		}

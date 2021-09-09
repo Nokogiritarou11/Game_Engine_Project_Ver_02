@@ -644,7 +644,7 @@ void DxSystem::Clear(DWORD color)
 	}
 	*/
 	device_context->ClearRenderTargetView(render_target_view.Get(), clearColor);
-	device_context->ClearDepthStencilView(depth_stencil_view.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	device_context->ClearDepthStencilView(depth_stencil_view.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 0.0f, 0);
 	device_context->OMSetDepthStencilState(depth_stencil_state[static_cast<int>(DS_State::LEqual)].Get(), 1);
 }
 

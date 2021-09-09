@@ -108,6 +108,8 @@
     <ClCompile Include="Script\Source\Player_State_Manager.cpp" />
     <ClCompile Include="Script\Source\Player_Camera_Controller.cpp" />
     <ClCompile Include="Code\Source_File\Include_ImGui.cpp" />
+    <ClCompile Include="Script\Source\Character_Attack.cpp" />
+    <ClCompile Include="Script\Source\Disactive_Object.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -310,6 +312,8 @@
     <ClInclude Include="Script\Header\Player_Move.h" />
     <ClInclude Include="Script\Header\Player_Camera_Controller.h" />
     <ClInclude Include="Script\Header\Character_Mover.h" />
+    <ClInclude Include="Script\Header\Character_Attack.h" />
+    <ClInclude Include="Script\Header\Disactive_Object.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

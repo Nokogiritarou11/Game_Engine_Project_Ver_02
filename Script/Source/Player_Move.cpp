@@ -89,7 +89,7 @@ bool Player_Move::Draw_ImGui()
 
 	if (open)
 	{
-		float window_center = ImGui::GetWindowContentRegionWidth() * 0.6f;
+		float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
 
 		ImGui::LeftText_DragFloat("Run_Speed", "##Run_Speed", &run_speed, window_center);
 		ImGui::LeftText_DragFloat("Turn_Speed", "##Turn_Speed", &turn_speed, window_center);

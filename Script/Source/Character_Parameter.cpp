@@ -15,7 +15,7 @@ bool Character_Parameter::Draw_ImGui()
 
 	if (open)
 	{
-		float window_center = ImGui::GetWindowContentRegionWidth() * 0.6f;
+		float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
 
 		ImGui::LeftText_DragFloat("Max_HP", "##Max_HP", &Max_HP, window_center, -FLT_MIN, 1.0f);
 

@@ -191,7 +191,7 @@ bool Particle::Draw_ImGui()
 		ImGui::Text(file_name.c_str());
 		float window_width = ImGui::GetWindowContentRegionWidth();
 
-		ImGui::SameLine(window_width - 20.0f);
+		ImGui::SameLine(window_width - 25.0f);
 		if (ImGui::Button(u8"‘I‘ð"))
 		{
 			string path = System_Function::Get_Open_File_Name("", "\\Resouces\\Effect");

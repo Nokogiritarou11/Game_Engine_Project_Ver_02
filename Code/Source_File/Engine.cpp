@@ -98,7 +98,6 @@ Engine::Engine()
 	}
 
 #else
-	view_game = make_unique<View_Game>();
 	string load_path;
 	ifstream iIfstream("Default_Resource\\System\\last_save.bin");
 	if (iIfstream.is_open())
@@ -150,15 +149,13 @@ void Engine::Update()
 	audio_manager->Update();
 	scene_manager->Update();
 	bulletphysics_manager->Update();
+	particle_manager->Update();
 
 #if _DEBUG
 	editor->Update();
-	particle_manager->Update();
 	render_manager->Render();
 	editor->Render();
 #else
-	view_game->Set_Screen_Size(DxSystem::Get_Screen_Width(), DxSystem::Get_Screen_Height());
-	particle_manager->Update();
 	render_manager->Render();
 #endif
 

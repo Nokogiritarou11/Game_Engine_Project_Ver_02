@@ -43,6 +43,7 @@ namespace BeastEngine
 		std::weak_ptr<BeastEngine::GameObject> active_object;
 		std::weak_ptr<BeastEngine::GameObject> active_object_old;
 		std::weak_ptr<BeastEngine::GameObject> draging_object;
+		bool select_object;
 
 		std::weak_ptr<BeastEngine::Animator_Controller> controller;
 
@@ -61,7 +62,7 @@ namespace BeastEngine
 		void MenuBar_Render();
 		void Scene_File_Menu_Render();
 		void Scene_Setting_Menu_Render();
-		void GameObject_Tree_Render(const std::shared_ptr<BeastEngine::GameObject>& obj, int flag, bool& Item_Clicked);
+		void GameObject_Tree_Render(const std::shared_ptr<BeastEngine::GameObject>& obj, int flag);
 		void GameObject_DragMenu_Render(const std::shared_ptr<BeastEngine::GameObject>& obj);
 
 		void ShortCut_Check();
