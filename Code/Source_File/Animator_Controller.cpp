@@ -13,6 +13,7 @@
 #include <functional>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 using namespace std;
 using namespace BeastEngine;
 
@@ -372,8 +373,9 @@ void Animator_Controller::Render_ImGui()
 					}
 					break;
 				case Parameter_Type::Trigger:
-					if (ImGui::Checkbox("##trigger", &parameter.second.value_bool))
+					if (ImGui::RadioButton("##trigger", parameter.second.value_bool))
 					{
+						parameter.second.value_bool = !parameter.second.value_bool;
 						if (Auto_Save) Save_As();
 					}
 					break;
@@ -617,30 +619,30 @@ void Animator_Controller::Render_ImGui()
 							ImGui::Text(u8" セット値");
 							ImGui::SameLine();
 							ImGui::SetNextItemWidth(window_width * 0.1f);
-							int current_type = static_cast<int>(eve.parameter.type);
-							switch (current_type)
+							switch (eve.parameter.type)
 							{
-								case 0:
+								case Parameter_Type::Int:
 									if (ImGui::InputInt("##animation_event_value", &eve.parameter.value_int))
 									{
 										if (Auto_Save) Save_As();
 									}
 									break;
-								case 1:
+								case Parameter_Type::Float:
 									if (ImGui::InputFloat("##animation_event_value", &eve.parameter.value_float))
 									{
 										if (Auto_Save) Save_As();
 									}
 									break;
-								case 2:
+								case Parameter_Type::Bool:
 									if (ImGui::Checkbox("##animation_event_value", &eve.parameter.value_bool))
 									{
 										if (Auto_Save) Save_As();
 									}
 									break;
-								case 3:
-									if (ImGui::Checkbox("##animation_event_value", &eve.parameter.value_bool))
+								case Parameter_Type::Trigger:
+									if (ImGui::RadioButton("##animation_event_value", eve.parameter.value_bool))
 									{
+										eve.parameter.value_bool = !eve.parameter.value_bool;
 										if (Auto_Save) Save_As();
 									}
 									break;
@@ -730,31 +732,31 @@ void Animator_Controller::Render_ImGui()
 							ImGui::Text(u8" セット値");
 							ImGui::SameLine();
 							ImGui::SetNextItemWidth(window_width * 0.1f);
-							int current_type = static_cast<int>(eve.parameter.type);
 
-							switch (current_type)
+							switch (eve.parameter.type)
 							{
-								case 0:
+								case Parameter_Type::Int:
 									if (ImGui::InputInt("##state_event_value", &eve.parameter.value_int))
 									{
 										if (Auto_Save) Save_As();
 									}
 									break;
-								case 1:
+								case Parameter_Type::Float:
 									if (ImGui::InputFloat("##state_event_value", &eve.parameter.value_float))
 									{
 										if (Auto_Save) Save_As();
 									}
 									break;
-								case 2:
+								case Parameter_Type::Bool:
 									if (ImGui::Checkbox("##state_event_value", &eve.parameter.value_bool))
 									{
 										if (Auto_Save) Save_As();
 									}
 									break;
-								case 3:
-									if (ImGui::Checkbox("##state_event_value", &eve.parameter.value_bool))
+								case Parameter_Type::Trigger:
+									if (ImGui::RadioButton("##state_event_value", eve.parameter.value_bool))
 									{
+										eve.parameter.value_bool = !eve.parameter.value_bool;
 										if (Auto_Save) Save_As();
 									}
 									break;
@@ -914,6 +916,49 @@ void Animator_Controller::Render_ImGui()
 							ImGui::SameLine();
 							if (ImGui::Button(u8"キャンセル", ImVec2(150, 0))) { ImGui::CloseCurrentPopup(); }
 							ImGui::EndPopup();
+						}
+
+						if (state_machines.size() >= 2)
+						{
+							ImGui::SameLine();
+							if (ImGui::Button(u8"優先順位変更##遷移"))
+							{
+								ImGui::OpenPopup(u8"優先順位変更メニュー");
+							}
+							if (ImGui::BeginPopup(u8"優先順位変更メニュー"))
+							{
+								static int swap_state_index = 0;
+
+								if (ImGui::BeginCombo("##Swap_Select", current_state->transitions[swap_state_index]->next_state.lock()->name.data()))
+								{
+									const size_t state_size = current_state->transitions.size();
+									for (size_t i = 0; i < state_size; ++i)
+									{
+										if (i != current_transition_index)
+										{
+											ImGui::PushID(i);
+											const bool is_selected = (swap_state_index == i);
+											if (ImGui::Selectable(current_state->transitions[i]->next_state.lock()->name.data(), is_selected))
+											{
+												swap_state_index = i;
+											}
+											if (is_selected) ImGui::SetItemDefaultFocus();
+
+											ImGui::PopID();
+										}
+									}
+									ImGui::EndCombo();
+								}
+								if (ImGui::Button(u8"交換") && current_transition_index != swap_state_index)
+								{
+									iter_swap(current_state->transitions.begin() + current_transition_index, current_state->transitions.begin() + swap_state_index);
+									current_transition_index = swap_state_index;
+									swap_state_index = 0;
+									if (Auto_Save) Save_As();
+									ImGui::CloseCurrentPopup();
+								}
+								ImGui::EndPopup();
+							}
 						}
 					}
 

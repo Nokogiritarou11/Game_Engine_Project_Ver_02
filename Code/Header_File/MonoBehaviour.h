@@ -23,6 +23,7 @@
 #include "Box_Collider.h"
 #include "Sphere_Collider.h"
 #include "Capsule_Collider.h"
+#include "Cylinder_Collider.h"
 
 namespace BeastEngine
 {

@@ -65,7 +65,7 @@ void BulletPhysics_Manager::Update()
 
 	if (Engine::scene_manager->run)
 	{
-		world->stepSimulation(Time::delta_time, 2, Time::delta_time / 2);
+		world->stepSimulation(Time::delta_time, 2, Time::delta_time * 0.5f);
 
 		int num = dispatcher->getNumManifolds();
 		for (int i = 0; i < num; ++i)

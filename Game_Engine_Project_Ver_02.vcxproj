@@ -223,6 +223,7 @@
     <ClCompile Include="Code\Source_File\Component.cpp" />
     <ClCompile Include="Code\Source_File\Compute_Shader.cpp" />
     <ClCompile Include="Code\Source_File\Cursor.cpp" />
+    <ClCompile Include="Code\Source_File\Cylinder_Collider.cpp" />
     <ClCompile Include="Code\Source_File\Debug.cpp" />
     <ClCompile Include="Code\Source_File\Debug_Draw_Manager.cpp" />
     <ClCompile Include="Code\Source_File\Editor.cpp" />
@@ -332,6 +333,7 @@
     <ClInclude Include="Code\Header_File\Component.h" />
     <ClInclude Include="Code\Header_File\Compute_Shader.h" />
     <ClInclude Include="Code\Header_File\Cursor.h" />
+    <ClInclude Include="Code\Header_File\Cylinder_Collider.h" />
     <ClInclude Include="Code\Header_File\Debug.h" />
     <ClInclude Include="Code\Header_File\Debug_Draw_Manager.h" />
     <ClInclude Include="Code\Header_File\Editor.h" />

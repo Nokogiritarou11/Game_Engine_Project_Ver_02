@@ -65,21 +65,24 @@ bool Animator_State_Transition::Check_Transition()
 				break;
 
 				case Condition_Mode::Equals:
-					break;
+				{
+					if (condition->type == Parameter_Type::Int)
 					{
-						if (condition->type == Parameter_Type::Int)
-						{
-							if (it->second.value_int != (int)condition->threshold) { exit = false; }
-						}
+						if (it->second.value_int != (int)condition->threshold) { exit = false; }
 					}
+				}
+				break;
 
 				case Condition_Mode::NotEquals:
+				{
 					if (condition->type == Parameter_Type::Int)
 					{
 						if (it->second.value_int == (int)condition->threshold) { exit = false; }
 					}
-					break;
+				}
+				break;
 			}
+
 			if (!exit) break;
 		}
 	}
