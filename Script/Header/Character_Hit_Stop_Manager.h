@@ -4,11 +4,11 @@
 namespace BeastEngine
 {
 	class Character_Parameter;
-	class Character_Mover;
 
-	class Player_State_Manager : public MonoBehaviour
+	class Character_Hit_Stop_Manager : public MonoBehaviour
 	{
 	public:
+		void Start_Hit_Stop(std::vector<std::weak_ptr<Particle>>& particles);
 
 	private:
 		void Awake() override;
@@ -16,10 +16,11 @@ namespace BeastEngine
 		bool Draw_ImGui() override;
 
 		std::weak_ptr<Character_Parameter> parameter;
-		std::weak_ptr<Character_Mover> player_move;
 		std::weak_ptr<Animator> animator;
 
-		int player_state;
+		bool is_stop;
+		float stop_timer = 0;
+		std::vector<std::weak_ptr<Particle>> stop_particles;
 
 		// シリアライズ関数
 		friend class cereal::access;
@@ -31,7 +32,7 @@ namespace BeastEngine
 	};
 }
 
-REGISTER_COMPONENT(Player_State_Manager)
-CEREAL_REGISTER_TYPE(BeastEngine::Player_State_Manager)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::MonoBehaviour, BeastEngine::Player_State_Manager)
-CEREAL_CLASS_VERSION(BeastEngine::Player_State_Manager, 1)
+REGISTER_COMPONENT(Character_Hit_Stop_Manager)
+CEREAL_REGISTER_TYPE(BeastEngine::Character_Hit_Stop_Manager)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::MonoBehaviour, BeastEngine::Character_Hit_Stop_Manager)
+CEREAL_CLASS_VERSION(BeastEngine::Character_Hit_Stop_Manager, 1)

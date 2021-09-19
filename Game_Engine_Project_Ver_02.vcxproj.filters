@@ -105,12 +105,19 @@
     <ClCompile Include="Code\Source_File\Gaussian_Filter.cpp" />
     <ClCompile Include="Script\Source\Character_Parameter.cpp" />
     <ClCompile Include="Script\Source\Player_Move.cpp" />
-    <ClCompile Include="Script\Source\Player_State_Manager.cpp" />
+    <ClCompile Include="Script\Source\Character_Condition_Manager.cpp" />
     <ClCompile Include="Script\Source\Player_Camera_Controller.cpp" />
     <ClCompile Include="Code\Source_File\Include_ImGui.cpp" />
-    <ClCompile Include="Script\Source\Character_Attack.cpp" />
+    <ClCompile Include="Script\Source\Character_Particles.cpp" />
     <ClCompile Include="Script\Source\Disactive_Object.cpp" />
     <ClCompile Include="Code\Source_File\Cylinder_Collider.cpp" />
+    <ClCompile Include="Script\Source\Character_Ground_Checker.cpp" />
+    <ClCompile Include="Code\Source_File\Physics.cpp" />
+    <ClCompile Include="Script\Source\Player_Input.cpp" />
+    <ClCompile Include="Script\Source\Enemy_Damageable_Normal.cpp" />
+    <ClCompile Include="Script\Source\Damage_Collision.cpp" />
+    <ClCompile Include="Script\Source\Disactive_Particle.cpp" />
+    <ClCompile Include="Script\Source\Character_Hit_Stop_Manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -309,13 +316,22 @@
     <ClInclude Include="Code\Header_File\Compute_Shader.h" />
     <ClInclude Include="Code\Header_File\Gaussian_Filter.h" />
     <ClInclude Include="Script\Header\Character_Parameter.h" />
-    <ClInclude Include="Script\Header\Player_State_Manager.h" />
+    <ClInclude Include="Script\Header\Character_Condition_Manager.h" />
     <ClInclude Include="Script\Header\Player_Move.h" />
     <ClInclude Include="Script\Header\Player_Camera_Controller.h" />
-    <ClInclude Include="Script\Header\Character_Mover.h" />
-    <ClInclude Include="Script\Header\Character_Attack.h" />
+    <ClInclude Include="Script\Header\Interface_Character_Mover.h" />
+    <ClInclude Include="Script\Header\Character_Particles.h" />
     <ClInclude Include="Script\Header\Disactive_Object.h" />
     <ClInclude Include="Code\Header_File\Cylinder_Collider.h" />
+    <ClInclude Include="Script\Header\Character_Ground_Checker.h" />
+    <ClInclude Include="Code\Header_File\Physics.h" />
+    <ClInclude Include="Script\Header\Interface_Character_State_Setter.h" />
+    <ClInclude Include="Script\Header\Player_Input.h" />
+    <ClInclude Include="Script\Header\Interface_Character_Damageable.h" />
+    <ClInclude Include="Script\Header\Enemy_Damageable_Normal.h" />
+    <ClInclude Include="Script\Header\Damage_Collision.h" />
+    <ClInclude Include="Script\Header\Disactive_Particle.h" />
+    <ClInclude Include="Script\Header\Character_Hit_Stop_Manager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

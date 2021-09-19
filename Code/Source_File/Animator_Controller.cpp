@@ -36,16 +36,17 @@ void Animator_Controller::Initialize()
 
 bool Animator_Controller::Add_State_Machine(string& name)
 {
-	bool already = false;
 	for (auto& state : state_machines)
 	{
-		if (state->name == name) { already = true; return false; }
+		if (state->name == name) return false;
 	}
 
 	shared_ptr<Animator_State_Machine> state_machine = make_shared<Animator_State_Machine>();
 	state_machine->name = name;
 	state_machine->Initialize(parameters);
 	state_machines.emplace_back(state_machine);
+
+	sort(state_machines.begin(), state_machines.end(), [](const shared_ptr<Animator_State_Machine>& a, const shared_ptr<Animator_State_Machine>& b) { return a->name < b->name; });
 
 	return true;
 }
@@ -405,7 +406,6 @@ void Animator_Controller::Render_ImGui()
 		ImGui::BeginChild("States", ImVec2(0, 0), true);
 
 		const float input_padding = ImGui::GetWindowContentRegionWidth() * 0.4f;
-		const float input_size = ImGui::GetWindowContentRegionWidth() - input_padding;
 
 		shared_ptr<Animator_State_Machine> current_state;
 		bool has_state = !state_machines.empty();
@@ -448,11 +448,17 @@ void Animator_Controller::Render_ImGui()
 			ImGui::InputText(u8"新規ステート名", &state_name, ImGuiInputTextFlags_EnterReturnsTrue);
 			if (ImGui::Button(u8"登録") && !state_name.empty())
 			{
-				Add_State_Machine(state_name);
-				state_name.clear();
-				current_state_index = static_cast<int>(state_machines.size()) - 1;
-				current_state = state_machines[current_state_index];
-				if (Auto_Save) Save_As();
+				if (Add_State_Machine(state_name))
+				{
+					const int size = static_cast<int>(state_machines.size());
+					for (int i = 0; i < size; ++i)
+					{
+						if (state_machines[i]->name == state_name) { current_state_index = i; break; }
+					}
+					current_state = state_machines[current_state_index];
+					state_name.clear();
+					if (Auto_Save) Save_As();
+				}
 				ImGui::CloseCurrentPopup();
 			}
 			ImGui::EndPopup();
@@ -525,7 +531,7 @@ void Animator_Controller::Render_ImGui()
 
 				ImGui::Text(u8"再生速度");
 				ImGui::SameLine(input_padding);
-				ImGui::SetNextItemWidth(input_size);
+				ImGui::SetNextItemWidth(-FLT_MIN);
 				if (ImGui::InputFloat("##Speed", &current_state->animation_speed))
 				{
 					if (Auto_Save) Save_As();
@@ -534,16 +540,42 @@ void Animator_Controller::Render_ImGui()
 				ImGui::Indent();
 				ImGui::Text(u8"乗数");
 				ImGui::SameLine(input_padding);
-				ImGui::SetNextItemWidth(input_size);
-				if (ImGui::InputText("##Multiply", &current_state->multiplier_hash))
+
+				if (ImGui::Checkbox("##Use_Multiply", &current_state->use_speed_multiplier))
 				{
 					if (Auto_Save) Save_As();
+				}
+				if (current_state->use_speed_multiplier)
+				{
+					ImGui::SameLine();
+					ImGui::SetNextItemWidth(-FLT_MIN);
+					if (ImGui::BeginCombo("##Multiply_Select", current_state->multiplier_hash.data()))
+					{
+						for (auto& parameter : (*parameters))
+						{
+							if (parameter.second.type == Parameter_Type::Float)
+							{
+								const bool is_selected = (parameter.first == current_state->multiplier_hash);
+								if (ImGui::Selectable(parameter.first.data(), is_selected))
+								{
+									current_state->multiplier_hash = parameter.first;
+									if (Auto_Save) Save_As();
+								}
+
+								if (is_selected)
+								{
+									ImGui::SetItemDefaultFocus();
+								}
+							}
+						}
+						ImGui::EndCombo();
+					}
 				}
 				ImGui::Unindent();
 
 				ImGui::Text(u8"開始フレーム");
 				ImGui::SameLine(input_padding);
-				ImGui::SetNextItemWidth(input_size);
+				ImGui::SetNextItemWidth(-FLT_MIN);
 				if (ImGui::DragInt("##Start_Frame", &current_state->start_frame, 1, 0, 0, "%d", ImGuiSliderFlags_AlwaysClamp))
 				{
 					if (Auto_Save) Save_As();
@@ -551,7 +583,7 @@ void Animator_Controller::Render_ImGui()
 
 				ImGui::Text(u8"終了フレーム");
 				ImGui::SameLine(input_padding);
-				ImGui::SetNextItemWidth(input_size);
+				ImGui::SetNextItemWidth(-FLT_MIN);
 				if (ImGui::DragInt("##End_Frame", &current_state->end_frame, 1, 0, 0, "%d", ImGuiSliderFlags_AlwaysClamp))
 				{
 					if (Auto_Save) Save_As();
@@ -585,7 +617,8 @@ void Animator_Controller::Render_ImGui()
 						for (size_t i = 0; i < current_state->animation_events.size(); ++i)
 						{
 							Animation_Event& eve = current_state->animation_events[i];
-							ImGui::PushID(i);
+							string p_id = "animation_event" + to_string(i);
+							ImGui::PushID(p_id.c_str());
 
 							ImGui::Text(u8"フレーム");
 							ImGui::SameLine();
@@ -696,7 +729,9 @@ void Animator_Controller::Render_ImGui()
 						for (size_t i = 0; i < current_state->state_events.size(); ++i)
 						{
 							State_Event& eve = current_state->state_events[i];
-							ImGui::PushID(i);
+
+							string p_id = "state_event" + to_string(i);
+							ImGui::PushID(p_id.c_str());
 
 							ImGui::Text(u8"実行条件");
 							ImGui::SameLine();
@@ -936,7 +971,8 @@ void Animator_Controller::Render_ImGui()
 									{
 										if (i != current_transition_index)
 										{
-											ImGui::PushID(i);
+											string p_id = "select" + to_string(i);
+											ImGui::PushID(p_id.c_str());
 											const bool is_selected = (swap_state_index == i);
 											if (ImGui::Selectable(current_state->transitions[i]->next_state.lock()->name.data(), is_selected))
 											{
@@ -976,7 +1012,7 @@ void Animator_Controller::Render_ImGui()
 							ImGui::Indent();
 							ImGui::Text(u8"判定時間");
 							ImGui::SameLine(input_padding);
-							ImGui::SetNextItemWidth(input_size);
+							ImGui::SetNextItemWidth(-FLT_MIN);
 							if (ImGui::InputFloat("##exit_time", &current_transition->exit_time))
 							{
 								if (Auto_Save) Save_As();
@@ -986,7 +1022,7 @@ void Animator_Controller::Render_ImGui()
 
 						ImGui::Text(u8"遷移間隔(秒)");
 						ImGui::SameLine(input_padding);
-						ImGui::SetNextItemWidth(input_size);
+						ImGui::SetNextItemWidth(-FLT_MIN);
 						if (ImGui::InputFloat("##Duration", &current_transition->transition_duration))
 						{
 							if (Auto_Save) Save_As();
@@ -994,7 +1030,7 @@ void Animator_Controller::Render_ImGui()
 
 						ImGui::Text(u8"遷移オフセット");
 						ImGui::SameLine(input_padding);
-						ImGui::SetNextItemWidth(input_size);
+						ImGui::SetNextItemWidth(-FLT_MIN);
 						if (ImGui::InputFloat("##offset", &current_transition->transition_offset))
 						{
 							if (Auto_Save) Save_As();
@@ -1002,7 +1038,7 @@ void Animator_Controller::Render_ImGui()
 
 						ImGui::Text(u8"中断要因");
 						ImGui::SameLine(input_padding);
-						ImGui::SetNextItemWidth(input_size);
+						ImGui::SetNextItemWidth(-FLT_MIN);
 						const char* sources[3] = { "None", "Current_State", "Next_State" };
 						int current_sources = static_cast<int>(current_transition->interruption_source);
 						ImGui::Combo("##interruption_source", &current_sources, sources, IM_ARRAYSIZE(sources));

@@ -1,8 +1,9 @@
 #pragma once
+#include "MonoBehaviour.h"
 
 namespace BeastEngine
 {
-	class Character_Mover
+	class Interface_Character_Mover
 	{
 	public:
 		float move_speed = 0;
@@ -15,16 +16,18 @@ namespace BeastEngine
 		virtual void Move_Damage() = 0;
 		virtual void Move_Guard() = 0;
 
+		virtual void Ground_Update() = 0;
+
 	private:
 		// シリアライズ関数
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(run_speed, turn_speed);
+				archive(run_speed, turn_speed);
 		}
 	};
 }
 
-CEREAL_REGISTER_TYPE(BeastEngine::Character_Mover)
-CEREAL_CLASS_VERSION(BeastEngine::Character_Mover, 1)
+CEREAL_REGISTER_TYPE(BeastEngine::Interface_Character_Mover)
+CEREAL_CLASS_VERSION(BeastEngine::Interface_Character_Mover, 1)

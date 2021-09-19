@@ -3,7 +3,7 @@
 
 namespace BeastEngine
 {
-	class Character_Attack : public MonoBehaviour
+	class Character_Particles : public MonoBehaviour
 	{
 	public:
 
@@ -26,7 +26,7 @@ namespace BeastEngine
 	};
 }
 
-REGISTER_COMPONENT(Character_Attack)
-CEREAL_REGISTER_TYPE(BeastEngine::Character_Attack)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::MonoBehaviour, BeastEngine::Character_Attack)
-CEREAL_CLASS_VERSION(BeastEngine::Character_Attack, 1)
+REGISTER_COMPONENT(Character_Particles)
+CEREAL_REGISTER_TYPE(BeastEngine::Character_Particles)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::MonoBehaviour, BeastEngine::Character_Particles)
+CEREAL_CLASS_VERSION(BeastEngine::Character_Particles, 1)

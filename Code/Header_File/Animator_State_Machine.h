@@ -17,6 +17,7 @@ namespace BeastEngine
 		bool transition_trigger = false;
 
 		float animation_speed = 1;   //çƒê∂ë¨ìx
+		bool use_speed_multiplier = false;
 		std::string multiplier_hash;
 		int start_frame = 0;
 		int end_frame = -1;
@@ -47,7 +48,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(name, path, animation_speed, multiplier_hash, start_frame, end_frame, loopAnimation, is_default_state, transitions, animation_events, state_events);
+			archive(name, path, animation_speed, use_speed_multiplier, multiplier_hash, start_frame, end_frame, loopAnimation, is_default_state, transitions, animation_events, state_events);
 		}
 	};
 }

@@ -11,7 +11,7 @@ namespace BeastEngine
 
 	private:
 		void Awake() override;
-		void Update() override;
+		void LateUpdate() override;
 		bool Draw_ImGui() override;
 
 		float angle_limit_up;

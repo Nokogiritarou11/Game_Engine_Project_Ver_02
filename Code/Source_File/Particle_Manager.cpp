@@ -111,6 +111,10 @@ void Particle_Manager::Update()
 					manager->SetBaseMatrix(p_eff->handle, mat);
 					manager->SetSpeed(p_eff->handle, p_eff->play_speed);
 				}
+				else
+				{
+					p_eff->is_playing = false;
+				}
 			}
 			else
 			{
@@ -118,6 +122,7 @@ void Particle_Manager::Update()
 				{
 					// Ä¶‚ð’âŽ~‚·‚é
 					manager->StopEffect(p_eff->handle);
+					p_eff->is_playing = false;
 				}
 			}
 		}

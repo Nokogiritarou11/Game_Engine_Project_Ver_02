@@ -17,6 +17,7 @@ namespace BeastEngine
 		~Particle();
 
 		void Set_Particle(const char* filepath, const char* filename);
+		bool Get_Is_Playing() { return is_playing; }
 
 		void Play();  //Ä¶(ˆê’â~’†‚Ìê‡‚ÍÄŠJ)
 		void Pause(); //ˆê’â~
@@ -32,6 +33,7 @@ namespace BeastEngine
 		bool Can_Multiple() override { return false; };
 
 		bool is_called = false;
+		bool is_playing = false;
 
 		Effekseer::EffectRef effect = nullptr;
 		Effekseer::Handle handle = -1;

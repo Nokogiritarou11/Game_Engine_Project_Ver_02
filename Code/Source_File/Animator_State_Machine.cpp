@@ -230,7 +230,7 @@ void Animator_State_Machine::Update_Time()
 
 	float multiplier = 1;
 	// ŠÔŒo‰ß
-	if (!multiplier_hash.empty())
+	if (use_speed_multiplier && !multiplier_hash.empty())
 	{
 		auto it = parameters->find(multiplier_hash);
 		if (it != parameters->end())

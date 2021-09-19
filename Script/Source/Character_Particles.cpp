@@ -1,16 +1,16 @@
-#include "Character_Attack.h"
+#include "Character_Particles.h"
 #include "Engine.h"
 #include "Editor.h"
 
 using namespace std;
 using namespace BeastEngine;
 
-void Character_Attack::Awake()
+void Character_Particles::Awake()
 {
 	animator = Get_Component<Animator>();
 }
 
-void Character_Attack::Update()
+void Character_Particles::Update()
 {
 	auto& anim = animator.lock();
 
@@ -29,10 +29,10 @@ void Character_Attack::Update()
 	}
 }
 
-bool Character_Attack::Draw_ImGui()
+bool Character_Particles::Draw_ImGui()
 {
 	bool open = false;
-	if (!Draw_ImGui_Header("Character_Attack", open)) return false;
+	if (!Draw_ImGui_Header("Character_Particles", open)) return false;
 
 	if (open)
 	{

@@ -673,28 +673,10 @@ void Editor::SceneView_Render()
 		static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::OPERATION::TRANSLATE);
 		static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::MODE::LOCAL);
 
-		if (ImGui::IsWindowHovered())
-		{
-			if (ImGui::IsMouseDown(1))
-			{
-				ImGui::SetWindowFocus();
-			}
-			else
-			{
-				ImGuiIO& io = ImGui::GetIO();
-				float mouse_wheel = io.MouseWheel;
-				if (mouse_wheel != 0.0f)
-				{
-					Vector3 move = debug_camera_transform->Get_Forward() * mouse_wheel * 5;
-					debug_camera_transform->Set_Position(debug_camera_transform->Get_Position() + move);
-				}
-			}
-		}
+		Debug_Camera_Update();
 
 		if (ImGui::IsWindowFocused())
 		{
-			Debug_Camera_Update();
-
 			if (!ImGui::IsMouseDown(1))
 			{
 				if (ImGui::IsKeyPressed(87)) //w
@@ -1429,61 +1411,82 @@ void Editor::ShortCut_Check()
 //シーンビューのカメラ操作
 void Editor::Debug_Camera_Update()
 {
-	ImGuiIO& io = ImGui::GetIO();
-	//入力
+	if (ImGui::IsWindowHovered())
 	{
-		static ImVec2 mouse_old_pos = { 0,0 };
-		static ImVec2 mouse_pos = { 0,0 };
-		Vector3 move = { 0,0,0 };
 		if (ImGui::IsMouseDown(1))
 		{
-			mouse_pos = ImGui::GetMousePos();
-			if (mouse_old_pos.x == -1 && mouse_old_pos.y == -1)
-			{
-				mouse_old_pos = mouse_pos;
-			}
-			if (mouse_pos.x != mouse_old_pos.x || mouse_pos.y != mouse_old_pos.y)
-			{
-				const float dis_x = (mouse_pos.x - mouse_old_pos.x) * 0.15f;
-				const float dis_y = (mouse_pos.y - mouse_old_pos.y) * 0.15f;
-
-				Vector3 rot = debug_camera_transform->Get_Euler_Angles();
-				rot.y -= dis_x;
-				rot.x += dis_y;
-				rot.z = 0;
-				debug_camera_transform->Set_Euler_Angles(rot);
-
-				mouse_old_pos = mouse_pos;
-			}
-
-			static float speed = 5;
-			float mouse_wheel = io.MouseWheel;
-			if (mouse_wheel != 0.0f)
-			{
-				speed += mouse_wheel * 2;
-				speed = Mathf::Clamp(speed, 1, 10);
-			}
-			if (ImGui::IsKeyDown(87))
-			{
-				move += debug_camera_transform->Get_Forward() * Time::delta_time * speed;
-			}
-			if (ImGui::IsKeyDown(83))
-			{
-				move -= debug_camera_transform->Get_Forward() * Time::delta_time * speed;
-			}
-			if (ImGui::IsKeyDown(65))
-			{
-				move += debug_camera_transform->Get_Right() * Time::delta_time * speed;
-			}
-			if (ImGui::IsKeyDown(68))
-			{
-				move -= debug_camera_transform->Get_Right() * Time::delta_time * speed;
-			}
-			debug_camera_transform->Set_Local_Position(debug_camera_transform->Get_Position() + move);
+			ImGui::SetWindowFocus();
 		}
 		else
 		{
-			mouse_old_pos = { -1,-1 };
+			ImGuiIO& io = ImGui::GetIO();
+			float mouse_wheel = io.MouseWheel;
+			if (mouse_wheel != 0.0f)
+			{
+				Vector3 move = debug_camera_transform->Get_Forward() * mouse_wheel * 5;
+				debug_camera_transform->Set_Position(debug_camera_transform->Get_Position() + move);
+			}
+		}
+	}
+
+	if (ImGui::IsWindowFocused())
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		//入力
+		{
+			static ImVec2 mouse_old_pos = { 0,0 };
+			static ImVec2 mouse_pos = { 0,0 };
+			if (ImGui::IsMouseDown(1))
+			{
+				mouse_pos = ImGui::GetMousePos();
+				if (mouse_old_pos.x == -1 && mouse_old_pos.y == -1)
+				{
+					mouse_old_pos = mouse_pos;
+				}
+				if (mouse_pos.x != mouse_old_pos.x || mouse_pos.y != mouse_old_pos.y)
+				{
+					const float dis_x = (mouse_pos.x - mouse_old_pos.x) * 0.15f;
+					const float dis_y = (mouse_pos.y - mouse_old_pos.y) * 0.15f;
+
+					Vector3 rot = debug_camera_transform->Get_Euler_Angles();
+					rot.y -= dis_x;
+					rot.x += dis_y;
+					rot.z = 0;
+					debug_camera_transform->Set_Local_Euler_Angles(rot);
+
+					mouse_old_pos = mouse_pos;
+				}
+
+				Vector3 move = { 0,0,0 };
+				static float speed = 5;
+				float mouse_wheel = io.MouseWheel;
+				if (mouse_wheel != 0.0f)
+				{
+					speed += mouse_wheel * 2;
+					speed = Mathf::Clamp(speed, 1, 10);
+				}
+				if (ImGui::IsKeyDown(87))
+				{
+					move += debug_camera_transform->Get_Forward() * Time::delta_time * speed;
+				}
+				if (ImGui::IsKeyDown(83))
+				{
+					move -= debug_camera_transform->Get_Forward() * Time::delta_time * speed;
+				}
+				if (ImGui::IsKeyDown(65))
+				{
+					move += debug_camera_transform->Get_Right() * Time::delta_time * speed;
+				}
+				if (ImGui::IsKeyDown(68))
+				{
+					move -= debug_camera_transform->Get_Right() * Time::delta_time * speed;
+				}
+				debug_camera_transform->Set_Local_Position(debug_camera_transform->Get_Position() + move);
+			}
+			else
+			{
+				mouse_old_pos = { -1,-1 };
+			}
 		}
 	}
 }

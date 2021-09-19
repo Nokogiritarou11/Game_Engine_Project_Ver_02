@@ -120,12 +120,14 @@ void Particle::Play()
 			{
 				// マネージャーにエフェクトを渡すことでインスタンスが生成され、操作ハンドルが返される
 				handle = Engine::particle_manager->manager->Play(effect, Effekseer::Vector3D(0.0f, 0.0f, 0.0f));
+				is_playing = true;
 			}
 			else
 			{
 				if (Engine::particle_manager->manager->GetPaused(handle))
 				{
 					Engine::particle_manager->manager->SetPaused(handle, false);
+					is_playing = true;
 				}
 			}
 		}
@@ -143,6 +145,7 @@ void Particle::Pause()
 			{
 				// 再生を一時停止する
 				Engine::particle_manager->manager->SetPaused(handle, true);
+				is_playing = false;
 			}
 		}
 	}
@@ -159,6 +162,7 @@ void Particle::Stop()
 			{
 				// 再生を停止する
 				Engine::particle_manager->manager->StopEffect(handle);
+				is_playing = false;
 			}
 		}
 	}

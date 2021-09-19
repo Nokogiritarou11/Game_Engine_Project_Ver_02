@@ -36,13 +36,14 @@ namespace BeastEngine
 		void Set_Debug_Drawer();
 		void Render_Debug();
 
+		std::unique_ptr<btDiscreteDynamicsWorld> world;
+
 	private:
 		std::unique_ptr<btDefaultCollisionConfiguration> collision_config;
 		std::unique_ptr<btCollisionDispatcher> dispatcher;
 		std::unique_ptr<btBroadphaseInterface> broadphase;
 		std::unique_ptr<btSequentialImpulseConstraintSolver> solver;
 		std::unique_ptr<btGhostPairCallback> ghost_pair_call;
-		std::unique_ptr<btDiscreteDynamicsWorld> world;
 
 		std::unordered_map<const btCollisionObject*, std::weak_ptr<Collider>> collider_list;
 	};

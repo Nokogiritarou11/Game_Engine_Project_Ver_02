@@ -24,6 +24,7 @@
 #include "Sphere_Collider.h"
 #include "Capsule_Collider.h"
 #include "Cylinder_Collider.h"
+#include "Physics.h"
 
 namespace BeastEngine
 {

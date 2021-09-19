@@ -1,7 +1,16 @@
 #include "Player_Move.h"
+#include "Character_Parameter.h"
 
 using namespace std;
 using namespace BeastEngine;
+
+void Player_Move::Awake()
+{
+	camera_transform = GameObject::Find_With_Tag("main_camera").lock()->transform;
+	rigidbody = Get_Component<Capsule_Collider>()->rigidbody;
+	animator = Get_Component<Animator>();
+	parameter = Get_Component<Character_Parameter>();
+}
 
 void Player_Move::Move_Normal()
 {
@@ -50,11 +59,25 @@ void Player_Move::Move_Guard()
 
 }
 
-void Player_Move::Awake()
+void Player_Move::Ground_Update()
 {
-	camera_transform = GameObject::Find_With_Tag("main_camera").lock()->transform;
-	rigidbody = Get_Component<Capsule_Collider>()->rigidbody;
-	animator = Get_Component<Animator>();
+	auto& anim = animator.lock();
+	if (anim->Get_Bool("Add_Jump_Force"))
+	{
+		Jump();
+		anim->Set_Bool("Add_Jump_Force", false);
+	}
+
+	auto& param = parameter.lock();
+	if (!param->is_ground)
+	{
+		rigidbody.lock()->Add_Force(-transform->Get_Up() * down_power * Time::delta_time, Force_Mode::Force);
+	}
+}
+
+void Player_Move::Jump()
+{
+	rigidbody.lock()->Add_Force(transform->Get_Up() * jump_power, Force_Mode::Impulse);
 }
 
 void Player_Move::Check_Move_Direction()
@@ -67,7 +90,7 @@ void Player_Move::Check_Move_Direction()
 	camera_forward.Normalize();
 
 	// 方向キーの入力値とカメラの向きから、移動方向を決定
-	const Vector3 axis = Input::Get_Pad_Axis_Left();
+	const Vector2 axis = Input::Get_Pad_Axis_Left();
 	(camera_forward * axis.y - camera_trans->Get_Right() * axis.x).Normalize(move_forward);
 
 	auto& anim = animator.lock();
@@ -91,8 +114,10 @@ bool Player_Move::Draw_ImGui()
 	{
 		float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
 
-		ImGui::LeftText_DragFloat("Run_Speed", "##Run_Speed", &run_speed, window_center);
-		ImGui::LeftText_DragFloat("Turn_Speed", "##Turn_Speed", &turn_speed, window_center);
+		ImGui::LeftText_DragFloat(u8"移動速度", "##Run_Speed", &run_speed, window_center);
+		ImGui::LeftText_DragFloat(u8"回転速度", "##Turn_Speed", &turn_speed, window_center);
+		ImGui::LeftText_DragFloat(u8"ジャンプの強さ", "##Jump_Power", &jump_power, window_center);
+		ImGui::LeftText_DragFloat(u8"落下速度", "##Down_Power", &down_power, window_center);
 	}
 	return true;
 }
