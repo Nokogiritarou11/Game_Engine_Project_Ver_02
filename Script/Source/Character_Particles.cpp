@@ -24,7 +24,7 @@ void Character_Particles::Update()
 	number = anim->Get_Int("Collider_Number");
 	if (number >= 0)
 	{
-		particle_list[number].lock()->Set_Active(true);
+		collider_list[number].lock()->Set_Active(true);
 		anim->Set_Int("Collider_Number", -1);
 	}
 }

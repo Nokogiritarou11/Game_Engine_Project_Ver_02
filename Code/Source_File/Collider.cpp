@@ -55,12 +55,14 @@ void Collider::Set_Active(bool value)
 
 	if (disabled != disabled_old)
 	{
-		disabled = disabled_old;
+		disabled_old = disabled;
 		if (disabled)
 		{
-			if (is_trigger) ghost->ghost.reset();
-			else rigidbody->rigidbody.reset();
+			if (is_trigger) ghost->Remove();
+			else rigidbody->Remove();
 			shape.reset();
+			hit_list_old.clear();
+			hit_list.clear();
 		}
 		else
 		{
@@ -104,13 +106,11 @@ void Collider::Reset_Collider()
 	{
 		debug_drawed = ghost->Get_Debug_Drawed();
 		ghost->Remove();
-		ghost->ghost.reset();
 	}
 	else
 	{
 		debug_drawed = rigidbody->Get_Debug_Drawed();
 		rigidbody->Remove();
-		rigidbody->rigidbody.reset();
 	}
 }
 

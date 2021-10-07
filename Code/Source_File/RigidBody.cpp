@@ -74,7 +74,11 @@ void RigidBody::Resize()
 
 void RigidBody::Remove()
 {
-	Engine::bulletphysics_manager->Remove_RigidBody(rigidbody);
+	if (rigidbody)
+	{
+		Engine::bulletphysics_manager->Remove_RigidBody(rigidbody);
+		rigidbody.reset();
+	}
 }
 
 float RigidBody::Get_Mass() const
@@ -256,8 +260,11 @@ void RigidBody::Add_Force_AtPosition(Vector3 force, Vector3 position, Force_Mode
 
 void RigidBody::Set_Debug_Draw(bool value)
 {
-	if(value) rigidbody->setCollisionFlags(rigidbody->getCollisionFlags() & ~btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
-	else rigidbody->setCollisionFlags(rigidbody->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
+	if (rigidbody)
+	{
+		if (value) rigidbody->setCollisionFlags(rigidbody->getCollisionFlags() & ~btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
+		else rigidbody->setCollisionFlags(rigidbody->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
+	}
 }
 
 bool RigidBody::Get_Debug_Drawed()

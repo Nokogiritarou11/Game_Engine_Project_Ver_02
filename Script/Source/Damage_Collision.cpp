@@ -1,6 +1,7 @@
 #include "Damage_Collision.h"
 #include "Character_Parameter.h"
 #include "Character_Hit_Stop_Manager.h"
+#include "Object_Pool.h"
 #include "Engine.h"
 #include "Editor.h"
 
@@ -10,6 +11,8 @@ using namespace BeastEngine;
 void Damage_Collision::Awake()
 {
 	hit_stop_manager = root_transform.lock()->Get_Component<Character_Hit_Stop_Manager>();
+	pool = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Object_Pool>();
+	hit_transform = transform->Get_Child(0);
 }
 
 void Damage_Collision::OnTrigger_Enter(Collision& collision)
@@ -18,6 +21,10 @@ void Damage_Collision::OnTrigger_Enter(Collision& collision)
 	{
 		hit->Take_Damage(damage_hp, damage_stun, root_transform.lock()->Get_Position(), damage_type);
 		hit_stop_manager.lock()->Start_Hit_Stop(stop_particle);
+
+		Vector3 pos = collision.transform->Get_Position();
+		pos.y += 1;
+		pool.lock()->Instance_In_Pool(hit_particle_key, pos, hit_transform.lock()->Get_Rotation());
 	}
 }
 
@@ -72,7 +79,14 @@ bool Damage_Collision::Draw_ImGui()
 				string label = u8"未設定 (ここにドラッグ)";
 				if (auto& p = stop_particle[i].lock())
 				{
-					label = p->name;
+					if (p->gameobject)
+					{
+						label = p->gameobject->name;
+					}
+					else
+					{
+						stop_particle[i].reset();
+					}
 				}
 				ImGui::InputText("##Item", &label, ImGuiInputTextFlags_ReadOnly);
 
@@ -101,6 +115,8 @@ bool Damage_Collision::Draw_ImGui()
 		{
 			damage_type = static_cast<Damage_Type>(select);
 		}
+
+		ImGui::LeftText_InputText(u8"ヒットエフェクトキー", "##hit_particle_key", &hit_particle_key, window_center);
 	}
 	return true;
 }

@@ -308,6 +308,7 @@
     <ClCompile Include="Script\Source\Disactive_Object.cpp" />
     <ClCompile Include="Script\Source\Disactive_Particle.cpp" />
     <ClCompile Include="Script\Source\Enemy_Damageable_Normal.cpp" />
+    <ClCompile Include="Script\Source\Object_Pool.cpp" />
     <ClCompile Include="Script\Source\Player_Camera_Controller.cpp" />
     <ClCompile Include="Script\Source\Player_Input.cpp" />
     <ClCompile Include="Script\Source\Player_Move.cpp" />
@@ -831,6 +832,7 @@
     <ClInclude Include="Script\Header\Interface_Character_Mover.h" />
     <ClInclude Include="Script\Header\Interface_Character_State_Setter.h" />
     <ClInclude Include="Script\Header\Disactive_Object.h" />
+    <ClInclude Include="Script\Header\Object_Pool.h" />
     <ClInclude Include="Script\Header\Player_Camera_Controller.h" />
     <ClInclude Include="Script\Header\Character_Condition_Manager.h" />
     <ClInclude Include="Script\Header\Character_Parameter.h" />

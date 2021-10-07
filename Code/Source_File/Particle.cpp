@@ -145,7 +145,6 @@ void Particle::Pause()
 			{
 				// Ä¶‚ğˆê’â~‚·‚é
 				Engine::particle_manager->manager->SetPaused(handle, true);
-				is_playing = false;
 			}
 		}
 	}

@@ -6,6 +6,7 @@
 #include "imgui_internal.h"
 #include "IconsFontAwesome4.h"
 #include "Original_Math.h"
+#include <string>
 
 namespace ImGui
 {
@@ -22,4 +23,6 @@ namespace ImGui
 	bool LeftText_Combo(const char* text, const char* label, int* current_item, const char* const items[], int items_count, const float x_offset, const float width = -FLT_MIN);
 
 	bool LeftText_Checkbox(const char* text, const char* label, bool* value, const float x_offset);
+
+	bool LeftText_InputText(const char* text, const char* label, std::string* value, const float x_offset, const float width = -FLT_MIN);
 }

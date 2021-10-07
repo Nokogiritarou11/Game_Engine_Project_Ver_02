@@ -118,6 +118,7 @@
     <ClCompile Include="Script\Source\Damage_Collision.cpp" />
     <ClCompile Include="Script\Source\Disactive_Particle.cpp" />
     <ClCompile Include="Script\Source\Character_Hit_Stop_Manager.cpp" />
+    <ClCompile Include="Script\Source\Object_Pool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -332,6 +333,7 @@
     <ClInclude Include="Script\Header\Damage_Collision.h" />
     <ClInclude Include="Script\Header\Disactive_Particle.h" />
     <ClInclude Include="Script\Header\Character_Hit_Stop_Manager.h" />
+    <ClInclude Include="Script\Header\Object_Pool.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

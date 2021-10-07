@@ -1,5 +1,7 @@
 #include "Include_ImGui.h"
 
+using namespace std;
+
 namespace ImGui
 {
 	bool LeftText_DragInt(const char* text, const char* label, int* value, const float x_offset, const float width)
@@ -120,5 +122,14 @@ namespace ImGui
 		ImGui::Text(text);
 		ImGui::SameLine(x_offset);
 		return ImGui::Checkbox(label, value);
+	}
+
+	bool LeftText_InputText(const char* text, const char* label, string* value, const float x_offset, const float width)
+	{
+		ImGui::Text(text);
+		ImGui::SameLine(x_offset);
+		ImGui::SetNextItemWidth(width);
+
+		return ImGui::InputText(label, value);
 	}
 }

@@ -15,7 +15,7 @@ void Character_Hit_Stop_Manager::Update()
 	if (is_stop)
 	{
 		stop_timer += Time::delta_time;
-		if (stop_timer > 0.1f)
+		if (stop_timer > 0.05f)
 		{
 			for (auto& particle : stop_particles)
 			{

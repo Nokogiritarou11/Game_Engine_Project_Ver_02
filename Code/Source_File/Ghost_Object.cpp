@@ -44,7 +44,11 @@ void GhostObject::Resize()
 
 void GhostObject::Remove()
 {
-	Engine::bulletphysics_manager->Remove_Ghost(ghost);
+	if (ghost)
+	{
+		Engine::bulletphysics_manager->Remove_Ghost(ghost);
+		ghost.reset();
+	}
 }
 
 void GhostObject::Get_btTransform(btTransform& t)
@@ -59,8 +63,11 @@ void GhostObject::Set_btTransform(btTransform& t)
 
 void GhostObject::Set_Debug_Draw(bool value)
 {
-	if (value) ghost->setCollisionFlags(ghost->getCollisionFlags() & ~btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
-	else ghost->setCollisionFlags(ghost->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
+	if (ghost)
+	{
+		if (value) ghost->setCollisionFlags(ghost->getCollisionFlags() & ~btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
+		else ghost->setCollisionFlags(ghost->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
+	}
 }
 
 bool GhostObject::Get_Debug_Drawed()

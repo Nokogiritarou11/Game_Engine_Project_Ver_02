@@ -1143,6 +1143,7 @@ void Editor::Scene_Setting_Menu_Render()
 									layer_mask[i] &= ~(1 << j);
 									layer_mask[j] &= ~(1 << i);
 								}
+								Engine::scene_manager->Save_Settings();
 							}
 							ImGui::PopID();
 						}
