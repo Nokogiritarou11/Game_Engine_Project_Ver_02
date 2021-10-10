@@ -1,21 +1,23 @@
 #include "Audio_Manager.h"
 #include <clocale>
 #include <tchar.h>
+#include "Misc.h"
 using namespace std;
 using namespace DirectX;
 using namespace BeastEngine;
 
 Audio_Manager::Audio_Manager()
 {
-	CoInitializeEx(nullptr,COINIT_MULTITHREADED);
-	AUDIO_ENGINE_FLAGS eflags = AudioEngine_EnvironmentalReverb | AudioEngine_ReverbUseFilters | AudioEngine_UseMasteringLimiter;
+	const HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+	AUDIO_ENGINE_FLAGS flags = AudioEngine_EnvironmentalReverb | AudioEngine_ReverbUseFilters | AudioEngine_UseMasteringLimiter;
 #ifdef _DEBUG
-	eflags = eflags | AudioEngine_Debug;
+	flags = flags | AudioEngine_Debug;
 #endif
-	engine = make_unique<AudioEngine>(eflags);
+	engine = make_unique<AudioEngine>(flags);
 }
 
-void Audio_Manager::Update()
+void Audio_Manager::Update() const
 {
 	if (!engine->Update())
 	{
@@ -26,41 +28,36 @@ void Audio_Manager::Update()
 	}
 }
 
-void Audio_Manager::Resume()
+void Audio_Manager::Resume() const
 {
 	engine->Resume();
 }
 
-void Audio_Manager::Suspend()
+void Audio_Manager::Suspend() const
 {
 	engine->Suspend();
 }
 
-void Audio_Manager::Reset()
+void Audio_Manager::Reset() const
 {
 	engine->TrimVoicePool();
 	engine->Reset();
 }
 
-unique_ptr<DirectX::SoundEffectInstance> Audio_Manager::Load_SoundEffect(string filename)
+unique_ptr<SoundEffectInstance> Audio_Manager::Load_SoundEffect(string filename)
 {
 	setlocale(LC_ALL, "japanese");
 	wchar_t FileName[MAX_PATH] = { 0 };
 	size_t ret = 0;
 	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
 
-	auto it = effect_map.find(FileName);
-	if (it != effect_map.end())
+	if (const auto it = effect_map.find(FileName); it != effect_map.end())
 	{
 		return move(it->second->CreateInstance());
 	}
-	else
-	{
-		effect_map.insert(make_pair(FileName, make_unique<SoundEffect>(engine.get(), FileName)));
-		return move(effect_map.find(FileName)->second->CreateInstance());
-	}
 
-	return nullptr;
+	effect_map.insert(make_pair(FileName, make_unique<SoundEffect>(engine.get(), FileName)));
+	return move(effect_map.find(FileName)->second->CreateInstance());
 }
 
 void Audio_Manager::Play_OneShot(std::string filename, float volume, float pitch)
@@ -70,8 +67,7 @@ void Audio_Manager::Play_OneShot(std::string filename, float volume, float pitch
 	size_t ret = 0;
 	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
 
-	auto it = effect_map.find(FileName);
-	if (it != effect_map.end())
+	if (const auto it = effect_map.find(FileName); it != effect_map.end())
 	{
 		it->second->Play(volume, pitch, 0.0f);
 	}

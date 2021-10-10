@@ -8,7 +8,7 @@
 using namespace BeastEngine;
 using namespace std;
 
-void Collider::Set_Enabled(bool value)
+void Collider::Set_Enabled(const bool value)
 {
 	if (value != enabled_old)
 	{
@@ -18,12 +18,12 @@ void Collider::Set_Enabled(bool value)
 	}
 }
 
-bool Collider::Get_Enabled()
+bool Collider::Get_Enabled() const
 {
 	return enabled;
 }
 
-void Collider::Set_Active(bool value)
+void Collider::Set_Active(const bool value)
 {
 	if (value)
 	{
@@ -140,19 +140,17 @@ void Collider::Initialize_MonoBehaviour()
 {
 	for (auto& com : gameobject->component_list)
 	{
-		shared_ptr<MonoBehaviour>& buff = dynamic_pointer_cast<MonoBehaviour>(com);
-		if (buff != nullptr)
+		if (const auto& buff = dynamic_pointer_cast<MonoBehaviour>(com); buff != nullptr)
 		{
 			send_list.emplace_back(buff);
 		}
 	}
 }
 
-void Collider::Rescale_Shape()
+void Collider::Rescale_Shape() const
 {
-	Vector3 scale = transform->Get_Scale();
-	btVector3 bt_scale(scale.x, scale.y, scale.z);
-	if (shape->getLocalScaling() != bt_scale)
+	const Vector3 scale = transform->Get_Scale();
+	if (const btVector3 bt_scale(scale.x, scale.y, scale.z); shape->getLocalScaling() != bt_scale)
 	{
 		shape->setLocalScaling(bt_scale);
 		if (is_trigger) ghost->Resize();
@@ -162,9 +160,8 @@ void Collider::Rescale_Shape()
 
 void Collider::Call_Hit(Collision& collision)
 {
-	string& id = collision.collider->Get_Instance_ID();
-	auto it = hit_list_old.find(id);
-	if (it == hit_list_old.end())
+	const string& id = collision.collider->Get_Instance_ID();
+	if (const auto it = hit_list_old.find(id); it == hit_list_old.end())
 	{
 		hit_list[id] = collision.collider;
 		if (is_trigger)Call_OnTrigger_Enter(collision);
@@ -180,8 +177,8 @@ void Collider::Call_Hit(Collision& collision)
 
 void Collider::Update_Transform()
 {
-	Vector3 pos = transform->Get_Position() + (transform->Get_Right() * center.x) + (transform->Get_Up() * center.y) + (transform->Get_Forward() * center.z);
-	Quaternion rot = transform->Get_Rotation();
+	const Vector3 pos = transform->Get_Position() + (transform->Get_Right() * center.x) + (transform->Get_Up() * center.y) + (transform->Get_Forward() * center.z);
+	const Quaternion rot = transform->Get_Rotation();
 
 	Rescale_Shape();
 
@@ -202,12 +199,12 @@ void Collider::Update_Simulation()
 	if (is_trigger) ghost->Get_btTransform(t);
 	else rigidbody->Get_btTransform(t);
 
-	btVector3 v = t.getOrigin();
-	btQuaternion q = t.getRotation();
+	const btVector3 v = t.getOrigin();
+	const btQuaternion q = t.getRotation();
 
 	Vector3 pos = { v.x(), v.y(), v.z() };
-	Quaternion rot = { q.x(), q.y(), q.z(), q.w() };
 	pos -= ((transform->Get_Right() * center.x) + (transform->Get_Up() * center.y) + (transform->Get_Forward() * center.z));
+	const Quaternion rot = { q.x(), q.y(), q.z(), q.w() };
 
 	if (position_old != pos || rotation_old != rot)
 	{
@@ -217,13 +214,12 @@ void Collider::Update_Simulation()
 		transform->Set_Rotation(rot);
 	}
 
-	shared_ptr<Collider> col;
 	for (auto& hit : hit_list_old)
 	{
 		auto it = hit_list.find(hit.first);
 		if (it == hit_list.end())
 		{
-			col = hit.second.lock();
+			const shared_ptr<Collider> col = hit.second.lock();
 			Collision collision = { col, col->gameobject, col->transform };
 			if (is_trigger) Call_OnTrigger_Exit(collision);
 			else Call_OnCollision_Exit(collision);
@@ -237,7 +233,7 @@ void Collider::Call_OnTrigger_Enter(Collision& collision)
 {
 	for (auto& m : send_list)
 	{
-		if (shared_ptr<MonoBehaviour>& mono = m.lock())
+		if (const auto& mono = m.lock())
 		{
 			mono->OnTrigger_Enter(collision);
 		}
@@ -247,7 +243,7 @@ void Collider::Call_OnTrigger_Stay(Collision& collision)
 {
 	for (auto& m : send_list)
 	{
-		if (shared_ptr<MonoBehaviour>& mono = m.lock())
+		if (const auto& mono = m.lock())
 		{
 			mono->OnTrigger_Stay(collision);
 		}
@@ -257,7 +253,7 @@ void Collider::Call_OnTrigger_Exit(Collision& collision)
 {
 	for (auto& m : send_list)
 	{
-		if (shared_ptr<MonoBehaviour>& mono = m.lock())
+		if (const auto& mono = m.lock())
 		{
 			mono->OnTrigger_Exit(collision);
 		}
@@ -268,7 +264,7 @@ void Collider::Call_OnCollision_Enter(Collision& collision)
 {
 	for (auto& m : send_list)
 	{
-		if (shared_ptr<MonoBehaviour>& mono = m.lock())
+		if (const auto& mono = m.lock())
 		{
 			mono->OnCollision_Enter(collision);
 		}
@@ -278,7 +274,7 @@ void Collider::Call_OnCollision_Stay(Collision& collision)
 {
 	for (auto& m : send_list)
 	{
-		if (shared_ptr<MonoBehaviour>& mono = m.lock())
+		if (const auto& mono = m.lock())
 		{
 			mono->OnCollision_Stay(collision);
 		}
@@ -288,20 +284,20 @@ void Collider::Call_OnCollision_Exit(Collision& collision)
 {
 	for (auto& m : send_list)
 	{
-		if (shared_ptr<MonoBehaviour>& mono = m.lock())
+		if (const auto& mono = m.lock())
 		{
 			mono->OnCollision_Exit(collision);
 		}
 	}
 }
 
-void Collider::Set_Debug_Draw(bool value)
+void Collider::Set_Debug_Draw(const bool value) const
 {
 	if (is_trigger) ghost->Set_Debug_Draw(value);
 	else rigidbody->Set_Debug_Draw(value);
 }
 
-bool Collider::Draw_ImGui_Header(string component_name, bool& open)
+bool Collider::Draw_ImGui_Header(const string& component_name, bool& open)
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 	open = ImGui::CollapsingHeader(component_name.c_str(), ImGuiTreeNodeFlags_AllowItemOverlap);
@@ -332,7 +328,7 @@ bool Collider::Draw_ImGui_Header(string component_name, bool& open)
 
 void Collider::Draw_ImGui_Common()
 {
-	float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
+	const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
 
 	ImGui::Text(u8"中心オフセット");
 	ImGui::SameLine(window_center);
@@ -340,7 +336,7 @@ void Collider::Draw_ImGui_Common()
 	float center_im[3] = { center.x, center.y, center.z };
 	if (ImGui::DragFloat3("##Center", center_im, 0.1f))
 	{
-		center = { center_im[0], center_im[1], center_im[2] };
+		center = Vector3(center_im[0], center_im[1], center_im[2]);
 	}
 
 	ImGui::Separator();

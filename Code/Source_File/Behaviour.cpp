@@ -19,12 +19,12 @@ void Behaviour::Set_Enabled(bool value)
 	}
 }
 
-bool Behaviour::Get_Enabled()
+bool Behaviour::Get_Enabled() const
 {
 	return enabled;
 }
 
-bool Behaviour::Draw_ImGui_Header(string component_name, bool& open)
+bool Behaviour::Draw_ImGui_Header(const string& component_name, bool& open)
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 	open = ImGui::CollapsingHeader(component_name.c_str(), ImGuiTreeNodeFlags_AllowItemOverlap);
@@ -35,7 +35,7 @@ bool Behaviour::Draw_ImGui_Header(string component_name, bool& open)
 	{
 		if (ImGui::Selectable(u8"コンポーネントを削除"))
 		{
-			Object::Destroy(dynamic_pointer_cast<Component>(shared_from_this()));
+			Destroy(dynamic_pointer_cast<Component>(shared_from_this()));
 			removed = true;
 		}
 		ImGui::EndPopup();

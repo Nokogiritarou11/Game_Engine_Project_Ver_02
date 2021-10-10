@@ -1,6 +1,5 @@
 #pragma once
 #include <memory>
-#include <vector>
 #include <list>
 
 namespace BeastEngine
@@ -10,11 +9,10 @@ namespace BeastEngine
 	class Animator_Manager
 	{
 	public:
-
 		void Reset();
 
 		void Update();
-		void Add(std::shared_ptr<Animator> aniamtor);
+		void Add(std::shared_ptr<Animator> animator);
 
 	private:
 		std::list<std::weak_ptr<Animator>> animator_list;

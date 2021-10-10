@@ -3,23 +3,23 @@
 
 namespace BeastEngine
 {
-	class Box_Collider :public BeastEngine::Collider
+	class Box_Collider :public Collider
 	{
 	public:
-		void Set_Size(BeastEngine::Vector3& new_size);
-		BeastEngine::Vector3 Get_Size() const { return size; }
+		void Set_Size(Vector3& new_size);
+		[[nodiscard]] Vector3 Get_Size() const { return size; }
 
 	private:
 		void Create_Shape() override;
 		bool Draw_ImGui() override;
 
-		BeastEngine::Vector3 size = { 1.0f,1.0f ,1.0f };
+		Vector3 size = { 1.0f,1.0f ,1.0f };
 
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Collider>(this), size);
+			archive(cereal::base_class<Collider>(this), size);
 		}
 	};
 }

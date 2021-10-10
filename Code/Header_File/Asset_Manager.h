@@ -2,7 +2,6 @@
 #include <unordered_map>
 #include <memory>
 #include <string>
-#include <utility>
 #include "DxSystem.h"
 
 namespace BeastEngine
@@ -18,21 +17,21 @@ namespace BeastEngine
 	class Asset_Manager
 	{
 	public:
-		void Registration_Asset(std::shared_ptr<BeastEngine::Object> obj);
-		void Erase_Asset(std::string id);
-		std::weak_ptr<BeastEngine::Object> Get_Asset_From_ID(std::string id);
+		void Registration_Asset(std::shared_ptr<Object> obj);
+		void Erase_Asset(const std::string& id);
+		std::weak_ptr<Object> Get_Asset_From_ID(const std::string& id);
 
-		std::unordered_map<std::string, std::shared_ptr<BeastEngine::Mesh>> cache_mesh;
-		std::unordered_map<std::string, std::shared_ptr<BeastEngine::Shader>> cache_shader;
-		std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11ComputeShader>> cache_compute_shader;
-		std::unordered_map<std::string, std::shared_ptr<BeastEngine::Material>> cache_material;
-		std::unordered_map<std::string, std::shared_ptr<BeastEngine::Texture>> cache_texture;
-		std::unordered_map<std::string, std::shared_ptr<BeastEngine::Animation_Clip>> cache_clip;
+		std::unordered_map<std::string, std::shared_ptr<Mesh>> cache_mesh {};
+		std::unordered_map<std::string, std::shared_ptr<Shader>> cache_shader {};
+		std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11ComputeShader>> cache_compute_shader {};
+		std::unordered_map<std::string, std::shared_ptr<Material>> cache_material {};
+		std::unordered_map<std::string, std::shared_ptr<Texture>> cache_texture {};
+		std::unordered_map<std::string, std::shared_ptr<Animation_Clip>> cache_clip {};
 
 		void Exit();
 
 	private:
 
-		std::unordered_map<std::string, std::weak_ptr<BeastEngine::Object>> cache_asset;
+		std::unordered_map<std::string, std::weak_ptr<Object>> cache_asset {};
 	};
 }

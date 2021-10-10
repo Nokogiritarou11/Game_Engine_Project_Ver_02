@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include <unordered_map>
-#include <utility>
 #include <memory>
 #include "Animator_Condition.h"
 
@@ -26,16 +25,16 @@ namespace BeastEngine
 		float transition_duration = 0;
 		float transition_offset = 0;
 		Interruption_Source interruption_source = Interruption_Source::None;
-		std::vector<std::shared_ptr<BeastEngine::Condition>> conditions;
-		std::weak_ptr<BeastEngine::Animator_State_Machine> next_state;
-		std::shared_ptr<std::unordered_map<std::string, BeastEngine::Animation_Parameter>> parameters;
+		std::vector<std::shared_ptr<Condition>> conditions;
+		std::weak_ptr<Animator_State_Machine> next_state;
+		std::shared_ptr<std::unordered_map<std::string, Animation_Parameter>> parameters;
 
-		void Initialize(std::shared_ptr<std::unordered_map<std::string, BeastEngine::Animation_Parameter>>& p_parameters, std::shared_ptr<BeastEngine::Animator_State_Machine>& next);
+		void Initialize(const std::shared_ptr<std::unordered_map<std::string, Animation_Parameter>>& p_parameters, const std::shared_ptr<Animator_State_Machine>& next);
 		bool Check_Transition();
 		void Active();
-		void Add_Condition(std::string key, BeastEngine::Parameter_Type type, BeastEngine::Condition_Mode mode, float threshold);
+		void Add_Condition(const std::string& key, Parameter_Type type, Condition_Mode mode, float threshold);
 		void Remove_Condition(int index);
-		bool Get_Can_Transition() { return can_transition; }
+		[[nodiscard]] bool Get_Can_Transition() const { return can_transition; }
 
 	private:
 		bool can_transition = false;

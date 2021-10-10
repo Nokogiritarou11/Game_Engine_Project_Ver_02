@@ -1,16 +1,8 @@
 #pragma once
-//DirectMathÇ∆ÇÃèdï°âÒîóp
-//#define BT_NO_SIMD_OPERATOR_OVERLOADS
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
-#include "LinearMath/btVector3.h"
-#include "LinearMath/btQuaternion.h"
-#include "LinearMath/btTransform.h"
-#include "LinearMath/btIDebugDraw.h"
 #include <memory>
-#include <vector>
 #include <unordered_map>
-#include "Original_Math.h"
 
 namespace BeastEngine
 {
@@ -25,16 +17,16 @@ namespace BeastEngine
 		void Exit();
 		void Update();
 
-		void Add_RigidBody(std::weak_ptr<BeastEngine::Collider> col, std::unique_ptr<btRigidBody>& rigidbody, int layer);
-		void Resize_RigidBody(std::unique_ptr<btRigidBody>& rigidbody);
-		void Remove_RigidBody(std::unique_ptr<btRigidBody>& rigidbody);
+		void Add_RigidBody(std::weak_ptr<Collider> col, const std::unique_ptr<btRigidBody>& rigidbody, int layer);
+		void Resize_RigidBody(const std::unique_ptr<btRigidBody>& rigidbody);
+		void Remove_RigidBody(const std::unique_ptr<btRigidBody>& rigidbody);
 
-		void Add_Ghost(std::weak_ptr<BeastEngine::Collider> col, std::unique_ptr<btGhostObject>& ghost, int layer);
-		void Resize_Ghost(std::unique_ptr<btGhostObject>& ghost);
-		void Remove_Ghost(std::unique_ptr<btGhostObject>& ghost);
+		void Add_Ghost(std::weak_ptr<Collider> col, const std::unique_ptr<btGhostObject>& ghost, int layer);
+		void Resize_Ghost(const std::unique_ptr<btGhostObject>& ghost);
+		void Remove_Ghost(const std::unique_ptr<btGhostObject>& ghost);
 
-		void Set_Debug_Drawer();
-		void Render_Debug();
+		void Set_Debug_Drawer() const;
+		void Render_Debug() const;
 
 		std::unique_ptr<btDiscreteDynamicsWorld> world;
 

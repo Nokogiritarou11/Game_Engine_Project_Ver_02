@@ -8,8 +8,8 @@ namespace BeastEngine
 	public:
 		void Set_Radius(float new_radius);
 		void Set_Height(float new_height);
-		float Get_Radius() const { return radius; }
-		float Get_Height() const { return height; }
+		[[nodiscard]] float Get_Radius() const { return radius; }
+		[[nodiscard]] float Get_Height() const { return height; }
 
 	private:
 		void Create_Shape() override;

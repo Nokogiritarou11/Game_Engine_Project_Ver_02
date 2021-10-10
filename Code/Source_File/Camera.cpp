@@ -19,10 +19,10 @@ void Camera::Initialize(std::shared_ptr<GameObject> obj)
 	DxSystem::device_context->RSGetViewports(&num_viewports, &viewport);
 }
 
-void Camera::Update(float screen_x, float screen_y)
+void Camera::Update(const float screen_x, const float screen_y)
 {
 	// プロジェクション行列を作成
-	static const Matrix reverse = { 1,0,0,0,
+	static constexpr Matrix reverse = { 1,0,0,0,
 									0,1,0,0,
 									0,0,-1,0,
 									0,0,1,1 };
@@ -34,23 +34,22 @@ void Camera::Update(float screen_x, float screen_y)
 	}
 	else
 	{
-		float fov_y = XMConvertToRadians(fov);	// 画角
-		float aspect = screen_x / screen_y;	// 画面比率
+		const float fov_y = XMConvertToRadians(fov);	// 画角
+		const float aspect = screen_x / screen_y;	// 画面比率
 		projection_matrix = XMMatrixPerspectiveFovRH(fov_y, aspect, near_z, far_z);
 		projection_matrix = projection_matrix * reverse;
 		Engine::particle_manager->Camera_Update(transform, fov_y, near_z, far_z, aspect);
 	}
 
 	// ビュー行列を作成
-	Vector3 eye_v = transform->Get_Position();
-	Vector3 focus_v = eye_v + transform->Get_Forward();
+	const Vector3 eye_v = transform->Get_Position();
+	const Vector3 focus_v = eye_v + transform->Get_Forward();
 
-	Vector3 camForward = XMVector3Normalize(focus_v - eye_v);
-	camForward = XMVectorSetY(camForward, 0.0f);
-	camForward = XMVector3Normalize(camForward);
-	Vector3 camRight = { -XMVectorGetZ(camForward), 0.0f, XMVectorGetX(camForward) };
+	Vector3 cam_forward = XMVector3Normalize(focus_v - eye_v);
+	cam_forward = XMVectorSetY(cam_forward, 0.0f);
+	cam_forward = XMVector3Normalize(cam_forward);
 
-	XMVECTOR up_v = transform->Get_Up();
+	const XMVECTOR up_v = transform->Get_Up();
 	view_matrix = XMMatrixLookAtRH(eye_v, focus_v, up_v);
 
 	view_projection_matrix = view_matrix * projection_matrix;
@@ -100,7 +99,7 @@ void Camera::Update(float screen_x, float screen_y)
 
 	for (size_t i = 0; i < 6; ++i)
 	{
-		float length = sqrt((frustum_planes[i].x * frustum_planes[i].x) + (frustum_planes[i].y * frustum_planes[i].y) + (frustum_planes[i].z * frustum_planes[i].z));
+		const float length = sqrt((frustum_planes[i].x * frustum_planes[i].x) + (frustum_planes[i].y * frustum_planes[i].y) + (frustum_planes[i].z * frustum_planes[i].z));
 		frustum_planes[i].x /= length;
 		frustum_planes[i].y /= length;
 		frustum_planes[i].z /= length;
@@ -111,34 +110,12 @@ void Camera::Update(float screen_x, float screen_y)
 bool Camera::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	bool open = ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_AllowItemOverlap);
-
-	bool removed = false;
-	if (ImGui::BeginPopupContextItem("Camera_sub"))
-	{
-		if (ImGui::Selectable(u8"コンポーネントを削除"))
-		{
-			Object::Destroy(dynamic_pointer_cast<Component>(shared_from_this()));
-			removed = true;
-		}
-		ImGui::EndPopup();
-		if (removed)
-		{
-			return false;
-		}
-	}
-
-	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 20.0f);
-	bool enable = Get_Enabled();
-	if (ImGui::Checkbox("##enable", &enable))
-	{
-		Set_Enabled(enable);
-	}
-
+	bool open = false;
+	if (!Draw_ImGui_Header("Camera", open)) return false;
 
 	if (open)
 	{
-		float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
+		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
 
 		ImGui::Text("FOV");
 		ImGui::SameLine(window_center);
@@ -158,10 +135,10 @@ bool Camera::Draw_ImGui()
 	return true;
 }
 
-Vector2 Camera::World_To_ViewportPoint(Vector3 pos)
+Vector2 Camera::World_To_ViewportPoint(const Vector3 pos) const
 {
-	XMVECTOR p = XMLoadFloat3(&pos);
-	XMVECTOR screen
+	const XMVECTOR p = XMLoadFloat3(&pos);
+	const XMVECTOR screen
 		= XMVector3Project(
 			p,
 			viewport.TopLeftX,

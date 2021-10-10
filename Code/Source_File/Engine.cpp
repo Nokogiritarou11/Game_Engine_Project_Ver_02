@@ -61,17 +61,18 @@ Engine::Engine()
 	fbx_converter = make_unique<FBX_Converter>();
 	editor = make_unique<Editor>();
 	string load_path;
-	ifstream iIfstream("Default_Resource\\System\\last_save.bin");
+	ifstream iIfstream("Default_Assets\\System\\last_save.bin");
 	if (iIfstream.is_open())
 	{
 		getline(iIfstream, load_path);
+
 		if (load_path != "")
 		{
 			scene_manager->Load_Scene(load_path);
 		}
 		else
 		{
-			string path = System_Function::Get_Save_File_Name("bin", "\\Resouces\\Scene");
+			string path = System_Function::Get_Save_File_Name("bin", "\\Assets\\Scene");
 			if (path != "")
 			{
 				int path_i = path.find_last_of("\\") + 1;//7
@@ -85,7 +86,7 @@ Engine::Engine()
 	}
 	else
 	{
-		string path = System_Function::Get_Save_File_Name("bin", "\\Resouces\\Scene");
+		string path = System_Function::Get_Save_File_Name("bin", "\\Assets\\Scene");
 		if (path != "")
 		{
 			int path_i = path.find_last_of("\\") + 1;//7
@@ -99,7 +100,7 @@ Engine::Engine()
 
 #else
 	string load_path;
-	ifstream iIfstream("Default_Resource\\System\\last_save.bin");
+	ifstream iIfstream("Default_Assets\\System\\last_save.bin");
 	if (iIfstream.is_open())
 	{
 		getline(iIfstream, load_path);
@@ -138,7 +139,7 @@ Engine::~Engine()
 	bulletphysics_manager.reset();
 	asset_manager->Exit();
 	asset_manager.reset();
-}
+	}
 
 void Engine::Update()
 {

@@ -1,9 +1,5 @@
 #pragma once
 #include "Audio.h"
-#include <d3d11.h>
-#include <vector>
-#include <wrl.h>
-#include <stdio.h>
 
 namespace BeastEngine
 {
@@ -12,10 +8,10 @@ namespace BeastEngine
 	public:
 		Audio_Manager();
 
-		void Update();
-		void Suspend();
-		void Resume();
-		void Reset();
+		void Update() const;
+		void Suspend() const;
+		void Resume() const;
+		void Reset() const;
 
 		std::unique_ptr<DirectX::SoundEffectInstance> Load_SoundEffect(std::string filename);
 		void Play_OneShot(std::string filename, float volume = 1.0f, float pitch = 0.0f);

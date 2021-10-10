@@ -14,7 +14,7 @@ using namespace BeastEngine;
 
 void Resources::Create_Prefab(shared_ptr<GameObject> gameobject)
 {
-	string path = "Resouces\\Prefab\\" + gameobject->name + ".prefab";
+	string path = "Assets\\Prefab\\" + gameobject->name + ".prefab";
 
 	auto& parent = gameobject->transform->Get_Parent().lock();
 	if (parent)

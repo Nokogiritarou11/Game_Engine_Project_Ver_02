@@ -14,23 +14,23 @@ namespace BeastEngine
 	{
 	public:
 		std::string name;
-		std::vector<std::shared_ptr<BeastEngine::Animator_State_Machine>> state_machines;
-		std::shared_ptr<std::unordered_map<std::string, BeastEngine::Animation_Parameter>> parameters;
+		std::vector<std::shared_ptr<Animator_State_Machine>> state_machines;
+		std::shared_ptr<std::unordered_map<std::string, Animation_Parameter>> parameters;
 		std::string save_path;
 
 		void Initialize();
 		void Update();
-		bool Add_State_Machine(std::string& name);
-		bool Remove_State_Machine(std::string& name);
+		bool Add_State_Machine(const std::string& name);
+		bool Remove_State_Machine(const std::string& name);
 		void Render_ImGui();
-		void Add_Parameter(std::string& p_name, BeastEngine::Parameter_Type type);
+		void Add_Parameter(std::string& p_name, Parameter_Type type) const;
 
-		static std::shared_ptr<Animator_Controller> Load_Animator_Controller(std::string fullpath = "");
+		static std::shared_ptr<Animator_Controller> Load_Animator_Controller(const std::string& full_path = "");
 		static std::shared_ptr<Animator_Controller> Create_New_Controller();
 
-		std::shared_ptr<BeastEngine::Animator_State_Machine> playing_state_machine;
-		std::shared_ptr<BeastEngine::Animator_State_Machine> next_state_machine;
-		std::shared_ptr<BeastEngine::Animator_State_Transition> active_transition;
+		std::shared_ptr<Animator_State_Machine> playing_state_machine;
+		std::shared_ptr<Animator_State_Machine> next_state_machine;
+		std::shared_ptr<Animator_State_Transition> active_transition;
 		float duration_timer = 0;
 		int interrupt_state = 0;
 

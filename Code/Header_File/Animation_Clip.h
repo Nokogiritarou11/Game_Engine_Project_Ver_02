@@ -9,15 +9,15 @@ namespace BeastEngine
 	class Transform;
 	class FBX_Converter;
 
-	class Animation_Clip : public BeastEngine::Object
+	class Animation_Clip final : public Object
 	{
 	public:
 		struct Keyframe
 		{
 			float time;
-			BeastEngine::Vector3	scale;
-			BeastEngine::Quaternion rotation;
-			BeastEngine::Vector3	position;
+			Vector3	scale;
+			Quaternion rotation;
+			Vector3	position;
 
 		private:
 			friend class cereal::access;
@@ -30,7 +30,7 @@ namespace BeastEngine
 
 		struct Animation
 		{
-			std::string Target_Path;
+			std::string target_path;
 			std::vector<Keyframe> keys;
 
 		private:
@@ -38,27 +38,27 @@ namespace BeastEngine
 			template<class Archive>
 			void serialize(Archive& archive, std::uint32_t const version)
 			{
-				archive(Target_Path, keys);
+				archive(target_path, keys);
 			}
 		};
 
 		std::vector<Animation> animations;
 
-		float Get_Length() { return length; }
-		int Get_Frame_Count() { return frame_count; }
+		[[nodiscard]] float Get_Length() const { return length; }
+		[[nodiscard]] int Get_Frame_Count() const { return frame_count; }
 
-		static std::shared_ptr<Animation_Clip> Load_Clip(std::string fullpath);
+		static std::shared_ptr<Animation_Clip> Load_Clip(const std::string& full_path);
 
 	private:
 		float length;
 		int frame_count;
 
-		friend class BeastEngine::FBX_Converter;
+		friend class FBX_Converter;
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Object>(this), animations, length, frame_count);
+			archive(cereal::base_class<Object>(this), animations, length, frame_count);
 		}
 	};
 }

@@ -1,4 +1,4 @@
-#include <locale.h>
+#include <clocale>
 #include "DxSystem.h"
 #include "Compute_Shader.h"
 #include "Engine.h"
@@ -12,8 +12,7 @@ shared_ptr<Compute_Shader> Compute_Shader::Create(string shader_path)
 {
 	shared_ptr<Compute_Shader> shader = make_shared<Compute_Shader>();
 
-	auto it = Engine::asset_manager->cache_compute_shader.find(shader_path);
-	if (it != Engine::asset_manager->cache_compute_shader.end())
+	if (const auto it = Engine::asset_manager->cache_compute_shader.find(shader_path); it != Engine::asset_manager->cache_compute_shader.end())
 	{
 		shader->cs = it->second;
 	}
@@ -24,11 +23,10 @@ shared_ptr<Compute_Shader> Compute_Shader::Create(string shader_path)
 		size_t ret = 0;
 		mbstowcs_s(&ret, FileName, MAX_PATH, shader_path.c_str(), _TRUNCATE);
 
-		HRESULT hr = S_OK;
-		ComPtr<ID3DBlob> CSBlob = NULL;
-		hr = shader->Compile(FileName, "main", "cs_5_0", &CSBlob);
+		ComPtr<ID3DBlob> CSBlob = nullptr;
+		HRESULT hr = shader->Compile(FileName, "main", "cs_5_0", &CSBlob);
 		assert(SUCCEEDED(hr));
-		hr = DxSystem::device->CreateComputeShader(CSBlob->GetBufferPointer(), CSBlob->GetBufferSize(), NULL, shader->cs.GetAddressOf());
+		hr = DxSystem::device->CreateComputeShader(CSBlob->GetBufferPointer(), CSBlob->GetBufferSize(), nullptr, shader->cs.GetAddressOf());
 		assert(SUCCEEDED(hr));
 
 		Engine::asset_manager->cache_compute_shader.insert(make_pair(shader_path, shader->cs));
@@ -37,30 +35,30 @@ shared_ptr<Compute_Shader> Compute_Shader::Create(string shader_path)
 }
 
 //	シェーダーコンパイル
-HRESULT Compute_Shader::Compile(WCHAR* filename, LPCSTR method, LPCSTR shaderModel, ID3DBlob** ppBlobOut)
+HRESULT Compute_Shader::Compile(const WCHAR* filename, const LPCSTR method, const LPCSTR shader_model, ID3DBlob** pp_blob_out)
 {
-	DWORD ShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
-	ShaderFlags |= D3DCOMPILE_DEBUG;
-	ShaderFlags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
+	DWORD shader_flags = D3DCOMPILE_ENABLE_STRICTNESS;
+	shader_flags |= D3DCOMPILE_DEBUG;
+	shader_flags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
 
-	ComPtr<ID3DBlob> BlobError = NULL;
+	ComPtr<ID3DBlob> blob_error = nullptr;
 	// コンパイル
-	HRESULT hr = D3DCompileFromFile(
+	const HRESULT hr = D3DCompileFromFile(
 		filename,
-		NULL,
+		nullptr,
 		D3D_COMPILE_STANDARD_FILE_INCLUDE,
 		method,
-		shaderModel,
-		ShaderFlags,
+		shader_model,
+		shader_flags,
 		0,
-		ppBlobOut,
-		BlobError.GetAddressOf()
+		pp_blob_out,
+		blob_error.GetAddressOf()
 	);
 
 	// エラー出力
-	if (BlobError != NULL)
+	if (blob_error != nullptr)
 	{
-		MessageBoxA(0, (char*)BlobError->GetBufferPointer(), NULL, MB_OK);
+		MessageBoxA(nullptr, static_cast<char*>(blob_error->GetBufferPointer()), nullptr, MB_OK);
 	}
 
 	return hr;
@@ -70,8 +68,7 @@ void Compute_Shader::Create_Buffer_Input(UINT size, UINT count, void* init_data)
 {
 	HRESULT hr = S_OK;
 
-	D3D11_BUFFER_DESC desc;
-	memset(&desc, 0, sizeof(desc));
+	D3D11_BUFFER_DESC desc = {};
 
 	desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
 	desc.ByteWidth = size * count;
@@ -92,8 +89,7 @@ void Compute_Shader::Create_Buffer_Input(UINT size, UINT count, void* init_data)
 		assert(SUCCEEDED(hr));
 	}
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	memset(&srvDesc, 0, sizeof(srvDesc));
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
 	srvDesc.BufferEx.FirstElement = 0;
@@ -119,8 +115,7 @@ void Compute_Shader::Create_Buffer_Result(UINT size, UINT count, void* init_data
 {
 	HRESULT hr = S_OK;
 
-	D3D11_BUFFER_DESC desc;
-	memset(&desc, 0, sizeof(desc));
+	D3D11_BUFFER_DESC desc = {};
 
 	desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
 	desc.ByteWidth = size * count;
@@ -142,8 +137,7 @@ void Compute_Shader::Create_Buffer_Result(UINT size, UINT count, void* init_data
 	}
 
 	//UAV
-	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
-	memset(&uavDesc, 0, sizeof(uavDesc));
+	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
 
 	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
 	uavDesc.Buffer.FirstElement = 0;
@@ -154,8 +148,7 @@ void Compute_Shader::Create_Buffer_Result(UINT size, UINT count, void* init_data
 	assert(SUCCEEDED(hr));
 
 	//SRV
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	memset(&srvDesc, 0, sizeof(srvDesc));
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
 	srvDesc.BufferEx.FirstElement = 0;
@@ -169,21 +162,20 @@ void Compute_Shader::Create_Buffer_Result(UINT size, UINT count, void* init_data
 void Compute_Shader::Run()
 {
 	//　コンピュートシェーダー実行
-	DxSystem::device_context->CSSetShader(cs.Get(), NULL, 0);
+	DxSystem::device_context->CSSetShader(cs.Get(), nullptr, 0);
 	DxSystem::device_context->CSSetShaderResources(0, 1, srv_input.GetAddressOf());
-	DxSystem::device_context->CSSetUnorderedAccessViews(0, 1, uav_result.GetAddressOf(), 0);
+	DxSystem::device_context->CSSetUnorderedAccessViews(0, 1, uav_result.GetAddressOf(), nullptr);
 
 	DxSystem::device_context->Dispatch(contents_count, 1, 1);
 
-	ID3D11UnorderedAccessView* const pUAV[1] = { NULL };
-	DxSystem::device_context->CSSetUnorderedAccessViews(0, 1, pUAV, 0);
+	constexpr ID3D11UnorderedAccessView* const pUAV[1] = { nullptr };
+	DxSystem::device_context->CSSetUnorderedAccessViews(0, 1, pUAV, nullptr);
 }
 
-ComPtr<ID3D11Buffer> Compute_Shader::Get_Copy_Buffer()
+ComPtr<ID3D11Buffer> Compute_Shader::Get_Copy_Buffer() const
 {
 	ComPtr<ID3D11Buffer> clone;
-	D3D11_BUFFER_DESC desc;
-	memset(&desc, 0, sizeof(desc));
+	D3D11_BUFFER_DESC desc = {};
 
 	buffer_result->GetDesc(&desc);
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;

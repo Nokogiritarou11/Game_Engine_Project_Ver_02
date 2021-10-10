@@ -197,7 +197,7 @@ bool Particle::Draw_ImGui()
 		ImGui::SameLine(window_width - 25.0f);
 		if (ImGui::Button(u8"‘I‘ð"))
 		{
-			string path = System_Function::Get_Open_File_Name("", "\\Resouces\\Effect");
+			string path = System_Function::Get_Open_File_Name("", "\\Assets\\Effect");
 			//Debug::Log(path);
 			if (path != "")
 			{

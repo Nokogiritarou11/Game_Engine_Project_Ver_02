@@ -22,7 +22,7 @@ using namespace BeastEngine;
 
 Scene_Manager::Scene_Manager()
 {
-	ifstream in_bin("Default_Resource\\System\\settings.bin", ios::binary);
+	ifstream in_bin("Default_Assets\\System\\settings.bin", ios::binary);
 	if (in_bin.is_open())
 	{
 		unique_ptr<Project_Settings> set;
@@ -51,7 +51,7 @@ void Scene_Manager::Exit()
 
 unique_ptr<Scene> Scene_Manager::CreateScene_From_File()
 {
-	string path = System_Function::Get_Open_File_Name("bin", "\\Resouces\\Scene");
+	string path = System_Function::Get_Open_File_Name("bin", "\\Assets\\Scene");
 
 	if (path != "")
 	{
@@ -145,7 +145,7 @@ void Scene_Manager::Save_Scene(string Save_Path)
 
 void Scene_Manager::Save_Settings()
 {
-	ofstream ss("Default_Resource\\System\\settings.bin", ios::binary);
+	ofstream ss("Default_Assets\\System\\settings.bin", ios::binary);
 	{
 		cereal::BinaryOutputArchive o_archive(ss);
 		o_archive(settings);
@@ -157,13 +157,13 @@ void Scene_Manager::Start_Debug_Scene()
 	behind_scene = move(active_scene);
 	behind_path = last_save_path;
 	{
-		ofstream save("Default_Resource\\System\\Debug_Scene.bin", ios::binary);
+		ofstream save("Default_Assets\\System\\Debug_Scene.bin", ios::binary);
 		{
 			cereal::BinaryOutputArchive out_archive(save);
 			out_archive(behind_scene);
 		}
 	}
-	Load_Scene("Default_Resource\\System\\Debug_Scene.bin");
+	Load_Scene("Default_Assets\\System\\Debug_Scene.bin");
 }
 
 void Scene_Manager::End_Debug_Scene()

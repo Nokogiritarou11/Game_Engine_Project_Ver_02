@@ -8,36 +8,36 @@ namespace BeastEngine
 	class Transform;
 	class Animator_Manager;
 
-	class Animator : public BeastEngine::Behaviour
+	class Animator final : public Behaviour
 	{
 	public:
 
-		void  Play();  //çƒê∂
-		void  Stop();  //í‚é~
-		void  Pause(); //àÍéûí‚é~
+		void Play();  //çƒê∂
+		void Stop();  //í‚é~
+		void Pause(); //àÍéûí‚é~
 
-		void Set_Int(std::string key, int value);
-		void Set_Float(std::string key, float value);
-		void Set_Bool(std::string key, bool value);
-		void Set_Trigger(std::string key);
+		void Set_Int(const std::string& key, const int& value) const;
+		void Set_Float(const std::string& key, const float& value) const;
+		void Set_Bool(const std::string& key, const bool& value) const;
+		void Set_Trigger(const std::string& key) const;
 
-		int Get_Int(std::string key);
-		float Get_Float(std::string key);
-		bool Get_Bool(std::string key);
-		void Reset_Trigger(std::string key);
+		[[nodiscard]] int Get_Int(const std::string& key) const;
+		[[nodiscard]] float Get_Float(const std::string& key) const;
+		[[nodiscard]] bool Get_Bool(const std::string& key) const;
+		void Reset_Trigger(const std::string& key) const;
 
-		std::shared_ptr<BeastEngine::Animator_Controller> controller;
+		std::shared_ptr<Animator_Controller> controller;
 
 	private:
 		struct Animation_Target
 		{
-			std::weak_ptr<BeastEngine::Transform> target;
-			BeastEngine::Vector3 position;
-			BeastEngine::Quaternion rotation;
-			BeastEngine::Vector3 scale;
+			std::weak_ptr<Transform> target;
+			Vector3 position;
+			Quaternion rotation;
+			Vector3 scale;
 		};
 
-		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
+		void Initialize(std::shared_ptr<GameObject> obj) override;
 		bool Draw_ImGui() override;
 		bool Can_Multiple() override { return false; };
 
@@ -54,12 +54,12 @@ namespace BeastEngine
 		std::unordered_map<std::string, Animation_Target> pose_next;
 		std::unordered_map<std::string, Animation_Target> pose_interrupt;
 
-		friend class BeastEngine::Animator_Manager;
+		friend class Animator_Manager;
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Behaviour>(this), controller_path);
+			archive(cereal::base_class<Behaviour>(this), controller_path);
 		}
 	};
 }

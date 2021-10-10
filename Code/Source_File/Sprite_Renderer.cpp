@@ -55,7 +55,7 @@ void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
 	}
 	else
 	{
-		texture = Texture::Load("Default_Resource\\Image\\Default_Texture.png");
+		texture = Texture::Load("Default_Assets\\Image\\Default_Texture.png");
 	}
 	can_render = true;
 
@@ -229,7 +229,7 @@ bool Sprite_Renderer::Draw_ImGui()
 			ImGui::SameLine(window_width - size.x - frame_padding);
 			if (ImGui::ImageButton((void*)texture->Get_Resource().Get(), size, uv0, uv1, frame_padding, bg_col, tint_col))
 			{
-				string path = System_Function::Get_Open_File_Name("png", "\\Resouces\\Image");
+				string path = System_Function::Get_Open_File_Name("png", "\\Assets\\Image");
 				if (path != "")
 				{
 					int path_i = path.find_last_of("\\") + 1;

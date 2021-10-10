@@ -198,8 +198,8 @@ bool Mesh_Renderer::Draw_ImGui()
 
 		if (ImGui::TreeNode(u8"バンディングボックス"))
 		{
-			const Vector3& min_scaled = transform->Get_Position() + (bounds.Get_center() + bounds.Get_min()) * transform->Get_Scale();
-			const Vector3& max_scaled = transform->Get_Position() + (bounds.Get_center() + bounds.Get_max()) * transform->Get_Scale();
+			const Vector3& min_scaled = transform->Get_Position() + (bounds.Get_Center() + bounds.Get_Min()) * transform->Get_Scale();
+			const Vector3& max_scaled = transform->Get_Position() + (bounds.Get_Center() + bounds.Get_Max()) * transform->Get_Scale();
 			btVector3 min = { min_scaled.x, min_scaled.y, min_scaled.z };
 			btVector3 max = { max_scaled.x, max_scaled.y, max_scaled.z };
 			Engine::debug_draw_manager->drawAabb(min, max, btVector3(0.0f, 0.65f, 1.0f));
@@ -207,21 +207,21 @@ bool Mesh_Renderer::Draw_ImGui()
 			ImGui::Text(u8"中心オフセット");
 			ImGui::SameLine(window_width * 0.4f);
 			ImGui::SetNextItemWidth(-FLT_MIN);
-			const Vector3 vec_center = bounds.Get_center();
+			const Vector3 vec_center = bounds.Get_Center();
 			float center[3] = { vec_center.x, vec_center.y, vec_center.z };
 			if (ImGui::DragFloat3("##center", center, 0.1f))
 			{
-				bounds.Set_center(center[0], center[1], center[2]);
+				bounds.Set_Center(center[0], center[1], center[2]);
 			}
 
 			ImGui::Text(u8"サイズ");
 			ImGui::SameLine(window_width * 0.4f);
 			ImGui::SetNextItemWidth(-FLT_MIN);
-			const Vector3 vec_size = bounds.Get_size();
+			const Vector3 vec_size = bounds.Get_Size();
 			float size[3] = { vec_size.x, vec_size.y, vec_size.z };
 			if (ImGui::DragFloat3("##size", size, 0.1f))
 			{
-				bounds.Set_size(size[0], size[1], size[2]);
+				bounds.Set_Size(size[0], size[1], size[2]);
 			}
 
 			ImGui::TreePop();
@@ -239,7 +239,7 @@ bool Mesh_Renderer::Draw_ImGui()
 					ImGui::SameLine(window_width - 30.0f);
 					if (ImGui::Button(u8"選択"))
 					{
-						string path = System_Function::Get_Open_File_Name("mat", "\\Resouces\\Model");
+						string path = System_Function::Get_Open_File_Name("mat", "\\Assets\\Model");
 						if (path != "")
 						{
 							material[ID_mat] = Material::Load_Material(path);

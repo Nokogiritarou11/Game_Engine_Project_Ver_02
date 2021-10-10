@@ -3,16 +3,16 @@
 
 namespace BeastEngine
 {
-	class Behaviour : public BeastEngine::Component
+	class Behaviour : public Component
 	{
 	public:
 		Behaviour();
 
 		void Set_Enabled(bool value);
-		bool Get_Enabled();
+		bool Get_Enabled() const;
 
 	protected:
-		bool Draw_ImGui_Header(std::string component_name, bool& open);
+		bool Draw_ImGui_Header(const std::string& component_name, bool& open);
 
 	private:
 		bool enabled = true;
@@ -22,7 +22,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Component>(this), enabled);
+			archive(cereal::base_class<Component>(this), enabled);
 		}
 	};
 }

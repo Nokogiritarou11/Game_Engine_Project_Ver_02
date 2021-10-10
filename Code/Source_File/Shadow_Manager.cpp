@@ -18,7 +18,7 @@ Shadow_Manager::Shadow_Manager()
 	material_shadow->Set_Blend_State(BS_State::Alpha_Test);
 	material_shadow->Set_Rasterizer_State(RS_State::Cull_Back);
 	material_shadow->Set_Depth_Stencil_State(DS_State::GEqual);
-	material_shadow->Set_Texture("alphaMap", Texture::Load("Default_Resource\\Image\\Default_Texture.png"));
+	material_shadow->Set_Texture("alphaMap", Texture::Load("Default_Assets\\Image\\Default_Texture.png"));
 
 	//	サンプラステート作成
 	float boarderColor[4] = { -FLT_MAX,-FLT_MAX,-FLT_MAX,-FLT_MAX };

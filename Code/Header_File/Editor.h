@@ -33,7 +33,7 @@ namespace BeastEngine
 
 	private:
 		//Imguiê›íË
-		char* font_name = "Default_Resource/Font/mplus-1p-medium.ttf";
+		char* font_name = "Default_Assets/Font/mplus-1p-medium.ttf";
 		float font_size_pixels = 30.0f;
 		float font_size = 0.6f;
 		float ui_size = 0.6f;

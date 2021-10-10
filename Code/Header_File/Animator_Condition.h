@@ -2,14 +2,7 @@
 #include <string>
 #include "cereal/cereal.hpp"
 #include "cereal/access.hpp"
-#include "cereal/archives/binary.hpp"
-#include "cereal/types/vector.hpp"
 #include "cereal/types/unordered_map.hpp"
-#include "cereal/types/string.hpp"
-#include "cereal/types/utility.hpp"
-#include "cereal/types/polymorphic.hpp"
-#include "cereal/types/base_class.hpp"
-#include "cereal/types/memory.hpp"
 
 namespace BeastEngine
 {
@@ -54,7 +47,7 @@ namespace BeastEngine
 
 	struct Condition //ëJà⁄èåè
 	{
-		std::string key = "";
+		std::string key;
 		Parameter_Type type;
 		Condition_Mode mode;
 		float threshold = 0;
@@ -70,7 +63,7 @@ namespace BeastEngine
 
 	struct Animation_Event
 	{
-		std::string key = "";
+		std::string key;
 		bool called = false;
 		int frame = 0;
 		Animation_Parameter parameter;
@@ -86,7 +79,7 @@ namespace BeastEngine
 
 	struct State_Event
 	{
-		std::string key = "";
+		std::string key;
 		State_Event_Type type;
 		Animation_Parameter parameter;
 

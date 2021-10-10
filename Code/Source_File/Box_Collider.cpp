@@ -28,7 +28,7 @@ bool Box_Collider::Draw_ImGui()
 
 	if (open)
 	{
-		float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
+		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
 
 		ImGui::Text(u8"ÉTÉCÉY");
 		ImGui::SameLine(window_center);

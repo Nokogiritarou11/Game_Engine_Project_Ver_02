@@ -9,7 +9,7 @@ void Capsule_Collider::Create_Shape()
 	shape = make_unique<btCapsuleShape>(radius, height);
 }
 
-void Capsule_Collider::Set_Radius(float new_radius)
+void Capsule_Collider::Set_Radius(const float new_radius)
 {
 	if (radius != new_radius)
 	{
@@ -21,7 +21,7 @@ void Capsule_Collider::Set_Radius(float new_radius)
 	}
 }
 
-void Capsule_Collider::Set_Height(float new_height)
+void Capsule_Collider::Set_Height(const float new_height)
 {
 	if (height != new_height)
 	{
@@ -40,7 +40,7 @@ bool Capsule_Collider::Draw_ImGui()
 
 	if (open)
 	{
-		float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
+		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
 
 		ImGui::Text(u8"”¼Œa");
 		ImGui::SameLine(window_center);

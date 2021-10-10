@@ -1,40 +1,32 @@
 #include "Animation_Clip.h"
-#include <locale.h>
 #include <sstream>
-#include <functional>
-#include <iostream>
 #include <fstream>
 #include "Engine.h"
 #include "Asset_Manager.h"
 using namespace std;
 using namespace BeastEngine;
 
-shared_ptr<Animation_Clip> Animation_Clip::Load_Clip(string fullpath)
+shared_ptr<Animation_Clip> Animation_Clip::Load_Clip(const string& full_path)
 {
-	auto it = Engine::asset_manager->cache_clip.find(fullpath);
-	if (it != Engine::asset_manager->cache_clip.end())
+	if (const auto itr = Engine::asset_manager->cache_clip.find(full_path); itr != Engine::asset_manager->cache_clip.end())
 	{
-		shared_ptr<Animation_Clip> clip = it->second;
+		shared_ptr<Animation_Clip> clip = itr->second;
 		return clip;
 	}
-	else //ファイルから読み込み
+
+	//ファイルから読み込み
+	if (const ifstream in_bin(full_path, ios::binary); in_bin.is_open())
 	{
 		shared_ptr<Animation_Clip> clip;
+		stringstream bin_s_stream;
+		bin_s_stream << in_bin.rdbuf();
+		cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
+		binaryInputArchive(clip);
 
-		const string bin = fullpath;
-		ifstream in_bin(bin, ios::binary);
-		if (in_bin.is_open())
-		{
-			stringstream bin_s_stream;
-			bin_s_stream << in_bin.rdbuf();
-			cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
-			binaryInputArchive(clip);
+		Engine::asset_manager->Registration_Asset(clip);
+		Engine::asset_manager->cache_clip.insert(make_pair(full_path, clip));
 
-			Engine::asset_manager->Registration_Asset(clip);
-			Engine::asset_manager->cache_clip.insert(make_pair(fullpath, clip));
-
-			return clip;
-		}
+		return clip;
 	}
 
 	return nullptr;

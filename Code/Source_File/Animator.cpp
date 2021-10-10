@@ -6,10 +6,7 @@
 #include "Animation_Clip.h"
 #include "Animator_State_Machine.h"
 #include "Animator_Controller.h"
-#include "Time_Engine.h"
 #include "Include_ImGui.h"
-#include "System_Function.h"
-#include "Engine.h"
 #include "Asset_Manager.h"
 #include "Debug.h"
 using namespace std;
@@ -32,22 +29,18 @@ void Animator::Initialize(shared_ptr<GameObject> obj)
 
 void Animator::Set_Default_Pose()
 {
-	for (auto& state : controller->state_machines)
+	for (const auto& state : controller->state_machines)
 	{
 		if (state->clip)
 		{
-			shared_ptr<Animation_Clip>& clip = state->clip;
-
-			for (auto& anim : clip->animations)
+			for (auto& anim : state->clip->animations)
 			{
-				shared_ptr<Transform>& t_trans = transform->Find(anim.Target_Path).lock();
-				if (t_trans)
+				if (const auto& t_trans = transform->Find(anim.target_path).lock())
 				{
-					auto it = pose_default.find(anim.Target_Path);
-					if (it == pose_default.end())
+					if (const auto it = pose_default.find(anim.target_path); it == pose_default.end())
 					{
-						Animation_Target t = { t_trans, t_trans->Get_Local_Position(),t_trans->Get_Local_Rotation(),t_trans->Get_Local_Scale() };
-						pose_default[anim.Target_Path] = t;
+						const Animation_Target t = { t_trans, t_trans->Get_Local_Position(),t_trans->Get_Local_Rotation(),t_trans->Get_Local_Scale() };
+						pose_default[anim.target_path] = t;
 					}
 				}
 			}
@@ -58,10 +51,9 @@ void Animator::Set_Default_Pose()
 	}
 }
 
-void Animator::Set_Int(string key, int value)
+void Animator::Set_Int(const string& key, const int& value) const
 {
-	auto it = controller->parameters->find(key);
-	if (it != controller->parameters->end())
+	if (const auto it = controller->parameters->find(key); it != controller->parameters->end())
 	{
 		if (it->second.type == Parameter_Type::Int)
 		{
@@ -73,10 +65,9 @@ void Animator::Set_Int(string key, int value)
 		}
 	}
 }
-void Animator::Set_Float(string key, float value)
+void Animator::Set_Float(const string& key,const float& value) const
 {
-	auto it = controller->parameters->find(key);
-	if (it != controller->parameters->end())
+	if (const auto it = controller->parameters->find(key); it != controller->parameters->end())
 	{
 		if (it->second.type == Parameter_Type::Float)
 		{
@@ -88,10 +79,9 @@ void Animator::Set_Float(string key, float value)
 		}
 	}
 }
-void Animator::Set_Bool(string key, bool value)
+void Animator::Set_Bool(const string& key, const bool& value) const
 {
-	auto it = controller->parameters->find(key);
-	if (it != controller->parameters->end())
+	if (const auto it = controller->parameters->find(key); it != controller->parameters->end())
 	{
 		if (it->second.type == Parameter_Type::Bool)
 		{
@@ -103,10 +93,9 @@ void Animator::Set_Bool(string key, bool value)
 		}
 	}
 }
-void Animator::Set_Trigger(string key)
+void Animator::Set_Trigger(const string& key) const
 {
-	auto it = controller->parameters->find(key);
-	if (it != controller->parameters->end())
+	if (const auto it = controller->parameters->find(key); it != controller->parameters->end())
 	{
 		if (it->second.type == Parameter_Type::Trigger)
 		{
@@ -119,10 +108,9 @@ void Animator::Set_Trigger(string key)
 	}
 }
 
-int Animator::Get_Int(std::string key)
+int Animator::Get_Int(const string& key) const
 {
-	auto it = controller->parameters->find(key);
-	if (it != controller->parameters->end())
+	if (const auto it = controller->parameters->find(key); it != controller->parameters->end())
 	{
 		if (it->second.type == Parameter_Type::Int)
 		{
@@ -132,10 +120,9 @@ int Animator::Get_Int(std::string key)
 	return 0;
 }
 
-float Animator::Get_Float(std::string key)
+float Animator::Get_Float(const string& key) const
 {
-	auto it = controller->parameters->find(key);
-	if (it != controller->parameters->end())
+	if (const auto it = controller->parameters->find(key); it != controller->parameters->end())
 	{
 		if (it->second.type == Parameter_Type::Float)
 		{
@@ -145,10 +132,9 @@ float Animator::Get_Float(std::string key)
 	return 0;
 }
 
-bool Animator::Get_Bool(std::string key)
+bool Animator::Get_Bool(const string& key) const
 {
-	auto it = controller->parameters->find(key);
-	if (it != controller->parameters->end())
+	if (const auto it = controller->parameters->find(key); it != controller->parameters->end())
 	{
 		if (it->second.type == Parameter_Type::Bool)
 		{
@@ -158,10 +144,9 @@ bool Animator::Get_Bool(std::string key)
 	return false;
 }
 
-void Animator::Reset_Trigger(string key)
+void Animator::Reset_Trigger(const string& key) const
 {
-	auto it = controller->parameters->find(key);
-	if (it != controller->parameters->end())
+	if (const auto it = controller->parameters->find(key); it != controller->parameters->end())
 	{
 		it->second.value_bool = false;
 	}
@@ -184,6 +169,8 @@ void Animator::Update()
 			pose_interrupt = animation_data;
 			controller->interrupt_state = 0;
 			break;
+		default:
+			break;
 	}
 
 	pose_playing = pose_default;
@@ -192,15 +179,15 @@ void Animator::Update()
 
 	if (controller->next_state_machine)
 	{
-		const float& current_sec = controller->playing_state_machine->currentSeconds;
+		const float& current_sec = controller->playing_state_machine->current_seconds;
 		for (auto& animation : controller->playing_state_machine->clip->animations)
 		{
 			const vector<Animation_Clip::Keyframe>& keyframes = animation.keys;
 
-			const int keyCount = static_cast<int>(keyframes.size());
+			const int key_count = static_cast<int>(keyframes.size());
 			bool is_end_frame = true;
 
-			for (int keyIndex = 0; keyIndex < keyCount - 1; ++keyIndex)
+			for (int keyIndex = 0; keyIndex < key_count - 1; ++keyIndex)
 			{
 				// 現在の時間がどのキーフレームの間にいるか判定する
 				const Animation_Clip::Keyframe& keyframe0 = keyframes.at(keyIndex);
@@ -210,7 +197,7 @@ void Animator::Update()
 				{
 					const float rate = (current_sec - keyframe0.time) / (keyframe1.time - keyframe0.time);
 
-					Animation_Target& target = pose_playing[animation.Target_Path];
+					Animation_Target& target = pose_playing[animation.target_path];
 					// ２つのキーフレーム間の補完計算
 					target.position = Vector3::Lerp(keyframe0.position, keyframe1.position, rate);
 					target.rotation = Quaternion::Slerp(keyframe0.rotation, keyframe1.rotation, rate);
@@ -222,23 +209,23 @@ void Animator::Update()
 
 			if (is_end_frame)
 			{
-				const Animation_Clip::Keyframe& last_keyframe = keyframes[keyCount - 1];
-				Animation_Target& target = pose_playing[animation.Target_Path];
+				const Animation_Clip::Keyframe& last_keyframe = keyframes[key_count - 1];
+				Animation_Target& target = pose_playing[animation.target_path];
 				target.position = last_keyframe.position;
 				target.rotation = last_keyframe.rotation;
 				target.scale = last_keyframe.scale;
 			}
 		}
 
-		const float& next_sec = controller->next_state_machine->currentSeconds;
+		const float& next_sec = controller->next_state_machine->current_seconds;
 		for (auto& animation : controller->next_state_machine->clip->animations)
 		{
 			const vector<Animation_Clip::Keyframe>& keyframes = animation.keys;
 
-			int keyCount = static_cast<int>(keyframes.size());
+			const int key_count = static_cast<int>(keyframes.size());
 			bool is_end_frame = true;
 
-			for (int keyIndex = 0; keyIndex < keyCount - 1; ++keyIndex)
+			for (int keyIndex = 0; keyIndex < key_count - 1; ++keyIndex)
 			{
 				// 現在の時間がどのキーフレームの間にいるか判定する
 				const Animation_Clip::Keyframe& keyframe0 = keyframes.at(keyIndex);
@@ -248,7 +235,7 @@ void Animator::Update()
 				{
 					const float rate = (next_sec - keyframe0.time) / (keyframe1.time - keyframe0.time);
 
-					Animation_Target& target = pose_next[animation.Target_Path];
+					Animation_Target& target = pose_next[animation.target_path];
 					// ２つのキーフレーム間の補完計算
 					target.position = Vector3::Lerp(keyframe0.position, keyframe1.position, rate);
 					target.rotation = Quaternion::Slerp(keyframe0.rotation, keyframe1.rotation, rate);
@@ -260,8 +247,8 @@ void Animator::Update()
 
 			if (is_end_frame)
 			{
-				const Animation_Clip::Keyframe& last_keyframe = keyframes[keyCount - 1];
-				Animation_Target& target = pose_next[animation.Target_Path];
+				const Animation_Clip::Keyframe& last_keyframe = keyframes[key_count - 1];
+				Animation_Target& target = pose_next[animation.target_path];
 				target.position = last_keyframe.position;
 				target.rotation = last_keyframe.rotation;
 				target.scale = last_keyframe.scale;
@@ -300,16 +287,15 @@ void Animator::Update()
 	}
 	else
 	{
-		const float& current_sec = controller->playing_state_machine->currentSeconds;
+		const float& current_sec = controller->playing_state_machine->current_seconds;
 		for (auto& animation : controller->playing_state_machine->clip->animations)
 		{
 			const vector<Animation_Clip::Keyframe>& keyframes = animation.keys;
 
-			const int keyCount = static_cast<int>(keyframes.size());
-			const Animation_Clip::Keyframe& last_keyframe = keyframes[keyCount - 1];
+			const int key_count = static_cast<int>(keyframes.size());
 			bool is_end_frame = true;
 
-			for (int keyIndex = 0; keyIndex < keyCount - 1; ++keyIndex)
+			for (int keyIndex = 0; keyIndex < key_count - 1; ++keyIndex)
 			{
 				// 現在の時間がどのキーフレームの間にいるか判定する
 				const Animation_Clip::Keyframe& keyframe0 = keyframes.at(keyIndex);
@@ -319,7 +305,7 @@ void Animator::Update()
 				{
 					const float rate = (current_sec - keyframe0.time) / (keyframe1.time - keyframe0.time);
 
-					Animation_Target& target = pose_playing[animation.Target_Path];
+					Animation_Target& target = pose_playing[animation.target_path];
 					// ２つのキーフレーム間の補完計算
 					target.position = Vector3::Lerp(keyframe0.position, keyframe1.position, rate);
 					target.rotation = Quaternion::Slerp(keyframe0.rotation, keyframe1.rotation, rate);
@@ -331,8 +317,8 @@ void Animator::Update()
 
 			if (is_end_frame)
 			{
-				const Animation_Clip::Keyframe& last_keyframe = keyframes[keyCount - 1];
-				Animation_Target& target = pose_playing[animation.Target_Path];
+				const auto& last_keyframe = keyframes[key_count - 1];
+				Animation_Target& target = pose_playing[animation.target_path];
 				target.position = last_keyframe.position;
 				target.rotation = last_keyframe.rotation;
 				target.scale = last_keyframe.scale;
@@ -343,8 +329,8 @@ void Animator::Update()
 
 	for (auto& data : animation_data)
 	{
-		Animation_Target& anim = data.second;
-		if (shared_ptr<Transform> target = anim.target.lock())
+		auto& anim = data.second;
+		if (const auto& target = anim.target.lock())
 		{
 			target->Set_Local_Position(anim.position);
 			target->Set_Local_Rotation(anim.rotation);
@@ -380,7 +366,7 @@ bool Animator::Draw_ImGui()
 		{
 			ImGui::Text(u8"アタッチ中 : ");
 			ImGui::SameLine();
-			string controller_name = controller->name + ".controller";
+			const string controller_name = controller->name + ".controller";
 			ImGui::Text(controller_name.c_str());
 		}
 		else

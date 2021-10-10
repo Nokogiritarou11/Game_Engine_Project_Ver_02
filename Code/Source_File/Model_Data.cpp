@@ -602,7 +602,7 @@ void Model_Data::BuildMesh(FbxNode* fbxNode, FbxMesh* fbxMesh)
 		}
 	}
 
-	mesh->boundingbox.Set_size(MaxV - MinV);
+	mesh->boundingbox.Set_Size(MaxV - MinV);
 
 	// 頂点バッファ
 	{

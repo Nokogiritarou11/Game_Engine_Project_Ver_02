@@ -71,7 +71,7 @@ Editor::Editor()
 	config.PixelSnapH = true;
 	config.GlyphMinAdvanceX = size_icon; // アイコンを等幅にします。
 	static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-	io.Fonts->AddFontFromFileTTF("Default_Resource/Font/fontawesome-webfont.ttf", size_icon, &config, icon_ranges);
+	io.Fonts->AddFontFromFileTTF("Default_Assets/Font/fontawesome-webfont.ttf", size_icon, &config, icon_ranges);
 	io.Fonts->Build();
 
 	Vector3 p = { 0, 1.5f, -3 };
@@ -327,7 +327,7 @@ void Editor::Hierarchy_Render()
 				}
 				if (ImGui::Selectable(u8"プレハブを読み込む"))
 				{
-					string path = System_Function::Get_Open_File_Name("prefab", "\\Resouces\\Prefab");
+					string path = System_Function::Get_Open_File_Name("prefab", "\\Assets\\Prefab");
 					if (path != "")
 					{
 						Resources::Load_Prefab(path);
@@ -356,7 +356,7 @@ void Editor::Hierarchy_Render()
 							}
 
 							{
-								ofstream ss("Default_Resource\\System\\copy.prefab", ios::binary);
+								ofstream ss("Default_Assets\\System\\copy.prefab", ios::binary);
 								{
 									cereal::BinaryOutputArchive o_archive(ss);
 									o_archive(obj);
@@ -366,11 +366,11 @@ void Editor::Hierarchy_Render()
 							if (parent)
 							{
 								obj->transform->Set_Parent(parent);
-								Resources::Load_Prefab("Default_Resource\\System\\copy.prefab")->transform->Set_Parent(parent);
+								Resources::Load_Prefab("Default_Assets\\System\\copy.prefab")->transform->Set_Parent(parent);
 							}
 							else
 							{
-								Resources::Load_Prefab("Default_Resource\\System\\copy.prefab");
+								Resources::Load_Prefab("Default_Assets\\System\\copy.prefab");
 							}
 						}
 
@@ -405,7 +405,7 @@ void Editor::Hierarchy_Render()
 						}
 
 						{
-							ofstream ss("Default_Resource\\System\\copy.prefab", ios::binary);
+							ofstream ss("Default_Assets\\System\\copy.prefab", ios::binary);
 							{
 								cereal::BinaryOutputArchive o_archive(ss);
 								o_archive(obj);
@@ -415,11 +415,11 @@ void Editor::Hierarchy_Render()
 						if (parent)
 						{
 							obj->transform->Set_Parent(parent);
-							Resources::Load_Prefab("Default_Resource\\System\\copy.prefab")->transform->Set_Parent(parent);
+							Resources::Load_Prefab("Default_Assets\\System\\copy.prefab")->transform->Set_Parent(parent);
 						}
 						else
 						{
-							Resources::Load_Prefab("Default_Resource\\System\\copy.prefab");
+							Resources::Load_Prefab("Default_Assets\\System\\copy.prefab");
 						}
 					}
 
@@ -841,7 +841,7 @@ void Editor::Scene_File_Menu_Render()
 		{
 			if (!Engine::scene_manager->run && !Engine::scene_manager->pause)
 			{
-				string path = System_Function::Get_Save_File_Name("bin", "\\Resouces\\Scene");
+				string path = System_Function::Get_Save_File_Name("bin", "\\Assets\\Scene");
 				if (path != "")
 				{
 					int path_i = path.find_last_of("\\") + 1;//7
@@ -857,13 +857,13 @@ void Editor::Scene_File_Menu_Render()
 		{
 			if (!Engine::scene_manager->run && !Engine::scene_manager->pause)
 			{
-				string path = System_Function::Get_Open_File_Name("bin", "\\Resouces\\Scene");
+				string path = System_Function::Get_Open_File_Name("bin", "\\Assets\\Scene");
 				if (path != "")
 				{
 					Engine::scene_manager->last_save_path = path;
 					Engine::scene_manager->Load_Scene(path);
 					Select_Reset();
-					ofstream oOfstream("Default_Resource\\System\\last_save.bin");
+					ofstream oOfstream("Default_Assets\\System\\last_save.bin");
 					if (oOfstream.is_open())
 					{
 						// ファイルへ書き込む
@@ -883,7 +883,7 @@ void Editor::Scene_File_Menu_Render()
 				if (Engine::scene_manager->last_save_path != "")
 				{
 					Engine::scene_manager->Save_Scene(Engine::scene_manager->last_save_path);
-					ofstream oOfstream("Default_Resource\\System\\last_save.bin");
+					ofstream oOfstream("Default_Assets\\System\\last_save.bin");
 					if (oOfstream.is_open())
 					{
 						// ファイルへ書き込む
@@ -893,7 +893,7 @@ void Editor::Scene_File_Menu_Render()
 				}
 				else
 				{
-					string path = System_Function::Get_Save_File_Name("bin", "\\Resouces\\Scene");
+					string path = System_Function::Get_Save_File_Name("bin", "\\Assets\\Scene");
 					if (path != "")
 					{
 						int path_i = path.find_last_of("\\") + 1;//7
@@ -902,7 +902,7 @@ void Editor::Scene_File_Menu_Render()
 						string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 						path = pathname + filename + ".bin";
 						Engine::scene_manager->Save_Scene(path);
-						ofstream oOfstream("Default_Resource\\System\\last_save.bin");
+						ofstream oOfstream("Default_Assets\\System\\last_save.bin");
 						if (oOfstream.is_open())
 						{
 							// ファイルへ書き込む
@@ -926,7 +926,7 @@ void Editor::Scene_File_Menu_Render()
 					string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 					path = pathname + filename + ".bin";
 					Engine::scene_manager->Save_Scene(path);
-					ofstream oOfstream("Default_Resource\\System\\last_save.bin");
+					ofstream oOfstream("Default_Assets\\System\\last_save.bin");
 					if (oOfstream.is_open())
 					{
 						// ファイルへ書き込む
@@ -1331,7 +1331,7 @@ void Editor::ShortCut_Check()
 				if (Engine::scene_manager->last_save_path != "")
 				{
 					Engine::scene_manager->Save_Scene(Engine::scene_manager->last_save_path);
-					ofstream oOfstream("Default_Resource\\System\\last_save.bin");
+					ofstream oOfstream("Default_Assets\\System\\last_save.bin");
 					if (oOfstream.is_open())
 					{
 						// ファイルへ書き込む
@@ -1350,7 +1350,7 @@ void Editor::ShortCut_Check()
 						string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 						path = pathname + filename + ".bin";
 						Engine::scene_manager->Save_Scene(path);
-						ofstream oOfstream("Default_Resource\\System\\last_save.bin");
+						ofstream oOfstream("Default_Assets\\System\\last_save.bin");
 						if (oOfstream.is_open())
 						{
 							// ファイルへ書き込む

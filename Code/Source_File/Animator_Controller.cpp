@@ -7,11 +7,7 @@
 #include "Include_ImGui.h"
 #include "Engine.h"
 #include "Asset_Manager.h"
-#include "Debug.h"
-#include <locale.h>
 #include <sstream>
-#include <functional>
-#include <iostream>
 #include <fstream>
 #include <algorithm>
 using namespace std;
@@ -23,7 +19,7 @@ void Animator_Controller::Initialize()
 	{
 		parameters = make_shared<unordered_map<string, Animation_Parameter>>();
 	}
-	for (auto& state : state_machines)
+	for (const auto& state : state_machines)
 	{
 		state->Initialize(parameters);
 		if (state->is_default_state)
@@ -34,9 +30,9 @@ void Animator_Controller::Initialize()
 	}
 }
 
-bool Animator_Controller::Add_State_Machine(string& name)
+bool Animator_Controller::Add_State_Machine(const string& name)
 {
-	for (auto& state : state_machines)
+	for (const auto& state : state_machines)
 	{
 		if (state->name == name) return false;
 	}
@@ -51,7 +47,7 @@ bool Animator_Controller::Add_State_Machine(string& name)
 	return true;
 }
 
-bool Animator_Controller::Remove_State_Machine(string& name)
+bool Animator_Controller::Remove_State_Machine(const string& name)
 {
 	shared_ptr<Animator_State_Machine> target_state;
 	size_t state_size = state_machines.size();
@@ -137,7 +133,7 @@ void Animator_Controller::Update()
 					playing_state_machine->transition_trigger = false;
 				}
 			}
-			else if (active_transition->interruption_source == Animator_State_Transition::Interruption_Source::Next_State)
+			if (active_transition->interruption_source == Animator_State_Transition::Interruption_Source::Next_State)
 			{
 				next_state_machine->Update_Transition();
 
@@ -162,19 +158,19 @@ void Animator_Controller::Save()
 	string path = System_Function::Get_Save_File_Name();
 	if (path != "")
 	{
-		int path_i = path.find_last_of("\\") + 1;//7
-		int ext_i = path.find_last_of(".");//10
-		string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
-		string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+		const int path_i = path.find_last_of("\\") + 1;//7
+		const int ext_i = path.find_last_of(".");//10
+		const string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
+		const string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 		path = pathname + filename + ".controller";
 
 		name = filename;
-		ofstream ss(path.c_str(), ios::binary);
+		save_path = path;
 		{
+			ofstream ss(path.c_str(), ios::binary);
 			cereal::BinaryOutputArchive o_archive(ss);
 			o_archive(static_pointer_cast<Animator_Controller>(shared_from_this()));
 		}
-		save_path = path;
 	}
 }
 
@@ -187,33 +183,30 @@ void Animator_Controller::Save_As()
 	else
 	{
 		ofstream ss(save_path.c_str(), ios::binary);
-		{
-			cereal::BinaryOutputArchive o_archive(ss);
-			o_archive(static_pointer_cast<Animator_Controller>(shared_from_this()));
-		}
+		cereal::BinaryOutputArchive o_archive(ss);
+		o_archive(static_pointer_cast<Animator_Controller>(shared_from_this()));
 	}
 }
 
-shared_ptr<Animator_Controller> Animator_Controller::Load_Animator_Controller(string fullpath)
+shared_ptr<Animator_Controller> Animator_Controller::Load_Animator_Controller(const string& full_path)
 {
 	string path;
-	if (fullpath.empty())
+	if (full_path.empty())
 	{
-		path = System_Function::Get_Open_File_Name("controller", "\\Resouces\\Model");
+		path = System_Function::Get_Open_File_Name("controller", "\\Assets\\Model");
 	}
 	else
 	{
-		path = fullpath;
+		path = full_path;
 	}
 	int path_i = path.find_last_of("\\") + 1;//7
 	int ext_i = path.find_last_of(".");//10
 	string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
 	string filename = path.substr(path_i, ext_i - path_i); //ファイル名
-	shared_ptr<Animator_Controller> controller;
 
-	ifstream in_bin(path, ios::binary);
-	if (in_bin.is_open())
+	if (ifstream in_bin(path, ios::binary); in_bin.is_open())
 	{
+		shared_ptr<Animator_Controller> controller;
 		stringstream bin_s_stream;
 		bin_s_stream << in_bin.rdbuf();
 		cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
@@ -227,21 +220,21 @@ shared_ptr<Animator_Controller> Animator_Controller::Load_Animator_Controller(st
 
 shared_ptr<Animator_Controller> Animator_Controller::Create_New_Controller()
 {
-	string path = System_Function::Get_Save_File_Name("controller", "\\Resouces\\Model");
+	string path = System_Function::Get_Save_File_Name("controller", "\\Assets\\Model");
 	if (path != "")
 	{
-		int path_i = path.find_last_of("\\") + 1;//7
-		int ext_i = path.find_last_of(".");//10
-		string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
-		string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+		const int path_i = path.find_last_of("\\") + 1;//7
+		const int ext_i = path.find_last_of(".");//10
+		const string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
+		const string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 		path = pathname + filename + ".controller";
 
 		shared_ptr<Animator_Controller> controller = make_shared<Animator_Controller>();
 		Engine::asset_manager->Registration_Asset(controller);
 		controller->name = filename;
 		controller->save_path = path;
-		ofstream ss(path.c_str(), ios::binary);
 		{
+			ofstream ss(path.c_str(), ios::binary);
 			cereal::BinaryOutputArchive o_archive(ss);
 			o_archive(controller);
 		}
@@ -250,10 +243,9 @@ shared_ptr<Animator_Controller> Animator_Controller::Create_New_Controller()
 	return nullptr;
 }
 
-void Animator_Controller::Add_Parameter(string& p_name, Parameter_Type type)
+void Animator_Controller::Add_Parameter(string& p_name, Parameter_Type type) const
 {
-	auto it = parameters->find(p_name);
-	if (it == parameters->end())
+	if (const auto it = parameters->find(p_name); it == parameters->end())
 	{
 		Animation_Parameter parameter = {};
 		parameter.type = type;
@@ -416,8 +408,8 @@ void Animator_Controller::Render_ImGui()
 			ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth() * 0.8f);
 			if (ImGui::BeginCombo("##State_Select", current_state->name.data()))
 			{
-				const size_t state_size = state_machines.size();
-				for (size_t i = 0; i < state_size; ++i)
+				const int state_size = static_cast<int>(state_machines.size());
+				for (int i = 0; i < state_size; ++i)
 				{
 					const bool is_selected = (current_state_index == i);
 					if (ImGui::Selectable(state_machines[i]->name.data(), is_selected))
@@ -474,7 +466,7 @@ void Animator_Controller::Render_ImGui()
 			}
 			ImGui::PopStyleColor(1);
 
-			if (ImGui::BeginPopupModal(u8"ステート削除確認", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+			if (ImGui::BeginPopupModal(u8"ステート削除確認", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 			{
 				ImGui::Text(u8"ステートを削除しますか？\nこの操作は取り消せません\n\n");
 				ImGui::Separator();
@@ -510,18 +502,16 @@ void Animator_Controller::Render_ImGui()
 				ImGui::Indent();
 				ImGui::Text(u8"クリップ");
 				ImGui::SameLine(input_padding);
-				string clip_name;
+
+				string clip_name = u8"クリップが選択されていません";
 				if (current_state->clip)
 				{
 					clip_name = current_state->clip->name;
 				}
-				else
-				{
-					clip_name = u8"クリップが選択されていません";
-				}
+
 				if (ImGui::Button(clip_name.c_str(), ImVec2(200, 0)))
 				{
-					string path = System_Function::Get_Open_File_Name("anim", "\\Resouces\\Model");
+					string path = System_Function::Get_Open_File_Name("anim", "\\Assets\\Model");
 					if (!path.empty())
 					{
 						current_state->Set_Clip(path);
@@ -591,7 +581,7 @@ void Animator_Controller::Render_ImGui()
 
 				ImGui::Text(u8"ループアニメーション");
 				ImGui::SameLine(input_padding);
-				if (ImGui::Checkbox("##Loop", &current_state->loopAnimation))
+				if (ImGui::Checkbox("##Loop", &current_state->is_loop_animation))
 				{
 					if (Auto_Save) Save_As();
 				}
@@ -607,8 +597,7 @@ void Animator_Controller::Render_ImGui()
 				if (ImGui::CollapsingHeader(u8"アニメーションイベント設定"))
 				{
 					ImGui::Indent();
-					const bool has_event = !current_state->animation_events.empty();
-					if (has_event)
+					if (!current_state->animation_events.empty())
 					{
 						bool erase_event = false;
 						size_t erase_event_index = 0;
@@ -717,10 +706,8 @@ void Animator_Controller::Render_ImGui()
 				if (ImGui::CollapsingHeader(u8"ステートイベント設定"))
 				{
 					ImGui::Indent();
-					const bool has_event = !current_state->state_events.empty();
-					if (has_event)
+					if (!current_state->state_events.empty())
 					{
-						const char* event_type[] = { "Int", "Float", "Bool", "Trigger" };
 						const char* state_type[] = { "Enter", "Exit" };
 						bool erase_event = false;
 						size_t erase_event_index = 0;
@@ -845,8 +832,8 @@ void Animator_Controller::Render_ImGui()
 					current_transition = current_state->transitions[current_transition_index];
 					if (ImGui::BeginCombo("##Transition_Select", current_transition->next_state.lock()->name.data()))
 					{
-						const size_t transitions_size = current_state->transitions.size();
-						for (size_t n = 0; n < transitions_size; ++n)
+						const int transitions_size = static_cast<int>(current_state->transitions.size());
+						for (int n = 0; n < transitions_size; ++n)
 						{
 							ImGui::PushID(to_string(n).c_str());
 							const bool is_selected = (current_transition_index == n);
@@ -891,8 +878,8 @@ void Animator_Controller::Render_ImGui()
 						}
 						if (ImGui::BeginCombo("##Next_Select", state_machines[next_state_index]->name.data()))
 						{
-							size_t state_size = state_machines.size();
-							for (size_t i = 0; i < state_size; ++i)
+							const int state_size = static_cast<int>(state_machines.size());
+							for (int i = 0; i < state_size; ++i)
 							{
 								if (i != current_state_index)
 								{
@@ -927,7 +914,7 @@ void Animator_Controller::Render_ImGui()
 						}
 						ImGui::PopStyleColor(1);
 
-						if (ImGui::BeginPopupModal(u8"遷移削除確認", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+						if (ImGui::BeginPopupModal(u8"遷移削除確認", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 						{
 							ImGui::Text(u8"遷移を削除しますか？\nこの操作は取り消せません\n\n");
 							ImGui::Separator();
@@ -966,8 +953,8 @@ void Animator_Controller::Render_ImGui()
 
 								if (ImGui::BeginCombo("##Swap_Select", current_state->transitions[swap_state_index]->next_state.lock()->name.data()))
 								{
-									const size_t state_size = current_state->transitions.size();
-									for (size_t i = 0; i < state_size; ++i)
+									const int state_size = static_cast<int>(current_state->transitions.size());
+									for (int i = 0; i < state_size; ++i)
 									{
 										if (i != current_transition_index)
 										{
@@ -1054,12 +1041,12 @@ void Animator_Controller::Render_ImGui()
 						if (ImGui::CollapsingHeader(u8"遷移条件"))
 						{
 							const float window_width = ImGui::GetWindowContentRegionWidth();
-							const size_t condition_size = current_transition->conditions.size();
-							if (condition_size >= 1)
+
+							if (const int condition_size = static_cast<int>(current_transition->conditions.size()); condition_size >= 1)
 							{
 								bool erase_condition = false;
 								int erase_condition_index;
-								for (size_t i = 0; i < condition_size; ++i)
+								for (int i = 0; i < condition_size; ++i)
 								{
 									shared_ptr<Condition>& condition = current_transition->conditions[i];
 									ImGui::PushID(to_string(i).c_str());
@@ -1093,8 +1080,7 @@ void Animator_Controller::Render_ImGui()
 										ImGui::EndCombo();
 									}
 
-									auto it = parameters->find(condition->key);
-									if (it != parameters->end())
+									if (const auto it = parameters->find(condition->key); it != parameters->end())
 									{
 										if (it->second.type != Parameter_Type::Trigger)
 										{

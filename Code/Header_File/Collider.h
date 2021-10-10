@@ -1,11 +1,6 @@
 #pragma once
 #include <unordered_map>
 #include "btBulletDynamicsCommon.h"
-#include "BulletCollision/CollisionDispatch/btGhostObject.h"
-#include "LinearMath/btVector3.h"
-#include "LinearMath/btQuaternion.h"
-#include "LinearMath/btTransform.h"
-#include "LinearMath/btIDebugDraw.h"
 #include "Component.h"
 #include "RigidBody.h"
 #include "GhostObject.h"
@@ -18,37 +13,37 @@ namespace BeastEngine
 
 	struct Collision
 	{
-		const std::shared_ptr<BeastEngine::Collider> collider;
-		const std::shared_ptr<BeastEngine::GameObject> gameobject;
-		const std::shared_ptr<BeastEngine::Transform> transform;
-		const std::vector<BeastEngine::Vector3> contacts;
+		const std::shared_ptr<Collider> collider;
+		const std::shared_ptr<GameObject> gameobject;
+		const std::shared_ptr<Transform> transform;
+		const std::vector<Vector3> contacts{};
 	};
 
-	class Collider : public BeastEngine::Component
+	class Collider : public Component
 	{
 	public:
 		void Set_Enabled(bool value); //表示するか
-		bool Get_Enabled();			  //現在アクティブか
+		bool Get_Enabled() const;			  //現在アクティブか
 		void Set_IsTrigger(bool value);
 		std::shared_ptr<RigidBody> rigidbody;
-		BeastEngine::Vector3 center;
+		Vector3 center;
 
 	protected:
 		virtual void Create_Shape() {};
-		void Rescale_Shape();
+		void Rescale_Shape() const;
 		void Create_Collider();
 		void Reset_Collider();
 
 		void Initialize_MonoBehaviour();
 		void Draw_ImGui_Common();
-		bool Draw_ImGui_Header(std::string component_name, bool& open);
+		bool Draw_ImGui_Header(const std::string& component_name, bool& open);
 
 		std::unique_ptr<btCollisionShape> shape;
 		std::unique_ptr<GhostObject> ghost;
 		bool is_trigger = false;
 
 	private:
-		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
+		void Initialize(std::shared_ptr<GameObject> obj) override;
 		void Set_Active(bool value) override;
 		bool Can_Multiple() override { return false; };
 
@@ -57,19 +52,19 @@ namespace BeastEngine
 
 		void Call_Hit(Collision& collision);
 
-		void Call_OnTrigger_Enter(BeastEngine::Collision& collision);
-		void Call_OnTrigger_Stay(BeastEngine::Collision& collision);
-		void Call_OnTrigger_Exit(BeastEngine::Collision& collision);
+		void Call_OnTrigger_Enter(Collision& collision);
+		void Call_OnTrigger_Stay(Collision& collision);
+		void Call_OnTrigger_Exit(Collision& collision);
 
-		void Call_OnCollision_Enter(BeastEngine::Collision& collision);
-		void Call_OnCollision_Stay(BeastEngine::Collision& collision);
-		void Call_OnCollision_Exit(BeastEngine::Collision& collision);
+		void Call_OnCollision_Enter(Collision& collision);
+		void Call_OnCollision_Stay(Collision& collision);
+		void Call_OnCollision_Exit(Collision& collision);
 
-		void Set_Debug_Draw(bool value);
+		void Set_Debug_Draw(bool value) const;
 
-		std::vector<std::weak_ptr<BeastEngine::MonoBehaviour>> send_list;
-		std::unordered_map<std::string, std::weak_ptr<BeastEngine::Collider>> hit_list;
-		std::unordered_map<std::string, std::weak_ptr<BeastEngine::Collider>> hit_list_old;
+		std::vector<std::weak_ptr<MonoBehaviour>> send_list;
+		std::unordered_map<std::string, std::weak_ptr<Collider>> hit_list;
+		std::unordered_map<std::string, std::weak_ptr<Collider>> hit_list_old;
 
 		bool is_called = false;
 		bool enabled = true;
@@ -78,18 +73,18 @@ namespace BeastEngine
 		bool disabled_old = false;
 		bool debug_drawed = false;
 
-		BeastEngine::Vector3 position_old;
-		BeastEngine::Quaternion rotation_old;
+		Vector3 position_old;
+		Quaternion rotation_old;
 
-		friend class BeastEngine::Editor;
-		friend class BeastEngine::BulletPhysics_Manager;
-		friend class BeastEngine::RigidBody;
-		friend class BeastEngine::GhostObject;
+		friend class Editor;
+		friend class BulletPhysics_Manager;
+		friend class RigidBody;
+		friend class GhostObject;
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Component>(this), enabled, is_trigger, rigidbody, center);
+			archive(cereal::base_class<Component>(this), enabled, is_trigger, rigidbody, center);
 		}
 	};
 }

@@ -1,6 +1,5 @@
 #pragma once
 #include "Object.h"
-#include <list>
 #include <typeinfo>
 #include <memory>
 
@@ -8,19 +7,19 @@ namespace BeastEngine
 {
 	class Editor;
 
-	class Component : public BeastEngine::Object
+	class Component : public Object
 	{
 	public:
-		std::shared_ptr<BeastEngine::GameObject> gameobject;
-		std::shared_ptr<BeastEngine::Transform> transform;
+		std::shared_ptr<GameObject> gameobject;
+		std::shared_ptr<Transform> transform;
 
-		bool Compare_Tag(std::string _tag);
+		[[nodiscard]] bool Compare_Tag(const std::string& tag) const;
 
 		template<class T>
 		std::shared_ptr<T> Get_Component();
 		template<class T>
 		std::shared_ptr<T> Add_Component();
-		std::shared_ptr<Component> Add_Component(std::string class_name);
+		std::shared_ptr<Component> Add_Component(const std::string& class_name);
 
 	protected:
 		virtual void Set_Active(bool value) {};
@@ -31,15 +30,15 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Object>(this));
+			archive(cereal::base_class<Object>(this));
 		}
 
 		virtual bool Can_Multiple() { return true; };
 
-		friend class BeastEngine::GameObject;
-		virtual void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) {};
+		friend class GameObject;
+		virtual void Initialize(std::shared_ptr<GameObject> obj) {};
 
-		friend class BeastEngine::Editor;
+		friend class Editor;
 		virtual bool Draw_ImGui() { return true; };
 	};
 }
@@ -61,9 +60,9 @@ namespace BeastEngine
 
 			static std::shared_ptr<Component> createInstance(std::string const& s)
 			{
-				map_type::iterator it = getMap()->find(s);
+				const auto it = getMap()->find(s);
 				if (it == getMap()->end())
-					return 0;
+					return nullptr;
 				return it->second();
 			}
 
@@ -100,7 +99,7 @@ namespace BeastEngine\
 template<class T>
 std::shared_ptr<T> BeastEngine::Component::Get_Component()
 {
-	for (std::shared_ptr<BeastEngine::Component>& com : gameobject->component_list)
+	for (std::shared_ptr<Component>& com : gameobject->component_list)
 	{
 		std::shared_ptr<T> buff = std::dynamic_pointer_cast<T>(com);
 		if (buff != nullptr)
@@ -115,32 +114,30 @@ template<class T>
 std::shared_ptr<T> BeastEngine::Component::Add_Component()
 {
 	std::shared_ptr<T> buff = std::make_shared<T>();
-	bool can_multiple = std::dynamic_pointer_cast<BeastEngine::Component>(buff)->Can_Multiple();
 
-	if (!can_multiple)
+	if (std::dynamic_pointer_cast<Component>(buff)->Can_Multiple())
 	{
-		bool already_attach = false;
-		for (std::shared_ptr<BeastEngine::Component>& com : gameobject->component_list)
-		{
-			std::shared_ptr<T> _buff = std::dynamic_pointer_cast<T>(com);
-			if (_buff != nullptr)
-			{
-				already_attach = true;
-				break;
-			}
-		}
-		if (!already_attach)
-		{
-			std::dynamic_pointer_cast<BeastEngine::Component>(buff)->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
-			gameobject->component_list.emplace_back(buff);
-			return buff;
-		}
-	}
-	else
-	{
-		std::dynamic_pointer_cast<BeastEngine::Component>(buff)->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
+		std::dynamic_pointer_cast<Component>(buff)->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
 		gameobject->component_list.emplace_back(buff);
 		return buff;
 	}
+
+	bool already_attach = false;
+	for (std::shared_ptr<Component>& com : gameobject->component_list)
+	{
+		std::shared_ptr<T> _buff = std::dynamic_pointer_cast<T>(com);
+		if (_buff != nullptr)
+		{
+			already_attach = true;
+			break;
+		}
+	}
+	if (!already_attach)
+	{
+		std::dynamic_pointer_cast<Component>(buff)->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
+		gameobject->component_list.emplace_back(buff);
+		return buff;
+	}
+
 	return nullptr;
 }

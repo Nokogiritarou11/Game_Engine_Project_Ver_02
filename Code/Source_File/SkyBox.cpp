@@ -15,7 +15,7 @@ using namespace DirectX;
 SkyBox::SkyBox()
 {
 	material = Material::Create("Shader\\SkyBox_Shader_VS.hlsl", "Shader\\SkyBox_Shader_PS.hlsl");
-	material->Set_Texture("cubemap", Texture::Load("Default_Resource\\Image\\SkyBox\\envmap_miramar.dds"));
+	material->Set_Texture("cubemap", Texture::Load("Default_Assets\\Image\\SkyBox\\envmap_miramar.dds"));
 	material->Set_Blend_State(BS_State::Off);
 	material->Set_Rasterizer_State(RS_State::Cull_None);
 	material->Set_Depth_Stencil_State(DS_State::None_No_Write);

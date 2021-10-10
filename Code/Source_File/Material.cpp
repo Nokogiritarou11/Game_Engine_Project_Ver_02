@@ -544,7 +544,7 @@ void Material::Render_Pass::Reflect_Texture()
 					auto copy_it = copy_texture_info.find(t_info.name);
 					if (copy_it == copy_texture_info.end())
 					{
-						tex.texture_path = "Default_Resource\\Image\\Default_Texture.png";
+						tex.texture_path = "Default_Assets\\Image\\Default_Texture.png";
 					}
 					else
 					{
@@ -574,7 +574,7 @@ void Material::Render_Pass::Reflect_Texture(Shader::Shader_Type type)
 				Texture_Info tex;
 				tex.register_number = t_info.register_number;
 				tex.staging_shader.emplace_back(type);
-				tex.texture_path = "Default_Resource\\Image\\Default_Texture.png";
+				tex.texture_path = "Default_Assets\\Image\\Default_Texture.png";
 				texture_info[t_info.name] = tex;
 			}
 			else
@@ -917,7 +917,7 @@ void Material::Draw_ImGui()
 				ImGui::SameLine(window_width - size.x - frame_padding);
 				if (ImGui::ImageButton((void*)tex->Get_Resource().Get(), size, uv0, uv1, frame_padding, bg_col, tint_col))
 				{
-					string path = System_Function::Get_Open_File_Name("png", "\\Resouces\\Model");
+					string path = System_Function::Get_Open_File_Name("png", "\\Assets\\Model");
 					if (!path.empty())
 					{
 						Set_Texture(info.first, Texture::Load(path));

@@ -4,7 +4,7 @@
 using namespace std;
 using namespace BeastEngine;
 
-void Animator_State_Transition::Initialize(std::shared_ptr<std::unordered_map<std::string, BeastEngine::Animation_Parameter>>& p_parameters, std::shared_ptr<BeastEngine::Animator_State_Machine>& next)
+void Animator_State_Transition::Initialize(const std::shared_ptr<std::unordered_map<std::string, Animation_Parameter>>& p_parameters, const std::shared_ptr<Animator_State_Machine>& next)
 {
 	parameters = p_parameters;
 	next_state = next;
@@ -13,7 +13,7 @@ void Animator_State_Transition::Initialize(std::shared_ptr<std::unordered_map<st
 bool Animator_State_Transition::Check_Transition()
 {
 	bool exit = true;
-	for (auto& condition : conditions)
+	for (const auto& condition : conditions)
 	{
 		auto it = parameters->find(condition->key);
 		if (it != parameters->end())
@@ -68,7 +68,7 @@ bool Animator_State_Transition::Check_Transition()
 				{
 					if (condition->type == Parameter_Type::Int)
 					{
-						if (it->second.value_int != (int)condition->threshold) { exit = false; }
+						if (it->second.value_int != static_cast<int>(condition->threshold)) { exit = false; }
 					}
 				}
 				break;
@@ -77,7 +77,7 @@ bool Animator_State_Transition::Check_Transition()
 				{
 					if (condition->type == Parameter_Type::Int)
 					{
-						if (it->second.value_int == (int)condition->threshold) { exit = false; }
+						if (it->second.value_int == static_cast<int>(condition->threshold)) { exit = false; }
 					}
 				}
 				break;
@@ -93,7 +93,7 @@ bool Animator_State_Transition::Check_Transition()
 
 void Animator_State_Transition::Active()
 {
-	for (auto& condition : conditions)
+	for (const auto& condition : conditions)
 	{
 		if (condition->type == Parameter_Type::Trigger)
 		{
@@ -106,7 +106,7 @@ void Animator_State_Transition::Active()
 	}
 }
 
-void Animator_State_Transition::Add_Condition(string key, Parameter_Type type, Condition_Mode mode, float threshold)
+void Animator_State_Transition::Add_Condition(const string& key, const Parameter_Type type, const Condition_Mode mode, const float threshold)
 {
 	shared_ptr<Condition> condition = make_shared<Condition>();
 	condition->key = key;

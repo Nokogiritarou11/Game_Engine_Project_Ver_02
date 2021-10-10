@@ -30,7 +30,7 @@ void FBX_Converter::Draw_ImGui()
 	{
 		if (ImGui::Button(u8"FBX読み込み"))
 		{
-			string path = System_Function::Get_Open_File_Name("fbx", "\\Resouces\\Model");
+			string path = System_Function::Get_Open_File_Name("fbx", "\\Assets\\Model");
 			if (path != "")
 			{
 				int path_i = path.find_last_of("\\") + 1;//7
@@ -146,8 +146,8 @@ void FBX_Converter::Load_From_FBX(bool& convert_mesh, bool& convert_material, bo
 				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 				shared_ptr<Material> mat = Material::Create("Shader\\Standard_Shader_VS.hlsl", "Shader\\Standard_Shader_PS.hlsl");
 				mat->name = filename;
-				mat->Set_Texture("diffuseMap", Texture::Load("Default_Resource\\Image\\Default_Texture.png"));
-				mat->Set_Texture("normalMap", Texture::Load("Default_Resource\\Image\\Default_NormalMap.png"));
+				mat->Set_Texture("diffuseMap", Texture::Load("Default_Assets\\Image\\Default_Texture.png"));
+				mat->Set_Texture("normalMap", Texture::Load("Default_Assets\\Image\\Default_NormalMap.png"));
 				mat->Save(path);
 			}
 		}
@@ -248,8 +248,8 @@ void FBX_Converter::Load_From_FBX(bool& convert_mesh, bool& convert_material, bo
 				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 				shared_ptr<Material> mat = Material::Create("Shader\\Standard_Shader_VS.hlsl", "Shader\\Standard_Shader_PS.hlsl");
 				mat->name = filename;
-				mat->Set_Texture("diffuseMap", Texture::Load("Default_Resource\\Image\\Default_Texture.png"));
-				mat->Set_Texture("normalMap", Texture::Load("Default_Resource\\Image\\Default_NormalMap.png"));
+				mat->Set_Texture("diffuseMap", Texture::Load("Default_Assets\\Image\\Default_Texture.png"));
+				mat->Set_Texture("normalMap", Texture::Load("Default_Assets\\Image\\Default_NormalMap.png"));
 				mat->Save(path);
 			}
 		}
@@ -352,7 +352,7 @@ void FBX_Converter::Convert_Animation(vector<shared_ptr<GameObject>>& bones)
 					}
 				}
 			}
-			anim.Target_Path = path;
+			anim.target_path = path;
 
 			//対象ボーンのキーを登録する
 			anim.keys.resize(animation.keyframes.size());

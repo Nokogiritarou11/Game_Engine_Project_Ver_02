@@ -13,7 +13,7 @@ void Animator_Manager::Update()
 {
 	for (list<weak_ptr<Animator>>::iterator itr = animator_list.begin(); itr != animator_list.end();)
 	{
-		if (auto& animator = itr->lock())
+		if (const auto& animator = itr->lock())
 		{
 			if (animator->gameobject->Get_Active_In_Hierarchy())
 			{

@@ -5,23 +5,22 @@
 using namespace std;
 using namespace BeastEngine;
 
-void Animator_State_Machine::Initialize(shared_ptr<unordered_map<string, Animation_Parameter>>& p_parameters)
+void Animator_State_Machine::Initialize(const shared_ptr<unordered_map<string, Animation_Parameter>>& p_parameters)
 {
 	parameters = p_parameters;
 	if (!path.empty())
 	{
 		Set_Clip(path);
 	}
-	for (auto& transition : transitions)
+	for (const auto& transition : transitions)
 	{
 		transition->parameters = p_parameters;
 	}
 }
 
-void Animator_State_Machine::Set_Clip(string fullpath)
+void Animator_State_Machine::Set_Clip(const string& full_path)
 {
-	auto new_clip = Animation_Clip::Load_Clip(fullpath);
-	if (new_clip)
+	if (const auto& new_clip = Animation_Clip::Load_Clip(full_path))
 	{
 		if (clip)
 		{
@@ -33,16 +32,16 @@ void Animator_State_Machine::Set_Clip(string fullpath)
 			end_frame = new_clip->Get_Frame_Count();
 		}
 		clip = new_clip;
-		path = fullpath;
+		path = full_path;
 	}
 }
 
 void Animator_State_Machine::Set_Active(float transition_offset)
 {
-	endAnimation = false;
-	const float end_sec = end_frame * 0.0166666666666667f;
-	const float start_sec = start_frame * 0.0166666666666667f;
-	currentSeconds = transition_offset * (end_sec - start_sec) + start_sec;
+	is_end_animation = false;
+	const float end_sec = static_cast<float>(end_frame) * 0.0166666666666667f;
+	const float start_sec = static_cast<float>(start_frame) * 0.0166666666666667f;
+	current_seconds = transition_offset * (end_sec - start_sec) + start_sec;
 
 	for (auto& eve : state_events)
 	{
@@ -110,10 +109,10 @@ void Animator_State_Machine::Exit()
 {
 	transition_trigger = false;
 	active_transition.reset();
-	endAnimation = false;
-	currentSeconds = 0;
+	is_end_animation = false;
+	current_seconds = 0;
 
-	for (auto& transition : transitions)
+	for (const auto& transition : transitions)
 	{
 		transition->exit_called = false;
 		transition->exit_trigger = false;
@@ -189,7 +188,7 @@ void Animator_State_Machine::Update_Transition()
 {
 	bool exit = false;
 	size_t i = 0;
-	for (auto& transition : transitions)
+	for (const auto& transition : transitions)
 	{
 		if (transition->has_exit_time)
 		{
@@ -219,12 +218,12 @@ void Animator_State_Machine::Update_Transition()
 
 void Animator_State_Machine::Update_Time()
 {
-	const float end_sec = end_frame * 0.0166666666666667f;
+	const float end_sec = static_cast<float>(end_frame) * 0.0166666666666667f;
 
 	// 最終フレーム処理
-	if (endAnimation)
+	if (is_end_animation)
 	{
-		currentSeconds = end_sec;
+		current_seconds = end_sec;
 		return;
 	}
 
@@ -232,17 +231,16 @@ void Animator_State_Machine::Update_Time()
 	// 時間経過
 	if (use_speed_multiplier && !multiplier_hash.empty())
 	{
-		auto it = parameters->find(multiplier_hash);
-		if (it != parameters->end())
+		if (const auto it = parameters->find(multiplier_hash); it != parameters->end())
 		{
 			multiplier = (*parameters)[multiplier_hash].value_float;
 		}
 	}
-	currentSeconds += Time::delta_time * animation_speed * multiplier;
+	current_seconds += Time::delta_time * animation_speed * multiplier;
 
-	for (auto& transition : transitions)
+	for (const auto& transition : transitions)
 	{
-		if (transition->has_exit_time && !transition->exit_called && currentSeconds >= end_sec * transition->exit_time)
+		if (transition->has_exit_time && !transition->exit_called && current_seconds >= end_sec * transition->exit_time)
 		{
 			transition->exit_trigger = true;
 		}
@@ -250,8 +248,8 @@ void Animator_State_Machine::Update_Time()
 
 	for (auto& eve : animation_events)
 	{
-		float frame_time = eve.frame * 0.0166666666666667f;
-		if (!eve.called && currentSeconds >= frame_time)
+		const float frame_time = eve.frame * 0.0166666666666667f;
+		if (!eve.called && current_seconds >= frame_time)
 		{
 			auto it = parameters->find(eve.key);
 			if (it != parameters->end())
@@ -311,9 +309,9 @@ void Animator_State_Machine::Update_Time()
 		}
 	}
 
-	if (currentSeconds >= end_sec)
+	if (current_seconds >= end_sec)
 	{
-		for (auto& transition : transitions)
+		for (const auto& transition : transitions)
 		{
 			transition->exit_called = false;
 		}
@@ -322,15 +320,15 @@ void Animator_State_Machine::Update_Time()
 			eve.called = false;
 		}
 
-		if (loopAnimation)
+		if (is_loop_animation)
 		{
-			const float start_sec = start_frame * 0.0166666666666667f;
-			currentSeconds -= (end_sec - start_sec);
+			const float start_sec = static_cast<float>(start_frame) * 0.0166666666666667f;
+			current_seconds -= (end_sec - start_sec);
 		}
 		else
 		{
-			currentSeconds = end_sec;
-			endAnimation = true;
+			current_seconds = end_sec;
+			is_end_animation = true;
 		}
 	}
 }
@@ -359,7 +357,7 @@ void Animator_State_Machine::Add_State_Event()
 	state_events.emplace_back(eve);
 }
 
-shared_ptr<BeastEngine::Animator_State_Transition> Animator_State_Machine::Get_Active_Transition()
+shared_ptr<Animator_State_Transition> Animator_State_Machine::Get_Active_Transition() const
 {
 	active_transition->Active();
 	return active_transition;

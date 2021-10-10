@@ -7,7 +7,6 @@
 #include "System_Function.h"
 #include "Mathf.h"
 #include "Debug.h"
-#include "Engine.h"
 #include "Asset_Manager.h"
 using namespace std;
 using namespace DirectX;
@@ -17,8 +16,7 @@ AudioSource::~AudioSource()
 {
 	if (effect_instance)
 	{
-		auto state = effect_instance->GetState();
-		if (state == SoundState::PLAYING)
+		if (effect_instance->GetState() == PLAYING)
 		{
 			effect_instance->Stop();
 		}
@@ -26,7 +24,7 @@ AudioSource::~AudioSource()
 	}
 }
 
-void AudioSource::Initialize(shared_ptr<GameObject> obj)
+void AudioSource::Initialize(const shared_ptr<GameObject> obj)
 {
 	Engine::asset_manager->Registration_Asset(shared_from_this());
 	gameobject = obj;
@@ -60,8 +58,7 @@ void AudioSource::Set_Clip(const char* filepath, const char* filename)
 {
 	if (effect_instance)
 	{
-		auto state = effect_instance->GetState();
-		if (state == SoundState::PLAYING)
+		if (effect_instance->GetState() == PLAYING)
 		{
 			effect_instance->Stop();
 		}
@@ -73,30 +70,30 @@ void AudioSource::Set_Clip(const char* filepath, const char* filename)
 	Set_Pitch(pitch);
 }
 
-void AudioSource::Play()
+void AudioSource::Play() const
 {
 	if (effect_instance)
 	{
-		auto state = effect_instance->GetState();
+		const auto state = effect_instance->GetState();
 		Set_Volume(volume);
 		Set_Pitch(pitch);
-		if (state == SoundState::PAUSED)
+		switch (state)
 		{
-			effect_instance->Resume();
-		}
-		else if (state == SoundState::PLAYING)
-		{
-			effect_instance->Stop();
-			effect_instance->Play(loop);
-		}
-		else
-		{
-			effect_instance->Play(loop);
+			case PAUSED:
+				effect_instance->Resume();
+				break;
+			case PLAYING:
+				effect_instance->Stop();
+				effect_instance->Play(loop);
+				break;
+			case STOPPED:
+				effect_instance->Play(loop);
+				break;
 		}
 	}
 }
 
-void AudioSource::Pause()
+void AudioSource::Pause() const
 {
 	if (effect_instance)
 	{
@@ -104,7 +101,7 @@ void AudioSource::Pause()
 	}
 }
 
-void AudioSource::Stop()
+void AudioSource::Stop() const
 {
 	if (effect_instance)
 	{
@@ -112,7 +109,7 @@ void AudioSource::Stop()
 	}
 }
 
-void AudioSource::Play_OneShot(float volume, float pitch)
+void AudioSource::Play_OneShot(float volume, float pitch) const
 {
 	if (file_path != "")
 	{
@@ -129,12 +126,11 @@ void AudioSource::PlayClipAtPoint(const char* filepath, const char* filename, Ve
 }
 */
 
-bool AudioSource::Is_Playing()
+bool AudioSource::Is_Playing() const
 {
 	if (effect_instance)
 	{
-		auto state = effect_instance->GetState();
-		if (state == SoundState::PLAYING)
+		if (const auto state = effect_instance->GetState(); state == PLAYING)
 		{
 			return true;
 		}
@@ -146,7 +142,7 @@ bool AudioSource::Is_Playing()
 	return false;
 }
 
-void AudioSource::Set_Volume(float volume)
+void AudioSource::Set_Volume(float volume) const
 {
 	volume = max(0, volume);
 	if (effect_instance)
@@ -154,7 +150,7 @@ void AudioSource::Set_Volume(float volume)
 		effect_instance->SetVolume(volume);
 	}
 }
-void AudioSource::Set_Pitch(float pitch)
+void AudioSource::Set_Pitch(float pitch) const
 {
 	pitch = Mathf::Clamp(pitch, -1.0f, 1.0f);
 	if (effect_instance)
@@ -175,18 +171,17 @@ bool AudioSource::Draw_ImGui()
 		ImGui::Text(file_name.c_str());
 		if (ImGui::Button(u8"Wavファイルを選択"))
 		{
-			string path = System_Function::Get_Open_File_Name("wav","\\Resouces\\Audio");
-			if (path != "")
+			if (const string path = System_Function::Get_Open_File_Name("wav","\\Assets\\Audio"); path != "")
 			{
-				int path_i = path.find_last_of("\\") + 1;
-				int ext_i = path.find_last_of(".");
-				string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
-				string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
-				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
-				string name = filename + extname;
-				if (extname == ".wav")
+				const int path_i = path.find_last_of("\\") + 1;
+				const int ext_i = path.find_last_of(".");
+				const string path_name = path.substr(0, path_i); //ファイルまでのディレクトリ
+				const string ext_name = path.substr(ext_i, path.size() - ext_i); //拡張子
+				const string file_name = path.substr(path_i, ext_i - path_i); //ファイル名
+				const string name = file_name + ext_name;
+				if (ext_name == ".wav")
 				{
-					Set_Clip(pathname.c_str(), name.c_str());
+					Set_Clip(path_name.c_str(), name.c_str());
 				}
 				else
 				{
@@ -199,9 +194,9 @@ bool AudioSource::Draw_ImGui()
 		ImGui::Text(u8"音量　");
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50);
-		bool Input_volume = ImGui::DragFloat(u8"##音量", &volume, 0.01f, 0.0f, 5.0f, "%.2f");
+		const bool Input_volume = ImGui::DragFloat(u8"##音量", &volume, 0.01f, 0.0f, 5.0f, "%.2f");
 		ImGui::SameLine();
-		bool slide_volume = ImGui::SliderFloat(u8"##音量", &volume, 0.0f, 5.0f, "%.2f");
+		const bool slide_volume = ImGui::SliderFloat(u8"##音量", &volume, 0.0f, 5.0f, "%.2f");
 		if (Input_volume || slide_volume)
 		{
 			if (effect_instance)
@@ -216,9 +211,9 @@ bool AudioSource::Draw_ImGui()
 		ImGui::Text(u8"ピッチ");
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50);
-		bool Input_pitch = ImGui::DragFloat(u8"##ピッチ", &pitch, 0.01f, -1.0f, 1.0f, "%.2f");
+		const bool Input_pitch = ImGui::DragFloat(u8"##ピッチ", &pitch, 0.01f, -1.0f, 1.0f, "%.2f");
 		ImGui::SameLine();
-		bool slide_pitch = ImGui::SliderFloat(u8"##ピッチ", &pitch, -1.0f, 1.0f, "%.2f");
+		const bool slide_pitch = ImGui::SliderFloat(u8"##ピッチ", &pitch, -1.0f, 1.0f, "%.2f");
 		if (Input_pitch || slide_pitch)
 		{
 			if (effect_instance)
