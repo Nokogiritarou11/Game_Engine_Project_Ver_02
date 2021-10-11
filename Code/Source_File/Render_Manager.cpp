@@ -31,14 +31,14 @@ Render_Manager::Render_Manager()
 	skybox = make_unique<SkyBox>();
 
 	// 定数バッファの生成
-	D3D11_BUFFER_DESC bd = {};
+	D3D11_BUFFER_DESC bd;
 	bd.Usage = D3D11_USAGE_DYNAMIC;
 	bd.ByteWidth = sizeof(Constant_Buffer_Scene);
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	bd.MiscFlags = 0;
 	bd.StructureByteStride = 0;
-	HRESULT hr = DxSystem::device->CreateBuffer(&bd, nullptr, constant_buffer_scene.GetAddressOf());
+	const HRESULT hr = DxSystem::device->CreateBuffer(&bd, nullptr, constant_buffer_scene.GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	shadow_camera_transform = make_shared<Transform>();
@@ -61,7 +61,7 @@ void Render_Manager::Reset()
 {
 	for (auto& r : renderer_3D_list)
 	{
-		if (auto& rend = r.lock())
+		if (const auto& rend = r.lock())
 		{
 			rend->enabled_old = false;
 			rend->is_called = false;
@@ -69,7 +69,7 @@ void Render_Manager::Reset()
 	}
 	for (auto& r : renderer_2D_list)
 	{
-		if (auto& rend = r.lock())
+		if (const auto& rend = r.lock())
 		{
 			rend->enabled_old = false;
 			rend->is_called = false;
@@ -104,7 +104,7 @@ void Render_Manager::Check_Renderer()
 		bool expired = false;
 		for (auto& r : renderer_3D_list)
 		{
-			if (auto& rend = r.lock())
+			if (const auto& rend = r.lock())
 			{
 				rend->Recalculate_Frame();
 			}
@@ -115,7 +115,7 @@ void Render_Manager::Check_Renderer()
 		}
 		if (expired)
 		{
-			auto removeIt = remove_if(renderer_3D_list.begin(), renderer_3D_list.end(), [](auto& r) { return r.expired(); });
+			const auto removeIt = remove_if(renderer_3D_list.begin(), renderer_3D_list.end(), [](auto& r) { return r.expired(); });
 			renderer_3D_list.erase(removeIt, renderer_3D_list.end());
 		}
 	}
@@ -124,7 +124,7 @@ void Render_Manager::Check_Renderer()
 		bool expired = false;
 		for (auto& r : renderer_2D_list)
 		{
-			if (auto& rend = r.lock())
+			if (const auto& rend = r.lock())
 			{
 				rend->Recalculate_Frame();
 			}
@@ -135,8 +135,8 @@ void Render_Manager::Check_Renderer()
 		}
 		if (expired)
 		{
-			auto removeIt = remove_if(renderer_2D_list.begin(), renderer_2D_list.end(), [](weak_ptr<Renderer> r) { return r.expired(); });
-			renderer_2D_list.erase(removeIt, renderer_2D_list.end());
+			const auto remove_it = remove_if(renderer_2D_list.begin(), renderer_2D_list.end(), [](weak_ptr<Renderer> r) { return r.expired(); });
+			renderer_2D_list.erase(remove_it, renderer_2D_list.end());
 		}
 	}
 }
@@ -145,7 +145,7 @@ void Render_Manager::Culling_Renderer(const Vector3& view_pos, const array<Vecto
 {
 	for (auto& r : renderer_3D_list)
 	{
-		shared_ptr<Renderer>& p_rend = r.lock();
+		const auto& p_rend = r.lock();
 		if (p_rend->can_render)
 		{
 			if (!p_rend->bounds.Get_Is_Culling_Frustum(p_rend->transform, planes))
@@ -189,7 +189,7 @@ void Render_Manager::Render()
 
 void Render_Manager::Render_Scene()
 {
-	Engine::editor->debug_camera->Update((float)scene_texture->screen_x, (float)scene_texture->screen_y);
+	Engine::editor->debug_camera->Update(static_cast<float>(scene_texture->screen_x), static_cast<float>(scene_texture->screen_y));
 	//シャドウマップ描画
 	Render_Shadow(Engine::editor->debug_camera_transform);
 
@@ -221,13 +221,13 @@ void Render_Manager::Render_Game()
 	bool expired = false;
 	for (auto& c : camera_list)
 	{
-		if (shared_ptr<Camera>& camera = c.lock())
+		if (const auto& camera = c.lock())
 		{
 			if (camera->gameobject->Get_Active_In_Hierarchy())
 			{
 				if (camera->Get_Enabled())
 				{
-					camera->Update((float)game_texture->screen_x, (float)game_texture->screen_y);
+					camera->Update(static_cast<float>(game_texture->screen_x), static_cast<float>(game_texture->screen_y));
 					//シャドウマップ描画
 					Render_Shadow(camera->transform);
 
@@ -264,8 +264,8 @@ void Render_Manager::Render_Game()
 	}
 	if (expired)
 	{
-		auto removeIt = remove_if(camera_list.begin(), camera_list.end(), [](weak_ptr<Camera> m) { return m.expired(); });
-		camera_list.erase(removeIt, camera_list.end());
+		const auto remove_it = remove_if(camera_list.begin(), camera_list.end(), [](weak_ptr<Camera> m) { return m.expired(); });
+		camera_list.erase(remove_it, camera_list.end());
 	}
 }
 
@@ -280,7 +280,7 @@ void Render_Manager::Render_3D(const shared_ptr<Camera>& camera)
 
 	for (auto& r : opaque_list)
 	{
-		shared_ptr<Renderer>& p_rend = r.renderer.lock();
+		const auto& p_rend = r.renderer.lock();
 		if (p_rend->gameobject->Get_Active_In_Hierarchy())
 		{
 			if (p_rend->Get_Enabled())
@@ -292,7 +292,7 @@ void Render_Manager::Render_3D(const shared_ptr<Camera>& camera)
 
 	for (auto& r : alpha_list)
 	{
-		shared_ptr<Renderer>& p_rend = r.renderer.lock();
+		const auto& p_rend = r.renderer.lock();
 		if (p_rend->gameobject->Get_Active_In_Hierarchy())
 		{
 			if (p_rend->Get_Enabled())
@@ -315,7 +315,7 @@ void Render_Manager::Render_2D()
 
 		for (auto& r : renderer_2D_list)
 		{
-			shared_ptr<Renderer>& p_rend = r.lock();
+			const auto& p_rend = r.lock();
 			if (p_rend->gameobject->Get_Active_In_Hierarchy())
 			{
 				if (p_rend->Get_Enabled())
@@ -327,7 +327,7 @@ void Render_Manager::Render_2D()
 	}
 }
 
-void Render_Manager::Render_Sky(const Vector3& pos)
+void Render_Manager::Render_Sky(const Vector3& pos) const
 {
 	//トポロジー設定
 	DxSystem::device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -336,9 +336,9 @@ void Render_Manager::Render_Sky(const Vector3& pos)
 
 void Render_Manager::Render_Shadow(const shared_ptr<Transform>& camera_transform)
 {
-	for (vector<weak_ptr<Light>>::iterator itr = Engine::light_manager->light_list.begin(); itr != Engine::light_manager->light_list.end();)
+	for (auto itr = Engine::light_manager->light_list.begin(); itr != Engine::light_manager->light_list.end();)
 	{
-		if (shared_ptr<Light>& m_light = itr->lock())
+		if (const auto& m_light = itr->lock())
 		{
 			if (m_light->gameobject->Get_Active_In_Hierarchy())
 			{
@@ -364,7 +364,7 @@ void Render_Manager::Render_Shadow_Directional(const Vector3& color, const float
 	shadow_camera->Update(0, 0);
 
 	buffer_scene.view_projection_matrix = shadow_camera->view_projection_matrix;
-	static const Matrix SHADOW_BIAS = {
+	static constexpr Matrix SHADOW_BIAS = {
 		0.5f, 0.0f, 0.0f, 0.0f,
 		0.0f, -0.5f, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
@@ -377,7 +377,7 @@ void Render_Manager::Render_Shadow_Directional(const Vector3& color, const float
 	buffer_scene.camera_direction = Vector4(dir.x, dir.y, dir.z, 0);
 
 	const Vector3& forward = light_transform->Get_Forward();
-	buffer_scene.light_direction = { forward.x, forward.y, forward.z, 0 };
+	buffer_scene.light_direction = Vector4(forward.x, forward.y, forward.z, 0);
 	buffer_scene.light_color = color;
 	buffer_scene.bias = Engine::shadow_manager->shadow_bias;
 
@@ -394,7 +394,7 @@ void Render_Manager::Render_Shadow_Directional(const Vector3& color, const float
 
 	for (auto& r : opaque_list)
 	{
-		shared_ptr<Renderer>& p_rend = r.renderer.lock();
+		const auto& p_rend = r.renderer.lock();
 		if (p_rend->gameobject->Get_Active_In_Hierarchy())
 		{
 			if (p_rend->Get_Enabled())
@@ -408,7 +408,7 @@ void Render_Manager::Render_Shadow_Directional(const Vector3& color, const float
 	Engine::shadow_manager->Filtering_Gaussian();
 }
 
-void Render_Manager::Update_Constant_Buffer()
+void Render_Manager::Update_Constant_Buffer() const
 {
 	UINT subresourceIndex = 0;
 	D3D11_MAPPED_SUBRESOURCE mapped;

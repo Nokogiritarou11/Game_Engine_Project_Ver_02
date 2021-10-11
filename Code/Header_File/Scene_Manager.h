@@ -1,7 +1,5 @@
 #pragma once
-#include <stdio.h>
 #include <string>
-#include <list>
 #include <memory>
 
 namespace BeastEngine
@@ -17,35 +15,35 @@ namespace BeastEngine
 	public:
 		Scene_Manager();
 
-		void Load_Scene(std::string Scene_Path);	  //指定した不シーンファイルをロードし、切り替える
-		std::unique_ptr<BeastEngine::Scene>& Get_Active_Scene(); //現在アクティブなシーンを返す
+		void Load_Scene(const std::string& scene_path);	  //指定した不シーンファイルをロードし、切り替える
+		std::unique_ptr<Scene>& Get_Active_Scene(); //現在アクティブなシーンを返す
 
 		bool run = false;   //再生中か
 		bool pause = false; //ポーズ中か
 
 	private:
-		friend class BeastEngine::Editor;
-		friend class BeastEngine::Engine;
-		friend class BeastEngine::BulletPhysics_Manager;
+		friend class Editor;
+		friend class Engine;
+		friend class BulletPhysics_Manager;
 
-		std::unique_ptr<BeastEngine::Scene> CreateScene_From_File();
-		std::unique_ptr<BeastEngine::Scene> CreateScene_From_File(std::string file_path);
+		std::unique_ptr<Scene> CreateScene_From_File();
+		std::unique_ptr<Scene> CreateScene_From_File(std::string file_path);
 
-		void Exit();
+		void Exit() const;
 		void Update();
-		void Create_Scene_Default(std::string file_path, std::string file_name);
-		void Save_Scene(std::string Save_Path);
+		void Create_Scene_Default(const std::string& file_path, const std::string& file_name);
+		void Save_Scene(const std::string& save_path);
 		void Save_Settings();
 		void Start_Debug_Scene();
 		void End_Debug_Scene();
 
-		std::unique_ptr<BeastEngine::Project_Settings> settings;
-		std::unique_ptr<BeastEngine::Scene> active_scene;
-		std::unique_ptr<BeastEngine::Scene> behind_scene;
-		std::string behind_path = "";
-		std::string last_save_path = "";
+		std::unique_ptr<Project_Settings> settings;
+		std::unique_ptr<Scene> active_scene;
+		std::unique_ptr<Scene> behind_scene;
+		std::string behind_path;
+		std::string last_save_path;
 
-		bool load;
+		bool load = false;
 		std::string next_scene_path;
 	};
 }

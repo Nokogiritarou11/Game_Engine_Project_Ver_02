@@ -22,7 +22,7 @@ Shadow_Manager::Shadow_Manager()
 	material_shadow->Set_Texture("alphaMap", Texture::Load("Default_Assets\\Image\\Default_Texture.png"));
 
 	//	サンプラステート作成
-	float boarderColor[4] = { -FLT_MAX,-FLT_MAX,-FLT_MAX,-FLT_MAX };
+	constexpr float boarderColor[4] = { -FLT_MAX,-FLT_MAX,-FLT_MAX,-FLT_MAX };
 	D3D11_SAMPLER_DESC sd = {};
 	sd.Filter = D3D11_FILTER_ANISOTROPIC;
 	sd.AddressU = D3D11_TEXTURE_ADDRESS_BORDER; // U
@@ -35,18 +35,18 @@ Shadow_Manager::Shadow_Manager()
 	sd.MinLOD = 0;
 	sd.MaxLOD = D3D11_FLOAT32_MAX;
 
-	auto hr = DxSystem::device->CreateSamplerState(&sd, sampler_shadow.GetAddressOf());
+	const auto hr = DxSystem::device->CreateSamplerState(&sd, sampler_shadow.GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 }
 
-void Shadow_Manager::Set_Shadow_Map_Texture()
+void Shadow_Manager::Set_Shadow_Map_Texture() const
 {
 	render_texture->Set_Render_Target();
 	material_shadow->Active_Shader();
 	material_shadow->Active_State();
 }
 
-void Shadow_Manager::Set_Default_Shadow_Alpha()
+void Shadow_Manager::Set_Default_Shadow_Alpha() const
 {
 	material_shadow->Active_Texture();
 }
@@ -57,7 +57,7 @@ void Shadow_Manager::Set_PS_Resource()
 	DxSystem::device_context->PSSetShaderResources(0, 1, gaussian_filter->Get_Texture().GetAddressOf());
 }
 
-void Shadow_Manager::Filtering_Gaussian()
+void Shadow_Manager::Filtering_Gaussian() const
 {
 	gaussian_filter->Filtering_Gaussian(render_texture->Get_Texture());
 }

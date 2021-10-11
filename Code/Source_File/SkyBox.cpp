@@ -1,7 +1,3 @@
-#include <sstream>
-#include <functional>
-#include <iostream>
-#include <fstream>
 #include "SkyBox.h"
 #include "Shader.h"
 #include "Material.h"
@@ -27,23 +23,23 @@ SkyBox::SkyBox()
 	index_count = (((u_max - 3) * (v_max) * 2) + (v_max * 2)) * 3;
 
 	float sphereYaw, spherePitch = 0.0f;
-	Matrix Rotationx, Rotationy;
-	Vector3 currVertPos;
+	Matrix Rotation_x, rotation_y;
+	Vector3 curr_v_pos;
 
 	vector<Vector3> vertices(vertex_count);
 
-	vertices[0] = { 0.0f, 0.0f, 1.0f };
-	vertices[vertex_count - 1] = { 0.0f, 0.0f, -1.0f };
+	vertices[0] = Vector3(0.0f, 0.0f, 1.0f);
+	vertices[vertex_count - 1] = Vector3(0.0f, 0.0f, -1.0f);
 	for (u_int i = 0; i < u_max - 2; ++i)
 	{
-		spherePitch = (i + 1) * (3.14f / (u_max - 1));
-		Rotationx = XMMatrixRotationX(spherePitch);
+		spherePitch = static_cast<float>(i + 1) * (3.14f / (u_max - 1));
+		Rotation_x = XMMatrixRotationX(spherePitch);
 		for (u_int j = 0; j < v_max; ++j)
 		{
-			sphereYaw = j * (6.28f / (v_max));
-			Rotationy = XMMatrixRotationZ(sphereYaw);
-			currVertPos = XMVector3TransformNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), (Rotationx * Rotationy));
-			vertices[i * v_max + j + 1] = XMVector3Normalize(currVertPos);
+			sphereYaw = static_cast<float>(j) * (6.28f / (v_max));
+			rotation_y = XMMatrixRotationZ(sphereYaw);
+			curr_v_pos = XMVector3TransformNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), (Rotation_x * rotation_y));
+			vertices[i * v_max + j + 1] = XMVector3Normalize(curr_v_pos);
 		}
 	}
 
@@ -140,15 +136,15 @@ void SkyBox::Render(const Vector3& pos)
 {
 	// 定数バッファ更新
 	constexpr float sky_dimension = 5000;
-	Matrix world = Matrix::CreateScale(sky_dimension) * Matrix::CreateTranslation(pos);
+	const Matrix world = Matrix::CreateScale(sky_dimension) * Matrix::CreateTranslation(pos);
 	material->Set_Matrix("world", world);
 
 	//シェーダーリソースのバインド
 	material->Active();
 
 	// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
-	UINT stride = sizeof(Vector3);
-	UINT offset = 0;
+	constexpr UINT stride = sizeof(Vector3);
+	constexpr UINT offset = 0;
 	DxSystem::device_context->IASetVertexBuffers(0, 1, vertex_buffer.GetAddressOf(), &stride, &offset);
 	DxSystem::device_context->IASetIndexBuffer(index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 

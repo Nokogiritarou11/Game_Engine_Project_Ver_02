@@ -28,7 +28,7 @@
 
 namespace BeastEngine
 {
-	class MonoBehaviour : public BeastEngine::Behaviour
+	class MonoBehaviour : public Behaviour
 	{
 	private:
 		virtual void Awake() {}      //初めてアクティブになった時に一回だけ呼ばれる(Enableに依存し、ゲームオブジェクトのActiveを無視する)
@@ -40,22 +40,22 @@ namespace BeastEngine
 		virtual void OnDisable() {} //非アクティブになった時に呼ばれる
 		virtual void OnDestroy() {} //削除時に呼ばれる
 
-		virtual void OnTrigger_Enter(BeastEngine::Collision& collision) {}	  //このオブジェクトにアタッチされたコライダーが他コライダーに接触したとき
-		virtual void OnCollision_Enter(BeastEngine::Collision& collision) {} //非トリガー時
+		virtual void OnTrigger_Enter(Collision& collision) {}	  //このオブジェクトにアタッチされたコライダーが他コライダーに接触したとき
+		virtual void OnCollision_Enter(Collision& collision) {} //非トリガー時
 
-		virtual void OnTrigger_Stay(BeastEngine::Collision& collision) {}	  //接触がにフレーム以上続いたとき(接触が維持される限り毎フレーム)
-		virtual void OnCollision_Stay(BeastEngine::Collision& collision) {}  //非トリガー時
+		virtual void OnTrigger_Stay(Collision& collision) {}	  //接触がにフレーム以上続いたとき(接触が維持される限り毎フレーム)
+		virtual void OnCollision_Stay(Collision& collision) {}  //非トリガー時
 
-		virtual void OnTrigger_Exit(BeastEngine::Collision& collision) {}	  //接触していたコライダーと離れたとき
-		virtual void OnCollision_Exit(BeastEngine::Collision& collision) {}  //非トリガー時
+		virtual void OnTrigger_Exit(Collision& collision) {}	  //接触していたコライダーと離れたとき
+		virtual void OnCollision_Exit(Collision& collision) {}  //非トリガー時
 
 		void Initialize(const std::shared_ptr<GameObject>& obj) override;
 		void Set_Active(bool value) override;
 		bool Can_Multiple() override { return true; };
 
-		bool is_called_Awake = false;
-		bool is_called_Start = false;
-		bool is_called_Update = false;
+		bool is_called_awake = false;
+		bool is_called_start = false;
+		bool is_called_update = false;
 		void Add();
 
 		friend class Scene;

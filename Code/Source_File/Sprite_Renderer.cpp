@@ -2,18 +2,11 @@
 #include "DxSystem.h"
 #include "GameObject.h"
 #include "Engine.h"
-#include "Screen.h"
 #include "Render_Texture.h"
 #include "Render_Manager.h"
 #include "Include_ImGui.h"
-#include "Debug.h"
 #include "Shader.h"
 #include "Texture.h"
-#include "Material.h"
-#include <sstream>
-#include <functional>
-#include <iostream>
-#include <fstream>
 #include "System_Function.h"
 #include "Asset_Manager.h"
 using namespace std;
@@ -28,7 +21,7 @@ void Sprite_Renderer::Initialize(const shared_ptr<GameObject>& obj)
 	Engine::asset_manager->Registration_Asset(shared_from_this());
 	transform = obj->transform;
 
-	Vertex v[] = {
+	constexpr Vertex v[] = {
 		Vector3(-0.5f, 0.5f,0), Vector2(0,0), Vector4(1,1,1,1), //左上
 		Vector3(0.5f, 0.5f,0),  Vector2(1,0), Vector4(1,1,1,1), //右上
 		Vector3(-0.5f,-0.5f,0), Vector2(0,1), Vector4(1,1,1,1), //左下
@@ -62,7 +55,7 @@ void Sprite_Renderer::Initialize(const shared_ptr<GameObject>& obj)
 	Set_Active(Get_Enabled());
 }
 
-void Sprite_Renderer::Set_Active(bool value)
+void Sprite_Renderer::Set_Active(const bool value)
 {
 	if (value)
 	{
@@ -87,7 +80,7 @@ void Sprite_Renderer::Recalculate_Frame()
 		//頂点データ設定
 		Vertex data[4];
 
-		Vector3 trans_pos = gameobject->transform->Get_Position();
+		const Vector3 trans_pos = gameobject->transform->Get_Position();
 
 		data[0].pos.x = trans_pos.x;
 		data[0].pos.y = trans_pos.y;
@@ -106,21 +99,19 @@ void Sprite_Renderer::Recalculate_Frame()
 		data[3].pos.z = 0.0f;
 
 		// 中心座標を原点へ
-		float mx = trans_pos.x + size.x * 0.5f;
-		float my = trans_pos.y + size.y * 0.5f;
+		const float mx = trans_pos.x + size.x * 0.5f;
+		const float my = trans_pos.y + size.y * 0.5f;
 		data[0].pos.x -= mx; data[0].pos.y -= my;
 		data[1].pos.x -= mx; data[1].pos.y -= my;
 		data[2].pos.x -= mx; data[2].pos.y -= my;
 		data[3].pos.x -= mx; data[3].pos.y -= my;
 
-		// 角度計算
-		float rx, ry;
-		float z = transform->Get_Euler_Angles().z;
-		float cos = cosf(XMConvertToRadians(z));
-		float sin = sinf(XMConvertToRadians(z));
+		const float z = transform->Get_Euler_Angles().z;
+		const float cos = cosf(XMConvertToRadians(z));
+		const float sin = sinf(XMConvertToRadians(z));
 
-		rx = data[0].pos.x;
-		ry = data[0].pos.y;
+		float rx = data[0].pos.x;
+		float ry = data[0].pos.y;
 		data[0].pos.x = cos * rx + -sin * ry;
 		data[0].pos.y = sin * rx + cos * ry;
 
@@ -146,11 +137,11 @@ void Sprite_Renderer::Recalculate_Frame()
 		data[3].pos.x += mx; data[3].pos.y += my;
 
 		// 正規化デバイス座標系
-		for (int i = 0; i < 4; i++)
+		for (auto& i : data)
 		{
-			data[i].pos.x = 2.0f * data[i].pos.x / Engine::render_manager->game_texture->screen_x - 1.0f;
-			data[i].pos.y = 1.0f - 2.0f * data[i].pos.y / Engine::render_manager->game_texture->screen_y;
-			data[i].pos.z = 0.0f;
+			i.pos.x = 2.0f * i.pos.x / Engine::render_manager->game_texture->screen_x - 1.0f;
+			i.pos.y = 1.0f - 2.0f * i.pos.y / Engine::render_manager->game_texture->screen_y;
+			i.pos.z = 0.0f;
 		}
 
 		//テクスチャ座標設定
@@ -164,12 +155,12 @@ void Sprite_Renderer::Recalculate_Frame()
 		data[3].tex.y = uv_origin.y + uv_size.y;
 
 		//UV座標
-		float w = static_cast<float>(texture->Get_Width());
-		float h = static_cast<float>(texture->Get_Height());
-		for (int i = 0; i < 4; i++)
+		const float w = static_cast<float>(texture->Get_Width());
+		const float h = static_cast<float>(texture->Get_Height());
+		for (auto& i : data)
 		{
-			data[i].tex.x = data[i].tex.x / w;
-			data[i].tex.y = data[i].tex.y / h;
+			i.tex.x = i.tex.x / w;
+			i.tex.y = i.tex.y / h;
 		}
 		//頂点カラー
 		data[0].color = color;
@@ -178,9 +169,9 @@ void Sprite_Renderer::Recalculate_Frame()
 		data[3].color = color;
 
 
-		UINT subresourceIndex = 0;
+		constexpr UINT subresourceIndex = 0;
 		D3D11_MAPPED_SUBRESOURCE mapped;
-		auto hr = DxSystem::device_context->Map(vertex_buffer.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+		const auto hr = DxSystem::device_context->Map(vertex_buffer.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
 		if (SUCCEEDED(hr))
 		{
 			memcpy(mapped.pData, data, sizeof(data));
@@ -194,8 +185,8 @@ void Sprite_Renderer::Render(int subset_number)
 	if (can_render)
 	{
 		//	頂点バッファの指定
-		UINT stride = sizeof(Vertex);
-		UINT offset = 0;
+		constexpr UINT stride = sizeof(Vertex);
+		constexpr UINT offset = 0;
 		DxSystem::device_context->IASetVertexBuffers(0, 1, vertex_buffer.GetAddressOf(), &stride, &offset);
 		//テクスチャの設定
 		texture->Set(1, Shader::Shader_Type::Pixel);
@@ -214,32 +205,31 @@ bool Sprite_Renderer::Draw_ImGui()
 	{
 		const float window_width = ImGui::GetWindowContentRegionWidth();
 		{
-			const ImVec2& size = ImVec2(100.0f, 100.0f);
-			const ImVec2& uv0 = ImVec2(0.0f, 0.0f);
-			const ImVec2& uv1 = ImVec2(1.0f, 1.0f);
+			const auto& size = ImVec2(100.0f, 100.0f);
+			const auto& uv0 = ImVec2(0.0f, 0.0f);
+			const auto& uv1 = ImVec2(1.0f, 1.0f);
 			const int& frame_padding = 3;
-			const ImVec4& bg_col = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
-			const ImVec4& tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+			const auto& bg_col = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			const auto& tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 			ImGui::Text(u8"現在のテクスチャ::");
 			ImGui::SameLine();
 			ImGui::Text(file_name.c_str());
 
 			ImGui::Dummy({ 0,0 });
-			ImGui::SameLine(window_width - size.x - frame_padding);
-			if (ImGui::ImageButton((void*)texture->Get_Resource().Get(), size, uv0, uv1, frame_padding, bg_col, tint_col))
+			ImGui::SameLine(window_width - size.x - static_cast<float>(frame_padding));
+			if (ImGui::ImageButton(static_cast<void*>(texture->Get_Resource().Get()), size, uv0, uv1, frame_padding, bg_col, tint_col))
 			{
-				string path = System_Function::Get_Open_File_Name("png", "\\Assets\\Image");
-				if (path != "")
+				if (const string path = System_Function::Get_Open_File_Name("png", "\\Assets\\Image"); path != "")
 				{
-					int path_i = path.find_last_of("\\") + 1;
-					int ext_i = path.find_last_of(".");
-					string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
-					string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
-					string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+					const int path_i = path.find_last_of("\\") + 1;
+					const int ext_i = path.find_last_of(".");
+					const string path_name = path.substr(0, path_i); //ファイルまでのディレクトリ
+					const string ext_name = path.substr(ext_i, path.size() - ext_i); //拡張子
+					const string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 					texture = Texture::Load(path);
-					file_path = pathname;
-					file_name = filename + extname;
+					file_path = path_name;
+					file_name = filename + ext_name;
 				}
 			}
 		}
@@ -253,7 +243,7 @@ bool Sprite_Renderer::Draw_ImGui()
 		ImGui::SetNextItemWidth(-FLT_MIN);
 		if (ImGui::DragFloat2("##size", edit_size, 0.1f, -FLT_MAX, FLT_MAX))
 		{
-			size = { edit_size[0],edit_size[1] };
+			size = Vector2(edit_size[0], edit_size[1]);
 		}
 
 		ImGui::Text(u8"UV始点");
@@ -261,7 +251,7 @@ bool Sprite_Renderer::Draw_ImGui()
 		ImGui::SetNextItemWidth(-FLT_MIN);
 		if (ImGui::DragInt2("##uv_origin", edit_uv_origin, 0, INT_MAX))
 		{
-			uv_origin = { static_cast<float>(edit_uv_origin[0]),static_cast<float>(edit_uv_origin[1]) };
+			uv_origin = Vector2(static_cast<float>(edit_uv_origin[0]), static_cast<float>(edit_uv_origin[1]));
 		}
 
 		ImGui::Text(u8"UVサイズ");
@@ -269,13 +259,13 @@ bool Sprite_Renderer::Draw_ImGui()
 		ImGui::SetNextItemWidth(-FLT_MIN);
 		if (ImGui::DragInt2("##uv_size", edit_uv_size, 0, INT_MAX))
 		{
-			uv_size = { static_cast<float>(edit_uv_size[0]),static_cast<float>(edit_uv_size[1]) };
+			uv_size = Vector2(static_cast<float>(edit_uv_size[0]), static_cast<float>(edit_uv_size[1]));
 		}
 
 		float edit_color[4] = { color.x,color.y,color.z,color.w };
 		if (ImGui::ColorEdit4("Color", edit_color))
 		{
-			color = { edit_color[0],edit_color[1] ,edit_color[2] ,edit_color[3] };
+			color = Vector4(edit_color[0], edit_color[1], edit_color[2], edit_color[3]);
 		}
 	}
 	return true;

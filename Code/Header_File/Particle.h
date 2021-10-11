@@ -5,22 +5,20 @@
 #include "DxSystem.h"
 #include "Original_Math.h"
 #include <memory>
-#include <vector>
-#include <locale.h>
 
 
 namespace BeastEngine
 {
-	class Particle : public BeastEngine::Component
+	class Particle final : public Component
 	{
 	public:
-		~Particle();
+		~Particle() override;
 
 		void Set_Particle(const char* filepath, const char* filename);
-		bool Get_Is_Playing() { return is_playing; }
+		[[nodiscard]] bool Get_Is_Playing() const { return is_playing; }
 
 		void Play();  //再生(一時停止中の場合は再開)
-		void Pause(); //一時停止
+		void Pause() const; //一時停止
 		void Stop();  //停止
 
 		bool play_on_awake = true; //アクティブ時に自動で再生を開始するか

@@ -3,11 +3,11 @@
 
 namespace BeastEngine
 {
-	class Sphere_Collider :public BeastEngine::Collider
+	class Sphere_Collider :public Collider
 	{
 	public:
 		void Set_Radius(float new_radius);
-		float Get_Radius() const { return radius; }
+		[[nodiscard]] float Get_Radius() const { return radius; }
 
 	private:
 		void Create_Shape() override;
@@ -19,7 +19,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Collider>(this), radius);
+			archive(cereal::base_class<Collider>(this), radius);
 		}
 	};
 }

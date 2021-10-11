@@ -12,13 +12,13 @@ void MonoBehaviour::Initialize(const shared_ptr<GameObject>& obj)
 	gameobject = obj;
 	Engine::asset_manager->Registration_Asset(shared_from_this());
 	transform = obj->transform;
-	is_called_Awake = false;
-	is_called_Start = false;
-	is_called_Update = false;
+	is_called_awake = false;
+	is_called_start = false;
+	is_called_update = false;
 	Add();
 }
 
-void  MonoBehaviour::Set_Active(bool value)
+void  MonoBehaviour::Set_Active(const bool value)
 {
 	if (Engine::scene_manager->run)
 	{
@@ -42,10 +42,10 @@ void  MonoBehaviour::Add()
 	{
 		if (gameobject->Get_Active_In_Hierarchy())
 		{
-			if (!is_called_Awake)
+			if (!is_called_awake)
 			{
 				Awake();
-				is_called_Awake = true;
+				is_called_awake = true;
 			}
 			if (gameobject->Get_Active_In_Hierarchy())
 			{
@@ -56,16 +56,16 @@ void  MonoBehaviour::Add()
 					{
 						if (Get_Enabled())
 						{
-							if (!is_called_Start)
+							if (!is_called_start)
 							{
-								Engine::scene_manager->Get_Active_Scene()->monobehaviour_Start_next_list.emplace_back(static_pointer_cast<MonoBehaviour>(shared_from_this()));
+								Engine::scene_manager->Get_Active_Scene()->monobehaviour_start_next_list.emplace_back(static_pointer_cast<MonoBehaviour>(shared_from_this()));
 							}
 							else
 							{
-								if (!is_called_Update)
+								if (!is_called_update)
 								{
-									Engine::scene_manager->Get_Active_Scene()->monobehaviour_Update_next_list.emplace_back(static_pointer_cast<MonoBehaviour>(shared_from_this()));
-									is_called_Update = true;
+									Engine::scene_manager->Get_Active_Scene()->monobehaviour_update_next_list.emplace_back(static_pointer_cast<MonoBehaviour>(shared_from_this()));
+									is_called_update = true;
 								}
 							}
 						}

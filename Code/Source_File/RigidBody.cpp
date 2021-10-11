@@ -33,10 +33,10 @@ void RigidBody::Create()
 		Engine::bulletphysics_manager->Remove_RigidBody(rigidbody);
 	}
 	//épê®
-	shared_ptr<Collider> col = collider.lock();
+	const shared_ptr<Collider>& col = collider.lock();
 
-	Vector3 pos = col->transform->Get_Position() + (col->transform->Get_Right() * col->center.x) + (col->transform->Get_Up() * col->center.y) + (col->transform->Get_Forward() * col->center.z);
-	Quaternion rot = col->transform->Get_Rotation();
+	const Vector3 pos = col->transform->Get_Position() + (col->transform->Get_Right() * col->center.x) + (col->transform->Get_Up() * col->center.y) + (col->transform->Get_Forward() * col->center.z);
+	const Quaternion rot = col->transform->Get_Rotation();
 	btTransform t(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z));
 
 	is_dynamic = (send_mass != 0.0f);
@@ -51,7 +51,7 @@ void RigidBody::Create()
 	motion_state = make_unique<btDefaultMotionState>(t);
 
 	//çÑëÃçÏê¨
-	btRigidBody::btRigidBodyConstructionInfo rb_info(send_mass, motion_state.get(), col->shape.get(), localInertia);
+	const btRigidBody::btRigidBodyConstructionInfo rb_info(send_mass, motion_state.get(), col->shape.get(), localInertia);
 	rigidbody = make_unique<btRigidBody>(btRigidBody(rb_info));
 
 	if (is_kinematic)
@@ -67,7 +67,7 @@ void RigidBody::Create()
 	rigidbody->setFriction(0);
 }
 
-void RigidBody::Resize()
+void RigidBody::Resize() const
 {
 	Engine::bulletphysics_manager->Resize_RigidBody(rigidbody);
 }
@@ -152,7 +152,7 @@ void RigidBody::Set_Dynamic(bool value)
 	}
 }
 
-void RigidBody::Get_btTransform(btTransform& t)
+void RigidBody::Get_BtTransform(btTransform& t) const
 {
 	if (rigidbody->isStaticOrKinematicObject())
 	{
@@ -160,32 +160,32 @@ void RigidBody::Get_btTransform(btTransform& t)
 	}
 	else
 	{
-		btMotionState* motion = rigidbody->getMotionState();
+		const btMotionState* motion = rigidbody->getMotionState();
 		motion->getWorldTransform(t);
 	}
 }
 
-void RigidBody::Set_btTransform(btTransform& t)
+void RigidBody::Set_BtTransform(const btTransform& t) const
 {
 	rigidbody->activate(true);
 	rigidbody->setWorldTransform(t);
 }
 
-void RigidBody::Set_Freeze_Position(bool x_axis, bool y_axis, bool z_axis)
+void RigidBody::Set_Freeze_Position(const bool x_axis, const bool y_axis, const bool z_axis)
 {
 	rigidbody->activate(true);
-	linear_factor = { static_cast<float>(!x_axis), static_cast<float>(!y_axis), static_cast<float>(!z_axis) };
+	linear_factor = Vector3(!x_axis, !y_axis, !z_axis);
 	rigidbody->setLinearFactor(btVector3(linear_factor.x, linear_factor.y, linear_factor.z));
 }
 
 void RigidBody::Set_Freeze_Rotation(bool x_axis, bool y_axis, bool z_axis)
 {
 	rigidbody->activate(true);
-	angular_factor = { static_cast<float>(!x_axis), static_cast<float>(!y_axis), static_cast<float>(!z_axis) };
+	angular_factor = Vector3(!x_axis, !y_axis, !z_axis);
 	rigidbody->setAngularFactor(btVector3(angular_factor.x, angular_factor.y, angular_factor.z));
 }
 
-void RigidBody::Set_Angular_Velocity(Vector3 velocity)
+void RigidBody::Set_Angular_Velocity(const Vector3 velocity) const
 {
 	rigidbody->activate(true);
 	rigidbody->setLinearVelocity(btVector3(velocity.x, velocity.y, velocity.z));
@@ -193,12 +193,12 @@ void RigidBody::Set_Angular_Velocity(Vector3 velocity)
 
 Vector3 RigidBody::Get_Angular_Velocity() const
 {
-	btVector3 bt_v = rigidbody->getAngularVelocity();
-	Vector3 v = { bt_v.x(), bt_v.y(), bt_v.z() };
+	const btVector3 bt_v = rigidbody->getAngularVelocity();
+	const Vector3 v = { bt_v.x(), bt_v.y(), bt_v.z() };
 	return v;
 }
 
-void RigidBody::Set_Velocity(Vector3 velocity)
+void RigidBody::Set_Velocity(const Vector3 velocity) const
 {
 	rigidbody->activate(true);
 	rigidbody->setLinearVelocity(btVector3(velocity.x, velocity.y, velocity.z));
@@ -206,33 +206,33 @@ void RigidBody::Set_Velocity(Vector3 velocity)
 
 Vector3 RigidBody::Get_Velocity() const
 {
-	btVector3 bt_v = rigidbody->getLinearVelocity();
-	Vector3 v = { bt_v.x(),bt_v.y(), bt_v.z() };
+	const btVector3 bt_v = rigidbody->getLinearVelocity();
+	const Vector3 v = { bt_v.x(),bt_v.y(), bt_v.z() };
 	return v;
 }
 
 void RigidBody::Use_Gravity(bool value)
 {
-	if (value) gravity = { 0.0f, -9.8f, 0.0f };
-	else gravity = { 0.0f, 0.0f, 0.0f };
+	if (value) gravity = Vector3(0.0f, -9.8f, 0.0f);
+	else gravity = Vector3(0.0f, 0.0f, 0.0f);
 
 	rigidbody->activate(true);
 	rigidbody->setGravity(btVector3(gravity.x, gravity.y, gravity.z));
 
-	btVector3 bt_v = rigidbody->getLinearVelocity();
+	const btVector3 bt_v = rigidbody->getLinearVelocity();
 	rigidbody->setLinearVelocity(btVector3(bt_v.x(), 0.0f, bt_v.z()));
 }
 
-void RigidBody::Add_Force(Vector3 force, Force_Mode mode)
+void RigidBody::Add_Force(Vector3 force, Force_Mode mode) const
 {
 	rigidbody->activate(true);
-	btVector3 f = { force.x, force.y, force.z };
+	const btVector3 f = { force.x, force.y, force.z };
 	switch (mode)
 	{
-		case BeastEngine::Force_Mode::Force:
+		case Force_Mode::Force:
 			rigidbody->applyCentralForce(f);
 			break;
-		case BeastEngine::Force_Mode::Impulse:
+		case Force_Mode::Impulse:
 			rigidbody->applyCentralImpulse(f);
 			break;
 		default:
@@ -240,17 +240,17 @@ void RigidBody::Add_Force(Vector3 force, Force_Mode mode)
 	}
 }
 
-void RigidBody::Add_Force_AtPosition(Vector3 force, Vector3 position, Force_Mode mode)
+void RigidBody::Add_Force_AtPosition(Vector3 force, Vector3 position, Force_Mode mode) const
 {
 	rigidbody->activate(true);
-	btVector3 f = { force.x, force.y, force.z };
-	btVector3 p = { position.x, position.y, position.z };
+	const btVector3 f = { force.x, force.y, force.z };
+	const btVector3 p = { position.x, position.y, position.z };
 	switch (mode)
 	{
-		case BeastEngine::Force_Mode::Force:
+		case Force_Mode::Force:
 			rigidbody->applyForce(f, p);
 			break;
-		case BeastEngine::Force_Mode::Impulse:
+		case Force_Mode::Impulse:
 			rigidbody->applyImpulse(f, p);
 			break;
 		default:
@@ -258,7 +258,7 @@ void RigidBody::Add_Force_AtPosition(Vector3 force, Vector3 position, Force_Mode
 	}
 }
 
-void RigidBody::Set_Debug_Draw(bool value)
+void RigidBody::Set_Debug_Draw(bool value) const
 {
 	if (rigidbody)
 	{
@@ -267,7 +267,7 @@ void RigidBody::Set_Debug_Draw(bool value)
 	}
 }
 
-bool RigidBody::Get_Debug_Drawed()
+bool RigidBody::Get_Debug_Drawed() const
 {
 	return !(rigidbody->getCollisionFlags() & btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
 }

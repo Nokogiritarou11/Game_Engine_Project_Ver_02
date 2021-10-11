@@ -30,14 +30,14 @@ void SkinMesh_Renderer::Initialize(const shared_ptr<GameObject>& obj)
 	// 定数バッファの生成
 	if (!constant_buffer_mesh)
 	{
-		D3D11_BUFFER_DESC bd = {};
+		D3D11_BUFFER_DESC bd;
 		bd.Usage = D3D11_USAGE_DYNAMIC;
 		bd.ByteWidth = sizeof(Constant_Buffer_Mesh);
 		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		bd.MiscFlags = 0;
 		bd.StructureByteStride = 0;
-		HRESULT hr = DxSystem::device->CreateBuffer(&bd, nullptr, constant_buffer_mesh.GetAddressOf());
+		const HRESULT hr = DxSystem::device->CreateBuffer(&bd, nullptr, constant_buffer_mesh.GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
 
@@ -54,7 +54,7 @@ void SkinMesh_Renderer::Initialize(const shared_ptr<GameObject>& obj)
 	Set_Active(Get_Enabled());
 }
 
-void SkinMesh_Renderer::Set_Active(bool value)
+void SkinMesh_Renderer::Set_Active(const bool value)
 {
 	if (value)
 	{
@@ -82,20 +82,20 @@ void SkinMesh_Renderer::Recalculate_Frame()
 		// メッシュ用定数バッファ更新
 		if (!bones.empty())
 		{
-			size_t size = bones.size();
+			const size_t size = bones.size();
 			for (size_t i = 0; i < size; ++i)
 			{
-				Matrix world_transform = bones[i].lock()->Get_World_Matrix();
-				Matrix inverse_transform = mesh->inverse_matrixes[i];
-				Matrix bone_transform = inverse_transform * world_transform;
+				const Matrix world_transform = bones[i].lock()->Get_World_Matrix();
+				const Matrix inverse_transform = mesh->inverse_matrixes[i];
+				const Matrix bone_transform = inverse_transform * world_transform;
 				buffer_mesh.bone_transforms[i] = bone_transform;
 			}
 			//頂点コンスタントバッファ
 			DxSystem::device_context->CSSetConstantBuffers(1, 1, constant_buffer_mesh.GetAddressOf());
 			{
-				UINT subresourceIndex = 0;
+				constexpr UINT subresourceIndex = 0;
 				D3D11_MAPPED_SUBRESOURCE mapped;
-				auto hr = DxSystem::device_context->Map(constant_buffer_mesh.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+				const auto hr = DxSystem::device_context->Map(constant_buffer_mesh.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
 				if (SUCCEEDED(hr))
 				{
 					memcpy(mapped.pData, &buffer_mesh, sizeof(Constant_Buffer_Mesh));
@@ -112,16 +112,16 @@ void SkinMesh_Renderer::Recalculate_Frame()
 	}
 }
 
-void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
+void SkinMesh_Renderer::Set_Mesh(const shared_ptr<Mesh>& mesh_data)
 {
-	if (Mesh_Data)
+	if (mesh_data)
 	{
 		bool change = false;
 		if (mesh) change = true;
 
-		if (mesh != Mesh_Data)
+		if (mesh != mesh_data)
 		{
-			mesh = Mesh_Data;
+			mesh = mesh_data;
 			can_render = true;
 			file_path = mesh->file_path;
 			//マテリアル
@@ -152,10 +152,10 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 	}
 }
 
-void SkinMesh_Renderer::Render(int subset_number)
+void SkinMesh_Renderer::Render(const int subset_number)
 {
 	// バッファ設定
-	auto& subset = mesh->subsets[subset_number];
+	const auto& subset = mesh->subsets[subset_number];
 	DxSystem::device_context->VSSetShaderResources(0, 1, compute_shader->Get_SRV().GetAddressOf());
 	DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
@@ -168,15 +168,13 @@ void SkinMesh_Renderer::Render(int subset_number)
 	}
 }
 
-void SkinMesh_Renderer::Render_Shadow(int subset_number)
+void SkinMesh_Renderer::Render_Shadow(const int subset_number)
 {
 	// バッファ設定
-	auto& subset = mesh->subsets[subset_number];
+	const auto& subset = mesh->subsets[subset_number];
 	DxSystem::device_context->VSSetShaderResources(0, 1, compute_shader->Get_SRV().GetAddressOf());
 	DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-	//マテリアル設定
-	auto& pass = material[subset.material_ID]->render_pass[0];
-	if (pass.texture_info.empty())
+	if (const auto& pass = material[subset.material_ID]->render_pass[0]; pass.texture_info.empty())
 	{
 		Engine::shadow_manager->Set_Default_Shadow_Alpha();
 	}
@@ -212,8 +210,8 @@ bool SkinMesh_Renderer::Draw_ImGui()
 		{
 			const Vector3 min_scaled = transform->Get_Position() + (bounds.Get_Center() + bounds.Get_Min()) * transform->Get_Scale();
 			const Vector3 max_scaled = transform->Get_Position() + (bounds.Get_Center() + bounds.Get_Max()) * transform->Get_Scale();
-			btVector3 min = { min_scaled.x, min_scaled.y, min_scaled.z };
-			btVector3 max = { max_scaled.x, max_scaled.y, max_scaled.z };
+			const btVector3 min = { min_scaled.x, min_scaled.y, min_scaled.z };
+			const btVector3 max = { max_scaled.x, max_scaled.y, max_scaled.z };
 			Engine::debug_draw_manager->drawAabb(min, max, btVector3(0.0f, 0.65f, 1.0f));
 
 			ImGui::Text(u8"中心オフセット");
@@ -239,47 +237,45 @@ bool SkinMesh_Renderer::Draw_ImGui()
 			ImGui::TreePop();
 		}
 
-		int ID_mat = 0;
 		if (can_render)
 		{
 			if (ImGui::TreeNode(u8"マテリアル"))
 			{
-				for (auto& mat : material)
+				int id_mat = 0;
+				for (const auto& mat : material)
 				{
-					ImGui::PushID(ID_mat);
-					bool open = ImGui::TreeNodeEx(mat->name.c_str(), ImGuiTreeNodeFlags_AllowItemOverlap);
+					ImGui::PushID(id_mat);
+					const bool m_open = ImGui::TreeNodeEx(mat->name.c_str(), ImGuiTreeNodeFlags_AllowItemOverlap);
 					ImGui::SameLine(window_width - 30.0f);
 					if (ImGui::Button(u8"選択"))
 					{
-						string path = System_Function::Get_Open_File_Name("mat", "\\Assets\\Model");
-						if (path != "")
+						if (string path = System_Function::Get_Open_File_Name("mat", "\\Assets\\Model"); path != "")
 						{
-							material[ID_mat] = Material::Load_Material(path);
+							material[id_mat] = Material::Load_Material(path);
 						}
 					}
-					if (open)
+					if (m_open)
 					{
 						mat->Draw_ImGui();
 						ImGui::TreePop();
 					}
-					++ID_mat;
+					++id_mat;
 					ImGui::PopID();
 				}
 
 				if (ImGui::TreeNode(u8"シェーダー一括変更"))
 				{
 					static const char* s_name[] = { "VS", "GS", "PS", "HS", "DS" };
-					for (size_t i = 0; i < 5; ++i)
+					for (int i = 0; i < 5; ++i)
 					{
 						ImGui::PushID(i);
 						ImGui::Text(s_name[i]);
 						ImGui::SameLine(window_width - 25.0f);
 						if (ImGui::Button(u8"選択"))
 						{
-							const string& path = System_Function::Get_Open_File_Name("", "\\Shader");
-							if (path != "")
+							if (const string& path = System_Function::Get_Open_File_Name("", "\\Shader"); path != "")
 							{
-								for (auto& mat : material)
+								for (const auto& mat : material)
 								{
 									mat->Set_Shader(path, static_cast<Shader::Shader_Type>(i));
 									mat->Save();
@@ -293,7 +289,6 @@ bool SkinMesh_Renderer::Draw_ImGui()
 				ImGui::TreePop();
 			}
 		}
-		ID_mat = 0;
 	}
 	return true;
 }

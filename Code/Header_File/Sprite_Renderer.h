@@ -10,17 +10,17 @@ namespace BeastEngine
 	class Texture;
 	class Material;
 
-	class Sprite_Renderer : public BeastEngine::Renderer
+	class Sprite_Renderer : public Renderer
 	{
 	public:
-		BeastEngine::Vector2 size = { 100,100 };		//表示サイズ
-		BeastEngine::Vector2 uv_origin = { 0,0 };		//テクスチャのUV原点
-		BeastEngine::Vector2 uv_size = { 100,100 };		//テクスチャから切り出すサイズ(UV原点基準)
-		BeastEngine::Vector4 color = { 1,1,1,1 };		//テクスチャカラー({1,1,1,1}でオリジナル)
-		std::shared_ptr<BeastEngine::Texture> texture;	//描画するテクスチャ
+		Vector2 size = { 100,100 };		//表示サイズ
+		Vector2 uv_origin = { 0,0 };		//テクスチャのUV原点
+		Vector2 uv_size = { 100,100 };		//テクスチャから切り出すサイズ(UV原点基準)
+		Vector4 color = { 1,1,1,1 };		//テクスチャカラー({1,1,1,1}でオリジナル)
+		std::shared_ptr<Texture> texture;	//描画するテクスチャ
 
 	private:
-		void Initialize(const std::shared_ptr<GameObject>& obj);
+		void Initialize(const std::shared_ptr<GameObject>& obj) override;
 		void Recalculate_Frame() override;
 		void Render(int subset_number = 0) override;
 		bool Draw_ImGui() override;
@@ -28,9 +28,9 @@ namespace BeastEngine
 
 		struct Vertex
 		{
-			BeastEngine::Vector3 pos;	//位置
-			BeastEngine::Vector2 tex;	//UV座標
-			BeastEngine::Vector4 color;	//頂点色
+			Vector3 pos;	//位置
+			Vector2 tex;	//UV座標
+			Vector4 color;	//頂点色
 		};
 
 		Microsoft::WRL::ComPtr<ID3D11Buffer> vertex_buffer;
@@ -42,7 +42,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Renderer>(this), size, uv_origin, uv_size, color, file_name, file_path);
+			archive(cereal::base_class<Renderer>(this), size, uv_origin, uv_size, color, file_name, file_path);
 		}
 	};
 }

@@ -53,22 +53,21 @@ void Particle::Set_Particle(const char* filepath, const char* filename)
 	file_name = filename;
 	file_path = filepath;
 	// EffekseerはUTF-16のファイルパス以外は対応していないため文字コード変換が必要
-	const string fullpath = (string)filepath + (string)filename;
+	const string full_path = static_cast<string>(filepath) + static_cast<string>(filename);
 
-	auto it = Engine::particle_manager->effect_cache.find(fullpath);
-	if (it != Engine::particle_manager->effect_cache.end())
+	if (const auto it = Engine::particle_manager->effect_cache.find(full_path); it != Engine::particle_manager->effect_cache.end())
 	{
 		effect = it->second;
 	}
 	else
 	{
-		const char* utf8Filename = fullpath.c_str();
+		const char* utf8Filename = full_path.c_str();
 		char16_t utf16Filename[MAX_PATH];
 		Effekseer::ConvertUtf8ToUtf16(utf16Filename, MAX_PATH, utf8Filename);
-		effect = Effekseer::Effect::Create(Engine::particle_manager->manager, (EFK_CHAR*)utf16Filename);
+		effect = Effekseer::Effect::Create(Engine::particle_manager->manager, static_cast<EFK_CHAR*>(utf16Filename));
 		if (effect != nullptr)
 		{
-			Engine::particle_manager->effect_cache.insert(make_pair(fullpath, effect));
+			Engine::particle_manager->effect_cache.insert(make_pair(full_path, effect));
 		}
 	}
 	handle = -1;
@@ -134,7 +133,7 @@ void Particle::Play()
 	}
 }
 
-void Particle::Pause()
+void Particle::Pause() const
 {
 	if (effect != nullptr)
 	{
@@ -170,7 +169,7 @@ void Particle::Stop()
 bool Particle::Draw_ImGui()
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-	bool open = ImGui::CollapsingHeader("Particle");
+	const bool open = ImGui::CollapsingHeader("Particle");
 
 	bool removed = false;
 	if (ImGui::BeginPopupContextItem("Particle_sub"))
@@ -192,24 +191,22 @@ bool Particle::Draw_ImGui()
 		ImGui::Text(u8"セット中::");
 		ImGui::SameLine();
 		ImGui::Text(file_name.c_str());
-		float window_width = ImGui::GetWindowContentRegionWidth();
+		const float window_width = ImGui::GetWindowContentRegionWidth();
 
 		ImGui::SameLine(window_width - 25.0f);
 		if (ImGui::Button(u8"選択"))
 		{
-			string path = System_Function::Get_Open_File_Name("", "\\Assets\\Effect");
-			//Debug::Log(path);
-			if (path != "")
+			if (const string path = System_Function::Get_Open_File_Name("", "\\Assets\\Effect"); path != "")
 			{
-				int path_i = path.find_last_of("\\") + 1;//7
-				int ext_i = path.find_last_of(".");//10
-				string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
-				string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
-				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
-				string name = filename + extname;
-				if (extname == ".efkefc" || extname == ".efk")
+				const int path_i = path.find_last_of("\\") + 1;//7
+				const int ext_i = path.find_last_of(".");//10
+				const string path_name = path.substr(0, path_i); //ファイルまでのディレクトリ
+				const string ext_name = path.substr(ext_i, path.size() - ext_i); //拡張子
+				const string file_name = path.substr(path_i, ext_i - path_i); //ファイル名
+				const string name = file_name + ext_name;
+				if (ext_name == ".efkefc" || ext_name == ".efk")
 				{
-					Set_Particle(pathname.c_str(), name.c_str());
+					Set_Particle(path_name.c_str(), name.c_str());
 				}
 				else
 				{

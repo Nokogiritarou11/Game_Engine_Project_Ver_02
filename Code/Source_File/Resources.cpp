@@ -3,11 +3,7 @@
 #include "Scene_Manager.h"
 #include "Scene.h"
 #include "GameObject.h"
-#include "Debug.h"
-#include <locale.h>
 #include <sstream>
-#include <functional>
-#include <iostream>
 #include <fstream>
 using namespace std;
 using namespace BeastEngine;
@@ -16,7 +12,7 @@ void Resources::Create_Prefab(shared_ptr<GameObject> gameobject)
 {
 	string path = "Assets\\Prefab\\" + gameobject->name + ".prefab";
 
-	auto& parent = gameobject->transform->Get_Parent().lock();
+	const auto& parent = gameobject->transform->Get_Parent().lock();
 	if (parent)
 	{
 		gameobject->transform->Set_Parent(nullptr);
@@ -27,7 +23,7 @@ void Resources::Create_Prefab(shared_ptr<GameObject> gameobject)
 		{
 			for (int i = 1; ; ++i)
 			{
-				string _path = "Resouces\\Prefab\\" + gameobject->name + "_" + to_string(i) + ".prefab";
+				string _path = "Assets\\Prefab\\" + gameobject->name + "_" + to_string(i) + ".prefab";
 				ifstream in_bin(_path, ios::binary);
 				if (!in_bin.is_open())
 				{
@@ -39,10 +35,8 @@ void Resources::Create_Prefab(shared_ptr<GameObject> gameobject)
 	}
 	{
 		ofstream ss(path.c_str(), ios::binary);
-		{
-			cereal::BinaryOutputArchive o_archive(ss);
-			o_archive(gameobject);
-		}
+		cereal::BinaryOutputArchive o_archive(ss);
+		o_archive(gameobject);
 	}
 
 	if (parent)
@@ -50,13 +44,12 @@ void Resources::Create_Prefab(shared_ptr<GameObject> gameobject)
 		gameobject->transform->Set_Parent(parent);
 	}
 
-	//Debug::Log(u8"Resouces\\Prefab\\以下に" + gameobject->name + u8"をプレハブ化しました");
+	//Debug::Log(u8"Assets\\Prefab\\以下に" + gameobject->name + u8"をプレハブ化しました");
 }
 
-shared_ptr<GameObject> Resources::Load_Prefab(string file_path)
+shared_ptr<GameObject> Resources::Load_Prefab(const string& file_path)
 {
-	ifstream in_bin(file_path, ios::binary);
-	if (in_bin.is_open())
+	if (const ifstream in_bin(file_path, ios::binary); in_bin.is_open())
 	{
 		shared_ptr<GameObject> obj;
 		stringstream bin_s_stream;
@@ -67,10 +60,6 @@ shared_ptr<GameObject> Resources::Load_Prefab(string file_path)
 		Instance_child(obj);
 		obj->Initialize();
 		return obj;
-	}
-	else
-	{
-		return nullptr;
 	}
 
 	return nullptr;

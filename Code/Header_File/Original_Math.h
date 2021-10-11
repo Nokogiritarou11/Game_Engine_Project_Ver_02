@@ -1,9 +1,6 @@
 #pragma once
-#include <assert.h>
-#include <memory.h>
+#include <cassert>
 #include <DirectXMath.h>
-#include <DirectXPackedVector.h>
-#include <DirectXCollision.h>
 #include "cereal/cereal.hpp"
 #include "cereal/access.hpp"
 #ifndef XM_CONSTEXPR

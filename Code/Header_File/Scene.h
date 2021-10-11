@@ -1,7 +1,5 @@
 #pragma once
-#include <stdio.h>
 #include <string>
-#include <list>
 #include <memory>
 #include "GameObject.h"
 #include "MonoBehaviour.h"
@@ -13,11 +11,11 @@ namespace BeastEngine
 	public:
 		std::string name; //シーン名
 
-		std::weak_ptr<BeastEngine::GameObject> Find(std::string Name);         //指定した名前のゲームオブジェクトを返す
-		std::weak_ptr<BeastEngine::GameObject> Find_With_Tag(std::string Tag);   //指定したタグのゲームオブジェクトを返す
+		std::weak_ptr<GameObject> Find(const std::string& name);         //指定した名前のゲームオブジェクトを返す
+		std::weak_ptr<GameObject> Find_With_Tag(const std::string& tag);   //指定したタグのゲームオブジェクトを返す
 
 	private:
-		std::vector<std::shared_ptr<BeastEngine::GameObject>> gameobject_list; //シーン内の全ゲームオブジェクト
+		std::vector<std::shared_ptr<GameObject>> gameobject_list; //シーン内の全ゲームオブジェクト
 
 		friend class cereal::access;
 		template<class Archive>
@@ -33,9 +31,9 @@ namespace BeastEngine
 		friend class Transform;
 		friend class Editor;
 
-		std::shared_ptr<GameObject> Instance_GameObject(std::string name);
-		void Destroy_GameObject(std::shared_ptr<GameObject> gameObject);
-		void Destroy_Component(std::shared_ptr<Component> component);
+		std::shared_ptr<GameObject> Instance_GameObject(const std::string& name);
+		void Destroy_GameObject(const std::shared_ptr<GameObject>& game_object);
+		void Destroy_Component(const std::shared_ptr<Component>& component);
 
 		void Initialize();
 		void Update();
@@ -44,10 +42,10 @@ namespace BeastEngine
 		void Processing_Start();
 		void Processing_Update(int state);
 
-		std::vector<std::weak_ptr<MonoBehaviour>> monobehaviour_Start_list;
-		std::vector<std::weak_ptr<MonoBehaviour>> monobehaviour_Start_next_list;
-		std::vector<std::weak_ptr<MonoBehaviour>> monobehaviour_Update_list;
-		std::vector<std::weak_ptr<MonoBehaviour>> monobehaviour_Update_next_list;
+		std::vector<std::weak_ptr<MonoBehaviour>> monobehaviour_start_list;
+		std::vector<std::weak_ptr<MonoBehaviour>> monobehaviour_start_next_list;
+		std::vector<std::weak_ptr<MonoBehaviour>> monobehaviour_update_list;
+		std::vector<std::weak_ptr<MonoBehaviour>> monobehaviour_update_next_list;
 	};
 }
 

@@ -1,7 +1,6 @@
 #pragma once
 #include "DxSystem.h"
 #include "Component.h"
-#include <d3d11.h>
 #include <DirectXMath.h>
 #include "Original_Math.h"
 #include "Bounds.h"
@@ -9,24 +8,22 @@
 #include <wrl.h>
 #include <memory>
 #include <vector>
-#include <stdio.h>
-#include <locale.h>
 
 namespace BeastEngine
 {
 	class Material;
 
-	class Renderer : public BeastEngine::Component
+	class Renderer : public Component
 	{
 	public:
 		void Set_Enabled(bool value); //表示するか
-		bool Get_Enabled();			 //現在アクティブか
+		[[nodiscard]] bool Get_Enabled() const { return enabled; };			 //現在アクティブか
 
-		std::vector<std::shared_ptr<BeastEngine::Material>> material; //使用するマテリアル
-		BeastEngine::Bounds bounds;
+		std::vector<std::shared_ptr<Material>> material; //使用するマテリアル
+		Bounds bounds;
 
 	protected:
-		bool Draw_ImGui_Header(std::string component_name, bool& open);
+		bool Draw_ImGui_Header(const std::string& component_name, bool& open);
 
 		bool is_called = false;
 		bool enabled = true;
@@ -35,11 +32,11 @@ namespace BeastEngine
 
 		int subset_count = 0;
 		std::vector<int> subset_material_index;
-		BeastEngine::Matrix world_old;
+		Matrix world_old;
 
 	private:
-		virtual void Render(int subset_number = 0) {};
-		virtual void Render_Shadow(int subset_number = 0) {};
+		virtual void Render(const int subset_number = 0) {};
+		virtual void Render_Shadow(const int subset_number = 0) {};
 		virtual void Recalculate_Frame() {};
 
 		friend class Render_Manager;
@@ -47,7 +44,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Component>(this), enabled, bounds);
+			archive(cereal::base_class<Component>(this), enabled, bounds);
 		}
 	};
 }

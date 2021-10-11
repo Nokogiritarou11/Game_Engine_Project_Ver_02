@@ -508,7 +508,7 @@ void Editor::Inspector_Render()
 
 			for (const auto& c : obj->component_list)
 			{
-				ImGui::PushID(c->Get_Instance_ID().c_str());
+				ImGui::PushID(c->Get_Instance_Id().c_str());
 				if (!c->Draw_ImGui())
 				{
 					ImGui::PopID();
@@ -1148,7 +1148,7 @@ void Editor::Scene_Setting_Menu_Render() const
 //オブジェクトツリー描画
 void Editor::GameObject_Tree_Render(const shared_ptr<GameObject>& obj, int flag)
 {
-	ImGui::PushID(obj->Get_Instance_ID().c_str());
+	ImGui::PushID(obj->Get_Instance_Id().c_str());
 	const ImGuiTreeNodeFlags in_flag = flag;
 	if (const auto& active_obj = active_object.lock())
 	{

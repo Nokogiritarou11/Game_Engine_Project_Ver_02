@@ -2,32 +2,31 @@
 #include "DxSystem.h"
 #include <clocale>
 #include <tchar.h>
-#include <stdio.h>
 #include <Windows.h>
 #pragma comment(lib, "rpcrt4.lib")
 using namespace std;
 using namespace BeastEngine;
 
 //開くファイルのパス取得
-string System_Function::Get_Open_File_Name(string extension, string initial_dir)
+string System_Function::Get_Open_File_Name(const string& extension, const string& initial_dir)
 {
-	static OPENFILENAME     ofn;
-	static TCHAR            szPath[MAX_PATH];
-	static TCHAR            szFile[MAX_PATH];
-	static string           str_path;
-	static string           current_path;
-	static size_t           current_path_size;
+	static OPENFILENAME ofn;
+	static TCHAR        sz_path[MAX_PATH];
+	static TCHAR        sz_file[MAX_PATH];
+	static string       str_path;
+	static string       current_path;
+	static size_t       current_path_size;
 
-	if (szPath[0] == TEXT('\0'))
+	if (sz_path[0] == TEXT('\0'))
 	{
-		GetCurrentDirectory(MAX_PATH, szPath);
+		GetCurrentDirectory(MAX_PATH, sz_path);
 		char char_path[MAX_PATH];
-		WideCharToMultiByte(CP_ACP, 0, szPath, -1, char_path, MAX_PATH, NULL, NULL);
+		WideCharToMultiByte(CP_ACP, 0, sz_path, -1, char_path, MAX_PATH, nullptr, nullptr);
 		current_path = char_path;
 		current_path_size = current_path.size();
 	}
 
-	string path = current_path + initial_dir;
+	const string path = current_path + initial_dir;
 
 	setlocale(LC_ALL, "japanese");
 	wchar_t w_path[MAX_PATH];
@@ -38,7 +37,7 @@ string System_Function::Get_Open_File_Name(string extension, string initial_dir)
 	ofn.lStructSize = sizeof(OPENFILENAME);
 	ofn.hwndOwner = DxSystem::hwnd;
 	ofn.lpstrInitialDir = w_path; // 初期フォルダ位置
-	ofn.lpstrFile = szFile;       // 選択ファイル格納
+	ofn.lpstrFile = sz_file;       // 選択ファイル格納
 	ofn.nMaxFile = MAX_PATH;
 
 	if (extension.empty())
@@ -84,10 +83,10 @@ string System_Function::Get_Open_File_Name(string extension, string initial_dir)
 	if (GetOpenFileName(&ofn))
 	{
 		char c_path[MAX_PATH];
-		WideCharToMultiByte(CP_ACP, 0, szFile, -1, c_path, MAX_PATH, NULL, NULL);
+		WideCharToMultiByte(CP_ACP, 0, sz_file, -1, c_path, MAX_PATH, nullptr, nullptr);
 		str_path = c_path;
 		str_path = str_path.substr(current_path_size + 1, str_path.size());
-		ZeroMemory(szFile, sizeof(szFile));
+		ZeroMemory(sz_file, sizeof(sz_file));
 	}
 	else
 	{
@@ -101,22 +100,22 @@ string System_Function::Get_Open_File_Name(string extension, string initial_dir)
 string System_Function::Get_Save_File_Name(string extension, string initial_dir)
 {
 	static OPENFILENAME     ofn;
-	static TCHAR            szPath[MAX_PATH];
-	static TCHAR            szFile[MAX_PATH];
+	static TCHAR            sz_path[MAX_PATH];
+	static TCHAR            sz_file[MAX_PATH];
 	static string           str_path;
 	static string			current_path;
 	static size_t           current_path_size;
 
-	if (szPath[0] == TEXT('\0'))
+	if (sz_path[0] == TEXT('\0'))
 	{
-		GetCurrentDirectory(MAX_PATH, szPath);
+		GetCurrentDirectory(MAX_PATH, sz_path);
 		char char_path[MAX_PATH];
-		WideCharToMultiByte(CP_ACP, 0, szPath, -1, char_path, MAX_PATH, NULL, NULL);
+		WideCharToMultiByte(CP_ACP, 0, sz_path, -1, char_path, MAX_PATH, nullptr, nullptr);
 		current_path = char_path;
 		current_path_size = current_path.size();
 	}
 
-	string path = current_path + initial_dir;
+	const string path = current_path + initial_dir;
 
 	setlocale(LC_ALL, "japanese");
 	wchar_t w_path[MAX_PATH];
@@ -127,7 +126,7 @@ string System_Function::Get_Save_File_Name(string extension, string initial_dir)
 	ofn.lStructSize = sizeof(OPENFILENAME);
 	ofn.hwndOwner = DxSystem::hwnd;
 	ofn.lpstrInitialDir = w_path; // 初期フォルダ位置
-	ofn.lpstrFile = szFile;       // 選択ファイル格納
+	ofn.lpstrFile = sz_file;       // 選択ファイル格納
 	ofn.nMaxFile = MAX_PATH;
 
 	if (extension.empty())
@@ -175,7 +174,7 @@ string System_Function::Get_Save_File_Name(string extension, string initial_dir)
 	if (GetSaveFileName(&ofn))
 	{
 		char char_path[MAX_PATH];
-		WideCharToMultiByte(CP_ACP, 0, szFile, -1, char_path, MAX_PATH, NULL, NULL);
+		WideCharToMultiByte(CP_ACP, 0, sz_file, -1, char_path, MAX_PATH, nullptr, nullptr);
 		str_path = char_path;
 		str_path = str_path.substr(current_path_size + 1, str_path.size());
 	}
@@ -186,18 +185,18 @@ string System_Function::Get_Save_File_Name(string extension, string initial_dir)
 	return str_path;
 }
 
-string System_Function::Create_ID()
+string System_Function::Create_Id()
 {
 	UUID uuid = { 0 };
 	string guid;
 
 	(void)UuidCreate(&uuid);
 
-	RPC_CSTR szUuid = NULL;
-	if (UuidToStringA(&uuid, &szUuid) == RPC_S_OK)
+	RPC_CSTR sz_uuid = nullptr;
+	if (UuidToStringA(&uuid, &sz_uuid) == RPC_S_OK)
 	{
-		guid = (char*)szUuid;
-		RpcStringFreeA(&szUuid);
+		guid = reinterpret_cast<char*>(sz_uuid);
+		RpcStringFreeA(&sz_uuid);
 	}
 
 	return guid;

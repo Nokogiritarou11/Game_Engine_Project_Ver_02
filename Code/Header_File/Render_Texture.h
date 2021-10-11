@@ -1,13 +1,6 @@
 #pragma once
-#include <InitGUID.h>
-#include <dxgidebug.h>
 #include <d3d11.h>
-#include <memory>
 #include <wrl.h>
-#include <string.h>
-#include <assert.h>
-#include <DirectXMath.h>
-#include "Original_Math.h"
 
 namespace BeastEngine
 {
@@ -15,12 +8,12 @@ namespace BeastEngine
 	{
 	public:
 
-		Render_Texture(const int& x, const int& y, const bool& MSAA, const DXGI_FORMAT& format);
+		Render_Texture(const int& x, const int& y, const bool& msaa, const DXGI_FORMAT& format);
 
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& Get_Texture();
 		void Set_Screen_Size(const int& x, const int& y);
 		void Set_Render_Target();
-		void Clear();
+		void Clear() const;
 
 		int screen_x = 0;
 		int screen_y = 0;
@@ -36,7 +29,7 @@ namespace BeastEngine
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	shader_resource_view_resolve;
 
 		bool Create_Depth_Stencil();
-		bool Create_Render_Tartget_View();
+		bool Create_Render_Target_View();
 
 		DXGI_FORMAT color_format;
 		bool use_msaa;

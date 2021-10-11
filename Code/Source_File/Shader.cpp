@@ -1,4 +1,4 @@
-#include <locale.h>
+#include <clocale>
 #include "DxSystem.h"
 #include "Shader.h"
 #include "Engine.h"
@@ -9,7 +9,7 @@ using namespace std;
 using namespace BeastEngine;
 
 //	シェーダーコンパイル
-HRESULT Shader::Compile(WCHAR* filename, LPCSTR method, LPCSTR shaderModel, ID3DBlob** ppBlobOut)
+HRESULT Shader::Compile(const WCHAR* filename, const LPCSTR method, const LPCSTR shader_model, ID3DBlob** pp_blob_out)
 {
 	DWORD ShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
 	ShaderFlags |= D3DCOMPILE_DEBUG;
@@ -17,22 +17,22 @@ HRESULT Shader::Compile(WCHAR* filename, LPCSTR method, LPCSTR shaderModel, ID3D
 
 	ComPtr<ID3DBlob> BlobError = nullptr;
 	// コンパイル
-	HRESULT hr = D3DCompileFromFile(
+	const HRESULT hr = D3DCompileFromFile(
 		filename,
 		nullptr,
 		D3D_COMPILE_STANDARD_FILE_INCLUDE,
 		method,
-		shaderModel,
+		shader_model,
 		ShaderFlags,
 		0,
-		ppBlobOut,
+		pp_blob_out,
 		BlobError.GetAddressOf()
 	);
 
 	// エラー出力
 	if (BlobError != nullptr)
 	{
-		MessageBoxA(0, (char*)BlobError->GetBufferPointer(), nullptr, MB_OK);
+		MessageBoxA(nullptr, static_cast<char*>(BlobError->GetBufferPointer()), nullptr, MB_OK);
 	}
 
 	return hr;
@@ -57,63 +57,63 @@ void Shader::Reflect_Resource_Buffer(const ComPtr<ID3D11ShaderReflection>& refle
 			if (desc.BindPoint != 0)
 			{
 				auto cb = reflector->GetConstantBufferByName(desc.Name);
-				D3D11_SHADER_BUFFER_DESC bdesc;
-				cb->GetDesc(&bdesc);
+				D3D11_SHADER_BUFFER_DESC b_desc;
+				cb->GetDesc(&b_desc);
 
 				ConstantBuffer_Info info;
 				info.name = desc.Name;
 				info.register_number = desc.BindPoint;
-				info.byte_size = bdesc.Size;
+				info.byte_size = b_desc.Size;
 
-				for (size_t j = 0; j < bdesc.Variables; ++j)
+				for (size_t j = 0; j < b_desc.Variables; ++j)
 				{
 					auto v = cb->GetVariableByIndex(j);
-					D3D11_SHADER_VARIABLE_DESC vdesc;
-					v->GetDesc(&vdesc);
+					D3D11_SHADER_VARIABLE_DESC v_desc;
+					v->GetDesc(&v_desc);
 					auto t = v->GetType();
-					D3D11_SHADER_TYPE_DESC tdesc;
-					t->GetDesc(&tdesc);
+					D3D11_SHADER_TYPE_DESC t_desc;
+					t->GetDesc(&t_desc);
 
-					Parameter_Type type = Parameter_Type::INT;
-					if (tdesc.Class == D3D10_SVC_SCALAR)
+					Parameter_Type type = Parameter_Type::Int;
+					if (t_desc.Class == D3D10_SVC_SCALAR)
 					{
-						if (tdesc.Type == D3D10_SVT_INT || tdesc.Type == D3D10_SVT_UINT)
+						if (t_desc.Type == D3D10_SVT_INT || t_desc.Type == D3D10_SVT_UINT)
 						{
-							type = Parameter_Type::INT;
+							type = Parameter_Type::Int;
 						}
-						else if (tdesc.Type == D3D10_SVT_FLOAT)
+						else if (t_desc.Type == D3D10_SVT_FLOAT)
 						{
-							type = Parameter_Type::FLOAT;
+							type = Parameter_Type::Float;
 						}
 					}
-					else if (tdesc.Class == D3D10_SVC_VECTOR)
+					else if (t_desc.Class == D3D10_SVC_VECTOR)
 					{
-						if (vdesc.Size == 8)
+						if (v_desc.Size == 8)
 						{
-							type = Parameter_Type::VECTOR2;
+							type = Parameter_Type::Vector2;
 						}
-						else if (vdesc.Size == 12)
+						else if (v_desc.Size == 12)
 						{
-							type = Parameter_Type::VECTOR3;
+							type = Parameter_Type::Vector3;
 						}
-						else if (vdesc.Size == 16)
+						else if (v_desc.Size == 16)
 						{
-							type = Parameter_Type::VECTOR4;
+							type = Parameter_Type::Vector4;
 						}
 					}
-					else if (tdesc.Class == D3D10_SVC_MATRIX_ROWS || tdesc.Class == D3D10_SVC_MATRIX_COLUMNS)
+					else if (t_desc.Class == D3D10_SVC_MATRIX_ROWS || t_desc.Class == D3D10_SVC_MATRIX_COLUMNS)
 					{
-						type = Parameter_Type::MATRIX;
+						type = Parameter_Type::Matrix;
 					}
 					else
 					{
 						assert(false);
 					}
 
-					vector<std::byte> default_value(vdesc.Size);
-					memcpy(&default_value[0], vdesc.DefaultValue, vdesc.Size);
+					vector<std::byte> default_value(v_desc.Size);
+					memcpy(&default_value[0], v_desc.DefaultValue, v_desc.Size);
 
-					Parameter_Info p_info = { vdesc.Name, type, default_value, vdesc.Size, vdesc.StartOffset };
+					Parameter_Info p_info = { v_desc.Name, type, default_value, v_desc.Size, v_desc.StartOffset };
 					info.parameters.emplace_back(p_info);
 				}
 				constant_buffer_info.emplace_back(info);
@@ -134,38 +134,33 @@ void Shader::Reflect_Resource_Buffer(const ComPtr<ID3D11ShaderReflection>& refle
 
 shared_ptr<Shader> Shader::Create(const string& shader_path, const Shader_Type& shader_type)
 {
-	auto it = Engine::asset_manager->cache_shader.find(shader_path);
-	if (it != Engine::asset_manager->cache_shader.end())
+	if (const auto it = Engine::asset_manager->cache_shader.find(shader_path); it != Engine::asset_manager->cache_shader.end())
 	{
 		return it->second;
 	}
-	else
-	{
-		shared_ptr<Shader> shader;
-		switch (shader_type)
-		{
-			case Shader_Type::Vertex:
-				shader = make_shared<Vertex_Shader>();
-				break;
-			case Shader_Type::Geometry:
-				shader = make_shared<Geometry_Shader>();
-				break;
-			case Shader_Type::Pixel:
-				shader = make_shared<Pixel_Shader>();
-				break;
-			case Shader_Type::Hull:
-				shader = make_shared<Hull_Shader>();
-				break;
-			case Shader_Type::Domain:
-				shader = make_shared<Domain_Shader>();
-				break;
-		}
-		shader->Initialize(shader_path);
-		Engine::asset_manager->cache_shader.insert(make_pair(shader_path, shader));
-		return shader;
-	}
 
-	return nullptr;
+	shared_ptr<Shader> shader;
+	switch (shader_type)
+	{
+		case Shader_Type::Vertex:
+			shader = make_shared<Vertex_Shader>();
+			break;
+		case Shader_Type::Geometry:
+			shader = make_shared<Geometry_Shader>();
+			break;
+		case Shader_Type::Pixel:
+			shader = make_shared<Pixel_Shader>();
+			break;
+		case Shader_Type::Hull:
+			shader = make_shared<Hull_Shader>();
+			break;
+		case Shader_Type::Domain:
+			shader = make_shared<Domain_Shader>();
+			break;
+	}
+	shader->Initialize(shader_path);
+	Engine::asset_manager->cache_shader.insert(make_pair(shader_path, shader));
+	return shader;
 }
 
 //	シェーダー単体コンパイル
@@ -190,7 +185,7 @@ bool Vertex_Shader::Initialize(const string& filename)
 
 	// リフレクション
 	ID3D11ShaderReflection* reflector = nullptr;
-	hr = D3DReflect(blob->GetBufferPointer(), blob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&reflector);
+	hr = D3DReflect(blob->GetBufferPointer(), blob->GetBufferSize(), IID_ID3D11ShaderReflection, reinterpret_cast<void**>(&reflector));
 	assert(SUCCEEDED(hr));
 
 	Reflect_Resource_Buffer(reflector);
@@ -201,74 +196,72 @@ bool Vertex_Shader::Initialize(const string& filename)
 	return true;
 }
 
-void Vertex_Shader::Reflect_InputLayout(const ComPtr<ID3D11ShaderReflection>& reflector, ComPtr<ID3DBlob>& blob)
+void Vertex_Shader::Reflect_InputLayout(const ComPtr<ID3D11ShaderReflection>& reflector, const ComPtr<ID3DBlob>& blob)
 {
 	// Get shader info
-	D3D11_SHADER_DESC shaderDesc;
-	reflector->GetDesc(&shaderDesc);
+	D3D11_SHADER_DESC shader_desc;
+	reflector->GetDesc(&shader_desc);
 
 	// Read input layout description from shader info
-	std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc;
-	for (UINT32 i = 0; i < shaderDesc.InputParameters; ++i)
+	std::vector<D3D11_INPUT_ELEMENT_DESC> input_layout_desc;
+	for (UINT32 i = 0; i < shader_desc.InputParameters; ++i)
 	{
-		D3D11_SIGNATURE_PARAMETER_DESC paramDesc;
-		reflector->GetInputParameterDesc(i, &paramDesc);
+		D3D11_SIGNATURE_PARAMETER_DESC param_desc;
+		reflector->GetInputParameterDesc(i, &param_desc);
 
 		// fill out input element desc
-		D3D11_INPUT_ELEMENT_DESC elementDesc;
-		elementDesc.SemanticName = paramDesc.SemanticName;
-		elementDesc.SemanticIndex = paramDesc.SemanticIndex;
-		elementDesc.InputSlot = 0;
-		elementDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-		elementDesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		elementDesc.InstanceDataStepRate = 0;
+		D3D11_INPUT_ELEMENT_DESC element_desc;
+		element_desc.SemanticName = param_desc.SemanticName;
+		element_desc.SemanticIndex = param_desc.SemanticIndex;
+		element_desc.InputSlot = 0;
+		element_desc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+		element_desc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		element_desc.InstanceDataStepRate = 0;
 
-		string semantic_name = paramDesc.SemanticName;
+		string semantic_name = param_desc.SemanticName;
 		if (semantic_name != "SV_VertexID")
 		{
 			// determine DXGI format
-			if (paramDesc.Mask == 1)
+			if (param_desc.Mask == 1)
 			{
-				if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) elementDesc.Format = DXGI_FORMAT_R32_UINT;
-				else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) elementDesc.Format = DXGI_FORMAT_R32_SINT;
-				else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) elementDesc.Format = DXGI_FORMAT_R32_FLOAT;
+				if (param_desc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) element_desc.Format = DXGI_FORMAT_R32_UINT;
+				else if (param_desc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) element_desc.Format = DXGI_FORMAT_R32_SINT;
+				else if (param_desc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) element_desc.Format = DXGI_FORMAT_R32_FLOAT;
 			}
-			else if (paramDesc.Mask <= 3)
+			else if (param_desc.Mask <= 3)
 			{
-				if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) elementDesc.Format = DXGI_FORMAT_R32G32_UINT;
-				else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) elementDesc.Format = DXGI_FORMAT_R32G32_SINT;
-				else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) elementDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
+				if (param_desc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) element_desc.Format = DXGI_FORMAT_R32G32_UINT;
+				else if (param_desc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) element_desc.Format = DXGI_FORMAT_R32G32_SINT;
+				else if (param_desc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) element_desc.Format = DXGI_FORMAT_R32G32_FLOAT;
 			}
-			else if (paramDesc.Mask <= 7)
+			else if (param_desc.Mask <= 7)
 			{
-				if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) elementDesc.Format = DXGI_FORMAT_R32G32B32_UINT;
-				else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) elementDesc.Format = DXGI_FORMAT_R32G32B32_SINT;
-				else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) elementDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+				if (param_desc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) element_desc.Format = DXGI_FORMAT_R32G32B32_UINT;
+				else if (param_desc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) element_desc.Format = DXGI_FORMAT_R32G32B32_SINT;
+				else if (param_desc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) element_desc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
 			}
-			else if (paramDesc.Mask <= 15)
+			else if (param_desc.Mask <= 15)
 			{
-				if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) elementDesc.Format = DXGI_FORMAT_R32G32B32A32_UINT;
-				else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) elementDesc.Format = DXGI_FORMAT_R32G32B32A32_SINT;
-				else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) elementDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+				if (param_desc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) element_desc.Format = DXGI_FORMAT_R32G32B32A32_UINT;
+				else if (param_desc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) element_desc.Format = DXGI_FORMAT_R32G32B32A32_SINT;
+				else if (param_desc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) element_desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 			}
 
 			//save element desc
-			inputLayoutDesc.push_back(elementDesc);
+			input_layout_desc.push_back(element_desc);
 		}
 	}
 
-	if (!inputLayoutDesc.empty())
+	if (!input_layout_desc.empty())
 	{
 		// Try to create Input Layout
-		HRESULT hr = DxSystem::device->CreateInputLayout(&inputLayoutDesc[0], inputLayoutDesc.size(), blob->GetBufferPointer(), blob->GetBufferSize(), vertex_layout.GetAddressOf());
+		const HRESULT hr = DxSystem::device->CreateInputLayout(&input_layout_desc[0], input_layout_desc.size(), blob->GetBufferPointer(), blob->GetBufferSize(), vertex_layout.GetAddressOf());
 		assert(SUCCEEDED(hr));
 	}
 }
 
 bool Geometry_Shader::Initialize(const string& filename)
 {
-	HRESULT hr = S_OK;
-
 	setlocale(LC_ALL, "japanese");
 	wchar_t FileName[MAX_PATH] = { 0 };
 	size_t ret = 0;
@@ -277,7 +270,7 @@ bool Geometry_Shader::Initialize(const string& filename)
 	// ジオメトリシェーダ
 	ComPtr<ID3DBlob> blob = nullptr;
 
-	hr = Compile(FileName, "main", "gs_5_0", &blob);
+	HRESULT hr = Compile(FileName, "main", "gs_5_0", &blob);
 	assert(SUCCEEDED(hr));
 
 	hr = DxSystem::device->CreateGeometryShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, gs.GetAddressOf());
@@ -285,7 +278,7 @@ bool Geometry_Shader::Initialize(const string& filename)
 
 	// リフレクション
 	ID3D11ShaderReflection* reflector = nullptr;
-	hr = D3DReflect(blob->GetBufferPointer(), blob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&reflector);
+	hr = D3DReflect(blob->GetBufferPointer(), blob->GetBufferSize(), IID_ID3D11ShaderReflection, reinterpret_cast<void**>(&reflector));
 	assert(SUCCEEDED(hr));
 
 	Reflect_Resource_Buffer(reflector);
@@ -300,14 +293,14 @@ bool Pixel_Shader::Initialize(const string& filename)
 	HRESULT hr = S_OK;
 
 	setlocale(LC_ALL, "japanese");
-	wchar_t FileName[MAX_PATH] = { 0 };
+	wchar_t w_file_name[MAX_PATH] = { 0 };
 	size_t ret = 0;
-	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
+	mbstowcs_s(&ret, w_file_name, MAX_PATH, filename.c_str(), _TRUNCATE);
 
 	// ピクセルシェーダ
 	ComPtr<ID3DBlob> blob = nullptr;
 
-	hr = Compile(FileName, "main", "ps_5_0", &blob);
+	hr = Compile(w_file_name, "main", "ps_5_0", &blob);
 	assert(SUCCEEDED(hr));
 
 	hr = DxSystem::device->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, ps.GetAddressOf());
@@ -315,7 +308,7 @@ bool Pixel_Shader::Initialize(const string& filename)
 
 	// リフレクション
 	ID3D11ShaderReflection* reflector = nullptr;
-	hr = D3DReflect(blob->GetBufferPointer(), blob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&reflector);
+	hr = D3DReflect(blob->GetBufferPointer(), blob->GetBufferSize(), IID_ID3D11ShaderReflection, reinterpret_cast<void**>(&reflector));
 	assert(SUCCEEDED(hr));
 
 	Reflect_Resource_Buffer(reflector);
@@ -327,8 +320,6 @@ bool Pixel_Shader::Initialize(const string& filename)
 
 bool Hull_Shader::Initialize(const string& filename)
 {
-	HRESULT hr = S_OK;
-
 	setlocale(LC_ALL, "japanese");
 	wchar_t FileName[MAX_PATH] = { 0 };
 	size_t ret = 0;
@@ -337,7 +328,7 @@ bool Hull_Shader::Initialize(const string& filename)
 	// ハルシェーダ
 	ComPtr<ID3DBlob> blob = nullptr;
 
-	hr = Compile(FileName, "main", "hs_5_0", &blob);
+	HRESULT hr = Compile(FileName, "main", "hs_5_0", &blob);
 	assert(SUCCEEDED(hr));
 
 	hr = DxSystem::device->CreateHullShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, hs.GetAddressOf());
@@ -345,7 +336,7 @@ bool Hull_Shader::Initialize(const string& filename)
 
 	// リフレクション
 	ID3D11ShaderReflection* reflector = nullptr;
-	hr = D3DReflect(blob->GetBufferPointer(), blob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&reflector);
+	hr = D3DReflect(blob->GetBufferPointer(), blob->GetBufferSize(), IID_ID3D11ShaderReflection, reinterpret_cast<void**>(&reflector));
 	assert(SUCCEEDED(hr));
 
 	Reflect_Resource_Buffer(reflector);
@@ -360,14 +351,14 @@ bool Domain_Shader::Initialize(const string& filename)
 	HRESULT hr = S_OK;
 
 	setlocale(LC_ALL, "japanese");
-	wchar_t FileName[MAX_PATH] = { 0 };
+	wchar_t w_file_name[MAX_PATH] = { 0 };
 	size_t ret = 0;
-	mbstowcs_s(&ret, FileName, MAX_PATH, filename.c_str(), _TRUNCATE);
+	mbstowcs_s(&ret, w_file_name, MAX_PATH, filename.c_str(), _TRUNCATE);
 
 	// ハルシェーダ
 	ComPtr<ID3DBlob> blob = nullptr;
 
-	hr = Compile(FileName, "main", "ds_5_0", &blob);
+	hr = Compile(w_file_name, "main", "ds_5_0", &blob);
 	assert(SUCCEEDED(hr));
 
 	hr = DxSystem::device->CreateDomainShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, ds.GetAddressOf());
@@ -375,7 +366,7 @@ bool Domain_Shader::Initialize(const string& filename)
 
 	// リフレクション
 	ID3D11ShaderReflection* reflector = nullptr;
-	hr = D3DReflect(blob->GetBufferPointer(), blob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&reflector);
+	hr = D3DReflect(blob->GetBufferPointer(), blob->GetBufferSize(), IID_ID3D11ShaderReflection, reinterpret_cast<void**>(&reflector));
 	assert(SUCCEEDED(hr));
 
 	Reflect_Resource_Buffer(reflector);

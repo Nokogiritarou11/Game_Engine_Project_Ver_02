@@ -160,7 +160,7 @@ void Collider::Rescale_Shape() const
 
 void Collider::Call_Hit(Collision& collision)
 {
-	const string& id = collision.collider->Get_Instance_ID();
+	const string& id = collision.collider->Get_Instance_Id();
 	if (const auto it = hit_list_old.find(id); it == hit_list_old.end())
 	{
 		hit_list[id] = collision.collider;
@@ -189,7 +189,7 @@ void Collider::Update_Transform()
 
 		btTransform t(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z));
 		if (is_trigger)	ghost->Set_BtTransform(t);
-		else rigidbody->Set_btTransform(t);
+		else rigidbody->Set_BtTransform(t);
 	}
 }
 
@@ -197,7 +197,7 @@ void Collider::Update_Simulation()
 {
 	btTransform t;
 	if (is_trigger) ghost->Get_BtTransform(t);
-	else rigidbody->Get_btTransform(t);
+	else rigidbody->Get_BtTransform(t);
 
 	const btVector3 v = t.getOrigin();
 	const btQuaternion q = t.getRotation();

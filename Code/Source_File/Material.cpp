@@ -235,32 +235,32 @@ void Material::Set_Parameter(const string& parameter_name, const void* value, co
 
 void Material::Set_Int(const string& int_name, const int& value)
 {
-	Set_Parameter(int_name, &value, Shader::Parameter_Type::INT);
+	Set_Parameter(int_name, &value, Shader::Parameter_Type::Int);
 }
 
 void Material::Set_Float(const string& float_name, const float& value)
 {
-	Set_Parameter(float_name, &value, Shader::Parameter_Type::FLOAT);
+	Set_Parameter(float_name, &value, Shader::Parameter_Type::Float);
 }
 
 void Material::Set_Vector2(const string& vector_name, const Vector2& value)
 {
-	Set_Parameter(vector_name, &value, Shader::Parameter_Type::VECTOR2);
+	Set_Parameter(vector_name, &value, Shader::Parameter_Type::Vector2);
 }
 
 void Material::Set_Vector3(const string& vector_name, const Vector3& value)
 {
-	Set_Parameter(vector_name, &value, Shader::Parameter_Type::VECTOR3);
+	Set_Parameter(vector_name, &value, Shader::Parameter_Type::Vector3);
 }
 
 void Material::Set_Vector4(const string& vector_name, const Vector4& value)
 {
-	Set_Parameter(vector_name, &value, Shader::Parameter_Type::VECTOR4);
+	Set_Parameter(vector_name, &value, Shader::Parameter_Type::Vector4);
 }
 
 void Material::Set_Matrix(const string& matrix_name, const Matrix& value)
 {
-	Set_Parameter(matrix_name, &value, Shader::Parameter_Type::MATRIX);
+	Set_Parameter(matrix_name, &value, Shader::Parameter_Type::Matrix);
 }
 
 shared_ptr<Texture> Material::Get_Texture(const string& texture_name)
@@ -283,7 +283,7 @@ int Material::Get_Int(const string& int_name)
 	{
 		if (const auto it = pass.parameter_info.find(int_name); it != pass.parameter_info.end())
 		{
-			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::INT)
+			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::Int)
 			{
 				ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
 				int value = 0;
@@ -303,7 +303,7 @@ float Material::Get_Float(const string& float_name)
 	{
 		if (const auto it = pass.parameter_info.find(float_name); it != pass.parameter_info.end())
 		{
-			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::FLOAT)
+			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::Float)
 			{
 				const ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
 				float value = 0;
@@ -325,7 +325,7 @@ Vector2 Material::Get_Vector2(const string& vector_name)
 	{
 		if (const auto it = pass.parameter_info.find(vector_name); it != pass.parameter_info.end())
 		{
-			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::VECTOR2)
+			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::Vector2)
 			{
 				ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
 				memcpy(&value, &b_info.byte_data[info.offset], info.size);
@@ -345,7 +345,7 @@ Vector3 Material::Get_Vector3(const string& vector_name)
 	{
 		if (const auto it = pass.parameter_info.find(vector_name); it != pass.parameter_info.end())
 		{
-			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::VECTOR3)
+			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::Vector3)
 			{
 				const ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
 				memcpy(&value, &b_info.byte_data[info.offset], info.size);
@@ -365,7 +365,7 @@ Vector4 Material::Get_Vector4(const string& vector_name)
 	{
 		if (const auto it = pass.parameter_info.find(vector_name); it != pass.parameter_info.end())
 		{
-			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::VECTOR4)
+			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::Vector4)
 			{
 				const ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
 				memcpy(&value, &b_info.byte_data[info.offset], info.size);
@@ -385,7 +385,7 @@ Matrix Material::Get_Matrix(const string& matrix_name)
 	{
 		if (const auto it = pass.parameter_info.find(matrix_name); it != pass.parameter_info.end())
 		{
-			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::MATRIX)
+			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::Matrix)
 			{
 				const ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
 				memcpy(&value, &b_info.byte_data[info.offset], info.size);
@@ -907,7 +907,7 @@ void Material::Draw_ImGui()
 				const string& p_name = info.first;
 				ImGui::PushID(p_name.c_str());
 
-				if (info.second.type == Shader::Parameter_Type::INT)
+				if (info.second.type == Shader::Parameter_Type::Int)
 				{
 					int value = Get_Int(p_name);
 					if (ImGui::LeftText_DragInt(p_name.c_str(), "##int", &value, window_width * 0.4f))
@@ -916,7 +916,7 @@ void Material::Draw_ImGui()
 						Save();
 					}
 				}
-				else if (info.second.type == Shader::Parameter_Type::FLOAT)
+				else if (info.second.type == Shader::Parameter_Type::Float)
 				{
 					float value = Get_Float(p_name);
 					if (ImGui::LeftText_DragFloat(p_name.c_str(), "##float", &value, window_width * 0.4f, -FLT_MIN, 0.001f, "%.5f"))
@@ -925,7 +925,7 @@ void Material::Draw_ImGui()
 						Save();
 					}
 				}
-				else if (info.second.type == Shader::Parameter_Type::VECTOR2)
+				else if (info.second.type == Shader::Parameter_Type::Vector2)
 				{
 					Vector2 value = Get_Vector2(p_name);
 					if (ImGui::LeftText_DragFloat2(p_name.c_str(), "##float2", value, window_width * 0.4f, -FLT_MIN, 0.001f, "%.4f"))
@@ -934,7 +934,7 @@ void Material::Draw_ImGui()
 						Save();
 					}
 				}
-				else if (info.second.type == Shader::Parameter_Type::VECTOR3)
+				else if (info.second.type == Shader::Parameter_Type::Vector3)
 				{
 					Vector3 value = Get_Vector3(p_name);
 					if (ImGui::LeftText_DragFloat3(p_name.c_str(), "##float3", value, window_width * 0.4f))
@@ -943,7 +943,7 @@ void Material::Draw_ImGui()
 						Save();
 					}
 				}
-				else if (info.second.type == Shader::Parameter_Type::VECTOR4)
+				else if (info.second.type == Shader::Parameter_Type::Vector4)
 				{
 					Vector4 value = Get_Vector4(p_name);
 					if (ImGui::LeftText_ColorEdit4(p_name.c_str(), "##float4_color", value, window_width * 0.4f))
@@ -957,7 +957,7 @@ void Material::Draw_ImGui()
 						Save();
 					}
 				}
-				else if (info.second.type == Shader::Parameter_Type::MATRIX)
+				else if (info.second.type == Shader::Parameter_Type::Matrix)
 				{
 					ImGui::Dummy({ 0,0 }); // GUI”ñ‘Î‰ž
 				}

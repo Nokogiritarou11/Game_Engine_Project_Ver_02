@@ -1,17 +1,9 @@
 #pragma once
-#include <stdio.h>
 #include <string>
-#include <DirectXMath.h>
-#include <Original_Math.h>
-#include <memory>
 
 #include "cereal/cereal.hpp"
 #include "cereal/access.hpp"
-#include "cereal/archives/binary.hpp"
-#include "cereal/types/vector.hpp"
 #include "cereal/types/array.hpp"
-#include "cereal/types/string.hpp"
-#include "cereal/types/memory.hpp"
 
 namespace BeastEngine
 {
@@ -20,7 +12,7 @@ namespace BeastEngine
 	public:
 		float shadow_bias = 0.01f;
 		float shadow_distance = 15.0f;
-		std::vector<std::string> tag;
+		std::vector<std::string> tag{};
 		std::array<std::string, 32> layer;
 		std::array<int, 32> layer_mask;
 

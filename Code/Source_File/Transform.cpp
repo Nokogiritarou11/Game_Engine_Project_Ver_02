@@ -10,7 +10,7 @@ using namespace BeastEngine;
 
 Transform::Transform()
 {
-	if (shared_ptr<Transform> p = parent.lock())
+	if (const auto& p = parent.lock())
 	{
 		local_translation_matrix = Matrix::CreateTranslation(local_position);
 		local_rotation_matrix = Matrix::CreateFromQuaternion(local_rotation);
@@ -52,34 +52,34 @@ Transform::Transform()
 	has_changed = false;
 }
 
-Transform::Transform(Vector3 _position, Quaternion _rotation)
+Transform::Transform(const Vector3 position, const Quaternion rotation)
 {
-	position = _position;
-	rotation = _rotation;
-	scale = { 1,1,1 };
+	this->position = position;
+	this->rotation = rotation;
+	scale = Vector3(1, 1, 1);
 
-	if (shared_ptr<Transform> p = parent.lock())
+	if (const auto& p = parent.lock())
 	{
 		local_translation_matrix = Matrix::CreateTranslation(local_position);
 		local_rotation_matrix = Matrix::CreateFromQuaternion(local_rotation);
 		local_scale_matrix = Matrix::CreateScale(local_scale);
 		local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
 		world_matrix = local_matrix * p->Get_World_Matrix();
-		world_matrix.Decompose(scale, rotation, position);
+		world_matrix.Decompose(scale, this->rotation, this->position);
 
 		scale_matrix = Matrix::CreateScale(scale);
-		rotation_matrix = Matrix::CreateFromQuaternion(rotation);
-		translation_matrix = Matrix::CreateTranslation(position);
+		rotation_matrix = Matrix::CreateFromQuaternion(this->rotation);
+		translation_matrix = Matrix::CreateTranslation(this->position);
 	}
 	else
 	{
-		translation_matrix = Matrix::CreateTranslation(position);
-		rotation_matrix = Matrix::CreateFromQuaternion(rotation);
+		translation_matrix = Matrix::CreateTranslation(this->position);
+		rotation_matrix = Matrix::CreateFromQuaternion(this->rotation);
 		scale_matrix = Matrix::CreateScale(scale);
 		world_matrix = scale_matrix * rotation_matrix * translation_matrix;
 
-		local_position = position;
-		local_rotation = rotation;
+		local_position = this->position;
+		local_rotation = this->rotation;
 		local_scale = scale;
 
 		local_translation_matrix = translation_matrix;
@@ -101,33 +101,33 @@ Transform::Transform(Vector3 _position, Quaternion _rotation)
 	has_changed = false;
 }
 
-Transform::Transform(Vector3 _position, Vector3 _euler)
+Transform::Transform(const Vector3 position, const Vector3 euler)
 {
-	position = _position;
-	rotation = Quaternion::Euler(_euler);
-	scale = { 1,1,1 };
+	this->position = position;
+	rotation = Quaternion::Euler(euler);
+	scale = Vector3(1, 1, 1);
 
-	if (shared_ptr<Transform> p = parent.lock())
+	if (const auto& p = parent.lock())
 	{
 		local_translation_matrix = Matrix::CreateTranslation(local_position);
 		local_rotation_matrix = Matrix::CreateFromQuaternion(local_rotation);
 		local_scale_matrix = Matrix::CreateScale(local_scale);
 		local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
 		world_matrix = local_matrix * p->Get_World_Matrix();
-		world_matrix.Decompose(scale, rotation, position);
+		world_matrix.Decompose(scale, rotation, this->position);
 
 		scale_matrix = Matrix::CreateScale(scale);
 		rotation_matrix = Matrix::CreateFromQuaternion(rotation);
-		translation_matrix = Matrix::CreateTranslation(position);
+		translation_matrix = Matrix::CreateTranslation(this->position);
 	}
 	else
 	{
-		translation_matrix = Matrix::CreateTranslation(position);
+		translation_matrix = Matrix::CreateTranslation(this->position);
 		rotation_matrix = Matrix::CreateFromQuaternion(rotation);
 		scale_matrix = Matrix::CreateScale(scale);
 		world_matrix = scale_matrix * rotation_matrix * translation_matrix;
 
-		local_position = position;
+		local_position = this->position;
 		local_rotation = rotation;
 		local_scale = scale;
 
@@ -148,10 +148,6 @@ Transform::Transform(Vector3 _position, Vector3 _euler)
 
 
 	has_changed = false;
-}
-
-Transform::~Transform()
-{
 }
 
 void Transform::Initialize(const shared_ptr<GameObject>& obj)
@@ -177,13 +173,9 @@ bool Transform::Draw_ImGui()
 		{
 			active_trans = gameobject->transform;
 
-			Vector3 trans_pos = { 0,0,0 };
-			Vector3 trans_rot = { 0,0,0 };
-			Vector3 trans_scl = { 0,0,0 };
-
-			trans_pos = Get_Local_Position();
-			trans_rot = Get_Local_Euler_Angles();
-			trans_scl = Get_Local_Scale();
+			const Vector3 trans_pos = Get_Local_Position();
+			const Vector3 trans_rot = Get_Local_Euler_Angles();
+			const Vector3 trans_scl = Get_Local_Scale();
 
 			pos[0] = trans_pos.x;
 			pos[1] = trans_pos.y;
@@ -200,7 +192,7 @@ bool Transform::Draw_ImGui()
 			update_GUI = false;
 		}
 
-		float window_center = ImGui::GetWindowContentRegionWidth() * 0.25f;
+		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.25f;
 
 		ImGui::Text("Position");
 		ImGui::SameLine(window_center);
@@ -238,15 +230,15 @@ Vector3 Transform::Get_Position() const
 	return position;
 }
 
-void Transform::Set_Position(Vector3 V)
+void Transform::Set_Position(const Vector3 v)
 {
-	if (position != V)
+	if (position != v)
 	{
-		position = V;
+		position = v;
 		translation_matrix = Matrix::CreateTranslation(position);
 		world_matrix = scale_matrix * rotation_matrix * translation_matrix;
 
-		if (shared_ptr<Transform> p = parent.lock())
+		if (const auto& p = parent.lock())
 		{
 			Matrix m;
 			p->Get_World_Matrix().Invert(m);
@@ -270,7 +262,7 @@ void Transform::Set_Position(Vector3 V)
 	}
 }
 
-void Transform::Set_Position(float f1, float f2, float f3)
+void Transform::Set_Position(const float f1, const float f2, const float f3)
 {
 	const Vector3 V = { f1,f2,f3 };
 	if (position != V)
@@ -279,7 +271,7 @@ void Transform::Set_Position(float f1, float f2, float f3)
 		translation_matrix = Matrix::CreateTranslation(position);
 		world_matrix = scale_matrix * rotation_matrix * translation_matrix;
 
-		if (shared_ptr<Transform> p = parent.lock())
+		if (const auto& p = parent.lock())
 		{
 			Matrix m;
 			p->Get_World_Matrix().Invert(m);
@@ -308,15 +300,15 @@ Quaternion Transform::Get_Rotation() const
 	return rotation;
 }
 
-void Transform::Set_Rotation(Quaternion Q)
+void Transform::Set_Rotation(const Quaternion q)
 {
-	if (rotation != Q)
+	if (rotation != q)
 	{
-		rotation = Q;
+		rotation = q;
 		rotation_matrix = Matrix::CreateFromQuaternion(rotation);
 		world_matrix = scale_matrix * rotation_matrix * translation_matrix;
 
-		if (shared_ptr<Transform> p = parent.lock())
+		if (const auto& p = parent.lock())
 		{
 			Matrix m;
 			p->Get_World_Matrix().Invert(m);
@@ -348,16 +340,15 @@ void Transform::Set_Rotation(Quaternion Q)
 		update_GUI = true;
 	}
 }
-void Transform::Set_Rotation(float f1, float f2, float f3, float f4)
+void Transform::Set_Rotation(const float f1, const float f2, const float f3, const float f4)
 {
-	const Quaternion Q = { f1,f2,f3,f4 };
-	if (rotation != Q)
+	if (const Quaternion q = { f1,f2,f3,f4 }; rotation != q)
 	{
-		rotation = Q;
+		rotation = q;
 		rotation_matrix = Matrix::CreateFromQuaternion(rotation);
 		world_matrix = scale_matrix * rotation_matrix * translation_matrix;
 
-		if (shared_ptr<Transform> p = parent.lock())
+		if (const auto& p = parent.lock())
 		{
 			Matrix m;
 			p->Get_World_Matrix().Invert(m);
@@ -395,15 +386,15 @@ Vector3 Transform::Get_Scale() const
 	return scale;
 }
 
-void Transform::Set_Scale(Vector3 V)
+void Transform::Set_Scale(const Vector3 v)
 {
-	if (scale != V)
+	if (scale != v)
 	{
-		scale = V;
+		scale = v;
 		scale_matrix = Matrix::CreateScale(scale);
 		world_matrix = scale_matrix * rotation_matrix * translation_matrix;
 
-		if (shared_ptr<Transform> p = parent.lock())
+		if (const auto& p = parent.lock())
 		{
 			Matrix m;
 			p->Get_World_Matrix().Invert(m);
@@ -425,16 +416,15 @@ void Transform::Set_Scale(Vector3 V)
 		update_GUI = true;
 	}
 }
-void Transform::Set_Scale(float f1, float f2, float f3)
+void Transform::Set_Scale(const float f1, const float f2, const float f3)
 {
-	const Vector3 V = { f1,f2,f3 };
-	if (scale != V)
+	if (const Vector3 v = { f1,f2,f3 }; scale != v)
 	{
-		scale = V;
+		scale = v;
 		scale_matrix = Matrix::CreateScale(scale);
 		world_matrix = scale_matrix * rotation_matrix * translation_matrix;
 
-		if (shared_ptr<Transform> p = parent.lock())
+		if (const auto& p = parent.lock())
 		{
 			Matrix m;
 			p->Get_World_Matrix().Invert(m);
@@ -462,14 +452,14 @@ Vector3 Transform::Get_Local_Position() const
 	return local_position;
 }
 
-void Transform::Set_Local_Position(Vector3 V)
+void Transform::Set_Local_Position(const Vector3 v)
 {
-	if (local_position != V)
+	if (local_position != v)
 	{
-		local_position = V;
+		local_position = v;
 		local_translation_matrix = Matrix::CreateTranslation(local_position);
 		local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
-		if (shared_ptr<Transform> p = parent.lock())
+		if (const auto& p = parent.lock())
 		{
 			world_matrix = local_matrix * p->Get_World_Matrix();
 			world_matrix.Decompose(scale, rotation, position);
@@ -487,15 +477,14 @@ void Transform::Set_Local_Position(Vector3 V)
 		update_GUI = true;
 	}
 }
-void Transform::Set_Local_Position(float f1, float f2, float f3)
+void Transform::Set_Local_Position(const float f1, const float f2, const float f3)
 {
-	const Vector3 V = { f1,f2,f3 };
-	if (local_position != V)
+	if (const Vector3 v = { f1,f2,f3 }; local_position != v)
 	{
-		local_position = V;
+		local_position = v;
 		local_translation_matrix = Matrix::CreateTranslation(local_position);
 		local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
-		if (shared_ptr<Transform> p = parent.lock())
+		if (const auto& p = parent.lock())
 		{
 			world_matrix = local_matrix * p->Get_World_Matrix();
 			world_matrix.Decompose(scale, rotation, position);
@@ -519,14 +508,14 @@ Quaternion Transform::Get_Local_Rotation() const
 	return local_rotation;
 }
 
-void Transform::Set_Local_Rotation(Quaternion Q)
+void Transform::Set_Local_Rotation(const Quaternion q)
 {
-	if (local_rotation != Q)
+	if (local_rotation != q)
 	{
-		local_rotation = Q;
+		local_rotation = q;
 		local_rotation_matrix = Matrix::CreateFromQuaternion(local_rotation);
 		local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
-		if (shared_ptr<Transform> p = parent.lock())
+		if (const auto& p = parent.lock())
 		{
 			world_matrix = local_matrix * p->Get_World_Matrix();
 			world_matrix.Decompose(scale, rotation, position);
@@ -551,15 +540,14 @@ void Transform::Set_Local_Rotation(Quaternion Q)
 		update_GUI = true;
 	}
 }
-void Transform::Set_Local_Rotation(float f1, float f2, float f3, float f4)
+void Transform::Set_Local_Rotation(const float f1, const float f2, const float f3, const float f4)
 {
-	const Quaternion Q = { f1,f2,f3,f4 };
-	if (local_rotation != Q)
+	if (const Quaternion q = { f1,f2,f3,f4 }; local_rotation != q)
 	{
-		local_rotation = Q;
+		local_rotation = q;
 		local_rotation_matrix = Matrix::CreateFromQuaternion(local_rotation);
 		local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
-		if (shared_ptr<Transform> p = parent.lock())
+		if (const auto& p = parent.lock())
 		{
 			world_matrix = local_matrix * p->Get_World_Matrix();
 			world_matrix.Decompose(scale, rotation, position);
@@ -592,14 +580,14 @@ Vector3 Transform::Get_Local_Scale() const
 	return local_scale;
 }
 
-void Transform::Set_Local_Scale(Vector3 V)
+void Transform::Set_Local_Scale(const Vector3 v)
 {
-	if (local_scale != V)
+	if (local_scale != v)
 	{
-		local_scale = V;
+		local_scale = v;
 		local_scale_matrix = Matrix::CreateScale(local_scale);
 		local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
-		if (shared_ptr<Transform> p = parent.lock())
+		if (const auto& p = parent.lock())
 		{
 			world_matrix = local_matrix * p->Get_World_Matrix();
 			world_matrix.Decompose(scale, rotation, position);
@@ -617,15 +605,14 @@ void Transform::Set_Local_Scale(Vector3 V)
 		update_GUI = true;
 	}
 }
-void Transform::Set_Local_Scale(float f1, float f2, float f3)
+void Transform::Set_Local_Scale(const float f1, const float f2, const float f3)
 {
-	const Vector3 V = { f1,f2,f3 };
-	if (local_scale != V)
+	if (const Vector3 v = { f1,f2,f3 }; local_scale != v)
 	{
-		local_scale = V;
+		local_scale = v;
 		local_scale_matrix = Matrix::CreateScale(local_scale);
 		local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
-		if (shared_ptr<Transform> p = parent.lock())
+		if (const auto& p = parent.lock())
 		{
 			world_matrix = local_matrix * p->Get_World_Matrix();
 			world_matrix.Decompose(scale, rotation, position);
@@ -664,11 +651,11 @@ Vector3 Transform::Get_Euler_Angles() const
 	return rotation.To_Euler();
 }
 
-void Transform::Set_Euler_Angles(Vector3 V)
+void Transform::Set_Euler_Angles(const Vector3 v)
 {
-	Set_Rotation(Quaternion::Euler(V));
+	Set_Rotation(Quaternion::Euler(v));
 }
-void Transform::Set_Euler_Angles(float f1, float f2, float f3)
+auto Transform::Set_Euler_Angles(const float f1, const float f2, const float f3) -> void
 {
 	Set_Rotation(Quaternion::Euler(f1, f2, f3));
 }
@@ -678,11 +665,11 @@ Vector3 Transform::Get_Local_Euler_Angles() const
 	return local_rotation.To_Euler();
 }
 
-void Transform::Set_Local_Euler_Angles(Vector3 V)
+void Transform::Set_Local_Euler_Angles(const Vector3 v)
 {
-	Set_Local_Rotation(Quaternion::Euler(V));
+	Set_Local_Rotation(Quaternion::Euler(v));
 }
-void Transform::Set_Local_Euler_Angles(float f1, float f2, float f3)
+void Transform::Set_Local_Euler_Angles(const float f1, const float f2, const float f3)
 {
 	Set_Local_Rotation(Quaternion::Euler(f1, f2, f3));
 }
@@ -692,19 +679,19 @@ weak_ptr<Transform> Transform::Get_Parent() const
 	return parent;
 }
 
-void Transform::Set_Parent(shared_ptr<Transform> P)
+void Transform::Set_Parent(const shared_ptr<Transform>& p)
 {
-	if (P != nullptr)
+	if (p != nullptr)
 	{
-		if (P != parent.lock())
+		if (p != parent.lock())
 		{
 			if (!parent.expired())
 			{
 				Remove_Parent();
 			}
 
-			parent = P;
-			P->children.emplace_back(static_pointer_cast<Transform>(shared_from_this()));
+			parent = p;
+			p->children.emplace_back(static_pointer_cast<Transform>(shared_from_this()));
 			/*
 			localScale = { scale.x / P->scale.x, scale.y / P->scale.y, scale.z / P->scale.z };
 			localPosition = { (position.x - P->position.x) * P->localScale.x, (position.y - P->position.y) * P->localScale.y, (position.z - P->position.z) * P->localScale.z };
@@ -713,7 +700,7 @@ void Transform::Set_Parent(shared_ptr<Transform> P)
 			localRotation = rotation * q;
 			*/
 			Matrix m;
-			P->Get_World_Matrix().Invert(m);
+			p->Get_World_Matrix().Invert(m);
 			local_matrix = Get_World_Matrix() * m;
 
 			local_matrix.Decompose(local_scale, local_rotation, local_position);
@@ -723,7 +710,7 @@ void Transform::Set_Parent(shared_ptr<Transform> P)
 			local_scale_matrix = Matrix::CreateScale(local_scale);
 
 			local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
-			world_matrix = local_matrix * P->Get_World_Matrix();
+			world_matrix = local_matrix * p->Get_World_Matrix();
 			world_matrix.Decompose(scale, rotation, position);
 
 			scale_matrix = Matrix::CreateScale(scale);
@@ -748,25 +735,25 @@ void Transform::Set_Parent(shared_ptr<Transform> P)
 	update_GUI = true;
 }
 
-void Transform::Set_Parent(shared_ptr<Transform> P, int index_insert)
+void Transform::Set_Parent(const shared_ptr<Transform>& p, const int index_insert)
 {
-	if (P != nullptr)
+	if (p != nullptr)
 	{
-		if (P != parent.lock())
+		if (p != parent.lock())
 		{
 			if (!parent.expired())
 			{
 				Remove_Parent();
 			}
 
-			parent = P;
+			parent = p;
 			if (index_insert < 0)
 			{
-				P->children.emplace_back(static_pointer_cast<Transform>(shared_from_this()));
+				p->children.emplace_back(static_pointer_cast<Transform>(shared_from_this()));
 			}
 			else
 			{
-				P->children.insert(P->children.begin() + index_insert, static_pointer_cast<Transform>(shared_from_this()));
+				p->children.insert(p->children.begin() + index_insert, static_pointer_cast<Transform>(shared_from_this()));
 			}
 			/*
 			localScale = { scale.x / P->scale.x, scale.y / P->scale.y, scale.z / P->scale.z };
@@ -776,7 +763,7 @@ void Transform::Set_Parent(shared_ptr<Transform> P, int index_insert)
 			localRotation = rotation * q;
 			*/
 			Matrix m;
-			P->Get_World_Matrix().Invert(m);
+			p->Get_World_Matrix().Invert(m);
 			local_matrix = Get_World_Matrix() * m;
 
 			local_matrix.Decompose(local_scale, local_rotation, local_position);
@@ -786,7 +773,7 @@ void Transform::Set_Parent(shared_ptr<Transform> P, int index_insert)
 			local_scale_matrix = Matrix::CreateScale(local_scale);
 
 			local_matrix = local_scale_matrix * local_rotation_matrix * local_translation_matrix;
-			world_matrix = local_matrix * P->Get_World_Matrix();
+			world_matrix = local_matrix * p->Get_World_Matrix();
 			world_matrix.Decompose(scale, rotation, position);
 
 			scale_matrix = Matrix::CreateScale(scale);
@@ -813,8 +800,8 @@ void Transform::Set_Parent(shared_ptr<Transform> P, int index_insert)
 
 void Transform::On_Parent_Changed()
 {
-	shared_ptr<Transform>& P = parent.lock();
-	world_matrix = local_matrix * P->Get_World_Matrix();
+	const auto& p = parent.lock();
+	world_matrix = local_matrix * p->Get_World_Matrix();
 	world_matrix.Decompose(scale, rotation, position);
 	translation_matrix = Matrix::CreateTranslation(position);
 	rotation_matrix = Matrix::CreateFromQuaternion(rotation);
@@ -836,22 +823,22 @@ void Transform::Change_Children()
 	{
 		if (!child.expired())
 		{
-			shared_ptr<Transform>& C = child.lock();
-			C->On_Parent_Changed();
+			const auto& c = child.lock();
+			c->On_Parent_Changed();
 		}
 	}
 }
 
 void Transform::Remove_Parent()
 {
-	if (shared_ptr<Transform> P = parent.lock())
+	if (const auto& p = parent.lock())
 	{
-		auto it = P->children.begin();
-		while (it != P->children.end())
+		auto it = p->children.begin();
+		while (it != p->children.end())
 		{
 			if ((*it).lock() == static_pointer_cast<Transform>(shared_from_this()))
 			{
-				P->children.erase(it);
+				p->children.erase(it);
 				break;
 			}
 			else ++it;
@@ -871,23 +858,23 @@ void Transform::Remove_Parent()
 	}
 }
 
-std::weak_ptr<Transform> Transform::Get_Child(int index)
+std::weak_ptr<Transform> Transform::Get_Child(const int index)
 {
 	return children[index];
 }
 
-int Transform::Get_Child_Count()
+int Transform::Get_Child_Count() const
 {
-	return (int)children.size();
+	return static_cast<int>(children.size());
 }
 
 int Transform::Get_Sibling_Index() const
 {
-	if (shared_ptr<Transform> P = parent.lock())
+	if (const auto& p = parent.lock())
 	{
-		for (size_t i = 0; i < P->children.size(); ++i)
+		for (size_t i = 0; i < p->children.size(); ++i)
 		{
-			if (P->children[i].lock() == transform)
+			if (p->children[i].lock() == transform)
 			{
 				return i;
 			}
@@ -895,7 +882,7 @@ int Transform::Get_Sibling_Index() const
 	}
 	else
 	{
-		const unique_ptr<Scene>& scene = Engine::scene_manager->Get_Active_Scene();
+		const auto& scene = Engine::scene_manager->Get_Active_Scene();
 		int index_this = -1;
 
 		for (size_t i = 0; i < scene->gameobject_list.size(); ++i)
@@ -929,23 +916,22 @@ vector<string> split(const string& s, char delim)
 	return elems;
 }
 
-weak_ptr<Transform> Transform::Find(std::string n)
+weak_ptr<Transform> Transform::Find(const std::string n) const
 {
 	weak_ptr<Transform> t_trans;
 	if (!n.empty())
 	{
 		t_trans = transform;
-		vector<string> s = split(n, '/');
-		size_t split_size = s.size();
+		const vector<string> s = split(n, '/');
+		const size_t split_size = s.size();
 		for (size_t i = 0; i < split_size; ++i)
 		{
-			shared_ptr<Transform>& trans = t_trans.lock();
+			const auto& trans = t_trans.lock();
 			bool found = false;
-			size_t child_size = trans->children.size();
+			const size_t child_size = trans->children.size();
 			for (size_t t = 0; t < child_size; ++t)
 			{
-				shared_ptr<Transform> child = trans->children[t].lock();
-				if (child->gameobject->name == s[i])
+				if (const auto& child = trans->children[t].lock(); child->gameobject->name == s[i])
 				{
 					found = true;
 					t_trans = child;
@@ -969,51 +955,47 @@ void Transform::Set_Sibling_Index(int index)
 	{
 		if (index < 0) index = 0;
 
-		if (shared_ptr<Transform> P = parent.lock())
+		if (const auto& p = parent.lock())
 		{
 			shared_ptr<Transform> insert_at;
-			if (index >= (int)P->children.size())
+			if (index >= static_cast<int>(p->children.size()))
 			{
-				insert_at = P->children[(int)P->children.size() - 1].lock();
+				insert_at = p->children[static_cast<int>(p->children.size()) - 1].lock();
 			}
 			else
 			{
-				insert_at = P->children[index].lock();
+				insert_at = p->children[index].lock();
 			}
 
-			shared_ptr<Transform> child;
-			for (int i = 0; i < (int)P->children.size(); ++i)
+			for (int i = 0; i < static_cast<int>(p->children.size()); ++i)
 			{
-				child = P->children[i].lock();
-				if (child == transform)
+				if (const auto& child = p->children[i].lock(); child == transform)
 				{
-					P->children.erase(P->children.begin() + i);
+					p->children.erase(p->children.begin() + i);
 					break;
 				}
 			}
 
-			if (index <= (int)P->children.size())
+			if (index <= static_cast<int>(p->children.size()))
 			{
 				bool is_last = true;
-				shared_ptr<Transform> child;
-				for (int i = 0; i < (int)P->children.size(); ++i)
+				for (int i = 0; i < static_cast<int>(p->children.size()); ++i)
 				{
-					child = P->children[i].lock();
-					if (child == insert_at)
+					if (p->children[i].lock() == insert_at)
 					{
 						is_last = false;
-						P->children.insert(P->children.begin() + i, static_pointer_cast<Transform>(shared_from_this()));
+						p->children.insert(p->children.begin() + i, static_pointer_cast<Transform>(shared_from_this()));
 						break;
 					}
 				}
 				if (is_last)
 				{
-					P->children.emplace_back(static_pointer_cast<Transform>(shared_from_this()));
+					p->children.emplace_back(static_pointer_cast<Transform>(shared_from_this()));
 				}
 			}
 			else
 			{
-				P->children.emplace_back(static_pointer_cast<Transform>(shared_from_this()));
+				p->children.emplace_back(static_pointer_cast<Transform>(shared_from_this()));
 			}
 		}
 		else
@@ -1047,7 +1029,7 @@ void Transform::Set_Sibling_Index(int index)
 				}
 			}
 
-			if (index <= (int)scene->gameobject_list.size())
+			if (index <= static_cast<int>(scene->gameobject_list.size()))
 			{
 				bool is_last = true;
 				for (size_t i = 0; i < scene->gameobject_list.size(); ++i)
@@ -1080,7 +1062,7 @@ Matrix Transform::Get_World_Matrix() const
 	return world_matrix;
 }
 
-void Transform::Set_World_Matrix(Matrix matrix)
+void Transform::Set_World_Matrix(const Matrix matrix)
 {
 	world_matrix = matrix;
 	world_matrix.Decompose(scale, rotation, position);
@@ -1089,7 +1071,7 @@ void Transform::Set_World_Matrix(Matrix matrix)
 	rotation_matrix = Matrix::CreateFromQuaternion(rotation);
 	translation_matrix = Matrix::CreateTranslation(position);
 
-	if (shared_ptr<Transform> p = parent.lock())
+	if (const auto& p = parent.lock())
 	{
 		Matrix m;
 		p->Get_World_Matrix().Invert(m);
@@ -1130,12 +1112,12 @@ void Transform::Set_World_Matrix(Matrix matrix)
 	Function
 */  ///////////////////////////////////////////////////////
 
-Quaternion Transform::Look_At(Vector3 pos)
+Quaternion Transform::Look_At(const Vector3 pos) const
 {
-	Vector3 up = { 0,1,0 };
-	Vector3 z = XMVector3Normalize(pos - position);
-	Vector3 x = XMVector3Normalize(XMVector3Cross(up, z));
-	Vector3 y = XMVector3Normalize(XMVector3Cross(z, x));
+	constexpr Vector3 up = { 0,1,0 };
+	const Vector3 z = XMVector3Normalize(pos - position);
+	const Vector3 x = XMVector3Normalize(XMVector3Cross(up, z));
+	const Vector3 y = XMVector3Normalize(XMVector3Cross(z, x));
 
 	Matrix m = Matrix::Identity;
 	m._11 = x.x; m._12 = y.x; m._13 = z.x;
@@ -1158,9 +1140,9 @@ Quaternion Transform::Look_At(Vector3 pos)
 	}
 
 	float q[4] = { 0,0,0,0 };
-	float v = sqrt(elem[biggestIdx]) * 0.5f;
+	const float v = sqrt(elem[biggestIdx]) * 0.5f;
 	q[biggestIdx] = v;
-	float mult = 0.25f / v;
+	const float mult = 0.25f / v;
 
 	switch (biggestIdx)
 	{
@@ -1184,7 +1166,9 @@ Quaternion Transform::Look_At(Vector3 pos)
 			q[1] = (m._13 - m._31) * mult;
 			q[2] = (m._21 - m._12) * mult;
 			break;
+		default:
+			break;
 	}
-	Quaternion rot = { q[0],q[1], q[2], q[3] };
+	const Quaternion rot = { q[0],q[1], q[2], q[3] };
 	return rot;
 }

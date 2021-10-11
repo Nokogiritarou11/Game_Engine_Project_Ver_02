@@ -33,18 +33,18 @@ namespace BeastEngine
 		Object(const Object& obj);
 		virtual ~Object();
 
-		std::string To_String(){ return name; }; //名前を返す
-		std::string Get_Instance_ID(){ return instance_id; }; //名前を返す
-		static void Destroy(std::shared_ptr<BeastEngine::GameObject> obj); //オブジェクトを削除する
-		static void Destroy(std::shared_ptr<BeastEngine::Component> comp); //オブジェクトを削除する
+		[[nodiscard]] std::string To_String() const { return name; }; //名前を返す
+		[[nodiscard]] std::string Get_Instance_Id() const { return instance_id; }; //名前を返す
+		static void Destroy(std::shared_ptr<GameObject> obj); //オブジェクトを削除する
+		static void Destroy(std::shared_ptr<Component> comp); //オブジェクトを削除する
 
-		static std::shared_ptr<BeastEngine::Object> Instantiate(std::weak_ptr<BeastEngine::Object> original); //オブジェクトを生成する
-		//static std::shared_ptr<BeastEngine::Object> Instantiate(std::weak_ptr<BeastEngine::Object> original, std::shared_ptr<BeastEngine::Transform> parent);                                     //オブジェクトを生成する
-		//static std::shared_ptr<BeastEngine::Object> Instantiate(std::weak_ptr<BeastEngine::Object> original, std::shared_ptr<BeastEngine::Transform> parent, bool instantiateInWorldSpace);       //オブジェクトを生成する
-		//static std::shared_ptr<BeastEngine::Object> Instantiate(std::weak_ptr<BeastEngine::Object> original, BeastEngine::Vector3 position, BeastEngine::Vector3 euler);                                       //オブジェクトを生成する
-		//static std::shared_ptr<BeastEngine::Object> Instantiate(std::weak_ptr<BeastEngine::Object> original, BeastEngine::Vector3 position, BeastEngine::Vector4 rotation);                                    //オブジェクトを生成する
-		//static std::shared_ptr<BeastEngine::Object> Instantiate(std::weak_ptr<BeastEngine::Object> original, BeastEngine::Vector3 position, BeastEngine::Vector3 euler, std::shared_ptr<BeastEngine::Transform> parent);    //オブジェクトを生成する
-		//static std::shared_ptr<BeastEngine::Object> Instantiate(std::weak_ptr<BeastEngine::Object> original, BeastEngine::Vector3 position, BeastEngine::Vector4 rotation, std::shared_ptr<BeastEngine::Transform> parent); //オブジェクトを生成する
+		static std::shared_ptr<Object> Instantiate(std::weak_ptr<Object> original); //オブジェクトを生成する
+		//static std::shared_ptr<Object> Instantiate(std::weak_ptr<Object> original, std::shared_ptr<Transform> parent);                                     //オブジェクトを生成する
+		//static std::shared_ptr<Object> Instantiate(std::weak_ptr<Object> original, std::shared_ptr<Transform> parent, bool instantiateInWorldSpace);       //オブジェクトを生成する
+		//static std::shared_ptr<Object> Instantiate(std::weak_ptr<Object> original, Vector3 position, Vector3 euler);                                       //オブジェクトを生成する
+		//static std::shared_ptr<Object> Instantiate(std::weak_ptr<Object> original, Vector3 position, Vector4 rotation);                                    //オブジェクトを生成する
+		//static std::shared_ptr<Object> Instantiate(std::weak_ptr<Object> original, Vector3 position, Vector3 euler, std::shared_ptr<Transform> parent);    //オブジェクトを生成する
+		//static std::shared_ptr<Object> Instantiate(std::weak_ptr<Object> original, Vector3 position, Vector4 rotation, std::shared_ptr<Transform> parent); //オブジェクトを生成する
 
 	private:
 		std::string instance_id;

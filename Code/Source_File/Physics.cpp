@@ -7,11 +7,11 @@ using namespace BeastEngine;
 
 bool Physics::Raycast(const Vector3& from, const Vector3& to)
 {
-	btVector3 btFrom(from.x, from.y, from.z);
-	btVector3 btTo(to.x, to.y, to.z);
-	btCollisionWorld::ClosestRayResultCallback res(btFrom, btTo);
+	const btVector3 bt_from(from.x, from.y, from.z);
+	const btVector3 bt_to(to.x, to.y, to.z);
+	btCollisionWorld::ClosestRayResultCallback res(bt_from, bt_to);
 
-	Engine::bulletphysics_manager->world->rayTest(btFrom, btTo, res);
+	Engine::bulletphysics_manager->world->rayTest(bt_from, bt_to, res);
 
 	return res.hasHit();
 }

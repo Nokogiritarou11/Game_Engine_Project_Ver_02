@@ -1,11 +1,8 @@
 #include <fstream>
-#include <locale.h>
 #include <sstream>
 #include <functional>
-#include <iostream>
 #include "Scene_Manager.h"
 #include "Animator_Manager.h"
-#include "SkinMesh_Renderer.h"
 #include "Light_Manager.h"
 #include "Transform.h"
 #include "System_Function.h"
@@ -22,8 +19,7 @@ using namespace BeastEngine;
 
 Scene_Manager::Scene_Manager()
 {
-	ifstream in_bin("Default_Assets\\System\\settings.bin", ios::binary);
-	if (in_bin.is_open())
+	if (ifstream in_bin("Default_Assets\\System\\settings.bin", ios::binary); in_bin.is_open())
 	{
 		unique_ptr<Project_Settings> set;
 		stringstream bin_s_stream;
@@ -44,19 +40,16 @@ Scene_Manager::Scene_Manager()
 	Engine::shadow_manager->shadow_distance = settings->shadow_distance;
 }
 
-void Scene_Manager::Exit()
+void Scene_Manager::Exit() const
 {
 	if (active_scene) active_scene->Reset();
 }
 
 unique_ptr<Scene> Scene_Manager::CreateScene_From_File()
 {
-	string path = System_Function::Get_Open_File_Name("bin", "\\Assets\\Scene");
-
-	if (path != "")
+	if (const string path = System_Function::Get_Open_File_Name("bin", "\\Assets\\Scene"); path != "")
 	{
-		ifstream in_bin(path, ios::binary);
-		if (in_bin.is_open())
+		if (const ifstream in_bin(path, ios::binary); in_bin.is_open())
 		{
 			unique_ptr<Scene> New_Scene;
 			stringstream bin_s_stream;
@@ -67,18 +60,16 @@ unique_ptr<Scene> Scene_Manager::CreateScene_From_File()
 			last_save_path = path;
 			return move(New_Scene);
 		}
-		else
-		{
-			return nullptr;
-		}
+
+		return nullptr;
 	}
+
 	return nullptr;
 }
 
-unique_ptr<Scene> Scene_Manager::CreateScene_From_File(std::string file_path)
+unique_ptr<Scene> Scene_Manager::CreateScene_From_File(const std::string file_path)
 {
-	ifstream in_bin(file_path, ios::binary);
-	if (in_bin.is_open())
+	if (const ifstream in_bin(file_path, ios::binary); in_bin.is_open())
 	{
 		unique_ptr<Scene> New_Scene;
 		stringstream bin_s_stream;
@@ -89,15 +80,11 @@ unique_ptr<Scene> Scene_Manager::CreateScene_From_File(std::string file_path)
 		last_save_path = file_path;
 		return move(New_Scene);
 	}
-	else
-	{
-		return nullptr;
-	}
 
 	return nullptr;
 }
 
-void Scene_Manager::Create_Scene_Default(string file_path, string file_name)
+void Scene_Manager::Create_Scene_Default(const string& file_path, const string& file_name)
 {
 	unique_ptr<Scene> New_Scene = make_unique<Scene>();
 	New_Scene->name = file_name;
@@ -108,18 +95,18 @@ void Scene_Manager::Create_Scene_Default(string file_path, string file_name)
 	}
 	active_scene = move(New_Scene);
 
-	shared_ptr<GameObject> directional_light = active_scene->Instance_GameObject(u8"Directional_Light");
+	const auto& directional_light = active_scene->Instance_GameObject(u8"Directional_Light");
 	directional_light->Add_Component<Light>();
 	directional_light->transform->Set_Position(0, 50, 0);
 	directional_light->transform->Set_Euler_Angles(90, 0, 0);
 
-	shared_ptr<GameObject> camera = active_scene->Instance_GameObject(u8"Main_Camera");
+	const auto& camera = active_scene->Instance_GameObject(u8"Main_Camera");
 	camera->Add_Component<Camera>();
 	camera->transform->Set_Position(-100, 80, -100);
 	camera->transform->Set_Euler_Angles(30, 45, 0);
 
-	ofstream ss(file_path.c_str(), ios::binary);
 	{
+		ofstream ss(file_path.c_str(), ios::binary);
 		cereal::BinaryOutputArchive o_archive(ss);
 		o_archive(active_scene);
 		last_save_path = file_path;
@@ -128,28 +115,26 @@ void Scene_Manager::Create_Scene_Default(string file_path, string file_name)
 	Load_Scene(file_path);
 }
 
-void Scene_Manager::Save_Scene(string Save_Path)
+void Scene_Manager::Save_Scene(const string& save_path)
 {
-	int path_i = Save_Path.find_last_of("\\") + 1;
-	int ext_i = Save_Path.find_last_of(".");
-	string filename = Save_Path.substr(path_i, ext_i - path_i); //ファイル名
+	const int path_i = save_path.find_last_of("\\") + 1;
+	const int ext_i = save_path.find_last_of(".");
+	const string filename = save_path.substr(path_i, ext_i - path_i); //ファイル名
 	active_scene->name = filename;
 
-	ofstream ss(Save_Path.c_str(), ios::binary);
 	{
+		ofstream ss(save_path.c_str(), ios::binary);
 		cereal::BinaryOutputArchive o_archive(ss);
 		o_archive(active_scene);
-		last_save_path = Save_Path;
+		last_save_path = save_path;
 	}
 }
 
 void Scene_Manager::Save_Settings()
 {
 	ofstream ss("Default_Assets\\System\\settings.bin", ios::binary);
-	{
-		cereal::BinaryOutputArchive o_archive(ss);
-		o_archive(settings);
-	}
+	cereal::BinaryOutputArchive o_archive(ss);
+	o_archive(settings);
 }
 
 void Scene_Manager::Start_Debug_Scene()
@@ -158,10 +143,8 @@ void Scene_Manager::Start_Debug_Scene()
 	behind_path = last_save_path;
 	{
 		ofstream save("Default_Assets\\System\\Debug_Scene.bin", ios::binary);
-		{
-			cereal::BinaryOutputArchive out_archive(save);
-			out_archive(behind_scene);
-		}
+		cereal::BinaryOutputArchive out_archive(save);
+		out_archive(behind_scene);
 	}
 	Load_Scene("Default_Assets\\System\\Debug_Scene.bin");
 }
@@ -180,10 +163,10 @@ void Scene_Manager::End_Debug_Scene()
 	active_scene->Initialize();
 }
 
-void Scene_Manager::Load_Scene(string Scene_Path)
+void Scene_Manager::Load_Scene(const string& scene_path)
 {
 	load = true;
-	next_scene_path = Scene_Path;
+	next_scene_path = scene_path;
 }
 
 void Scene_Manager::Update()

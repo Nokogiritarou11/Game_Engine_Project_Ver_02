@@ -3,7 +3,6 @@
 #include "Transform.h"
 #include "Engine.h"
 #include "Time_Engine.h"
-#include <math.h>
 
 using namespace BeastEngine;
 using namespace std;
@@ -67,23 +66,23 @@ void Particle_Manager::Add(weak_ptr<Particle> particle)
 	particle_list.emplace_back(particle);
 }
 
-void Particle_Manager::Camera_Update(std::shared_ptr<Transform>& camera_trans, float FOV, float near_z, float far_z, float aspect)
+void Particle_Manager::Camera_Update(const std::shared_ptr<Transform>& camera_trans, const float fov, const float near_z, const float far_z, const float aspect) const
 {
-	Vector3 pos = camera_trans->Get_Position();
+	const Vector3 pos = camera_trans->Get_Position();
 
 	// 視点位置を確定
-	auto g_position = Effekseer::Vector3D(pos.x, pos.y, pos.z);
+	const auto g_position = Effekseer::Vector3D(pos.x, pos.y, pos.z);
 
 	// 投影行列を設定
 	Effekseer::Matrix44 perspective;
-	Effekseer::Matrix44::Mul(perspective, Effekseer::Matrix44().PerspectiveFovRH(FOV, aspect, near_z, far_z), reverse);
+	Effekseer::Matrix44::Mul(perspective, Effekseer::Matrix44().PerspectiveFovRH(fov, aspect, near_z, far_z), reverse);
 	renderer->SetProjectionMatrix(perspective);
 
-	Vector3 focus = pos + camera_trans->Get_Forward();
-	auto g_focus = Effekseer::Vector3D(focus.x, focus.y, focus.z);
+	const Vector3 focus = pos + camera_trans->Get_Forward();
+	const auto g_focus = Effekseer::Vector3D(focus.x, focus.y, focus.z);
 
-	Vector3 up = camera_trans->Get_Up();
-	auto g_up = Effekseer::Vector3D(up.x, up.y, up.z);
+	const Vector3 up = camera_trans->Get_Up();
+	const auto g_up = Effekseer::Vector3D(up.x, up.y, up.z);
 
 	// カメラ行列を設定
 	renderer->SetCameraMatrix(
@@ -96,14 +95,14 @@ void Particle_Manager::Update()
 	bool expired = false;
 	for (auto& p : particle_list)
 	{
-		if (shared_ptr<Particle>& p_eff = p.lock())
+		if (const auto& p_eff = p.lock())
 		{
 			if (p_eff->gameobject->Get_Active_In_Hierarchy())
 			{
 				if (manager->Exists(p_eff->handle))
 				{
 					Effekseer::Matrix43 mat;
-					Matrix m = p_eff->transform->Get_World_Matrix();
+					const Matrix m = p_eff->transform->Get_World_Matrix();
 					mat.Value[0][0] = m._11; mat.Value[0][1] = m._12; mat.Value[0][2] = m._13;
 					mat.Value[1][0] = m._21; mat.Value[1][1] = m._22; mat.Value[1][2] = m._23;
 					mat.Value[2][0] = m._31; mat.Value[2][1] = m._32; mat.Value[2][2] = m._33;
@@ -133,14 +132,14 @@ void Particle_Manager::Update()
 	}
 	if (expired)
 	{
-		auto removeIt = remove_if(particle_list.begin(), particle_list.end(), [](weak_ptr<Particle> p) { return p.expired(); });
-		particle_list.erase(removeIt, particle_list.end());
+		const auto remove_it = remove_if(particle_list.begin(), particle_list.end(), [](weak_ptr<Particle> p) { return p.expired(); });
+		particle_list.erase(remove_it, particle_list.end());
 	}
 
 	manager->Update(60.0f / (1 / Time::delta_time));
 }
 
-void Particle_Manager::Render()
+void Particle_Manager::Render() const
 {
 	// エフェクトの描画開始処理
 	renderer->BeginRendering();

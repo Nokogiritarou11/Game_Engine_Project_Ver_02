@@ -18,7 +18,7 @@ void Asset_Manager::Exit()
 
 void Asset_Manager::Registration_Asset(const shared_ptr<Object> obj)
 {
-	cache_asset[obj->Get_Instance_ID()] = obj;
+	cache_asset[obj->Get_Instance_Id()] = obj;
 }
 void Asset_Manager::Erase_Asset(const std::string& id)
 {
