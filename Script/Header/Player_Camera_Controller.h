@@ -5,7 +5,7 @@ namespace BeastEngine
 {
 	class Character_Parameter;
 
-	class Player_Camera_Controller : public MonoBehaviour
+	class Player_Camera_Controller final : public MonoBehaviour
 	{
 	public:
 
@@ -14,10 +14,10 @@ namespace BeastEngine
 		void LateUpdate() override;
 		bool Draw_ImGui() override;
 
-		float angle_limit_up;
-		float angle_limit_down;
-		float rotate_speed;
-		float follow_speed;
+		float angle_limit_up = 0;
+		float angle_limit_down = 0;
+		float rotate_speed = 0;
+		float follow_speed = 0;
 
 		std::weak_ptr<Transform> player_transform;
 		std::weak_ptr<Character_Parameter> parameter;

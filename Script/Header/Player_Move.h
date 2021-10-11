@@ -6,7 +6,7 @@ namespace BeastEngine
 {
 	class Character_Parameter;
 
-	class Player_Move : public MonoBehaviour, public Interface_Character_Mover
+	class Player_Move final : public MonoBehaviour, public Interface_Character_Mover
 	{
 	public:
 		void Move_Normal() override;
@@ -15,7 +15,7 @@ namespace BeastEngine
 		void Move_Damage() override;
 		void Move_Guard() override;
 
-		void Jump();
+		void Jump() const;
 		void Ground_Update() override;
 
 	private:

@@ -17,9 +17,7 @@ void Character_Ground_Checker::Update()
 	Vector3 to = from;
 	to.y -= ray_distance;
 
-	bool ground = Physics::Raycast(from, to);
-
-	if (ground != ground_old)
+	if (const bool ground = Physics::Raycast(from, to); ground != ground_old)
 	{
 		ground_old = ground;
 		parameter.lock()->is_ground = ground;
@@ -34,7 +32,7 @@ bool Character_Ground_Checker::Draw_ImGui()
 
 	if (open)
 	{
-		float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
+		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
 
 		ImGui::LeftText_DragFloat(u8"ƒŒƒC‚Ì‹——£", "##Ray_Distance", &ray_distance, window_center);
 	}

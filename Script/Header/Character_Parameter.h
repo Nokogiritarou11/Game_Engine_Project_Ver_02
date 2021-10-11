@@ -7,12 +7,12 @@ namespace BeastEngine
 	{
 	public:
 		float Max_HP = 0;
-		float HP = 0;
+		float hp = 0;
 
 		bool eventing = false;
 		bool pausing = false;
 		bool living = true;
-		bool moveing = false;
+		bool moving = false;
 		bool attacking = false;
 		bool dodging = false;
 		bool damaging = false;
@@ -29,7 +29,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::MonoBehaviour>(this), Max_HP);
+			archive(cereal::base_class<MonoBehaviour>(this), Max_HP);
 		}
 	};
 }

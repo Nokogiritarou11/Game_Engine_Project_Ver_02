@@ -17,7 +17,7 @@ void Damage_Collision::Awake()
 
 void Damage_Collision::OnTrigger_Enter(Collision& collision)
 {
-	if (auto& hit = collision.gameobject->Get_Component<Interface_Character_Damageable>())
+	if (const auto& hit = collision.gameobject->Get_Component<Interface_Character_Damageable>())
 	{
 		hit->Take_Damage(damage_hp, damage_stun, root_transform.lock()->Get_Position(), damage_type);
 		hit_stop_manager.lock()->Start_Hit_Stop(stop_particle);
@@ -35,14 +35,14 @@ bool Damage_Collision::Draw_ImGui()
 
 	if (open)
 	{
-		float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
+		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
 
 		ImGui::Text(u8"位置判定用親");
 		ImGui::SameLine(window_center);
 		ImGui::SetNextItemWidth(-FLT_MIN);
 
 		string label = u8"未設定 (ここにドラッグ)";
-		if (auto& p = root_transform.lock())
+		if (const auto& p = root_transform.lock())
 		{
 			label = p->gameobject->name;
 		}
@@ -94,7 +94,7 @@ bool Damage_Collision::Draw_ImGui()
 				{
 					if (const auto& drag = Engine::editor->Get_Drag_Object())
 					{
-						if (auto& p = drag->Get_Component<Particle>())
+						if (const auto& p = drag->Get_Component<Particle>())
 						{
 							stop_particle[i] = p;
 						}

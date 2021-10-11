@@ -7,7 +7,7 @@ namespace BeastEngine
 	class Interface_Character_Mover;
 	class Interface_Character_State_Setter;
 
-	class Character_Condition_Manager : public MonoBehaviour
+	class Character_Condition_Manager final : public MonoBehaviour
 	{
 	public:
 
@@ -26,7 +26,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::MonoBehaviour>(this));
+			archive(cereal::base_class<MonoBehaviour>(this));
 		}
 	};
 }

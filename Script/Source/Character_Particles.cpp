@@ -12,7 +12,7 @@ void Character_Particles::Awake()
 
 void Character_Particles::Update()
 {
-	auto& anim = animator.lock();
+	const auto& anim = animator.lock();
 
 	int number = anim->Get_Int("Particle_Number");
 	if (number >= 0)
@@ -36,7 +36,7 @@ bool Character_Particles::Draw_ImGui()
 
 	if (open)
 	{
-		float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
+		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
 
 		if (ImGui::TreeNode(u8"パーティクルリスト"))
 		{
@@ -58,7 +58,7 @@ bool Character_Particles::Draw_ImGui()
 				ImGui::SetNextItemWidth(-FLT_MIN);
 
 				string label = u8"未設定 (ここにドラッグ)";
-				if (auto& p = particle_list[i].lock())
+				if (const auto& p = particle_list[i].lock())
 				{
 					label = p->name;
 				}
@@ -97,7 +97,7 @@ bool Character_Particles::Draw_ImGui()
 				ImGui::SetNextItemWidth(-FLT_MIN);
 
 				string label = u8"未設定 (ここにドラッグ)";
-				if (auto& p = collider_list[i].lock())
+				if (const auto& p = collider_list[i].lock())
 				{
 					label = p->name;
 				}

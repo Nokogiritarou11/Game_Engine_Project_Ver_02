@@ -10,7 +10,7 @@ void Player_Input::Awake()
 
 void Player_Input::Set_State()
 {
-	auto& anim = animator.lock();
+	const auto& anim = animator.lock();
 
 	//ãUŒ‚
 	if (Input::Get_Pad_Button_Down(Button_Code::X))
@@ -37,7 +37,7 @@ bool Player_Input::Draw_ImGui()
 
 	if (open)
 	{
-		float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
+		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
 		ImGui::Text(u8"İ’è‚Å‚«‚éƒpƒ‰ƒ[ƒ^‚Í‚ ‚è‚Ü‚¹‚ñ");
 	}
 	return true;

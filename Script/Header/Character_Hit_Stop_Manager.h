@@ -5,10 +5,10 @@ namespace BeastEngine
 {
 	class Character_Parameter;
 
-	class Character_Hit_Stop_Manager : public MonoBehaviour
+	class Character_Hit_Stop_Manager final : public MonoBehaviour
 	{
 	public:
-		void Start_Hit_Stop(std::vector<std::weak_ptr<Particle>>& particles);
+		void Start_Hit_Stop(const std::vector<std::weak_ptr<Particle>>& particles);
 
 	private:
 		void Awake() override;
@@ -18,16 +18,16 @@ namespace BeastEngine
 		std::weak_ptr<Character_Parameter> parameter;
 		std::weak_ptr<Animator> animator;
 
-		bool is_stop;
+		bool is_stop = false;
 		float stop_timer = 0;
-		std::vector<std::weak_ptr<Particle>> stop_particles;
+		std::vector<std::weak_ptr<Particle>> stop_particles{};
 
 		// シリアライズ関数
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::MonoBehaviour>(this));
+			archive(cereal::base_class<MonoBehaviour>(this));
 		}
 	};
 }

@@ -10,7 +10,7 @@ void Enemy_Damageable_Normal::Awake()
 	parameter = Get_Component<Character_Parameter>();
 }
 
-void Enemy_Damageable_Normal::Take_Damage(int damage_hp, int damage_stun, Vector3 from_pos, Damage_Type damage_state)
+void Enemy_Damageable_Normal::Take_Damage(const int& damage_hp, const int& damage_stun, const Vector3& from_pos, const Damage_Type& damage_state)
 {
 
 }
@@ -22,7 +22,7 @@ bool Enemy_Damageable_Normal::Draw_ImGui()
 
 	if (open)
 	{
-		float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
+		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
 		ImGui::Text(u8"İ’è‚Å‚«‚éƒpƒ‰ƒ[ƒ^‚Í‚ ‚è‚Ü‚¹‚ñ");
 	}
 	return true;

@@ -17,7 +17,7 @@ namespace BeastEngine
 	class Interface_Character_Damageable
 	{
 	public:
-		virtual void Take_Damage(int damage_hp, int damage_stun, Vector3 from_pos, Damage_Type damage_state) = 0;
+		virtual void Take_Damage(const int& damage_hp, const int& damage_stun, const Vector3& from_pos, const Damage_Type& damage_state) = 0;
 
 	private:
 	};

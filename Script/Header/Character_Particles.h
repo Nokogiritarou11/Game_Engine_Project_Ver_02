@@ -3,7 +3,7 @@
 
 namespace BeastEngine
 {
-	class Character_Particles : public MonoBehaviour
+	class Character_Particles final : public MonoBehaviour
 	{
 	public:
 
@@ -13,15 +13,15 @@ namespace BeastEngine
 		bool Draw_ImGui() override;
 
 		std::weak_ptr<Animator> animator;
-		std::vector<std::weak_ptr<BeastEngine::GameObject>> particle_list;
-		std::vector<std::weak_ptr<BeastEngine::GameObject>> collider_list;
+		std::vector<std::weak_ptr<GameObject>> particle_list{};
+		std::vector<std::weak_ptr<GameObject>> collider_list{};
 
 		// シリアライズ関数
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::MonoBehaviour>(this), particle_list, collider_list);
+			archive(cereal::base_class<MonoBehaviour>(this), particle_list, collider_list);
 		}
 	};
 }

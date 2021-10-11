@@ -6,10 +6,10 @@ namespace BeastEngine
 {
 	class Character_Parameter;
 
-	class Enemy_Damageable_Normal : public MonoBehaviour, public Interface_Character_Damageable
+	class Enemy_Damageable_Normal final : public MonoBehaviour, public Interface_Character_Damageable
 	{
 	public:
-		void Take_Damage(int damage_hp, int damage_stun, Vector3 from_pos, Damage_Type damage_state) override;
+		void Take_Damage(const int& damage_hp, const int& damage_stun, const Vector3& from_pos, const Damage_Type& damage_state) override;
 
 	private:
 		void Awake() override;

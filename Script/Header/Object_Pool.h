@@ -3,10 +3,10 @@
 
 namespace BeastEngine
 {
-	class Object_Pool : public MonoBehaviour
+	class Object_Pool final : public MonoBehaviour
 	{
 	public:
-		std::shared_ptr<GameObject> Instance_In_Pool(const std::string& key, BeastEngine::Vector3 position, BeastEngine::Quaternion rotation);
+		std::shared_ptr<GameObject> Instance_In_Pool(const std::string& key, Vector3 position, Quaternion rotation);
 
 	private:
 		void Start() override;
@@ -29,15 +29,15 @@ namespace BeastEngine
 			}
 		};
 
-		std::unordered_map<std::string, std::vector<std::weak_ptr<BeastEngine::GameObject>>> instance_pool;
-		std::vector<Pool_Object> pool_list;
+		std::unordered_map<std::string, std::vector<std::weak_ptr<GameObject>>> instance_pool;
+		std::vector<Pool_Object> pool_list{};
 
 		// シリアライズ関数
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::MonoBehaviour>(this), pool_list);
+			archive(cereal::base_class<MonoBehaviour>(this), pool_list);
 		}
 	};
 }

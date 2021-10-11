@@ -7,13 +7,13 @@ namespace BeastEngine
 	class Character_Hit_Stop_Manager;
 	class Object_Pool;
 
-	class Damage_Collision : public MonoBehaviour
+	class Damage_Collision final : public MonoBehaviour
 	{
 	public:
 
 	private:
 		void Awake() override;
-		void OnTrigger_Enter(BeastEngine::Collision& collision) override;
+		void OnTrigger_Enter(Collision& collision) override;
 		bool Draw_ImGui() override;
 
 		int damage_hp;
@@ -34,11 +34,11 @@ namespace BeastEngine
 		{
 			if (version <= 1)
 			{
-				archive(cereal::base_class<BeastEngine::MonoBehaviour>(this), damage_hp, damage_stun, damage_type, root_transform, stop_particle);
+				archive(cereal::base_class<MonoBehaviour>(this), damage_hp, damage_stun, damage_type, root_transform, stop_particle);
 			}
 			else
 			{
-				archive(cereal::base_class<BeastEngine::MonoBehaviour>(this), damage_hp, damage_stun, damage_type, root_transform, stop_particle, hit_particle_key);
+				archive(cereal::base_class<MonoBehaviour>(this), damage_hp, damage_stun, damage_type, root_transform, stop_particle, hit_particle_key);
 			}
 		}
 	};

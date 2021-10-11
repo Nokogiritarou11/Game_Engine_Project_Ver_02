@@ -16,12 +16,12 @@ void Character_Condition_Manager::Awake()
 
 void Character_Condition_Manager::Update()
 {
-	auto& anim = animator.lock();
-	auto& param = parameter.lock();
-	auto& c_move = character_move.lock();
-	auto& c_state = character_state_setter.lock();
+	const auto& anim = animator.lock();
+	const auto& param = parameter.lock();
+	const auto& c_move = character_move.lock();
+	const auto& c_state = character_state_setter.lock();
 
-	param->moveing = false;
+	param->moving = false;
 	param->attacking = false;
 	param->dodging = false;
 	param->damaging = false;
@@ -33,7 +33,7 @@ void Character_Condition_Manager::Update()
 			break;
 
 		case 1:
-			param->moveing = true;
+			param->moving = true;
 			break;
 
 		case 2:
@@ -86,7 +86,7 @@ bool Character_Condition_Manager::Draw_ImGui()
 
 	if (open)
 	{
-		float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
+		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
 		ImGui::Text(u8"İ’è‚Å‚«‚éƒpƒ‰ƒ[ƒ^‚Í‚ ‚è‚Ü‚¹‚ñ");
 	}
 	return true;

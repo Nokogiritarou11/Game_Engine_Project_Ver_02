@@ -5,7 +5,7 @@ namespace BeastEngine
 {
 	class Character_Parameter;
 
-	class Character_Ground_Checker : public MonoBehaviour
+	class Character_Ground_Checker final : public MonoBehaviour
 	{
 	public:
 
@@ -16,7 +16,7 @@ namespace BeastEngine
 
 		std::weak_ptr<Character_Parameter> parameter;
 		std::weak_ptr<Animator> animator;
-		float ray_distance;
+		float ray_distance = 0;
 		bool ground_old = false;
 
 		// シリアライズ関数
@@ -24,7 +24,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::MonoBehaviour>(this), ray_distance);
+			archive(cereal::base_class<MonoBehaviour>(this), ray_distance);
 		}
 	};
 }

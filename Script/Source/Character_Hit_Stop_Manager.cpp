@@ -32,7 +32,7 @@ void Character_Hit_Stop_Manager::Update()
 	}
 }
 
-void Character_Hit_Stop_Manager::Start_Hit_Stop(vector<weak_ptr<Particle>>& particles)
+void Character_Hit_Stop_Manager::Start_Hit_Stop(const vector<weak_ptr<Particle>>& particles)
 {
 	stop_particles = particles;
 	for (auto& particle : stop_particles)
@@ -53,7 +53,7 @@ bool Character_Hit_Stop_Manager::Draw_ImGui()
 
 	if (open)
 	{
-		float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
+		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
 		ImGui::Text(u8"İ’è‚Å‚«‚éƒpƒ‰ƒ[ƒ^‚Í‚ ‚è‚Ü‚¹‚ñ");
 	}
 	return true;
