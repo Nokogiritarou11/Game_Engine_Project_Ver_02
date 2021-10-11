@@ -1,10 +1,7 @@
 #pragma once
-#include "Bounds.h"
 #include "Mesh.h"
 #include "Object.h"
 #include <vector>
-#include <wrl.h>
-#include <tchar.h>
 #include "fbxsdk.h"
 
 namespace BeastEngine

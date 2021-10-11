@@ -211,7 +211,7 @@ void Model_Data::BuildMeshes(FbxNode* fbx_node)
 	switch (fbxNodeAttributeType)
 	{
 		case FbxNodeAttribute::eMesh:
-			BuildMesh(fbx_node, dynamic_cast<FbxMesh*>(fbxNodeAttribute));
+			BuildMesh(fbx_node, static_cast<FbxMesh*>(fbxNodeAttribute));
 			break;
 		default:
 			break;
@@ -344,7 +344,7 @@ void Model_Data::BuildMesh(FbxNode* fbx_node, FbxMesh* fbx_mesh)
 		int fbx_deformer_count = fbx_mesh->GetDeformerCount(FbxDeformer::eSkin);
 		for (int fbx_deformer_index = 0; fbx_deformer_index < fbx_deformer_count; ++fbx_deformer_index)
 		{
-			auto fbx_skin = dynamic_cast<FbxSkin*>(fbx_mesh->GetDeformer(fbx_deformer_index, FbxDeformer::eSkin));
+			auto fbx_skin = static_cast<FbxSkin*>(fbx_mesh->GetDeformer(fbx_deformer_index, FbxDeformer::eSkin));
 
 			int fbx_cluster_count = fbx_skin->GetClusterCount();
 			for (int fbx_cluster_index = 0; fbx_cluster_index < fbx_cluster_count; ++fbx_cluster_index)
