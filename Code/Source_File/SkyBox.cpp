@@ -7,6 +7,7 @@
 #include "Material.h"
 #include "Texture.h"
 #include "Mesh.h"
+#include "Misc.h"
 #include "Renderer.h"
 using namespace std;
 using namespace BeastEngine;

@@ -1,4 +1,6 @@
 #include "DxSystem.h"
+#include <DirectXMath.h>
+#include "Misc.h"
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 using namespace BeastEngine;
@@ -16,10 +18,10 @@ ComPtr<ID3D11Texture2D>				DxSystem::depth_stencil_texture;
 ComPtr<ID3D11DepthStencilView>		DxSystem::depth_stencil_view;
 ComPtr<ID3D11ShaderResourceView>	DxSystem::shader_resource_view;
 ComPtr<ID3D11DepthStencilState>		DxSystem::depth_stencil_state[16];
-ComPtr<ID3D11RasterizerState>		DxSystem::rasterizer_state[RASTERIZE_TYPE];
-ComPtr<ID3D11BlendState>			DxSystem::blend_state[BLEND_TYPE];
+ComPtr<ID3D11RasterizerState>		DxSystem::rasterizer_state[rasterizer_type];
+ComPtr<ID3D11BlendState>			DxSystem::blend_state[blend_type];
 
-ComPtr<IDXGIDebug>                  DxSystem::DXGI_debug;
+ComPtr<IDXGIDebug>                  DxSystem::dxgi_debug;
 HWND								DxSystem::hwnd;
 DXGI_SAMPLE_DESC					DxSystem::MSAA;
 int DxSystem::screen_width = 1920;
@@ -47,23 +49,23 @@ bool DxSystem::Initialize(HWND hWnd, int width, int height)
 //****************************************************************
 HRESULT DxSystem::Create_Device()
 {
-	HRESULT hr = S_OK;
-	UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+	HRESULT hr;
+	UINT creation_flags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 #if defined(_DEBUG)
 	// デバッグレイヤーの設定
-	//creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
+	//creation_flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 	//デバイスの生成
 	hr = D3D11CreateDevice(
-		NULL,
+		nullptr,
 		D3D_DRIVER_TYPE_HARDWARE,
-		NULL,
-		creationFlags,
-		NULL,
+		nullptr,
+		creation_flags,
+		nullptr,
 		0,
 		D3D11_SDK_VERSION,
 		device.GetAddressOf(),
-		NULL,
+		nullptr,
 		device_context.GetAddressOf());
 	if (FAILED(hr))
 	{
@@ -92,7 +94,7 @@ HRESULT DxSystem::Create_Device()
 #endif
 	///*
 	//使用可能なMSAAを取得
-	int max_count = 4;//D3D11_MAX_MULTISAMPLE_SAMPLE_COUNT;
+	constexpr int max_count = 4;//D3D11_MAX_MULTISAMPLE_SAMPLE_COUNT;
 	for (int i = 0; i <= max_count; i++)
 	{
 		UINT Quality;
@@ -108,15 +110,15 @@ HRESULT DxSystem::Create_Device()
 	//*/
 
 	//インターフェース取得
-	IDXGIDevice1* hpDXGI = NULL;
-	if (FAILED(device.Get()->QueryInterface(__uuidof(IDXGIDevice1), (void**)&hpDXGI)))
+	IDXGIDevice1* hpDXGI = nullptr;
+	if (FAILED(device.Get()->QueryInterface(__uuidof(IDXGIDevice1), reinterpret_cast<void**>(&hpDXGI))))
 	{
 		MessageBoxW(hwnd, L"QueryInterface", L"Err", MB_ICONSTOP);
 		return S_FALSE;
 	}
 
 	//アダプター取得
-	IDXGIAdapter* hpAdapter = NULL;
+	IDXGIAdapter* hpAdapter = nullptr;
 	if (FAILED(hpDXGI->GetAdapter(&hpAdapter)))
 	{
 		MessageBoxW(hwnd, L"GetAdapter", L"Err", MB_ICONSTOP);
@@ -124,9 +126,9 @@ HRESULT DxSystem::Create_Device()
 	}
 
 	//ファクトリー取得
-	IDXGIFactory* hpDXGIFactory = NULL;
-	hpAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&hpDXGIFactory);
-	if (hpDXGIFactory == NULL)
+	IDXGIFactory* hpDXGIFactory = nullptr;
+	hpAdapter->GetParent(__uuidof(IDXGIFactory), reinterpret_cast<void**>(&hpDXGIFactory));
+	if (hpDXGIFactory == nullptr)
 	{
 		MessageBoxW(hwnd, L"GetParent", L"Err", MB_ICONSTOP);
 		return S_FALSE;
@@ -179,8 +181,8 @@ void DxSystem::Release()
 bool DxSystem::Initialize_Render_Target()
 {
 	// バックバッファ取得
-	ID3D11Texture2D* BackBuffer = NULL;
-	HRESULT hr = swap_chain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&BackBuffer);
+	ID3D11Texture2D* BackBuffer = nullptr;
+	HRESULT hr = swap_chain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<LPVOID*>(&BackBuffer));
 
 	if (FAILED(hr))
 	{
@@ -189,9 +191,9 @@ bool DxSystem::Initialize_Render_Target()
 	}
 
 	// レンダーターゲットビュー生成
-	hr = device->CreateRenderTargetView(BackBuffer, NULL, render_target_view.GetAddressOf());
+	hr = device->CreateRenderTargetView(BackBuffer, nullptr, render_target_view.GetAddressOf());
 	BackBuffer->Release();
-	BackBuffer = NULL;
+	BackBuffer = nullptr;
 
 	if (FAILED(hr))
 	{
@@ -213,8 +215,8 @@ bool DxSystem::Initialize_Render_Target()
 void DxSystem::Set_ViewPort(int width, int height, int Num)
 {
 	D3D11_VIEWPORT vp;
-	vp.Width = (FLOAT)width;
-	vp.Height = (FLOAT)height;
+	vp.Width = static_cast<FLOAT>(width);
+	vp.Height = static_cast<FLOAT>(height);
 	vp.MinDepth = 0.0f;
 	vp.MaxDepth = 1.0f;
 	vp.TopLeftX = 0;
@@ -251,7 +253,7 @@ bool DxSystem::Create_Depth_Stencil()
 	td.MiscFlags = 0;
 
 	// 深度ステンシルテクスチャ生成
-	HRESULT hr = device->CreateTexture2D(&td, NULL, &depth_stencil_texture);
+	HRESULT hr = device->CreateTexture2D(&td, nullptr, &depth_stencil_texture);
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	// 深度ステンシルビュー設定
@@ -403,7 +405,7 @@ bool DxSystem::Create_Depth_Stencil()
 bool DxSystem::Create_Rasterizer_State()
 {
 	D3D11_RASTERIZER_DESC rd;
-	for (int state = 0; state < RASTERIZE_TYPE; ++state)
+	for (int state = 0; state < rasterizer_type; ++state)
 	{
 		switch (static_cast<RS_State>(state))
 		{
@@ -477,7 +479,7 @@ bool DxSystem::Create_Rasterizer_State()
 				rd.AntialiasedLineEnable = TRUE;
 				break;
 		}
-		HRESULT hr = device->CreateRasterizerState(&rd, rasterizer_state[state].GetAddressOf());
+		const HRESULT hr = device->CreateRasterizerState(&rd, rasterizer_state[state].GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
 
@@ -489,7 +491,7 @@ bool DxSystem::Create_Blend_State()
 {
 	D3D11_BLEND_DESC bd;
 
-	for (int state = 0; state < BLEND_TYPE; state++)
+	for (int state = 0; state < blend_type; state++)
 	{
 		switch (static_cast<BS_State>(state))
 		{
@@ -622,7 +624,7 @@ bool DxSystem::Create_Blend_State()
 				break;
 		}
 		//ブレンドステートの作成
-		HRESULT hr = device->CreateBlendState(&bd, blend_state[state].GetAddressOf());
+		const HRESULT hr = device->CreateBlendState(&bd, blend_state[state].GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
 	return true;
@@ -636,14 +638,14 @@ void DxSystem::Clear(DWORD color)
 	// レンダーターゲットビュー設定
 	device_context->OMSetRenderTargets(1, render_target_view.GetAddressOf(), depth_stencil_view.Get());
 
-	float clearColor[4] = { 1,0,0,0 };
+	constexpr float clear_color[4] = { 1,0,0,0 };
 	/*
 	for (int i = 3; i >= 0; i--)
 	{
-		clearColor[i] = ((color >> 8 * (3 - i)) & 0x00000000) / 255.0f;
+		clear_color[i] = ((color >> 8 * (3 - i)) & 0x00000000) / 255.0f;
 	}
 	*/
-	device_context->ClearRenderTargetView(render_target_view.Get(), clearColor);
+	device_context->ClearRenderTargetView(render_target_view.Get(), clear_color);
 	device_context->ClearDepthStencilView(depth_stencil_view.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 0.0f, 0);
 	device_context->OMSetDepthStencilState(depth_stencil_state[static_cast<int>(DS_State::LEqual)].Get(), 1);
 }

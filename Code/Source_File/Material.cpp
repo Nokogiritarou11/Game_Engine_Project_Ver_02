@@ -1,4 +1,3 @@
-#include <clocale>
 #include <unordered_map>
 #include <sstream>
 #include <functional>
@@ -12,13 +11,14 @@
 #include "Include_ImGui.h"
 #include "Engine.h"
 #include "Asset_Manager.h"
+#include "Misc.h"
 #include "System_Function.h"
 using namespace std;
 using namespace BeastEngine;
 
 BS_State Material::binding_blend_state = BS_State::Off;
 RS_State Material::binding_rasterizer_state = RS_State::Cull_None;
-DS_State Material::binding_depth_stencil_State = DS_State::LEqual;
+DS_State Material::binding_depth_stencil_state = DS_State::LEqual;
 
 shared_ptr<Material> Material::Create(const string& vertex_path, const string& pixel_path, const string& geometry_path)
 {
@@ -29,37 +29,33 @@ shared_ptr<Material> Material::Create(const string& vertex_path, const string& p
 	return mat;
 }
 
-shared_ptr<Material> Material::Load_Material(const string& fullpath)
+shared_ptr<Material> Material::Load_Material(const string& full_path)
 {
-	auto it = Engine::asset_manager->cache_material.find(fullpath);
-	if (it != Engine::asset_manager->cache_material.end())
+	if (const auto it = Engine::asset_manager->cache_material.find(full_path); it != Engine::asset_manager->cache_material.end())
 	{
 		return it->second;
 	}
-	else
+
+	if (const ifstream in_bin(full_path, ios::binary); in_bin.is_open())
 	{
 		shared_ptr<Material> mat;
-		ifstream in_bin(fullpath, ios::binary);
-		if (in_bin.is_open())
-		{
-			stringstream bin_s_stream;
-			bin_s_stream << in_bin.rdbuf();
-			cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
-			binaryInputArchive(mat);
+		stringstream bin_s_stream;
+		bin_s_stream << in_bin.rdbuf();
+		cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
+		binaryInputArchive(mat);
 
-			for (auto& pass : mat->render_pass)
-			{
-				pass.Initialize_Shader();
-				pass.Initialize_Texture();
-			}
-			if (!mat->self_save_pass.empty())
-			{
-				mat->Save();
-			}
-			Engine::asset_manager->Registration_Asset(mat);
-			Engine::asset_manager->cache_material.insert(make_pair(fullpath, mat));
-			return mat;
+		for (auto& pass : mat->render_pass)
+		{
+			pass.Initialize_Shader();
+			pass.Initialize_Texture();
 		}
+		if (!mat->self_save_path.empty())
+		{
+			mat->Save();
+		}
+		Engine::asset_manager->Registration_Asset(mat);
+		Engine::asset_manager->cache_material.insert(make_pair(full_path, mat));
+		return mat;
 	}
 
 	return nullptr;
@@ -68,7 +64,7 @@ shared_ptr<Material> Material::Load_Material(const string& fullpath)
 void Material::Add_Pass(const std::string& vertex_path, const std::string& pixel_path, const std::string& geometry_path)
 {
 	render_pass.emplace_back();
-	int pass = static_cast<int>(render_pass.size()) - 1;
+	const int pass = static_cast<int>(render_pass.size()) - 1;
 	Set_Shader(vertex_path, Shader::Shader_Type::Vertex, pass);
 	Set_Shader(pixel_path, Shader::Shader_Type::Pixel, pass);
 	Set_Shader(geometry_path, Shader::Shader_Type::Geometry, pass);
@@ -185,7 +181,7 @@ void Material::Set_Texture(const string& texture_name, const shared_ptr<Texture>
 
 			if (info.register_number == 1)
 			{
-				for (auto& stage : info.staging_shader)
+				for (const auto& stage : info.staging_shader)
 				{
 					if (stage == Shader::Shader_Type::Pixel)
 					{
@@ -203,13 +199,12 @@ void Material::Set_Texture(const string& texture_name, const shared_ptr<Texture>
 	}
 }
 
-void Material::Set_Parameter(const string& parameter_name, void* value, const Shader::Parameter_Type& type)
+void Material::Set_Parameter(const string& parameter_name, const void* value, const Shader::Parameter_Type& type)
 {
 	bool change = false;
 	for (auto& pass : render_pass)
 	{
-		auto it = pass.parameter_info.find(parameter_name);
-		if (it != pass.parameter_info.end())
+		if (const auto it = pass.parameter_info.find(parameter_name); it != pass.parameter_info.end())
 		{
 			Parameter_Info& info = it->second;
 			if (info.type == type)
@@ -218,13 +213,13 @@ void Material::Set_Parameter(const string& parameter_name, void* value, const Sh
 				ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
 				memcpy(&b_info.byte_data[info.offset], value, info.size);
 				{
-					UINT subresourceIndex = 0;
+					constexpr UINT subresource_index = 0;
 					D3D11_MAPPED_SUBRESOURCE mapped;
-					auto hr = DxSystem::device_context->Map(b_info.constant_buffer.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+					auto hr = DxSystem::device_context->Map(b_info.constant_buffer.Get(), subresource_index, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
 					if (SUCCEEDED(hr))
 					{
 						memcpy(mapped.pData, &b_info.byte_data[0], b_info.byte_data.size());
-						DxSystem::device_context->Unmap(b_info.constant_buffer.Get(), subresourceIndex);
+						DxSystem::device_context->Unmap(b_info.constant_buffer.Get(), subresource_index);
 					}
 				}
 				change = true;
@@ -238,32 +233,32 @@ void Material::Set_Parameter(const string& parameter_name, void* value, const Sh
 	}
 }
 
-void Material::Set_Int(const string& int_name, int& value)
+void Material::Set_Int(const string& int_name, const int& value)
 {
 	Set_Parameter(int_name, &value, Shader::Parameter_Type::INT);
 }
 
-void Material::Set_Float(const string& float_name, float& value)
+void Material::Set_Float(const string& float_name, const float& value)
 {
 	Set_Parameter(float_name, &value, Shader::Parameter_Type::FLOAT);
 }
 
-void Material::Set_Vector2(const string& vector_name, Vector2& value)
+void Material::Set_Vector2(const string& vector_name, const Vector2& value)
 {
 	Set_Parameter(vector_name, &value, Shader::Parameter_Type::VECTOR2);
 }
 
-void Material::Set_Vector3(const string& vector_name, Vector3& value)
+void Material::Set_Vector3(const string& vector_name, const Vector3& value)
 {
 	Set_Parameter(vector_name, &value, Shader::Parameter_Type::VECTOR3);
 }
 
-void Material::Set_Vector4(const string& vector_name, Vector4& value)
+void Material::Set_Vector4(const string& vector_name, const Vector4& value)
 {
 	Set_Parameter(vector_name, &value, Shader::Parameter_Type::VECTOR4);
 }
 
-void Material::Set_Matrix(const string& matrix_name, Matrix& value)
+void Material::Set_Matrix(const string& matrix_name, const Matrix& value)
 {
 	Set_Parameter(matrix_name, &value, Shader::Parameter_Type::MATRIX);
 }
@@ -272,8 +267,7 @@ shared_ptr<Texture> Material::Get_Texture(const string& texture_name)
 {
 	for (auto& pass : render_pass)
 	{
-		auto it = pass.texture_info.find(texture_name);
-		if (it != pass.texture_info.end())
+		if (const auto it = pass.texture_info.find(texture_name); it != pass.texture_info.end())
 		{
 			return it->second.texture;
 		}
@@ -287,11 +281,9 @@ int Material::Get_Int(const string& int_name)
 {
 	for (auto& pass : render_pass)
 	{
-		auto it = pass.parameter_info.find(int_name);
-		if (it != pass.parameter_info.end())
+		if (const auto it = pass.parameter_info.find(int_name); it != pass.parameter_info.end())
 		{
-			Parameter_Info& info = it->second;
-			if (info.type == Shader::Parameter_Type::INT)
+			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::INT)
 			{
 				ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
 				int value = 0;
@@ -309,13 +301,11 @@ float Material::Get_Float(const string& float_name)
 {
 	for (auto& pass : render_pass)
 	{
-		auto it = pass.parameter_info.find(float_name);
-		if (it != pass.parameter_info.end())
+		if (const auto it = pass.parameter_info.find(float_name); it != pass.parameter_info.end())
 		{
-			Parameter_Info& info = it->second;
-			if (info.type == Shader::Parameter_Type::FLOAT)
+			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::FLOAT)
 			{
-				ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
+				const ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
 				float value = 0;
 				memcpy(&value, &b_info.byte_data[info.offset], info.size);
 				return value;
@@ -333,11 +323,9 @@ Vector2 Material::Get_Vector2(const string& vector_name)
 
 	for (auto& pass : render_pass)
 	{
-		auto it = pass.parameter_info.find(vector_name);
-		if (it != pass.parameter_info.end())
+		if (const auto it = pass.parameter_info.find(vector_name); it != pass.parameter_info.end())
 		{
-			Parameter_Info& info = it->second;
-			if (info.type == Shader::Parameter_Type::VECTOR2)
+			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::VECTOR2)
 			{
 				ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
 				memcpy(&value, &b_info.byte_data[info.offset], info.size);
@@ -355,13 +343,11 @@ Vector3 Material::Get_Vector3(const string& vector_name)
 	Vector3 value = { 0,0,0 };
 	for (auto& pass : render_pass)
 	{
-		auto it = pass.parameter_info.find(vector_name);
-		if (it != pass.parameter_info.end())
+		if (const auto it = pass.parameter_info.find(vector_name); it != pass.parameter_info.end())
 		{
-			Parameter_Info& info = it->second;
-			if (info.type == Shader::Parameter_Type::VECTOR3)
+			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::VECTOR3)
 			{
-				ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
+				const ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
 				memcpy(&value, &b_info.byte_data[info.offset], info.size);
 				return value;
 			}
@@ -377,13 +363,11 @@ Vector4 Material::Get_Vector4(const string& vector_name)
 	Vector4 value = { 0,0,0,0 };
 	for (auto& pass : render_pass)
 	{
-		auto it = pass.parameter_info.find(vector_name);
-		if (it != pass.parameter_info.end())
+		if (const auto it = pass.parameter_info.find(vector_name); it != pass.parameter_info.end())
 		{
-			Parameter_Info& info = it->second;
-			if (info.type == Shader::Parameter_Type::VECTOR4)
+			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::VECTOR4)
 			{
-				ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
+				const ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
 				memcpy(&value, &b_info.byte_data[info.offset], info.size);
 				return value;
 			}
@@ -399,13 +383,11 @@ Matrix Material::Get_Matrix(const string& matrix_name)
 	Matrix value = Matrix::Identity;
 	for (auto& pass : render_pass)
 	{
-		auto it = pass.parameter_info.find(matrix_name);
-		if (it != pass.parameter_info.end())
+		if (const auto it = pass.parameter_info.find(matrix_name); it != pass.parameter_info.end())
 		{
-			Parameter_Info& info = it->second;
-			if (info.type == Shader::Parameter_Type::MATRIX)
+			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::MATRIX)
 			{
-				ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
+				const ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
 				memcpy(&value, &b_info.byte_data[info.offset], info.size);
 				return value;
 			}
@@ -426,15 +408,14 @@ void Material::Render_Pass::Reflect_Shader()
 
 	for (size_t i = 0; i < 5; ++i)
 	{
-		if (shared_ptr<Shader>& shader = shader_info[i].shader)
+		if (const auto& shader = shader_info[i].shader)
 		{
 			// コンスタントバッファ
 			for (auto& c_info : shader->constant_buffer_info)
 			{
-				auto it = constant_buffer_info.find(c_info.name);
-				if (it == constant_buffer_info.end())
+				if (const auto it = constant_buffer_info.find(c_info.name); it == constant_buffer_info.end())
 				{
-					ConstantBuffer_Info c;
+					const ConstantBuffer_Info c;
 					auto& cb_info = constant_buffer_info[c_info.name] = c;
 
 					cb_info.register_number = c_info.register_number;
@@ -468,7 +449,7 @@ void Material::Render_Pass::Reflect_Shader()
 								memcpy(data, &p_info.default_value[0], p_info.size);
 							}
 							//作成
-							Parameter_Info p = { p_info.type, c_info.name, p_info.size, p_info.offset };
+							const Parameter_Info p = { p_info.type, c_info.name, p_info.size, p_info.offset };
 							parameter_info[p_info.name] = p;
 						}
 					}
@@ -484,7 +465,7 @@ void Material::Render_Pass::Reflect_Shader()
 
 void Material::Render_Pass::Reflect_Shader(Shader::Shader_Type type)
 {
-	if (shared_ptr<Shader>& shader = shader_info[static_cast<int>(type)].shader)
+	if (const auto& shader = shader_info[static_cast<int>(type)].shader)
 	{
 		// コンスタントバッファ
 		for (auto& c_info : shader->constant_buffer_info)
@@ -502,13 +483,12 @@ void Material::Render_Pass::Reflect_Shader(Shader::Shader_Type type)
 				//パラメータ
 				for (auto& p_info : c_info.parameters)
 				{
-					auto itr = parameter_info.find(p_info.name);
-					if (itr == parameter_info.end())
+					if (auto itr = parameter_info.find(p_info.name); itr == parameter_info.end())
 					{
 						//初期値代入
 						void* data = &cb_info.byte_data[p_info.offset];
 						memcpy(data, &p_info.default_value[0], p_info.size);
-						Parameter_Info p = { p_info.type, c_info.name, p_info.size, p_info.offset };
+						const Parameter_Info p = { p_info.type, c_info.name, p_info.size, p_info.offset };
 						parameter_info[p_info.name] = p;
 					}
 				}
@@ -523,12 +503,12 @@ void Material::Render_Pass::Reflect_Shader(Shader::Shader_Type type)
 
 void Material::Render_Pass::Reflect_Texture()
 {
-	std::unordered_map<std::string, Texture_Info> copy_texture_info = texture_info;
+	auto copy_texture_info = texture_info;
 	texture_info.clear();
 
 	for (size_t i = 0; i < 5; ++i)
 	{
-		if (shared_ptr<Shader>& shader = shader_info[i].shader)
+		if (const auto& shader = shader_info[i].shader)
 		{
 			// テクスチャ
 			for (auto& t_info : shader->texture_info)
@@ -563,7 +543,7 @@ void Material::Render_Pass::Reflect_Texture()
 
 void Material::Render_Pass::Reflect_Texture(Shader::Shader_Type type)
 {
-	if (shared_ptr<Shader>& shader = shader_info[static_cast<int>(type)].shader)
+	if (const auto& shader = shader_info[static_cast<int>(type)].shader)
 	{
 		// テクスチャ
 		for (auto& t_info : shader->texture_info)
@@ -587,25 +567,23 @@ void Material::Render_Pass::Reflect_Texture(Shader::Shader_Type type)
 
 void Material::Render_Pass::Create_ConstantBuffer(ConstantBuffer_Info& info, const UINT& size)
 {
-	HRESULT hr;
-
-	D3D11_BUFFER_DESC bd = {};
+	D3D11_BUFFER_DESC bd;
 	bd.Usage = D3D11_USAGE_DYNAMIC;
 	bd.ByteWidth = size;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	bd.MiscFlags = 0;
 	bd.StructureByteStride = 0;
-	hr = DxSystem::device->CreateBuffer(&bd, nullptr, info.constant_buffer.GetAddressOf());
+	HRESULT hr = DxSystem::device->CreateBuffer(&bd, nullptr, info.constant_buffer.GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
-	UINT subresourceIndex = 0;
+	constexpr UINT subresource_index = 0;
 	D3D11_MAPPED_SUBRESOURCE mapped;
-	hr = DxSystem::device_context->Map(info.constant_buffer.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+	hr = DxSystem::device_context->Map(info.constant_buffer.Get(), subresource_index, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
 	if (SUCCEEDED(hr))
 	{
 		memcpy(mapped.pData, &info.byte_data[0], info.byte_data.size());
-		DxSystem::device_context->Unmap(info.constant_buffer.Get(), subresourceIndex);
+		DxSystem::device_context->Unmap(info.constant_buffer.Get(), subresource_index);
 	}
 }
 
@@ -616,7 +594,7 @@ void Material::Render_Pass::Initialize_Shader()
 	{
 		if (shader_info[i].shader_path.empty()) continue;
 		shader_info[i].shader = Shader::Create(shader_info[i].shader_path, static_cast<Shader::Shader_Type>(i));
-		if (shared_ptr<Shader>& shader = shader_info[i].shader)
+		if (const auto& shader = shader_info[i].shader)
 		{
 			// コンスタントバッファ
 			for (auto& c_info : shader->constant_buffer_info)
@@ -664,13 +642,10 @@ void Material::Render_Pass::Initialize_Shader()
 		Shader_Info& info = shader_info[i];
 		if (info.shader)
 		{
-			if (shared_ptr<Shader>& shader = info.shader)
+			// コンスタントバッファ作成
+			for (auto& cb_info : constant_buffer_info)
 			{
-				// コンスタントバッファ作成
-				for (auto& cb_info : constant_buffer_info)
-				{
-					Create_ConstantBuffer(cb_info.second, sizeof(std::byte) * cb_info.second.byte_data.size());
-				}
+				Create_ConstantBuffer(cb_info.second, sizeof(std::byte) * cb_info.second.byte_data.size());
 			}
 		}
 	}
@@ -681,7 +656,7 @@ void Material::Render_Pass::Initialize_Texture()
 	bool change = false;
 	for (size_t i = 0; i < 5; ++i)
 	{
-		if (shared_ptr<Shader>& shader = shader_info[i].shader)
+		if (const auto& shader = shader_info[i].shader)
 		{
 			// テクスチャ
 			for (auto& t_info : shader->texture_info)
@@ -734,7 +709,7 @@ void Material::Render_Pass::Active_Buffer()
 	for (auto& i : constant_buffer_info)
 	{
 		auto& info = i.second;
-		for (auto& stage : info.staging_shader)
+		for (const auto& stage : info.staging_shader)
 		{
 			switch (stage)
 			{
@@ -764,7 +739,7 @@ void Material::Render_Pass::Active_Texture()
 	for (auto& texture : texture_info)
 	{
 		auto& t = texture.second;
-		for (auto& stage : t.staging_shader)
+		for (const auto& stage : t.staging_shader)
 		{
 			t.texture->Set(t.register_number, stage);
 		}
@@ -788,7 +763,7 @@ void Material::Render_Pass::Active_Shader()
 	}
 }
 
-void Material::Render_Pass::Active_State()
+void Material::Render_Pass::Active_State() const
 {
 	//ブレンドステート設定
 	if (binding_blend_state != blend_state)
@@ -803,10 +778,10 @@ void Material::Render_Pass::Active_State()
 		binding_rasterizer_state = rasterizer_state;
 	}
 	//デプスステンシルステート設定
-	if (binding_depth_stencil_State != depth_stencil_state)
+	if (binding_depth_stencil_state != depth_stencil_state)
 	{
-		DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DephtStencil_State(depth_stencil_state), 1);
-		binding_depth_stencil_State = depth_stencil_state;
+		DxSystem::device_context->OMSetDepthStencilState(DxSystem::Get_DepthStencil_State(depth_stencil_state), 1);
+		binding_depth_stencil_state = depth_stencil_state;
 	}
 }
 
@@ -840,15 +815,15 @@ void Material::Save(const string& path)
 	string save_path;
 	if (path.empty())
 	{
-		save_path = self_save_pass;
+		save_path = self_save_path;
 	}
 	else
 	{
 		save_path = path;
-		self_save_pass = path;
+		self_save_path = path;
 	}
-	ofstream ss(save_path, ios::binary);
 	{
+		ofstream ss(save_path, ios::binary);
 		cereal::BinaryOutputArchive o_archive(ss);
 		o_archive(static_pointer_cast<Material>(shared_from_this()));
 	}
@@ -890,10 +865,9 @@ void Material::Draw_ImGui()
 					ImGui::SameLine(window_width - 25.0f);
 					if (ImGui::Button(u8"選択"))
 					{
-						const string& path = System_Function::Get_Open_File_Name("", "\\Shader");
-						if (path != "")
+						if (const string& file_path = System_Function::Get_Open_File_Name("", "\\Shader"); file_path != "")
 						{
-							Set_Shader(path, static_cast<Shader::Shader_Type>(t), i);
+							Set_Shader(file_path, static_cast<Shader::Shader_Type>(t), i);
 							Save();
 						}
 					}
@@ -915,7 +889,7 @@ void Material::Draw_ImGui()
 				ImGui::Text(info.first.c_str());
 				const auto& tex = info.second.texture;
 				ImGui::SameLine(window_width - size.x - frame_padding);
-				if (ImGui::ImageButton((void*)tex->Get_Resource().Get(), size, uv0, uv1, frame_padding, bg_col, tint_col))
+				if (ImGui::ImageButton(static_cast<void*>(tex->Get_Resource().Get()), size, uv0, uv1, frame_padding, bg_col, tint_col))
 				{
 					string path = System_Function::Get_Open_File_Name("png", "\\Assets\\Model");
 					if (!path.empty())

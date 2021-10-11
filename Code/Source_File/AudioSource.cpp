@@ -24,7 +24,7 @@ AudioSource::~AudioSource()
 	}
 }
 
-void AudioSource::Initialize(const shared_ptr<GameObject> obj)
+void AudioSource::Initialize(const shared_ptr<GameObject>& obj)
 {
 	Engine::asset_manager->Registration_Asset(shared_from_this());
 	gameobject = obj;

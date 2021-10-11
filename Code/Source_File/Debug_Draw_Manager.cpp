@@ -4,6 +4,7 @@
 #include "Transform.h"
 #include "Material.h"
 #include "Mathf.h"
+#include "Misc.h"
 using namespace std;
 using namespace BeastEngine;
 using namespace DirectX;
@@ -33,8 +34,7 @@ void Debug_Draw_Manager::flushLines()
 {
 	if (lines.size() == 0) return;
 
-	HRESULT hr;
-	ComPtr<ID3D11Buffer> vbuff;
+	ComPtr<ID3D11Buffer> buff;
 
 	D3D11_BUFFER_DESC bd = {};
 	bd.Usage = D3D11_USAGE_DEFAULT;
@@ -43,7 +43,7 @@ void Debug_Draw_Manager::flushLines()
 	bd.CPUAccessFlags = 0;
 	D3D11_SUBRESOURCE_DATA InitData = {};
 	InitData.pSysMem = lines.data();
-	hr = DxSystem::device->CreateBuffer(&bd, &InitData, &vbuff);
+	const HRESULT hr = DxSystem::device->CreateBuffer(&bd, &InitData, &buff);
 	if (FAILED(hr))
 	{
 		lines.clear();
@@ -51,9 +51,9 @@ void Debug_Draw_Manager::flushLines()
 	}
 
 	// 頂点バッファ
-	UINT stride = sizeof(VertexData);
-	UINT offset = 0;
-	ID3D11Buffer* vb[1] = { vbuff.Get() };
+	constexpr UINT stride = sizeof(VertexData);
+	constexpr UINT offset = 0;
+	ID3D11Buffer* vb[1] = { buff.Get() };
 	DxSystem::device_context->IASetVertexBuffers(0, 1, vb, &stride, &offset);
 
 	//描画
@@ -89,7 +89,7 @@ Debug_Draw_Manager::Vertex::Vertex(const btVector3& p, const btVector3& c)
 	color[3] = c[3];
 }
 
-void Debug_Draw_Manager::Set_Dx_Settings()
+void Debug_Draw_Manager::Set_Dx_Settings() const
 {
 	// プリミティブ形状
 	DxSystem::device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
@@ -98,7 +98,7 @@ void Debug_Draw_Manager::Set_Dx_Settings()
 	material->Active();
 }
 
-void Debug_Draw_Manager::Render_Grid(shared_ptr<Transform>& trans)
+void Debug_Draw_Manager::Render_Grid(shared_ptr<Transform>& trans) const
 {
 	Set_Dx_Settings();
 
@@ -108,7 +108,7 @@ void Debug_Draw_Manager::Render_Grid(shared_ptr<Transform>& trans)
 	int height_level = to_string(static_cast<int>(abs(pos.y))).length() - 1;
 
 	btVector3 from, to;
-	float X, Z;
+	float x, z;
 	float color_level[2];
 	int count[2];
 
@@ -118,7 +118,7 @@ void Debug_Draw_Manager::Render_Grid(shared_ptr<Transform>& trans)
 
 	for (int i = 0; i < 2; ++i)
 	{
-		count[i] = static_cast<int>((static_cast<float>(grid_length) / (height_level + 1 + i)) + 1);
+		count[i] = static_cast<int>((static_cast<float>(grid_length) / static_cast<float>(height_level + 1 + i)) + 1);
 		const float level = powf(10.0f, static_cast<float>(height_level + i));
 		const float half = static_cast<float>(count[i] - 1) * 0.5f;
 		int center_x = static_cast<int>(pos.x) / static_cast<int>(level) * static_cast<int>(level);
@@ -126,22 +126,22 @@ void Debug_Draw_Manager::Render_Grid(shared_ptr<Transform>& trans)
 
 		for (int j = 0; j < count[i]; ++j)
 		{
-			color[3] = color_level[i] * Mathf::Clamp((half - abs(half - j)) / half - 0.4f, 0.0f, 1.0f);
+			color[3] = color_level[i] * Mathf::Clamp((half - abs(half - static_cast<float>(j))) / half - 0.4f, 0.0f, 1.0f);
 
-			X = static_cast<float>(center_x - half * level + j * level);
-			Z = static_cast<float>(center_z - half * level);
-			from = { X, 0, Z };
+			x = static_cast<float>(center_x) - half * level + static_cast<float>(j) * level;
+			z = static_cast<float>(center_z) - half * level;
+			from = { x, 0, z };
 
-			Z = static_cast<float>(center_z + half * level);
-			to = { X, 0, Z };
+			z = static_cast<float>(center_z) + half * level;
+			to = { x, 0, z };
 			grids.push_back(Line(from, to, color, color));
 
-			Z = static_cast<float>(center_z - half * level + j * level);
-			X = static_cast<float>(center_x - half * level);
-			from = { X, 0, Z };
+			z = static_cast<float>(center_z) - half * level + static_cast<float>(j) * level;
+			x = static_cast<float>(center_x) - half * level;
+			from = { x, 0, z };
 
-			X = static_cast<float>(center_x + half * level);
-			to = { X, 0, Z };
+			x = static_cast<float>(center_x) + half * level;
+			to = { x, 0, z };
 			grids.push_back(Line(from, to, color, color));
 		}
 	}
@@ -168,7 +168,7 @@ void Debug_Draw_Manager::Render_Grid(shared_ptr<Transform>& trans)
 	DxSystem::device_context->Draw(count[1] * 4, count[0] * 4);
 }
 
-void Debug_Draw_Manager::Render_Collider()
+void Debug_Draw_Manager::Render_Collider() const
 {
 	Set_Dx_Settings();
 	Engine::bulletphysics_manager->Render_Debug();

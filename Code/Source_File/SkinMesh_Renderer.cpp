@@ -3,20 +3,15 @@
 #include "Transform.h"
 #include "Engine.h"
 #include "Render_Manager.h"
-#include "Debug.h"
 #include "Include_ImGui.h"
 #include "Compute_Shader.h"
 #include "Material.h"
 #include "Texture.h"
 #include "Mesh.h"
-#include <sstream>
-#include <functional>
-#include <iostream>
-#include <fstream>
-#include "Engine.h"
 #include "Shadow_Manager.h"
 #include "Asset_Manager.h"
 #include "Debug_Draw_Manager.h"
+#include "Misc.h"
 #include "System_Function.h"
 using Microsoft::WRL::ComPtr;
 using namespace std;
@@ -25,7 +20,7 @@ using namespace BeastEngine;
 
 ComPtr <ID3D11Buffer> SkinMesh_Renderer::constant_buffer_mesh;
 
-void SkinMesh_Renderer::Initialize(shared_ptr<GameObject> obj)
+void SkinMesh_Renderer::Initialize(const shared_ptr<GameObject>& obj)
 {
 	enabled_old = enabled;
 
@@ -130,7 +125,7 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 			can_render = true;
 			file_path = mesh->file_path;
 			//マテリアル
-			for (auto& path : mesh->default_material_pathes)
+			for (auto& path : mesh->default_material_paths)
 			{
 				material.push_back(Material::Load_Material(path));
 			}
@@ -144,7 +139,7 @@ void SkinMesh_Renderer::Set_Mesh(shared_ptr<Mesh> Mesh_Data)
 
 			//コンピュートシェーダー設定
 			compute_shader->Create_Buffer_Input(sizeof(Mesh::vertex), mesh->vertices.size(), &mesh->vertices[0]);
-			compute_shader->Create_Buffer_Result(sizeof(Mesh::vertex_default_buffer), mesh->vertices.size(), nullptr);
+			compute_shader->Create_Buffer_Result(sizeof(Mesh::Vertex_Default_Buffer), mesh->vertices.size(), nullptr);
 
 			//AABB
 			if (change)

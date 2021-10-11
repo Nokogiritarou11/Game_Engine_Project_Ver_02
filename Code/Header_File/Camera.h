@@ -27,7 +27,7 @@ namespace BeastEngine
 		std::array<Vector4, 6> frustum_planes;
 
 	private:
-		void Initialize(std::shared_ptr<GameObject> obj) override;
+		void Initialize(const std::shared_ptr<GameObject>& obj) override;
 		bool Draw_ImGui() override;
 		bool Can_Multiple() override { return false; };
 		void Update(float screen_x, float screen_y);

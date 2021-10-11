@@ -29,9 +29,9 @@ void Input::Update()
 	if (Cursor::cursor_lock_mode == CursorLock_Mode::Locked)
 	{
 #if _DEBUG
-		mouse_position_old = { Cursor::lock_position.x - Engine::editor->game_view_position.x,Engine::editor->game_view_position.y - Cursor::lock_position.y };
+		mouse_position_old = Vector2(Cursor::lock_position.x - Engine::editor->game_view_position.x, Engine::editor->game_view_position.y - Cursor::lock_position.y);
 #else
-		mouse_position_old = { Cursor::lock_position.x - static_cast<float>(rect.left) ,static_cast<float>(rect.bottom) - Cursor::lock_position.y };
+		mouse_position_old = Vector2(Cursor::lock_position.x - static_cast<float>(rect.left), static_cast<float>(rect.bottom) - Cursor::lock_position.y);
 #endif
 	}
 	else
@@ -42,9 +42,9 @@ void Input::Update()
 	POINT mouse_p;
 	GetCursorPos(&mouse_p);
 #if _DEBUG
-	mouse_position = { static_cast<float>(mouse_p.x) - Engine::editor->game_view_position.x, Engine::editor->game_view_position.y - static_cast<float>(mouse_p.y) };
+	mouse_position = Vector2(static_cast<float>(mouse_p.x) - Engine::editor->game_view_position.x, Engine::editor->game_view_position.y - static_cast<float>(mouse_p.y));
 #else
-	mouse_position = { static_cast<float>(mouse_p.x) - static_cast<float>(rect.left),static_cast<float>(rect.bottom) - static_cast<float>(mouse_p.y) };
+	mouse_position = Vector2(static_cast<float>(mouse_p.x) - static_cast<float>(rect.left), static_cast<float>(rect.bottom) - static_cast<float>(mouse_p.y));
 #endif
 
 	//キーボード取得
@@ -54,13 +54,9 @@ void Input::Update()
 		assert(false);
 	}
 
-	//パッド取得
-	DWORD dwResult;
 	for (DWORD i = 0; i < 4; ++i)
 	{
-		dwResult = XInputGetState(i, &controller_state[i].state);
-
-		if (dwResult == ERROR_SUCCESS)
+		if (XInputGetState(i, &controller_state[i].state) == ERROR_SUCCESS)
 		{
 			controller_state[i].is_connected = true;
 			controller_state[i].Update();
@@ -112,11 +108,11 @@ void Input::Controller_State::Update()
 		state.Gamepad.sThumbRY = 0;
 	}
 
-	result.left_axis = { Mathf::Clamp(state.Gamepad.sThumbLX / 32767.0f, -1.0f, 1.0f), Mathf::Clamp(state.Gamepad.sThumbLY / 32767.0f, -1.0f, 1.0f) };
-	result.right_axis = { Mathf::Clamp(state.Gamepad.sThumbRX / 32767.0f, -1.0f, 1.0f), Mathf::Clamp(state.Gamepad.sThumbRY / 32767.0f, -1.0f, 1.0f) };
+	result.left_axis = Vector2(Mathf::Clamp(static_cast<float>(state.Gamepad.sThumbLX) / 32767.0f, -1.0f, 1.0f), Mathf::Clamp(static_cast<float>(state.Gamepad.sThumbLY) / 32767.0f, -1.0f, 1.0f));
+	result.right_axis = Vector2(Mathf::Clamp(static_cast<float>(state.Gamepad.sThumbRX) / 32767.0f, -1.0f, 1.0f), Mathf::Clamp(static_cast<float>(state.Gamepad.sThumbRY) / 32767.0f, -1.0f, 1.0f));
 
-	result.left_trigger = state.Gamepad.bLeftTrigger / 255.0f;
-	result.right_trigger = state.Gamepad.bRightTrigger / 255.0f;
+	result.left_trigger = static_cast<float>(state.Gamepad.bLeftTrigger) / 255.0f;
+	result.right_trigger = static_cast<float>(state.Gamepad.bRightTrigger) / 255.0f;
 }
 
 bool Input::Get_Key(Key_Code key)
@@ -140,13 +136,10 @@ bool Input::Get_Mouse_Button(int button)
 	{
 		case 0:
 			return (key_state[static_cast<int>(Key_Code::Mouse0)] & 0x80);
-			break;
 		case 1:
 			return (key_state[static_cast<int>(Key_Code::Mouse1)] & 0x80);
-			break;
 		case 2:
 			return (key_state[static_cast<int>(Key_Code::Mouse2)] & 0x80);
-			break;
 		default:
 			break;
 	}
@@ -159,13 +152,10 @@ bool Input::Get_Mouse_Button_Down(int button)
 	{
 		case 0:
 			return (key_state[static_cast<int>(Key_Code::Mouse0)] & 0x80) && !(key_state_old[static_cast<int>(Key_Code::Mouse0)] & 0x80);
-			break;
 		case 1:
 			return (key_state[static_cast<int>(Key_Code::Mouse1)] & 0x80) && !(key_state_old[static_cast<int>(Key_Code::Mouse1)] & 0x80);
-			break;
 		case 2:
 			return (key_state[static_cast<int>(Key_Code::Mouse2)] & 0x80) && !(key_state_old[static_cast<int>(Key_Code::Mouse2)] & 0x80);
-			break;
 		default:
 			break;
 	}
@@ -178,13 +168,10 @@ bool Input::Get_Mouse_Button_Up(int button)
 	{
 		case 0:
 			return !(key_state[static_cast<int>(Key_Code::Mouse0)] & 0x80) && (key_state_old[static_cast<int>(Key_Code::Mouse0)] & 0x80);
-			break;
 		case 1:
 			return !(key_state[static_cast<int>(Key_Code::Mouse1)] & 0x80) && (key_state_old[static_cast<int>(Key_Code::Mouse1)] & 0x80);
-			break;
 		case 2:
 			return !(key_state[static_cast<int>(Key_Code::Mouse2)] & 0x80) && (key_state_old[static_cast<int>(Key_Code::Mouse2)] & 0x80);
-			break;
 		default:
 			break;
 	}

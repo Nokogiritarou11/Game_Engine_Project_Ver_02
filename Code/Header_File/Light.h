@@ -2,28 +2,26 @@
 #include "Behaviour.h"
 #include "cereal/cereal.hpp"
 #include "cereal/access.hpp"
-#include "cereal/archives/binary.hpp"
-#include "cereal/types/vector.hpp"
 #include "cereal/types/string.hpp"
 #include "cereal/types/memory.hpp"
 
 namespace BeastEngine
 {
-	class Light : public BeastEngine::Behaviour
+	class Light : public Behaviour
 	{
 	public:
-		BeastEngine::Vector3 color = { 0.5f ,0.5f ,0.5f };
+		Vector3 color = { 0.5f ,0.5f ,0.5f };
 		float intensity = 1;
 
 	private:
-		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
+		void Initialize(const std::shared_ptr<GameObject>& obj) override;
 		bool Draw_ImGui() override;
 
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Component>(this), color, intensity);
+			archive(cereal::base_class<Component>(this), color, intensity);
 		}
 	};
 }

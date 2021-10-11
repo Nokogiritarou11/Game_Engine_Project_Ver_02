@@ -3,28 +3,23 @@
 #include "Transform.h"
 #include "Engine.h"
 #include "Render_Manager.h"
-#include "Debug.h"
 #include "Include_ImGui.h"
-#include <sstream>
-#include <functional>
-#include <iostream>
-#include <fstream>
 #include "System_Function.h"
 #include "Compute_Shader.h"
 #include "Mesh.h"
 #include "Material.h"
 #include "Texture.h"
-#include "Engine.h"
 #include "Shadow_Manager.h"
 #include "Asset_Manager.h"
 #include "Debug_Draw_Manager.h"
+#include "Misc.h"
 using Microsoft::WRL::ComPtr;
 using namespace std;
 using namespace BeastEngine;
 
 ComPtr <ID3D11Buffer> Mesh_Renderer::constant_buffer_mesh;
 
-void Mesh_Renderer::Initialize(shared_ptr<GameObject> obj)
+void Mesh_Renderer::Initialize(const shared_ptr<GameObject>& obj)
 {
 	enabled_old = enabled;
 
@@ -34,14 +29,14 @@ void Mesh_Renderer::Initialize(shared_ptr<GameObject> obj)
 	// 定数バッファの生成
 	if (!constant_buffer_mesh)
 	{
-		D3D11_BUFFER_DESC bd = {};
+		D3D11_BUFFER_DESC bd;
 		bd.Usage = D3D11_USAGE_DYNAMIC;
 		bd.ByteWidth = sizeof(Constant_Buffer_Mesh);
 		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		bd.MiscFlags = 0;
 		bd.StructureByteStride = 0;
-		HRESULT hr = DxSystem::device->CreateBuffer(&bd, nullptr, constant_buffer_mesh.GetAddressOf());
+		const HRESULT hr = DxSystem::device->CreateBuffer(&bd, nullptr, constant_buffer_mesh.GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
 
@@ -86,13 +81,13 @@ void Mesh_Renderer::Recalculate_Frame()
 		buffer_mesh.world = transform->Get_World_Matrix();
 		DxSystem::device_context->CSSetConstantBuffers(1, 1, constant_buffer_mesh.GetAddressOf());
 		{
-			UINT subresourceIndex = 0;
+			constexpr UINT subresource_index = 0;
 			D3D11_MAPPED_SUBRESOURCE mapped;
-			auto hr = DxSystem::device_context->Map(constant_buffer_mesh.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+			const HRESULT hr = DxSystem::device_context->Map(constant_buffer_mesh.Get(), subresource_index, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
 			if (SUCCEEDED(hr))
 			{
 				memcpy(mapped.pData, &buffer_mesh, sizeof(Constant_Buffer_Mesh));
-				DxSystem::device_context->Unmap(constant_buffer_mesh.Get(), subresourceIndex);
+				DxSystem::device_context->Unmap(constant_buffer_mesh.Get(), subresource_index);
 			}
 		}
 		compute_shader->Run();
@@ -102,7 +97,7 @@ void Mesh_Renderer::Recalculate_Frame()
 	}
 }
 
-void Mesh_Renderer::Set_Mesh(shared_ptr<Mesh> mesh_data)
+void Mesh_Renderer::Set_Mesh(const shared_ptr<Mesh>& mesh_data)
 {
 	if (mesh_data)
 	{
@@ -115,7 +110,7 @@ void Mesh_Renderer::Set_Mesh(shared_ptr<Mesh> mesh_data)
 			can_render = true;
 			file_path = mesh->file_path;
 			//マテリアル
-			for (auto& path : mesh->default_material_pathes)
+			for (auto& path : mesh->default_material_paths)
 			{
 				material.push_back(Material::Load_Material(path));
 			}
@@ -129,7 +124,7 @@ void Mesh_Renderer::Set_Mesh(shared_ptr<Mesh> mesh_data)
 
 			//コンピュートシェーダー設定
 			compute_shader->Create_Buffer_Input(sizeof(Mesh::vertex), mesh->vertices.size(), &mesh->vertices[0]);
-			compute_shader->Create_Buffer_Result(sizeof(Mesh::vertex_default_buffer), mesh->vertices.size(), nullptr);
+			compute_shader->Create_Buffer_Result(sizeof(Mesh::Vertex_Default_Buffer), mesh->vertices.size(), nullptr);
 
 			//AABB
 			if (change)
@@ -144,7 +139,7 @@ void Mesh_Renderer::Set_Mesh(shared_ptr<Mesh> mesh_data)
 void Mesh_Renderer::Render(int subset_number)
 {
 	// バッファ設定
-	auto& subset = mesh->subsets[subset_number];
+	const auto& subset = mesh->subsets[subset_number];
 	DxSystem::device_context->VSSetShaderResources(0, 1, compute_shader->Get_SRV().GetAddressOf());
 	DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
@@ -160,12 +155,10 @@ void Mesh_Renderer::Render(int subset_number)
 void Mesh_Renderer::Render_Shadow(int subset_number)
 {
 	// バッファ設定
-	auto& subset = mesh->subsets[subset_number];
+	const auto& subset = mesh->subsets[subset_number];
 	DxSystem::device_context->VSSetShaderResources(0, 1, compute_shader->Get_SRV().GetAddressOf());
 	DxSystem::device_context->IASetIndexBuffer(mesh->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-	//マテリアル設定
-	auto& pass = material[subset.material_ID]->render_pass[0];
-	if (pass.texture_info.empty())
+	if (const auto& pass = material[subset.material_ID]->render_pass[0]; pass.texture_info.empty())
 	{
 		Engine::shadow_manager->Set_Default_Shadow_Alpha();
 	}
@@ -200,8 +193,8 @@ bool Mesh_Renderer::Draw_ImGui()
 		{
 			const Vector3& min_scaled = transform->Get_Position() + (bounds.Get_Center() + bounds.Get_Min()) * transform->Get_Scale();
 			const Vector3& max_scaled = transform->Get_Position() + (bounds.Get_Center() + bounds.Get_Max()) * transform->Get_Scale();
-			btVector3 min = { min_scaled.x, min_scaled.y, min_scaled.z };
-			btVector3 max = { max_scaled.x, max_scaled.y, max_scaled.z };
+			const btVector3 min = { min_scaled.x, min_scaled.y, min_scaled.z };
+			const btVector3 max = { max_scaled.x, max_scaled.y, max_scaled.z };
 			Engine::debug_draw_manager->drawAabb(min, max, btVector3(0.0f, 0.65f, 1.0f));
 
 			ImGui::Text(u8"中心オフセット");
@@ -227,37 +220,37 @@ bool Mesh_Renderer::Draw_ImGui()
 			ImGui::TreePop();
 		}
 
-		int ID_mat = 0;
 		if (can_render)
 		{
 			if (ImGui::TreeNode(u8"マテリアル"))
 			{
-				for (auto& mat : material)
+				int id_mat = 0;
+				for (const auto& mat : material)
 				{
-					ImGui::PushID(ID_mat);
-					bool open = ImGui::TreeNodeEx(mat->name.c_str(), ImGuiTreeNodeFlags_AllowItemOverlap);
+					ImGui::PushID(id_mat);
+					const bool open_material = ImGui::TreeNodeEx(mat->name.c_str(), ImGuiTreeNodeFlags_AllowItemOverlap);
 					ImGui::SameLine(window_width - 30.0f);
 					if (ImGui::Button(u8"選択"))
 					{
 						string path = System_Function::Get_Open_File_Name("mat", "\\Assets\\Model");
 						if (path != "")
 						{
-							material[ID_mat] = Material::Load_Material(path);
+							material[id_mat] = Material::Load_Material(path);
 						}
 					}
-					if (open)
+					if (open_material)
 					{
 						mat->Draw_ImGui();
 						ImGui::TreePop();
 					}
-					++ID_mat;
+					++id_mat;
 					ImGui::PopID();
 				}
 
 				if (ImGui::TreeNode(u8"シェーダー一括変更"))
 				{
 					static const char* s_name[] = { "VS", "GS", "PS", "HS", "DS" };
-					for (size_t i = 0; i < 5; ++i)
+					for (int i = 0; i < 5; ++i)
 					{
 						ImGui::PushID(i);
 						ImGui::Text(s_name[i]);
@@ -267,7 +260,7 @@ bool Mesh_Renderer::Draw_ImGui()
 							const string& path = System_Function::Get_Open_File_Name("", "\\Shader");
 							if (path != "")
 							{
-								for (auto& mat : material)
+								for (const auto& mat : material)
 								{
 									mat->Set_Shader(path, static_cast<Shader::Shader_Type>(i));
 									mat->Save();
@@ -281,7 +274,6 @@ bool Mesh_Renderer::Draw_ImGui()
 				ImGui::TreePop();
 			}
 		}
-		ID_mat = 0;
 	}
 	return true;
 }

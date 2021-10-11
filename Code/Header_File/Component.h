@@ -36,7 +36,7 @@ namespace BeastEngine
 		virtual bool Can_Multiple() { return true; };
 
 		friend class GameObject;
-		virtual void Initialize(std::shared_ptr<GameObject> obj) {};
+		virtual void Initialize(const std::shared_ptr<GameObject>& obj) {};
 
 		friend class Editor;
 		virtual bool Draw_ImGui() { return true; };

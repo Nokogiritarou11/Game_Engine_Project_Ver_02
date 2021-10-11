@@ -7,7 +7,7 @@
 using namespace std;
 using namespace BeastEngine;
 
-void MonoBehaviour::Initialize(shared_ptr<GameObject> obj)
+void MonoBehaviour::Initialize(const shared_ptr<GameObject>& obj)
 {
 	gameobject = obj;
 	Engine::asset_manager->Registration_Asset(shared_from_this());

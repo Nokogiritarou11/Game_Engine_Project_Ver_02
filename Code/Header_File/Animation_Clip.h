@@ -7,7 +7,7 @@
 namespace BeastEngine
 {
 	class Transform;
-	class FBX_Converter;
+	class Fbx_Converter;
 
 	class Animation_Clip final : public Object
 	{
@@ -53,7 +53,7 @@ namespace BeastEngine
 		float length;
 		int frame_count;
 
-		friend class FBX_Converter;
+		friend class Fbx_Converter;
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)

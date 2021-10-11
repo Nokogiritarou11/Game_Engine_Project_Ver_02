@@ -12,64 +12,64 @@ void Debug::Log()
 #endif
 }
 
-void Debug::Log(string s)
+void Debug::Log(const string& s)
 {
 #if  _DEBUG
 	Engine::editor->Print_Log(s);
 #endif
 }
 
-void Debug::Log(char* c)
+void Debug::Log(const char* c)
 {
 #if  _DEBUG
-	string s = c;
+	const string s = c;
 	Engine::editor->Print_Log(s);
 #endif
 }
 
-void Debug::Log(int i)
+void Debug::Log(const int i)
 {
 #if  _DEBUG
 	Engine::editor->Print_Log(to_string(i));
 #endif
 }
 
-void Debug::Log(float f)
+void Debug::Log(const float f)
 {
 #if  _DEBUG
 	Engine::editor->Print_Log(to_string(f));
 #endif
 }
 
-void Debug::Log(double d)
+void Debug::Log(const double d)
 {
 #if  _DEBUG
 	Engine::editor->Print_Log(to_string(d));
 #endif
 }
 
-void Debug::Log(Vector2 v)
+void Debug::Log(const Vector2 v)
 {
 #if  _DEBUG
 	Engine::editor->Print_Log(to_string(v.x) + " " + to_string(v.y));
 #endif
 }
 
-void Debug::Log(Vector3 v)
+void Debug::Log(const Vector3 v)
 {
 #if  _DEBUG
 	Engine::editor->Print_Log(to_string(v.x) + " " + to_string(v.y) + " " + to_string(v.z));
 #endif
 }
 
-void Debug::Log(Vector4 v)
+void Debug::Log(const Vector4 v)
 {
 #if  _DEBUG
 	Engine::editor->Print_Log(to_string(v.x) + " " + to_string(v.y) + " " + to_string(v.z) + " " + to_string(v.w));
 #endif
 }
 
-void Debug::Log(bool b)
+void Debug::Log(const bool b)
 {
 #if  _DEBUG
 	if (b)

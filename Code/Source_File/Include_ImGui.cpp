@@ -37,7 +37,7 @@ namespace ImGui
 		float v[2] = { value.x, value.y };
 		if (ImGui::DragFloat2(label, v, drag_speed, 0, 0, format))
 		{
-			value = { v[0],v[1] };
+			value = BeastEngine::Vector2(v[0], v[1]);
 			return true;
 		}
 
@@ -53,7 +53,7 @@ namespace ImGui
 		float v[3] = { value.x, value.y, value.z };
 		if (ImGui::DragFloat3(label, v, drag_speed, 0, 0, format))
 		{
-			value = { v[0], v[1], v[2] };
+			value = BeastEngine::Vector3(v[0], v[1], v[2]);
 			return true;
 		}
 
@@ -69,7 +69,7 @@ namespace ImGui
 		float v[4] = { value.x, value.y, value.z, value.w };
 		if (ImGui::DragFloat4(label, v, drag_speed, 0, 0, format))
 		{
-			value = { v[0], v[1], v[2], v[3] };
+			value = BeastEngine::Vector4(v[0], v[1], v[2], v[3]);
 			return true;
 		}
 
@@ -85,7 +85,7 @@ namespace ImGui
 		float v[3] = { value.x, value.y, value.z };
 		if (ImGui::ColorEdit3(label, v))
 		{
-			value = { v[0], v[1], v[2] };
+			value = BeastEngine::Vector3(v[0], v[1], v[2]);
 			return true;
 		}
 
@@ -101,7 +101,7 @@ namespace ImGui
 		float v[4] = { value.x, value.y, value.z, value.w };
 		if (ImGui::ColorEdit4(label, v))
 		{
-			value = { v[0], v[1], v[2], v[3] };
+			value = BeastEngine::Vector4(v[0], v[1], v[2], v[3]);
 			return true;
 		}
 

@@ -7,15 +7,15 @@ namespace BeastEngine
 	class Material;
 	class Compute_Shader;
 
-	class Mesh_Renderer : public BeastEngine::Renderer
+	class Mesh_Renderer : public Renderer
 	{
 	public:
-		void Set_Mesh(std::shared_ptr<BeastEngine::Mesh> mesh_data); //メッシュデータを設定する
+		void Set_Mesh(const std::shared_ptr<Mesh>& mesh_data); //メッシュデータを設定する
 
 	private:
-		std::shared_ptr<BeastEngine::Mesh> mesh;
+		std::shared_ptr<Mesh> mesh;
 
-		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
+		void Initialize(const std::shared_ptr<GameObject>& obj) override;
 		void Render(int subset_number = 0) override;
 		void Render_Shadow(int subset_number = 0) override;
 		bool Draw_ImGui() override;
@@ -24,11 +24,11 @@ namespace BeastEngine
 
 		struct Constant_Buffer_Mesh
 		{
-			BeastEngine::Matrix world = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
+			Matrix world = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
 		};
 		struct Constant_Buffer_Color
 		{
-			BeastEngine::Vector4	material_color;
+			Vector4	material_color;
 		};
 
 		Constant_Buffer_Mesh buffer_mesh;
@@ -37,14 +37,14 @@ namespace BeastEngine
 		void Reset();
 
 		std::string file_path;
-		std::shared_ptr<BeastEngine::Compute_Shader> compute_shader;
+		std::shared_ptr<Compute_Shader> compute_shader;
 
-		friend class FBX_Converter;
+		friend class Fbx_Converter;
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Renderer>(this), file_path);
+			archive(cereal::base_class<Renderer>(this), file_path);
 		}
 	};
 }

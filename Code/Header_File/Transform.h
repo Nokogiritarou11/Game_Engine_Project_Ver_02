@@ -103,7 +103,7 @@ namespace BeastEngine
 		void Change_Children();
 		void Remove_Parent();
 
-		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
+		void Initialize(const std::shared_ptr<GameObject>& obj) override;
 		bool Draw_ImGui() override;
 		bool Can_Multiple() override { return false; };
 

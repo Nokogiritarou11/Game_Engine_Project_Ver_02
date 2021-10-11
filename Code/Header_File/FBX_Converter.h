@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace BeastEngine
 {
@@ -9,20 +10,20 @@ namespace BeastEngine
 	class Transform;
 	struct Matrix;
 
-	class FBX_Converter
+	class Fbx_Converter
 	{
 	public:
 		void Draw_ImGui();
 
 	private:
-		void Load_From_FBX(bool& convert_mesh,bool& convert_material, bool& convert_animation, bool& convert_prefab);
-		void Convert_Animation(std::vector<std::shared_ptr<BeastEngine::GameObject>>& bones);
-		void Convert_Mesh();
-		void Bone_Decompose(std::vector<BeastEngine::Matrix>& matrixes, std::vector<std::shared_ptr<BeastEngine::GameObject>>& bones, std::shared_ptr<Transform>& trans);
-		std::shared_ptr<BeastEngine::GameObject> Create_GameObject(std::string n);
+		void Load_From_Fbx(bool& convert_mesh,bool& convert_material, bool& convert_animation, bool& convert_prefab) const;
+		void Convert_Animation(const std::vector<std::shared_ptr<GameObject>>& bones) const;
+		void Convert_Mesh() const;
+		static void Bone_Decompose(std::vector<Matrix>& matrixes, std::vector<std::shared_ptr<GameObject>>& bones, const std::shared_ptr<Transform>& trans);
+		[[nodiscard]] std::shared_ptr<GameObject> Create_GameObject(const std::string& n) const;
 
-		std::shared_ptr<BeastEngine::Model_Data> model;
-		int load_state;
+		std::shared_ptr<Model_Data> model;
+		int load_state = 0;
 		bool convert_mesh = true;
 		bool convert_material = true;
 		bool convert_animation = true;

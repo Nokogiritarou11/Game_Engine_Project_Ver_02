@@ -1,5 +1,6 @@
 #include "Gaussian_Filter.h"
 #include "Material.h"
+#include "Misc.h"
 
 using namespace BeastEngine;
 using namespace std;
@@ -19,7 +20,7 @@ Gaussian_Filter::Gaussian_Filter(const Vector2& size, const DXGI_FORMAT format, 
 	Set_Weight(dispersion);
 
 	//頂点バッファ
-	Vertex v[] = {
+	constexpr Vertex v[] = {
 		Vector3(-1, 1, 0),  Vector2(0,0),
 		Vector3(1, 1, 0), Vector2(1,0),
 		Vector3(-1,-1,0),  Vector2(0,1),
@@ -52,26 +53,26 @@ Gaussian_Filter::Gaussian_Filter(const Vector2& size, const DXGI_FORMAT format, 
 	sd.MinLOD = 0;
 	sd.MaxLOD = D3D11_FLOAT32_MAX;
 
-	auto hr = DxSystem::device->CreateSamplerState(&sd, sampler.GetAddressOf());
+	const HRESULT hr = DxSystem::device->CreateSamplerState(&sd, sampler.GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 }
 
 void Gaussian_Filter::Set_Weight(const float& dispersion)
 {
 	float total = 0.0f;
-	const int NUM_WEIGHT = 8;
-	float weights[NUM_WEIGHT];
+	constexpr int num_weight = 8;
+	float weights[num_weight];
 
-	for (int i = 0; i < NUM_WEIGHT; i++)
+	for (int i = 0; i < num_weight; ++i)
 	{
-		float pos = (float)i * 2.0f;
+		const float pos = static_cast<float>(i) * 2.0f;
 		weights[i] = expf(-pos * pos * dispersion);
 		total += weights[i];
 	}
 
-	for (int i = 0; i < NUM_WEIGHT; i++)
+	for (float& weight : weights)
 	{
-		weights[i] = weights[i] / total * 0.5f;
+		weight = weight / total * 0.5f;
 	}
 
 	//定数バッファ更新
@@ -90,8 +91,7 @@ void Gaussian_Filter::Create_Render_Target(const Vector2& size, const DXGI_FORMA
 	for (size_t i = 0; i < 2; ++i)
 	{
 		// 2次元テクスチャの設定
-		D3D11_TEXTURE2D_DESC texDesc;
-		memset(&texDesc, 0, sizeof(texDesc));
+		D3D11_TEXTURE2D_DESC texDesc = {};
 		texDesc.Usage = D3D11_USAGE_DEFAULT;
 		texDesc.Format = format;
 		texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
@@ -105,20 +105,20 @@ void Gaussian_Filter::Create_Render_Target(const Vector2& size, const DXGI_FORMA
 		texDesc.SampleDesc.Quality = 0;
 		// 2次元テクスチャの生成
 		HRESULT hr = DxSystem::device->CreateTexture2D(&texDesc, nullptr, target[i].texture_render_target.GetAddressOf());
+		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 		// レンダーターゲットビューの設定
-		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
-		memset(&rtvDesc, 0, sizeof(rtvDesc));
+		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = {};
 		rtvDesc.Format = texDesc.Format;
 		rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 		rtvDesc.Texture2D.MipSlice = 0;
 
 		// レンダーターゲットビューの生成
 		hr = DxSystem::device->CreateRenderTargetView(target[i].texture_render_target.Get(), &rtvDesc, target[i].render_target_view.GetAddressOf());
+		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 		// シェーダリソースビューの設定
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-		memset(&srvDesc, 0, sizeof(srvDesc));
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Format = texDesc.Format;
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = 1;
@@ -126,6 +126,7 @@ void Gaussian_Filter::Create_Render_Target(const Vector2& size, const DXGI_FORMA
 
 		// シェーダリソースビューの生成
 		hr = DxSystem::device->CreateShaderResourceView(target[i].texture_render_target.Get(), &srvDesc, target[i].shader_resource_view.GetAddressOf());
+		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 		//定数バッファ更新
 		Vector2 offset = { 16.0f / texture_size.x, 16.0f / texture_size.y };
@@ -141,13 +142,13 @@ void Gaussian_Filter::Filtering_Gaussian(const ComPtr<ID3D11ShaderResourceView>&
 	//===================================================================
 
 	// RTV設定
-	float clearColor[4] = { 0,0,0,0 };
+	constexpr float clearColor[4] = { 0,0,0,0 };
 	DxSystem::device_context->OMSetRenderTargets(1, target[0].render_target_view.GetAddressOf(), nullptr);
 	DxSystem::device_context->ClearRenderTargetView(target[0].render_target_view.Get(), clearColor);
 
 	// 頂点バッファの指定
-	UINT stride = sizeof(Vertex);
-	UINT offset = 0;
+	constexpr UINT stride = sizeof(Vertex);
+	constexpr UINT offset = 0;
 	DxSystem::device_context->IASetVertexBuffers(0, 1, vertex_buffer.GetAddressOf(), &stride, &offset);
 	DxSystem::device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 

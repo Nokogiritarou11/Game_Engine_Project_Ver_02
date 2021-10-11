@@ -49,7 +49,7 @@ namespace BeastEngine
 		virtual void OnTrigger_Exit(BeastEngine::Collision& collision) {}	  //接触していたコライダーと離れたとき
 		virtual void OnCollision_Exit(BeastEngine::Collision& collision) {}  //非トリガー時
 
-		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
+		void Initialize(const std::shared_ptr<GameObject>& obj) override;
 		void Set_Active(bool value) override;
 		bool Can_Multiple() override { return true; };
 

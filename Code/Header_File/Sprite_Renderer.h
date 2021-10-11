@@ -20,7 +20,7 @@ namespace BeastEngine
 		std::shared_ptr<BeastEngine::Texture> texture;	//描画するテクスチャ
 
 	private:
-		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj);
+		void Initialize(const std::shared_ptr<GameObject>& obj);
 		void Recalculate_Frame() override;
 		void Render(int subset_number = 0) override;
 		bool Draw_ImGui() override;

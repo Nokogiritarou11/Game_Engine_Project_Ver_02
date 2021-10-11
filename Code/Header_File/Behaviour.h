@@ -9,7 +9,7 @@ namespace BeastEngine
 		Behaviour();
 
 		void Set_Enabled(bool value);
-		bool Get_Enabled() const;
+		[[nodiscard]] bool Get_Enabled() const;
 
 	protected:
 		bool Draw_ImGui_Header(const std::string& component_name, bool& open);

@@ -154,7 +154,7 @@ Transform::~Transform()
 {
 }
 
-void Transform::Initialize(shared_ptr<GameObject> obj)
+void Transform::Initialize(const shared_ptr<GameObject>& obj)
 {
 	gameobject = obj;
 	Engine::asset_manager->Registration_Asset(shared_from_this());

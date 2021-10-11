@@ -18,6 +18,7 @@
 #include "Editor.h"
 #include "Debug_Draw_Manager.h"
 #include "Asset_Manager.h"
+#include "Misc.h"
 using namespace DirectX;
 using namespace std;
 using namespace BeastEngine;

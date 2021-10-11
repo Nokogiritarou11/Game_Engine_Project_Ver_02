@@ -10,7 +10,7 @@ using namespace DirectX;
 using namespace BeastEngine;
 using namespace std;
 
-void Camera::Initialize(std::shared_ptr<GameObject> obj)
+void Camera::Initialize(const shared_ptr<GameObject>& obj)
 {
 	gameobject = obj;
 	Engine::asset_manager->Registration_Asset(shared_from_this());

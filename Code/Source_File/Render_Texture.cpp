@@ -1,5 +1,6 @@
 #include "Render_Texture.h"
 #include "DxSystem.h"
+#include "Misc.h"
 using namespace BeastEngine;
 using namespace std;
 using namespace DirectX;

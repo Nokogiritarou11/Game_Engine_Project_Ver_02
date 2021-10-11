@@ -8,6 +8,7 @@
 #include "Texture.h"
 #include "Engine.h"
 #include "Asset_Manager.h"
+#include "Misc.h"
 using Microsoft::WRL::ComPtr;
 using namespace std;
 using namespace DirectX;

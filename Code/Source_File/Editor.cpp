@@ -22,8 +22,6 @@
 #include "Render_Texture.h"
 #include "Camera.h"
 #include <ImGuizmo.h>
-#include <sstream>
-#include <functional>
 #include <iostream>
 #include <fstream>
 using namespace std;
@@ -59,18 +57,18 @@ Editor::Editor()
 
 	//日本語フォントに対応
 	ImFont* font = io.Fonts->AddFontFromFileTTF(font_name, font_size_pixels, nullptr, io.Fonts->GetGlyphRangesJapanese());
-	IM_ASSERT(font != NULL);
+	IM_ASSERT(font != nullptr);
 
 	io.FontGlobalScale = font_size; // フォントの大きさを一括で変更できます。
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.ScaleAllSizes(ui_size); // UIの大きさを一括で変更できます。
 
-	float size_icon = 20.0f; // 30.0fにすると大きすぎたので20.0fにしています。
+	constexpr float size_icon = 20.0f; // 30.0fにすると大きすぎたので20.0fにしています。
 	ImFontConfig config;
 	config.MergeMode = true; // フォントテクスチャを合体させます。
 	config.PixelSnapH = true;
 	config.GlyphMinAdvanceX = size_icon; // アイコンを等幅にします。
-	static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+	static constexpr ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 	io.Fonts->AddFontFromFileTTF("Default_Assets/Font/fontawesome-webfont.ttf", size_icon, &config, icon_ranges);
 	io.Fonts->Build();
 
@@ -148,7 +146,7 @@ void Editor::Main_Window_Render()
 	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	const ImGuiViewport* viewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(viewport->WorkPos);
 	ImGui::SetNextWindowSize(viewport->WorkSize);
 	ImGui::SetNextWindowViewport(viewport->ID);
@@ -158,11 +156,10 @@ void Editor::Main_Window_Render()
 	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	ImGui::Begin(u8"ゲームエンジン", NULL, window_flags);
+	ImGui::Begin(u8"ゲームエンジン", nullptr, window_flags);
 	ImGui::PopStyleVar(3);
 
-	ImGuiIO& io = ImGui::GetIO();
-	ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+	const ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 	MenuBar_Render();
 
@@ -203,7 +200,7 @@ struct Debug_Logger
 		va_start(args, fmt);
 		Buf.appendfv(fmt, args);
 		va_end(args);
-		for (int new_size = Buf.size(); old_size < new_size; old_size++)
+		for (const int new_size = Buf.size(); old_size < new_size; old_size++)
 			if (Buf[old_size] == '\n')
 				LineOffsets.push_back(old_size + 1);
 	}
@@ -212,7 +209,7 @@ struct Debug_Logger
 	{
 		ImGuiWindowFlags window_flags = 0;
 		window_flags |= ImGuiWindowFlags_NoCollapse;
-		if (ImGui::Begin(title, NULL, window_flags))
+		if (ImGui::Begin(title, nullptr, window_flags))
 		{
 			// Options menu
 			if (ImGui::BeginPopup("Options"))
@@ -225,9 +222,9 @@ struct Debug_Logger
 			if (ImGui::Button(u8"オプション"))
 				ImGui::OpenPopup("Options");
 			ImGui::SameLine();
-			bool clear = ImGui::Button(u8"消去");
+			const bool clear = ImGui::Button(u8"消去");
 			ImGui::SameLine();
-			bool copy = ImGui::Button(u8"コピー");
+			const bool copy = ImGui::Button(u8"コピー");
 
 			//ImGui::Separator();
 			ImGui::BeginChild("scrolling", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
@@ -292,7 +289,7 @@ void Editor::Hierarchy_Render()
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_NoCollapse;
 
-	if (ImGui::Begin(u8"ヒエラルキー", NULL, window_flags))
+	if (ImGui::Begin(u8"ヒエラルキー", nullptr, window_flags))
 	{
 		ImGui::SetNextItemOpen(true, ImGuiCond_Always);
 		if (ImGui::TreeNode(scene->name.c_str()))
@@ -308,7 +305,7 @@ void Editor::Hierarchy_Render()
 				}
 			}
 
-			if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0) && draging_object.expired())
+			if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0) && dragging_object.expired())
 			{
 				Set_Debug_Draw(false, active_object.lock());
 				active_object.reset();
@@ -319,8 +316,8 @@ void Editor::Hierarchy_Render()
 			{
 				if (ImGui::Selectable(u8"新規オブジェクトを追加"))
 				{
-					auto& create_obj = scene->Instance_GameObject(u8"GameObject");
-					if (auto& obj = active_object.lock())
+					const auto& create_obj = scene->Instance_GameObject(u8"GameObject");
+					if (const auto& obj = active_object.lock())
 					{
 						create_obj->transform->Set_Parent(obj->transform);
 					}
@@ -335,7 +332,7 @@ void Editor::Hierarchy_Render()
 				}
 				ImGui::Separator();
 
-				if (auto& obj = active_object.lock())
+				if (const auto& obj = active_object.lock())
 				{
 					bool deleted = false;
 					if (ImGui::Selectable(u8"オブジェクトを削除"))
@@ -349,7 +346,7 @@ void Editor::Hierarchy_Render()
 					{
 						if (ImGui::Selectable(u8"オブジェクトを複製"))
 						{
-							auto& parent = obj->transform->Get_Parent().lock();
+							const auto& parent = obj->transform->Get_Parent().lock();
 							if (parent)
 							{
 								obj->transform->Set_Parent(nullptr);
@@ -357,10 +354,8 @@ void Editor::Hierarchy_Render()
 
 							{
 								ofstream ss("Default_Assets\\System\\copy.prefab", ios::binary);
-								{
-									cereal::BinaryOutputArchive o_archive(ss);
-									o_archive(obj);
-								}
+								cereal::BinaryOutputArchive o_archive(ss);
+								o_archive(obj);
 							}
 
 							if (parent)
@@ -394,11 +389,11 @@ void Editor::Hierarchy_Render()
 
 			if (ImGui::IsWindowFocused())
 			{
-				if (auto& obj = active_object.lock())
+				if (const auto& obj = active_object.lock())
 				{
 					if (ImGui::IsKeyDown(17) && ImGui::IsKeyPressed(68)) //Ctrl + D
 					{
-						auto& parent = obj->transform->Get_Parent().lock();
+						const auto& parent = obj->transform->Get_Parent().lock();
 						if (parent)
 						{
 							obj->transform->Set_Parent(nullptr);
@@ -406,10 +401,8 @@ void Editor::Hierarchy_Render()
 
 						{
 							ofstream ss("Default_Assets\\System\\copy.prefab", ios::binary);
-							{
-								cereal::BinaryOutputArchive o_archive(ss);
-								o_archive(obj);
-							}
+							cereal::BinaryOutputArchive o_archive(ss);
+							o_archive(obj);
 						}
 
 						if (parent)
@@ -444,9 +437,9 @@ void Editor::Inspector_Render()
 
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_NoCollapse;
-	if (ImGui::Begin(u8"インスペクタ", NULL, window_flags))
+	if (ImGui::Begin(u8"インスペクタ", nullptr, window_flags))
 	{
-		if (auto& obj = active_object.lock())
+		if (const auto& obj = active_object.lock())
 		{
 			static bool active = false;
 			if (active_object_old.lock() != obj)
@@ -491,7 +484,7 @@ void Editor::Inspector_Render()
 			ImGui::SetNextItemWidth(-FLT_MIN);
 			if (ImGui::BeginCombo("##Layer", settings->layer[obj->layer].data()))
 			{
-				array<string, 32>& layer = settings->layer;
+				const array<string, 32>& layer = settings->layer;
 				size_t layer_size = 0;
 				for (; layer_size < 32; ++layer_size)
 				{
@@ -513,7 +506,7 @@ void Editor::Inspector_Render()
 			ImGui::Dummy({ 0,10 });
 			ImGui::Separator();
 
-			for (auto& c : obj->component_list)
+			for (const auto& c : obj->component_list)
 			{
 				ImGui::PushID(c->Get_Instance_ID().c_str());
 				if (!c->Draw_ImGui())
@@ -535,7 +528,7 @@ void Editor::Inspector_Render()
 			if (ImGui::BeginPopup(u8"コンポーネントリスト"))
 			{
 				ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0, 0.5f));
-				auto& component_map = Component_Data::Component_Factory::getMap();
+				const auto& component_map = Component_Data::Component_Factory::getMap();
 				for (auto it = component_map->begin(); it != component_map->end(); ++it)
 				{
 					if (ImGui::Button(it->first.c_str(), ImVec2(-FLT_MIN, 0.0f)))
@@ -562,9 +555,9 @@ void Editor::Inspector_Render()
 	}
 
 	//ドラッグ終了処理
-	if (ImGui::IsMouseReleased(0) && !select_object && !draging_object.expired())
+	if (ImGui::IsMouseReleased(0) && !select_object && !dragging_object.expired())
 	{
-		draging_object.reset();
+		dragging_object.reset();
 	}
 
 	ImGui::End();
@@ -573,22 +566,21 @@ void Editor::Inspector_Render()
 //シーン再生UI描画
 void Editor::ScenePlayer_Render()
 {
-	ImGuiWindowFlags window_flags = 0;
-	window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
-	if (ImGui::Begin(u8"シーン再生", NULL, window_flags))
+	constexpr ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
+	if (ImGui::Begin(u8"シーン再生", nullptr, window_flags))
 	{
-		bool Running = Engine::scene_manager->run;
+		const bool running = Engine::scene_manager->run;
 
-		if (Running)
+		if (running)
 		{
-			ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.0f, 1.0f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.0f, 0.7f, 0.85f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.0f, 0.6f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_Button, static_cast<ImVec4>(ImColor::HSV(0.0f, 1.0f, 1.0f)));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, static_cast<ImVec4>(ImColor::HSV(0.0f, 0.7f, 0.85f)));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor::HSV(0.0f, 0.6f, 1.0f)));
 		}
 		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.5f - 50);
 		if (ImGui::Button(ICON_FA_PLAY, ImVec2(30, 0)))
 		{
-			if (!Running)
+			if (!running)
 			{
 				if (!Engine::scene_manager->pause)
 				{
@@ -607,22 +599,22 @@ void Editor::ScenePlayer_Render()
 				Engine::scene_manager->pause = false;
 			}
 		}
-		if (Running)
+		if (running)
 		{
 			ImGui::PopStyleColor(3);
 		}
 
 		ImGui::SameLine();
-		bool Pausing = Engine::scene_manager->pause;
-		if (Pausing)
+		const bool pausing = Engine::scene_manager->pause;
+		if (pausing)
 		{
-			ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.0f, 1.0f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.0f, 0.7f, 0.85f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.0f, 0.6f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_Button, static_cast<ImVec4>(ImColor::HSV(0.0f, 1.0f, 1.0f)));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, static_cast<ImVec4>(ImColor::HSV(0.0f, 0.7f, 0.85f)));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor::HSV(0.0f, 0.6f, 1.0f)));
 		}
 		if (ImGui::Button(ICON_FA_PAUSE, ImVec2(30, 0)))
 		{
-			if (Running)
+			if (running)
 			{
 				render_cursor = true;
 				Engine::scene_manager->run = false;
@@ -630,7 +622,7 @@ void Editor::ScenePlayer_Render()
 				Engine::audio_manager->Suspend();
 			}
 		}
-		if (Pausing)
+		if (pausing)
 		{
 			ImGui::PopStyleColor(3);
 		}
@@ -638,7 +630,7 @@ void Editor::ScenePlayer_Render()
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_STOP, ImVec2(30, 0)))
 		{
-			if (Running || Pausing)
+			if (running || pausing)
 			{
 				ImGui::SetWindowFocus(u8"シーン");
 				Cursor::cursor_lock_mode = CursorLock_Mode::None;
@@ -656,19 +648,19 @@ void Editor::ScenePlayer_Render()
 }
 
 //シーンビュー描画
-void Editor::SceneView_Render()
+void Editor::SceneView_Render() const
 {
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
 
-	if (ImGui::Begin(u8"シーン", NULL, window_flags))
+	if (ImGui::Begin(u8"シーン", nullptr, window_flags))
 	{
 		const float window_width = ImGui::GetCurrentWindow()->InnerRect.GetWidth() - 8;
 		const float window_height = ImGui::GetCurrentWindow()->InnerRect.GetHeight() - 8;
 
 		Engine::render_manager->render_scene = true;
-		Engine::render_manager->scene_texture->Set_Screen_Size((int)window_width, (int)window_height);
-		ImGui::Image((void*)Engine::render_manager->scene_texture->Get_Texture().Get(), ImVec2(window_width, window_height));
+		Engine::render_manager->scene_texture->Set_Screen_Size(static_cast<int>(window_width), static_cast<int>(window_height));
+		ImGui::Image(static_cast<void*>(Engine::render_manager->scene_texture->Get_Texture().Get()), ImVec2(window_width, window_height));
 
 		static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::OPERATION::TRANSLATE);
 		static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::MODE::LOCAL);
@@ -699,14 +691,14 @@ void Editor::SceneView_Render()
 			}
 		}
 
-		if (auto& obj = active_object.lock())
+		if (const auto& obj = active_object.lock())
 		{
 			static Matrix matrix;
 
 			matrix = obj->transform->Get_World_Matrix();
 
-			ImVec2 winPos = ImGui::GetWindowPos();
-			ImGuizmo::SetRect(winPos.x + 4, winPos.y + 16, window_width, window_height);
+			const ImVec2 win_pos = ImGui::GetWindowPos();
+			ImGuizmo::SetRect(win_pos.x + 4, win_pos.y + 16, window_width, window_height);
 			ImGuizmo::SetDrawlist();
 
 			// 選択ノードの行列を操作する
@@ -740,7 +732,7 @@ void Editor::GameView_Render()
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_NoCollapse;
 
-	if (ImGui::Begin(u8"ゲーム", NULL, window_flags))
+	if (ImGui::Begin(u8"ゲーム", nullptr, window_flags))
 	{
 		const ImGuiWindow* p_win = ImGui::GetCurrentWindow();
 		const Vector2 p_win_size = { p_win->InnerRect.GetWidth() - 8, p_win->InnerRect.GetHeight() - 8 };
@@ -765,7 +757,7 @@ void Editor::GameView_Render()
 		}
 
 		const ImVec2 pos = ImGui::GetCursorScreenPos();
-		game_view_position = { pos.x,pos.y + game_view_size.y };
+		game_view_position = Vector2(pos.x, pos.y + game_view_size.y);
 
 		if (aspect_lock < game_view_aspect) //横のほうが既定より長いとき
 		{
@@ -777,9 +769,9 @@ void Editor::GameView_Render()
 			ImGui::Dummy({ 0, (game_view_size.y - game_view_render_size.y) * 0.5f });
 		}
 
-		ImGui::Image((void*)Engine::render_manager->game_texture->Get_Texture().Get(), ImVec2(game_view_render_size.x, game_view_render_size.y));
+		ImGui::Image(static_cast<void*>(Engine::render_manager->game_texture->Get_Texture().Get()), ImVec2(game_view_render_size.x, game_view_render_size.y));
 
-		game_view_center_position = { pos.x + game_view_size.x / 2 ,pos.y + game_view_size.y / 2 };
+		game_view_center_position = Vector2(pos.x + game_view_size.x / 2, pos.y + game_view_size.y / 2);
 
 		if (ImGui::IsWindowFocused())
 		{
@@ -802,13 +794,12 @@ void Editor::GameView_Render()
 	ImGui::End();
 }
 
-void Editor::Controller_Render()
+void Editor::Controller_Render() const
 {
-	ImGuiWindowFlags window_flags = 0;
-	window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
-	if (ImGui::Begin(u8"アニメーター", NULL, window_flags))
+	constexpr ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
+	if (ImGui::Begin(u8"アニメーター", nullptr, window_flags))
 	{
-		if (auto& c = controller.lock())
+		if (const auto& c = controller.lock())
 		{
 			c->Render_ImGui();
 		}
@@ -863,11 +854,11 @@ void Editor::Scene_File_Menu_Render()
 					Engine::scene_manager->last_save_path = path;
 					Engine::scene_manager->Load_Scene(path);
 					Select_Reset();
-					ofstream oOfstream("Default_Assets\\System\\last_save.bin");
-					if (oOfstream.is_open())
+					ofstream o_stream("Default_Assets\\System\\last_save.bin");
+					if (o_stream.is_open())
 					{
 						// ファイルへ書き込む
-						oOfstream << Engine::scene_manager->last_save_path;
+						o_stream << Engine::scene_manager->last_save_path;
 					}
 				}
 				else
@@ -883,11 +874,10 @@ void Editor::Scene_File_Menu_Render()
 				if (Engine::scene_manager->last_save_path != "")
 				{
 					Engine::scene_manager->Save_Scene(Engine::scene_manager->last_save_path);
-					ofstream oOfstream("Default_Assets\\System\\last_save.bin");
-					if (oOfstream.is_open())
+					if (ofstream o_stream("Default_Assets\\System\\last_save.bin"); o_stream.is_open())
 					{
 						// ファイルへ書き込む
-						oOfstream << Engine::scene_manager->last_save_path;
+						o_stream << Engine::scene_manager->last_save_path;
 					}
 					Debug::Log(u8"シーンの保存に成功");
 				}
@@ -902,11 +892,10 @@ void Editor::Scene_File_Menu_Render()
 						string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 						path = pathname + filename + ".bin";
 						Engine::scene_manager->Save_Scene(path);
-						ofstream oOfstream("Default_Assets\\System\\last_save.bin");
-						if (oOfstream.is_open())
+						if (ofstream o_stream("Default_Assets\\System\\last_save.bin"); o_stream.is_open())
 						{
 							// ファイルへ書き込む
-							oOfstream << Engine::scene_manager->last_save_path;
+							o_stream << Engine::scene_manager->last_save_path;
 						}
 						Debug::Log(u8"シーンの保存に成功");
 					}
@@ -926,11 +915,10 @@ void Editor::Scene_File_Menu_Render()
 					string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 					path = pathname + filename + ".bin";
 					Engine::scene_manager->Save_Scene(path);
-					ofstream oOfstream("Default_Assets\\System\\last_save.bin");
-					if (oOfstream.is_open())
+					if (ofstream o_stream("Default_Assets\\System\\last_save.bin"); o_stream.is_open())
 					{
 						// ファイルへ書き込む
-						oOfstream << Engine::scene_manager->last_save_path;
+						o_stream << Engine::scene_manager->last_save_path;
 					}
 					Debug::Log(u8"シーンの保存に成功");
 				}
@@ -941,7 +929,7 @@ void Editor::Scene_File_Menu_Render()
 }
 
 //シーン設定メニュー
-void Editor::Scene_Setting_Menu_Render()
+void Editor::Scene_Setting_Menu_Render() const
 {
 	if (ImGui::BeginMenu(u8"シーン設定"))
 	{
@@ -1031,7 +1019,7 @@ void Editor::Scene_Setting_Menu_Render()
 		{
 			array<string, 32>& layer = settings->layer;
 			array<int, 32>& layer_mask = settings->layer_mask;
-			size_t layer_size = 0;
+			int layer_size = 0;
 			for (; layer_size < 32; ++layer_size)
 			{
 				if (layer[layer_size].empty()) break;
@@ -1042,7 +1030,7 @@ void Editor::Scene_Setting_Menu_Render()
 				ImGui::Indent();
 				bool erase_layer = false;
 				int erase_it = 0;
-				for (size_t i = 0; i < layer_size; ++i)
+				for (int i = 0; i < layer_size; ++i)
 				{
 					ImGui::Spacing();
 					ImGui::PushID(i);
@@ -1097,7 +1085,7 @@ void Editor::Scene_Setting_Menu_Render()
 		ImGui::SetNextWindowSize({ 250,400 });
 		if (ImGui::BeginMenu(u8"物理"))
 		{
-			array<string, 32>& layer = settings->layer;
+			const array<string, 32>& layer = settings->layer;
 			array<int, 32>& layer_mask = settings->layer_mask;
 
 			if (ImGui::CollapsingHeader(u8"衝突設定"))
@@ -1162,7 +1150,7 @@ void Editor::GameObject_Tree_Render(const shared_ptr<GameObject>& obj, int flag)
 {
 	ImGui::PushID(obj->Get_Instance_ID().c_str());
 	const ImGuiTreeNodeFlags in_flag = flag;
-	if (auto& active_obj = active_object.lock())
+	if (const auto& active_obj = active_object.lock())
 	{
 		if (active_obj == obj) flag |= ImGuiTreeNodeFlags_Selected;
 	}
@@ -1172,11 +1160,11 @@ void Editor::GameObject_Tree_Render(const shared_ptr<GameObject>& obj, int flag)
 
 	if (obj->transform->Get_Child_Count())
 	{
-		if (!active) { ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(0.f, 0.f, 0.4f)); }
-		bool open = ImGui::TreeNodeEx(obj->name.c_str(), flag);
+		if (!active) { ImGui::PushStyleColor(ImGuiCol_Text, static_cast<ImVec4>(ImColor::HSV(0.f, 0.f, 0.4f))); }
+		const bool open = ImGui::TreeNodeEx(obj->name.c_str(), flag);
 		if (!active) { ImGui::PopStyleColor(); }
 
-		if (auto& drag = draging_object.lock())
+		if (const auto& drag = dragging_object.lock())
 		{
 			if (drag == obj && ImGui::IsMouseReleased(0) && ImGui::IsItemHovered())
 			{
@@ -1193,7 +1181,7 @@ void Editor::GameObject_Tree_Render(const shared_ptr<GameObject>& obj, int flag)
 
 		if (ImGui::IsItemClicked())
 		{
-			draging_object = obj;
+			dragging_object = obj;
 		}
 
 		GameObject_DragMenu_Render(obj);
@@ -1212,11 +1200,11 @@ void Editor::GameObject_Tree_Render(const shared_ptr<GameObject>& obj, int flag)
 	{
 		flag |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen; // ImGuiTreeNodeFlags_Bullet
 
-		if (!active) { ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(0.f, 0.f, 0.4f)); }
+		if (!active) { ImGui::PushStyleColor(ImGuiCol_Text, static_cast<ImVec4>(ImColor::HSV(0.f, 0.f, 0.4f))); }
 		ImGui::TreeNodeEx(obj->name.c_str(), flag);
 		if (!active) { ImGui::PopStyleColor(); }
 
-		if (auto& drag = draging_object.lock())
+		if (const auto& drag = dragging_object.lock())
 		{
 			if (drag == obj && ImGui::IsMouseReleased(0) && ImGui::IsItemHovered())
 			{
@@ -1233,7 +1221,7 @@ void Editor::GameObject_Tree_Render(const shared_ptr<GameObject>& obj, int flag)
 
 		if (ImGui::IsItemClicked())
 		{
-			draging_object = obj;
+			dragging_object = obj;
 		}
 
 		GameObject_DragMenu_Render(obj);
@@ -1245,7 +1233,7 @@ shared_ptr<GameObject> Editor::Get_Drag_Object()
 {
 	if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DragDrop_Object"))
 	{
-		if (auto& obj = draging_object.lock())
+		if (const auto& obj = dragging_object.lock())
 		{
 			return obj;
 		}
@@ -1278,41 +1266,37 @@ void Editor::GameObject_DragMenu_Render(const shared_ptr<GameObject>& obj)
 
 	if (ImGui::BeginPopup(Menu_Label.c_str()))
 	{
-		string obj_name = obj->name;
+		const string obj_name = obj->name;
 
-		string s1 = u8"の子に設定";
-		string s2 = u8"の上に移動";
-		string s3 = u8"の下に移動";
-
-		string s_set = obj_name + s1;
+		string s_set = obj_name + u8"の子に設定";
 		if (ImGui::Selectable(s_set.c_str()))
 		{
-			if (auto& drag_obj = draging_object.lock())
+			if (const auto& drag_obj = dragging_object.lock())
 			{
 				drag_obj->transform->Set_Parent(obj->transform);
-				draging_object.reset();
+				dragging_object.reset();
 			}
 		}
 
-		s_set = obj_name + s2;
+		s_set = obj_name + u8"の上に移動";
 		if (ImGui::Selectable(s_set.c_str()))
 		{
-			if (auto& drag_obj = draging_object.lock())
+			if (const auto& drag_obj = dragging_object.lock())
 			{
 				drag_obj->transform->Set_Parent(obj->transform->parent.lock());
 				drag_obj->transform->Set_Sibling_Index(obj->transform->Get_Sibling_Index());
-				draging_object.reset();
+				dragging_object.reset();
 			}
 		}
 
-		s_set = obj_name + s3;
+		s_set = obj_name + u8"の下に移動";
 		if (ImGui::Selectable(s_set.c_str()))
 		{
-			if (auto& drag_obj = draging_object.lock())
+			if (const auto& drag_obj = dragging_object.lock())
 			{
 				drag_obj->transform->Set_Parent(obj->transform->parent.lock());
 				drag_obj->transform->Set_Sibling_Index(obj->transform->Get_Sibling_Index() + 1);
-				draging_object.reset();
+				dragging_object.reset();
 			}
 		}
 		ImGui::EndPopup();
@@ -1331,11 +1315,10 @@ void Editor::ShortCut_Check()
 				if (Engine::scene_manager->last_save_path != "")
 				{
 					Engine::scene_manager->Save_Scene(Engine::scene_manager->last_save_path);
-					ofstream oOfstream("Default_Assets\\System\\last_save.bin");
-					if (oOfstream.is_open())
+					if (ofstream o_stream("Default_Assets\\System\\last_save.bin"); o_stream.is_open())
 					{
 						// ファイルへ書き込む
-						oOfstream << Engine::scene_manager->last_save_path;
+						o_stream << Engine::scene_manager->last_save_path;
 					}
 					Debug::Log(u8"シーンの保存に成功");
 				}
@@ -1350,11 +1333,10 @@ void Editor::ShortCut_Check()
 						string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 						path = pathname + filename + ".bin";
 						Engine::scene_manager->Save_Scene(path);
-						ofstream oOfstream("Default_Assets\\System\\last_save.bin");
-						if (oOfstream.is_open())
+						if (ofstream o_stream("Default_Assets\\System\\last_save.bin"); o_stream.is_open())
 						{
 							// ファイルへ書き込む
-							oOfstream << Engine::scene_manager->last_save_path;
+							o_stream << Engine::scene_manager->last_save_path;
 						}
 						Debug::Log(u8"シーンの保存に成功");
 					}
@@ -1410,7 +1392,7 @@ void Editor::ShortCut_Check()
 }
 
 //シーンビューのカメラ操作
-void Editor::Debug_Camera_Update()
+void Editor::Debug_Camera_Update() const
 {
 	if (ImGui::IsWindowHovered())
 	{
@@ -1420,11 +1402,11 @@ void Editor::Debug_Camera_Update()
 		}
 		else
 		{
-			ImGuiIO& io = ImGui::GetIO();
-			float mouse_wheel = io.MouseWheel;
+			const ImGuiIO& io = ImGui::GetIO();
+			const float mouse_wheel = io.MouseWheel;
 			if (mouse_wheel != 0.0f)
 			{
-				Vector3 move = debug_camera_transform->Get_Forward() * mouse_wheel * 5;
+				const Vector3 move = debug_camera_transform->Get_Forward() * mouse_wheel * 5;
 				debug_camera_transform->Set_Position(debug_camera_transform->Get_Position() + move);
 			}
 		}
@@ -1432,7 +1414,7 @@ void Editor::Debug_Camera_Update()
 
 	if (ImGui::IsWindowFocused())
 	{
-		ImGuiIO& io = ImGui::GetIO();
+		const ImGuiIO& io = ImGui::GetIO();
 		//入力
 		{
 			static ImVec2 mouse_old_pos = { 0,0 };
@@ -1460,7 +1442,7 @@ void Editor::Debug_Camera_Update()
 
 				Vector3 move = { 0,0,0 };
 				static float speed = 5;
-				float mouse_wheel = io.MouseWheel;
+				const float mouse_wheel = io.MouseWheel;
 				if (mouse_wheel != 0.0f)
 				{
 					speed += mouse_wheel * 2;
@@ -1500,29 +1482,14 @@ void Editor::Select_Reset()
 	controller.reset();
 }
 
-void Editor::Set_Debug_Draw(bool value, const shared_ptr<GameObject>& obj)
-{
-	if (obj)
-	{
-		if (auto& col = obj->Get_Component<Collider>())
-		{
-			col->Set_Debug_Draw(value);
-		}
-		for (auto& child : obj->transform->children)
-		{
-			Set_Debug_Draw(value, child.lock()->gameobject);
-		}
-	}
-}
-
 void Editor::Activate_Select_Object(const shared_ptr<GameObject>& obj)
 {
-	if (auto& now = active_object.lock())
+	if (const auto& now = active_object.lock())
 	{
 		Set_Debug_Draw(false, now);
 	}
 	active_object = obj;
-	if (auto& animator = obj->Get_Component<Animator>())
+	if (const auto& animator = obj->Get_Component<Animator>())
 	{
 		if (animator->controller)
 		{
@@ -1531,4 +1498,19 @@ void Editor::Activate_Select_Object(const shared_ptr<GameObject>& obj)
 	}
 
 	Set_Debug_Draw(true, obj);
+}
+
+void Editor::Set_Debug_Draw(bool value, const shared_ptr<GameObject>& obj)
+{
+	if (obj)
+	{
+		if (const auto& col = obj->Get_Component<Collider>())
+		{
+			col->Set_Debug_Draw(value);
+		}
+		for (auto& child : obj->transform->children)
+		{
+			Set_Debug_Draw(value, child.lock()->gameobject);
+		}
+	}
 }

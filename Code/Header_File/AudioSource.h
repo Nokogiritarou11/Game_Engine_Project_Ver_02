@@ -39,7 +39,7 @@ namespace BeastEngine
 		float volume = 1.0f;
 		float pitch = 0.0f;
 
-		void Initialize(std::shared_ptr<GameObject> obj) override;
+		void Initialize(const std::shared_ptr<GameObject>& obj) override;
 		void Set_Active(bool value) override;
 		bool Draw_ImGui() override;
 		bool Can_Multiple() override { return true; };

@@ -22,7 +22,7 @@ void GhostObject::Initialize(shared_ptr<Collider> col)
 void GhostObject::Create()
 {
 	ghost = make_unique<btGhostObject>();
-	shared_ptr<Collider> col = collider.lock();
+	const shared_ptr<Collider> col = collider.lock();
 
 	// Œ`óÝ’è
 	ghost->setCollisionShape(col->shape.get());
@@ -30,14 +30,14 @@ void GhostObject::Create()
 	// CF_NO_CONTACT_RESPONSE‚ðŽw’è‚µ‚È‚¢‚Æ„‘Ì‚ÆÕ“Ë‚·‚é
 	ghost->setCollisionFlags(ghost->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 	// ˆÊ’uÝ’è
-	Vector3 pos = col->transform->Get_Position() + (col->transform->Get_Right() * col->center.x) + (col->transform->Get_Up() * col->center.y) + (col->transform->Get_Forward() * col->center.z);
-	Quaternion rot = col->transform->Get_Rotation();
-	btTransform t(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z));
+	const Vector3 pos = col->transform->Get_Position() + (col->transform->Get_Right() * col->center.x) + (col->transform->Get_Up() * col->center.y) + (col->transform->Get_Forward() * col->center.z);
+	const Quaternion rot = col->transform->Get_Rotation();
+	const btTransform t(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z));
 	ghost->setWorldTransform(t);
 	Engine::bulletphysics_manager->Add_Ghost(col, ghost, col->gameobject->layer);
 }
 
-void GhostObject::Resize()
+void GhostObject::Resize() const
 {
 	Engine::bulletphysics_manager->Resize_Ghost(ghost);
 }
@@ -51,17 +51,17 @@ void GhostObject::Remove()
 	}
 }
 
-void GhostObject::Get_btTransform(btTransform& t)
+void GhostObject::Get_BtTransform(btTransform& t) const
 {
 	t = ghost->getWorldTransform();
 }
 
-void GhostObject::Set_btTransform(btTransform& t)
+void GhostObject::Set_BtTransform(const btTransform& t) const
 {
 	ghost->setWorldTransform(t);
 }
 
-void GhostObject::Set_Debug_Draw(bool value)
+void GhostObject::Set_Debug_Draw(bool value) const
 {
 	if (ghost)
 	{
@@ -70,7 +70,7 @@ void GhostObject::Set_Debug_Draw(bool value)
 	}
 }
 
-bool GhostObject::Get_Debug_Drawed()
+bool GhostObject::Get_Debug_Drawed() const
 {
 	return !(ghost->getCollisionFlags() & btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
 }

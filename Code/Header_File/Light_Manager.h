@@ -2,7 +2,6 @@
 #include <vector>
 #include <memory>
 
-
 namespace BeastEngine
 {
 	class Light;
@@ -11,8 +10,8 @@ namespace BeastEngine
 	{
 	public:
 		void Reset();
-		void Add(std::shared_ptr<BeastEngine::Light> light);
-		std::vector<std::weak_ptr<BeastEngine::Light>> light_list;
+		void Add(const std::shared_ptr<Light>& light);
+		std::vector<std::weak_ptr<Light>> light_list;
 	private:
 
 	};

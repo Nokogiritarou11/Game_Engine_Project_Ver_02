@@ -1,6 +1,7 @@
 #include "Shadow_Manager.h"
 #include "Gaussian_Filter.h"
 #include "Material.h"
+#include "Misc.h"
 #include "Texture.h"
 #include "Render_Texture.h"
 using namespace BeastEngine;

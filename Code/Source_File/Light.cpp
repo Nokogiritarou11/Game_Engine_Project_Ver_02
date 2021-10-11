@@ -3,14 +3,12 @@
 #include "Light_Manager.h"
 #include "Asset_Manager.h"
 #include "GameObject.h"
-#include "Object.h"
 #include "Transform.h"
 #include "Include_ImGui.h"
-#include "Editor.h"
 using namespace std;
 using namespace BeastEngine;
 
-void Light::Initialize(std::shared_ptr<GameObject> obj)
+void Light::Initialize(const shared_ptr<GameObject>& obj)
 {
 	Engine::light_manager->Add(static_pointer_cast<Light>(shared_from_this()));
 
@@ -26,7 +24,7 @@ bool Light::Draw_ImGui()
 
 	if (open)
 	{
-		float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
+		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
 
 		ImGui::Text("Color");
 		ImGui::SameLine(window_center);
@@ -34,7 +32,7 @@ bool Light::Draw_ImGui()
 		float out_color[3] = { color.x,color.y,color.z };
 		if (ImGui::ColorEdit3("##Color", out_color))
 		{
-			color = { out_color[0], out_color[1], out_color[2] };
+			color = Vector3(out_color[0], out_color[1], out_color[2]);
 		}
 
 		ImGui::Text(u8"‹­“x");

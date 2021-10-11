@@ -1,7 +1,6 @@
 #pragma once
 #include "DxSystem.h"
 #include "Original_Math.h"
-#include <vector>
 
 namespace BeastEngine
 {
@@ -10,8 +9,8 @@ namespace BeastEngine
 	class Gaussian_Filter
 	{
 	public:
-		Gaussian_Filter(const BeastEngine::Vector2& size, const DXGI_FORMAT format, const float& dispersion);
-		void Create_Render_Target(const BeastEngine::Vector2& size, const DXGI_FORMAT format);
+		Gaussian_Filter(const Vector2& size, const DXGI_FORMAT format, const float& dispersion);
+		void Create_Render_Target(const Vector2& size, const DXGI_FORMAT format);
 		void Set_Weight(const float& dispersion);
 		void Filtering_Gaussian(const Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& srv);
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& Get_Texture() { return target[1].shader_resource_view; }
@@ -26,15 +25,15 @@ namespace BeastEngine
 
 		struct Vertex
 		{
-			BeastEngine::Vector3 pos; //位置
-			BeastEngine::Vector2 tex; //UV座標
+			Vector3 pos; //位置
+			Vector2 tex; //UV座標
 		};
 
 		Microsoft::WRL::ComPtr<ID3D11Buffer> vertex_buffer;
 
-		BeastEngine::Vector2 texture_size;
+		Vector2 texture_size;
 		Render_Target target[2];
-		std::shared_ptr<BeastEngine::Material> material[2];
+		std::shared_ptr<Material> material[2];
 		Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler;
 	};
 }

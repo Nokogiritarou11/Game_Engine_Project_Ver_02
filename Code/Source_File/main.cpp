@@ -36,10 +36,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			PostQuitMessage(0);
 			break;
 		case WM_SETFOCUS:
-			BeastEngine::Engine::Get_Hundle(message, wParam, lParam);
+			BeastEngine::Engine::Get_Handle(message, wParam, lParam);
 			break;
 		case WM_KILLFOCUS:
-			BeastEngine::Engine::Get_Hundle(message, wParam, lParam);
+			BeastEngine::Engine::Get_Handle(message, wParam, lParam);
 			break;
 			/*
 			case WM_CREATE:

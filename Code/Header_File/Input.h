@@ -151,7 +151,7 @@ namespace BeastEngine
 	class Input
 	{
 	public:
-		void Update();
+		static void Update();
 
 		static bool Get_Key(Key_Code key);
 		static bool Get_Key_Down(Key_Code key);
@@ -161,8 +161,8 @@ namespace BeastEngine
 		static bool Get_Mouse_Button_Down(int button);
 		static bool Get_Mouse_Button_Up(int button);
 
-		static BeastEngine::Vector2 Get_Mouse_Position();
-		static BeastEngine::Vector2 Get_Mouse_Relative_Position();
+		static Vector2 Get_Mouse_Position();
+		static Vector2 Get_Mouse_Relative_Position();
 
 		static bool Get_Pad_Button(Button_Code button, int pad_id = 0);
 		static bool Get_Pad_Button_Down(Button_Code button, int pad_id = 0);
@@ -171,8 +171,8 @@ namespace BeastEngine
 		static float Get_Pad_Trigger_Left(int pad_id = 0);
 		static float Get_Pad_Trigger_Right(int pad_id = 0);
 
-		static BeastEngine::Vector2 Get_Pad_Axis_Left(int pad_id = 0);
-		static BeastEngine::Vector2 Get_Pad_Axis_Right(int pad_id = 0);
+		static Vector2 Get_Pad_Axis_Left(int pad_id = 0);
+		static Vector2 Get_Pad_Axis_Right(int pad_id = 0);
 
 	private:
 		struct Controller_Input_Result
@@ -186,8 +186,8 @@ namespace BeastEngine
 
 		struct Controller_State
 		{
-			XINPUT_STATE state;
-			bool is_connected;
+			XINPUT_STATE state{};
+			bool is_connected{};
 			Controller_Input_Result result;
 			Controller_Input_Result result_old;
 
@@ -199,7 +199,7 @@ namespace BeastEngine
 		static BYTE key_state[256];
 		static BYTE key_state_old[256];
 
-		static BeastEngine::Vector2 mouse_position;
-		static BeastEngine::Vector2 mouse_position_old;
+		static Vector2 mouse_position;
+		static Vector2 mouse_position_old;
 	};
 }

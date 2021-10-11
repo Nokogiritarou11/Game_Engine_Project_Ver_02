@@ -43,7 +43,6 @@
     <ClCompile Include="Code\Source_File\SkinMesh_Renderer.cpp" />
     <ClCompile Include="Code\Source_File\Animator.cpp" />
     <ClCompile Include="Code\Source_File\Animator_Manager.cpp" />
-    <ClCompile Include="Code\Source_File\Rect_Transform.cpp" />
     <ClCompile Include="Code\Source_File\Editor.cpp" />
     <ClCompile Include="Code\Source_File\Original_Math.cpp" />
     <ClCompile Include="Code\Source_File\Debug.cpp" />
@@ -72,7 +71,7 @@
     <ClCompile Include="Code\Libraries\ImGuizmo\ImSequencer.cpp" />
     <ClCompile Include="Code\Source_File\AudioSource.cpp" />
     <ClCompile Include="Code\Source_File\Resources.cpp" />
-    <ClCompile Include="Code\Source_File\FBX_Converter.cpp" />
+    <ClCompile Include="Code\Source_File\Fbx_Converter.cpp" />
     <ClCompile Include="Code\Source_File\Cursor.cpp" />
     <ClCompile Include="Code\Source_File\Screen.cpp" />
     <ClCompile Include="Code\Source_File\Audio_Manager.cpp" />
@@ -138,7 +137,6 @@
     <ClInclude Include="Code\Header_File\SkinMesh_Renderer.h" />
     <ClInclude Include="Code\Header_File\Animator.h" />
     <ClInclude Include="Code\Header_File\Animator_Manager.h" />
-    <ClInclude Include="Code\Header_File\RectTransform.h" />
     <ClInclude Include="Code\Header_File\Mathf.h" />
     <ClInclude Include="Code\Header_File\Editor.h" />
     <ClInclude Include="Code\Header_File\Debug.h" />
@@ -266,7 +264,7 @@
     <ClInclude Include="Code\Header_File\Camera.h" />
     <ClInclude Include="Code\Header_File\Cursor.h" />
     <ClInclude Include="Code\Header_File\DxSystem.h" />
-    <ClInclude Include="Code\Header_File\FBX_Converter.h" />
+    <ClInclude Include="Code\Header_File\Fbx_Converter.h" />
     <ClInclude Include="Code\Header_File\Include_ImGui.h" />
     <ClInclude Include="Code\Header_File\Input.h" />
     <ClInclude Include="Code\Header_File\Light.h" />

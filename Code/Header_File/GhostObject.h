@@ -1,14 +1,7 @@
 #pragma once
-#include "btBulletDynamicsCommon.h"
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
-#include "LinearMath/btVector3.h"
-#include "LinearMath/btQuaternion.h"
 #include "LinearMath/btTransform.h"
-#include "cereal/cereal.hpp"
-#include "cereal/access.hpp"
-#include "cereal/archives/binary.hpp"
 #include <memory>
-#include "Original_Math.h"
 
 namespace BeastEngine
 {
@@ -21,18 +14,18 @@ namespace BeastEngine
 		~GhostObject();
 
 	private:
-		void Initialize(std::shared_ptr<BeastEngine::Collider> col);
+		void Initialize(std::shared_ptr<Collider> col);
 		void Create();
-		void Resize();
+		void Resize() const;
 		void Remove();
-		void Get_btTransform(btTransform& t);
-		void Set_btTransform(btTransform& t);
-		void Set_Debug_Draw(bool value);
-		bool Get_Debug_Drawed();
+		void Get_BtTransform(btTransform& t) const;
+		void Set_BtTransform(const btTransform& t) const;
+		void Set_Debug_Draw(bool value) const;
+		bool Get_Debug_Drawed() const;
 
-		std::unique_ptr<btGhostObject> ghost;
-		std::weak_ptr<BeastEngine::Collider> collider;
+		std::unique_ptr<btGhostObject> ghost{};
+		std::weak_ptr<Collider> collider;
 
-		friend class BeastEngine::Collider;
+		friend class Collider;
 	};
 }

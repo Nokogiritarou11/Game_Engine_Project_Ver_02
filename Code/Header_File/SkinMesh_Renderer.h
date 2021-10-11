@@ -29,7 +29,7 @@ namespace BeastEngine
 		Constant_Buffer_Mesh buffer_mesh;
 		std::vector<std::weak_ptr<BeastEngine::Transform>> bones;
 
-		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
+		void Initialize(const std::shared_ptr<GameObject>& obj) override;
 		void Render(int subset_number = 0) override;
 		void Render_Shadow(int subset_number = 0) override;
 		bool Draw_ImGui() override;
@@ -43,7 +43,7 @@ namespace BeastEngine
 		std::string file_path;
 		std::shared_ptr<BeastEngine::Compute_Shader> compute_shader;
 
-		friend class FBX_Converter;
+		friend class Fbx_Converter;
 		friend class Animator;
 		friend class cereal::access;
 		template<class Archive>

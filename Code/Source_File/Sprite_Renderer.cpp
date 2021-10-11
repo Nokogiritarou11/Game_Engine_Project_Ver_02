@@ -20,7 +20,7 @@ using namespace std;
 using namespace DirectX;
 using namespace BeastEngine;
 
-void Sprite_Renderer::Initialize(shared_ptr<GameObject> obj)
+void Sprite_Renderer::Initialize(const shared_ptr<GameObject>& obj)
 {
 	enabled_old = enabled;
 

@@ -8,15 +8,15 @@
 
 namespace BeastEngine
 {
-	class Mesh : public BeastEngine::Object
+	class Mesh final : public Object
 	{
 	public:
 		struct vertex
 		{
-			BeastEngine::Vector3 position;
-			BeastEngine::Vector3 normal;
-			BeastEngine::Vector3 tangent;
-			BeastEngine::Vector2 texcoord;
+			Vector3 position;
+			Vector3 normal;
+			Vector3 tangent;
+			Vector2 texcoord;
 			float   bone_weights[4] = { 1, 0, 0, 0 };
 			int     bone_indices[4] = {};
 
@@ -32,16 +32,16 @@ namespace BeastEngine
 			}
 		};
 
-		struct vertex_default_buffer
+		struct Vertex_Default_Buffer
 		{
 			//コンピュートシェーダー計算後の頂点データ
-			BeastEngine::Vector3 position;
-			BeastEngine::Vector3 normal;
-			BeastEngine::Vector3 tangent;
-			BeastEngine::Vector3 origin_position;
-			BeastEngine::Vector3 origin_normal;
-			BeastEngine::Vector3 origin_tangent;
-			BeastEngine::Vector2 texcoord;
+			Vector3 position;
+			Vector3 normal;
+			Vector3 tangent;
+			Vector3 origin_position;
+			Vector3 origin_normal;
+			Vector3 origin_tangent;
+			Vector2 texcoord;
 		};
 
 		struct subset
@@ -63,24 +63,22 @@ namespace BeastEngine
 		Microsoft::WRL::ComPtr<ID3D11Buffer> index_buffer;
 		std::vector<vertex> vertices;
 		std::vector<u_int> indices;
-
 		std::vector<subset>	subsets;
 
-		BeastEngine::Bounds boundingbox;
-		std::vector<BeastEngine::Matrix> inverse_matrixes;
-		std::vector<int> nodeIndices;
-
-		std::vector<std::string> default_material_pathes;
+		Bounds boundingbox;
+		std::vector<Matrix> inverse_matrixes;
+		std::vector<int> node_indices;
+		std::vector<std::string> default_material_paths;
 		std::string file_path;
 
-		static std::shared_ptr<BeastEngine::Mesh> Load_Mesh(const std::string& fullpath);
+		static std::shared_ptr<Mesh> Load_Mesh(const std::string& full_path);
 
 	private:
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::Object>(this), vertices, indices, subsets, default_material_pathes, inverse_matrixes, boundingbox);
+			archive(cereal::base_class<Object>(this), vertices, indices, subsets, default_material_paths, inverse_matrixes, boundingbox);
 		}
 	};
 }

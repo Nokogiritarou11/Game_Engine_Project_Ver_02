@@ -27,7 +27,7 @@ void Cursor::Update()
 			if (!Engine::editor->render_cursor)
 			{
 				Set_Cursor_Visible(false);
-				lock_position = { Engine::editor->game_view_center_position.x,Engine::editor->game_view_center_position.y };
+				lock_position = Vector2(Engine::editor->game_view_center_position.x, Engine::editor->game_view_center_position.y);
 				SetCursorPos(static_cast<int>(lock_position.x), static_cast<int>(lock_position.y));
 			}
 			else
@@ -54,8 +54,8 @@ void Cursor::Update()
 		{
 			if (!visible)
 			{
-				Vector2 m_pos = Input::Get_Mouse_Position();
-				if (m_pos.x >= 0 && m_pos.x < Screen::Get_Width() && m_pos.y >= 0 && m_pos.y < Screen::Get_Height())
+				const Vector2 m_pos = Input::Get_Mouse_Position();
+				if (m_pos.x >= 0 && m_pos.x < static_cast<float>(Screen::Get_Width()) && m_pos.y >= 0 && m_pos.y < static_cast<float>(Screen::Get_Height()))
 				{
 					Set_Cursor_Visible(false);
 				}
@@ -82,7 +82,7 @@ void Cursor::Set_Cursor_Visible(bool value)
 	{
 		if (!is_visible)
 		{
-			while (ShowCursor(true) < 0);
+			while (ShowCursor(true) < 0) {}
 			is_visible = true;
 		}
 	}
@@ -90,7 +90,7 @@ void Cursor::Set_Cursor_Visible(bool value)
 	{
 		if (is_visible)
 		{
-			while (ShowCursor(false) > 0);
+			while (ShowCursor(false) > 0) {}
 			is_visible = false;
 		}
 	}

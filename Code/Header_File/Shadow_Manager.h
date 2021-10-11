@@ -1,8 +1,9 @@
 #pragma once
+#include <memory>
+
 #include "DxSystem.h"
-#include <vector>
 #include <wrl.h>
-#include <tchar.h>
+
 
 namespace BeastEngine
 {

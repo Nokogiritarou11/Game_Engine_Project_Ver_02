@@ -6,31 +6,26 @@
 using namespace std;
 using namespace BeastEngine;
 
-std::shared_ptr<Component> GameObject::Add_Component(std::string class_name)
+std::shared_ptr<Component> GameObject::Add_Component(const std::string& class_name)
 {
-	std::shared_ptr<Component> buff = Component_Data::Component_Factory::createInstance(class_name);
-	if (buff)
+	if (std::shared_ptr<Component> buff = Component_Data::Component_Factory::createInstance(class_name))
 	{
-		bool can_multiple = buff->Can_Multiple();
-
-		if (!can_multiple)
+		if (buff->Can_Multiple())
 		{
-			bool already_attach = false;
-			for (std::shared_ptr<Component>& com : component_list)
+			buff->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
+			component_list.emplace_back(buff);
+			return buff;
+		}
+
+		bool already_attach = false;
+		for (std::shared_ptr<Component>& com : component_list)
+		{
+			if (typeid(*buff) == typeid(*com))
 			{
-				if (typeid(*buff) == typeid(*com))
-				{
-					already_attach = true;
-				}
-			}
-			if (!already_attach)
-			{
-				buff->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
-				component_list.emplace_back(buff);
-				return buff;
+				already_attach = true;
 			}
 		}
-		else
+		if (!already_attach)
 		{
 			buff->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
 			component_list.emplace_back(buff);
@@ -43,7 +38,7 @@ std::shared_ptr<Component> GameObject::Add_Component(std::string class_name)
 void GameObject::Initialize()
 {
 	Engine::asset_manager->Registration_Asset(shared_from_this());
-	for (auto& c : component_list)
+	for (const auto& c : component_list)
 	{
 		c->Initialize(dynamic_pointer_cast<GameObject>(shared_from_this()));
 	}
@@ -60,9 +55,9 @@ void GameObject::Release()
 	{
 		for (int i = 0; i < transform->Get_Child_Count(); ++i)
 		{
-			if (shared_ptr<Transform>& child = transform->Get_Child(i).lock())
+			if (const auto& child = transform->Get_Child(i).lock())
 			{
-				GameObject::Destroy(child->gameobject);
+				Destroy(child->gameobject);
 			}
 		}
 	}
@@ -77,25 +72,25 @@ void GameObject::Release()
 	component_list.clear();
 }
 
-bool GameObject::Compare_Tag(string _tag)
+bool GameObject::Compare_Tag(const string& tag) const
 {
-	if (tag == _tag)
+	if (this->tag == tag)
 	{
 		return true;
 	}
 	return false;
 }
 
-bool GameObject::Get_Active()
+bool GameObject::Get_Active() const
 {
 	return active;
 }
 
-bool GameObject::Get_Active_In_Hierarchy()
+bool GameObject::Get_Active_In_Hierarchy() const
 {
 	if (active)
 	{
-		if (shared_ptr<Transform>& obj = transform->Get_Parent().lock())
+		if (const auto& obj = transform->Get_Parent().lock())
 		{
 			return obj->gameobject->Get_Active_In_Hierarchy();
 		}
@@ -112,7 +107,7 @@ void GameObject::Set_Active(bool value)
 	active = value;
 	if (active_old != active)
 	{
-		for (auto& com : component_list)
+		for (const auto& com : component_list)
 		{
 			com->Set_Active(active);
 		}
@@ -121,14 +116,14 @@ void GameObject::Set_Active(bool value)
 	}
 }
 
-void GameObject::Set_Child_Active(bool value)
+void GameObject::Set_Child_Active(const bool value) const
 {
 	if (transform->Get_Child_Count())
 	{
 		for (int i = 0; i < transform->Get_Child_Count(); ++i)
 		{
-			shared_ptr<Transform>& c_trans = transform->Get_Child(i).lock();
-			for (auto& com : c_trans->gameobject->component_list)
+			const auto& c_trans = transform->Get_Child(i).lock();
+			for (const auto& com : c_trans->gameobject->component_list)
 			{
 				com->Set_Active(value);
 			}
@@ -137,12 +132,12 @@ void GameObject::Set_Child_Active(bool value)
 	}
 }
 
-weak_ptr<GameObject> GameObject::Find(string Name)
+weak_ptr<GameObject> GameObject::Find(const string& name)
 {
-	return Engine::scene_manager->Get_Active_Scene()->Find(Name);
+	return Engine::scene_manager->Get_Active_Scene()->Find(name);
 }
 
-weak_ptr<GameObject> GameObject::Find_With_Tag(string Tag)
+weak_ptr<GameObject> GameObject::Find_With_Tag(const string& tag)
 {
-	return Engine::scene_manager->Get_Active_Scene()->Find_With_Tag(Tag);
+	return Engine::scene_manager->Get_Active_Scene()->Find_With_Tag(tag);
 }

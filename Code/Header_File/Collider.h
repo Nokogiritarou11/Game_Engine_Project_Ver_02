@@ -43,7 +43,7 @@ namespace BeastEngine
 		bool is_trigger = false;
 
 	private:
-		void Initialize(std::shared_ptr<GameObject> obj) override;
+		void Initialize(const std::shared_ptr<GameObject>& obj) override;
 		void Set_Active(bool value) override;
 		bool Can_Multiple() override { return false; };
 

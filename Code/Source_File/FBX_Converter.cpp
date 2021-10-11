@@ -1,8 +1,5 @@
-#include <sstream>
-#include <functional>
-#include <iostream>
 #include <fstream>
-#include "FBX_Converter.h"
+#include "Fbx_Converter.h"
 #include "GameObject.h"
 #include "Resources.h"
 #include "Model_Data.h"
@@ -20,27 +17,26 @@
 using namespace std;
 using namespace BeastEngine;
 
-void FBX_Converter::Draw_ImGui()
+void Fbx_Converter::Draw_ImGui()
 {
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_NoCollapse;
-	ImGui::Begin(u8"FBXコンバート", NULL, window_flags);
+	ImGui::Begin(u8"FBXコンバート", nullptr, window_flags);
 
 	if (load_state == 0)
 	{
 		if (ImGui::Button(u8"FBX読み込み"))
 		{
-			string path = System_Function::Get_Open_File_Name("fbx", "\\Assets\\Model");
-			if (path != "")
+			if (const string path = System_Function::Get_Open_File_Name("fbx", "\\Assets\\Model"); path != "")
 			{
-				int path_i = path.find_last_of("\\") + 1;//7
-				int ext_i = path.find_last_of(".");//10
-				const string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
-				const string extname = path.substr(ext_i, path.size() - ext_i); //拡張子
-				const string filename = path.substr(path_i, ext_i - path_i); //ファイル名
-				if (extname == ".fbx")
+				const int path_i = path.find_last_of("\\") + 1;//7
+				const int ext_i = path.find_last_of(".");//10
+				const string path_name = path.substr(0, path_i); //ファイルまでのディレクトリ
+				const string ext_name = path.substr(ext_i, path.size() - ext_i); //拡張子
+				const string file_name = path.substr(path_i, ext_i - path_i); //ファイル名
+				if (ext_name == ".fbx")
 				{
-					model = Model_Data::Load_Model(pathname, filename);
+					model = Model_Data::Load_Model(path_name, file_name);
 					convert_mesh = true;
 					convert_material = true;
 					convert_animation = true;
@@ -73,7 +69,7 @@ void FBX_Converter::Draw_ImGui()
 		{
 			if (ImGui::Button(u8"変換開始"))
 			{
-				Load_From_FBX(convert_mesh, convert_material, convert_animation, convert_prefab);
+				Load_From_Fbx(convert_mesh, convert_material, convert_animation, convert_prefab);
 				Debug::Log(u8"FBXの変換が完了しました");
 				model.reset();
 				convert_mesh = false;
@@ -100,7 +96,7 @@ void FBX_Converter::Draw_ImGui()
 	ImGui::End();
 }
 
-void FBX_Converter::Load_From_FBX(bool& convert_mesh, bool& convert_material, bool& convert_animation, bool& convert_prefab)
+void Fbx_Converter::Load_From_Fbx(bool& convert_mesh, bool& convert_material, bool& convert_animation, bool& convert_prefab) const
 {
 	shared_ptr<GameObject> obj = Create_GameObject(model->name);
 
@@ -139,7 +135,7 @@ void FBX_Converter::Load_From_FBX(bool& convert_mesh, bool& convert_material, bo
 
 		if (convert_material)
 		{
-			for (auto& path : model->default_material_pathes)
+			for (auto& path : model->default_material_paths)
 			{
 				int path_i = path.find_last_of("\\") + 1;
 				int ext_i = path.find_last_of(".");
@@ -196,9 +192,9 @@ void FBX_Converter::Load_From_FBX(bool& convert_mesh, bool& convert_material, bo
 
 		for (size_t i = 0; i < bones.size(); ++i)
 		{
-			if (bones[i].parentIndex != -1)
+			if (bones[i].parent_index != -1)
 			{
-				bone_list[i]->transform->Set_Parent(bone_list[bones[i].parentIndex]->transform);
+				bone_list[i]->transform->Set_Parent(bone_list[bones[i].parent_index]->transform);
 			}
 		}
 
@@ -210,10 +206,10 @@ void FBX_Converter::Load_From_FBX(bool& convert_mesh, bool& convert_material, bo
 			shared_ptr<SkinMesh_Renderer> rend = rend_list[i]->Get_Component<SkinMesh_Renderer>();
 			shared_ptr<Mesh>& mesh = model->meshes[i];
 
-			for (size_t t = 0; t < mesh->nodeIndices.size(); ++t)
+			for (size_t t = 0; t < mesh->node_indices.size(); ++t)
 			{
-				rend->bones.push_back(bone_list[mesh->nodeIndices[t]]->transform);
-				bone_matrixes[mesh->nodeIndices[t]] = mesh->inverse_matrixes[t].Invert();
+				rend->bones.push_back(bone_list[mesh->node_indices[t]]->transform);
+				bone_matrixes[mesh->node_indices[t]] = mesh->inverse_matrixes[t].Invert();
 			}
 		}
 
@@ -241,7 +237,7 @@ void FBX_Converter::Load_From_FBX(bool& convert_mesh, bool& convert_material, bo
 
 		if (convert_material)
 		{
-			for (auto& path : model->default_material_pathes)
+			for (auto& path : model->default_material_paths)
 			{
 				int path_i = path.find_last_of("\\") + 1;
 				int ext_i = path.find_last_of(".");
@@ -286,7 +282,7 @@ void FBX_Converter::Load_From_FBX(bool& convert_mesh, bool& convert_material, bo
 	}
 }
 
-void FBX_Converter::Bone_Decompose(vector<Matrix>& matrixes, vector<shared_ptr<GameObject>>& bones, shared_ptr<Transform>& trans)
+void Fbx_Converter::Bone_Decompose(vector<Matrix>& matrixes, vector<shared_ptr<GameObject>>& bones, const shared_ptr<Transform>& trans)
 {
 	{
 		size_t i = 0;
@@ -310,7 +306,7 @@ void FBX_Converter::Bone_Decompose(vector<Matrix>& matrixes, vector<shared_ptr<G
 	}
 }
 
-void FBX_Converter::Convert_Animation(vector<shared_ptr<GameObject>>& bones)
+void Fbx_Converter::Convert_Animation(const vector<shared_ptr<GameObject>>& bones) const
 {
 	for (size_t i = 0; i < model->animations.size(); ++i)
 	{
@@ -318,7 +314,7 @@ void FBX_Converter::Convert_Animation(vector<shared_ptr<GameObject>>& bones)
 
 		shared_ptr<Animation_Clip> clip = make_shared<Animation_Clip>();
 		clip->name = animation.name;
-		clip->length = animation.secondsLength;
+		clip->length = animation.seconds_length;
 		clip->frame_count = animation.keyframes.size() - 1;
 		Engine::asset_manager->Registration_Asset(clip);
 
@@ -330,7 +326,7 @@ void FBX_Converter::Convert_Animation(vector<shared_ptr<GameObject>>& bones)
 
 			//アニメーション対象のボーン名を登録する
 			string path;
-			if (model->bones[t].parentIndex == -1)
+			if (model->bones[t].parent_index == -1)
 			{
 				path = "RootBone/" + model->bones[t].name;
 			}
@@ -338,8 +334,7 @@ void FBX_Converter::Convert_Animation(vector<shared_ptr<GameObject>>& bones)
 			{
 				path = bones[t]->name;
 				weak_ptr<Transform> trans = bones[t]->transform->Get_Parent();
-				shared_ptr<Transform> target;
-				while (target = trans.lock())
+				while (const auto& target = trans.lock())
 				{
 					path = target->gameobject->name + "/" + path;
 					if (target->gameobject->name != "RootBone")
@@ -359,41 +354,37 @@ void FBX_Converter::Convert_Animation(vector<shared_ptr<GameObject>>& bones)
 			for (size_t l = 0; l < anim.keys.size(); ++l)
 			{
 				anim.keys[l].time = animation.keyframes[l].seconds;
-				anim.keys[l].position = animation.keyframes[l].nodeKeys[t].position;
-				anim.keys[l].rotation = animation.keyframes[l].nodeKeys[t].rotation;
-				anim.keys[l].scale = animation.keyframes[l].nodeKeys[t].scale;
+				anim.keys[l].position = animation.keyframes[l].node_keys[t].position;
+				anim.keys[l].rotation = animation.keyframes[l].node_keys[t].rotation;
+				anim.keys[l].scale = animation.keyframes[l].node_keys[t].scale;
 			}
 		}
 
 		string save_path = model->file_path + animation.name + ".anim";
 		{
 			ofstream ss(save_path.c_str(), ios::binary);
-			{
-				cereal::BinaryOutputArchive o_archive(ss);
-				o_archive(clip);
-			}
+			cereal::BinaryOutputArchive o_archive(ss);
+			o_archive(clip);
 		}
 	}
 }
 
-void FBX_Converter::Convert_Mesh()
+void Fbx_Converter::Convert_Mesh() const
 {
-	for each (shared_ptr<Mesh> mesh in model->meshes)
+	for (const auto& mesh : model->meshes)
 	{
 		string save_path = model->file_path + mesh->name + ".mesh";
 		{
 			ofstream ss(save_path.c_str(), ios::binary);
-			{
-				cereal::BinaryOutputArchive o_archive(ss);
-				o_archive(mesh);
-			}
+			cereal::BinaryOutputArchive o_archive(ss);
+			o_archive(mesh);
 		}
 	}
 }
 
-shared_ptr<GameObject> FBX_Converter::Create_GameObject(string n)
+shared_ptr<GameObject> Fbx_Converter::Create_GameObject(const string& n) const
 {
-	shared_ptr<GameObject> obj = make_shared<GameObject>();
+	auto obj = make_shared<GameObject>();
 	obj->Add_Component<Transform>();
 	obj->name = n;
 	Engine::asset_manager->Registration_Asset(obj);

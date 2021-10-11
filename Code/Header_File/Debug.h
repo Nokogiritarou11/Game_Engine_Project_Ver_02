@@ -1,5 +1,4 @@
 #pragma once
-#include <stdlib.h>
 #include <string>
 #include "Original_Math.h"
 
@@ -9,8 +8,8 @@ namespace BeastEngine
 	{
 	public:
 		static void Log();              //デバッグログに追加する
-		static void Log(std::string s); //デバッグログに追加する
-		static void Log(char* c);       //デバッグログに追加する
+		static void Log(const std::string& s); //デバッグログに追加する
+		static void Log(const char* c);       //デバッグログに追加する
 		static void Log(int i);         //デバッグログに追加する
 		static void Log(float f);       //デバッグログに追加する
 		static void Log(double d);      //デバッグログに追加する

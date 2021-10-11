@@ -1,13 +1,9 @@
-#include <sstream>
-#include <functional>
-#include <iostream>
 #include <fstream>
 #include "Engine.h"
 #include "Input.h"
 #include "Cursor.h"
 #include "Asset_Manager.h"
 #include "Scene_Manager.h"
-#include "Scene.h"
 #include "Audio_Manager.h"
 #include "Render_Manager.h"
 #include "Animator_Manager.h"
@@ -19,10 +15,11 @@
 #include "FBX_Converter.h"
 #include "Editor.h"
 #include "Render_Texture.h"
-#include "SkyBox.h"
 #include "Gaussian_Filter.h"
-#include "System_Function.h"
+#include "SkyBox.h"
+#include "Scene.h"
 #include "Project_Settings.h"
+#include "System_Function.h"
 using namespace std;
 using namespace BeastEngine;
 
@@ -38,7 +35,7 @@ unique_ptr<Particle_Manager>      Engine::particle_manager;
 unique_ptr<Shadow_Manager>	      Engine::shadow_manager;
 unique_ptr<BulletPhysics_Manager> Engine::bulletphysics_manager;
 unique_ptr<Debug_Draw_Manager>	  Engine::debug_draw_manager;
-unique_ptr<FBX_Converter>	      Engine::fbx_converter;
+unique_ptr<Fbx_Converter>	      Engine::fbx_converter;
 unique_ptr<Editor>                Engine::editor;
 
 Engine::Engine()
@@ -58,13 +55,12 @@ Engine::Engine()
 #if _DEBUG
 	debug_draw_manager = make_unique<Debug_Draw_Manager>();
 	bulletphysics_manager->Set_Debug_Drawer();
-	fbx_converter = make_unique<FBX_Converter>();
+	fbx_converter = make_unique<Fbx_Converter>();
 	editor = make_unique<Editor>();
-	string load_path;
-	ifstream iIfstream("Default_Assets\\System\\last_save.bin");
-	if (iIfstream.is_open())
+	if (ifstream i_ifstream("Default_Assets\\System\\last_save.bin"); i_ifstream.is_open())
 	{
-		getline(iIfstream, load_path);
+		string load_path;
+		getline(i_ifstream, load_path);
 
 		if (load_path != "")
 		{
@@ -139,7 +135,7 @@ Engine::~Engine()
 	bulletphysics_manager.reset();
 	asset_manager->Exit();
 	asset_manager.reset();
-	}
+}
 
 void Engine::Update()
 {
@@ -163,7 +159,7 @@ void Engine::Update()
 	DxSystem::Flip(1);
 }
 
-void Engine::Get_Hundle(UINT msg, WPARAM wParam, LPARAM lParam)
+void Engine::Get_Handle(const UINT msg, WPARAM w_param, LPARAM l_param)
 {
 	switch (msg)
 	{
@@ -172,6 +168,8 @@ void Engine::Get_Hundle(UINT msg, WPARAM wParam, LPARAM lParam)
 			break;
 		case WM_KILLFOCUS:
 			Cursor::window_focus = false;
+			break;
+		default:
 			break;
 	}
 }

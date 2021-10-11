@@ -12,7 +12,7 @@
 using namespace std;
 using namespace BeastEngine;
 
-void Animator::Initialize(shared_ptr<GameObject> obj)
+void Animator::Initialize(const shared_ptr<GameObject>& obj)
 {
 	Engine::asset_manager->Registration_Asset(shared_from_this());
 	gameobject = obj;

@@ -123,7 +123,7 @@ void Collider::Set_IsTrigger(bool value)
 	}
 }
 
-void Collider::Initialize(shared_ptr<GameObject> obj)
+void Collider::Initialize(const shared_ptr<GameObject>& obj)
 {
 	gameobject = obj;
 	Engine::asset_manager->Registration_Asset(shared_from_this());
@@ -188,7 +188,7 @@ void Collider::Update_Transform()
 		rotation_old = rot;
 
 		btTransform t(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z));
-		if (is_trigger)	ghost->Set_btTransform(t);
+		if (is_trigger)	ghost->Set_BtTransform(t);
 		else rigidbody->Set_btTransform(t);
 	}
 }
@@ -196,7 +196,7 @@ void Collider::Update_Transform()
 void Collider::Update_Simulation()
 {
 	btTransform t;
-	if (is_trigger) ghost->Get_btTransform(t);
+	if (is_trigger) ghost->Get_BtTransform(t);
 	else rigidbody->Get_btTransform(t);
 
 	const btVector3 v = t.getOrigin();

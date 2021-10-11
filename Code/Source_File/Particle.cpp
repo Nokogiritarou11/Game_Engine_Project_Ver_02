@@ -25,7 +25,7 @@ Particle::~Particle()
 	}
 }
 
-void Particle::Initialize(shared_ptr<GameObject> obj)
+void Particle::Initialize(const shared_ptr<GameObject>& obj)
 {
 	gameobject = obj;
 	Engine::asset_manager->Registration_Asset(shared_from_this());

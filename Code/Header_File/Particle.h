@@ -27,7 +27,7 @@ namespace BeastEngine
 		float play_speed = 1.0f;   //Ä¶‘¬“x
 
 	private:
-		void Initialize(std::shared_ptr<BeastEngine::GameObject> obj) override;
+		void Initialize(const std::shared_ptr<GameObject>& obj) override;
 		bool Draw_ImGui() override;
 		void Set_Active(bool value) override;
 		bool Can_Multiple() override { return false; };
