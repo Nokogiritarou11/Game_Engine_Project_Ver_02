@@ -108,16 +108,16 @@
     <ClCompile Include="Script\Source\Player_Camera_Controller.cpp" />
     <ClCompile Include="Code\Source_File\Include_ImGui.cpp" />
     <ClCompile Include="Script\Source\Character_Particles.cpp" />
-    <ClCompile Include="Script\Source\Disactive_Object.cpp" />
     <ClCompile Include="Code\Source_File\Cylinder_Collider.cpp" />
     <ClCompile Include="Script\Source\Character_Ground_Checker.cpp" />
     <ClCompile Include="Code\Source_File\Physics.cpp" />
     <ClCompile Include="Script\Source\Player_Input.cpp" />
     <ClCompile Include="Script\Source\Enemy_Damageable_Normal.cpp" />
     <ClCompile Include="Script\Source\Damage_Collision.cpp" />
-    <ClCompile Include="Script\Source\Disactive_Particle.cpp" />
     <ClCompile Include="Script\Source\Character_Hit_Stop_Manager.cpp" />
     <ClCompile Include="Script\Source\Object_Pool.cpp" />
+    <ClCompile Include="Script\Source\Disable_Object.cpp" />
+    <ClCompile Include="Script\Source\Disable_Particle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -320,7 +320,6 @@
     <ClInclude Include="Script\Header\Player_Camera_Controller.h" />
     <ClInclude Include="Script\Header\Interface_Character_Mover.h" />
     <ClInclude Include="Script\Header\Character_Particles.h" />
-    <ClInclude Include="Script\Header\Disactive_Object.h" />
     <ClInclude Include="Code\Header_File\Cylinder_Collider.h" />
     <ClInclude Include="Script\Header\Character_Ground_Checker.h" />
     <ClInclude Include="Code\Header_File\Physics.h" />
@@ -329,9 +328,10 @@
     <ClInclude Include="Script\Header\Interface_Character_Damageable.h" />
     <ClInclude Include="Script\Header\Enemy_Damageable_Normal.h" />
     <ClInclude Include="Script\Header\Damage_Collision.h" />
-    <ClInclude Include="Script\Header\Disactive_Particle.h" />
     <ClInclude Include="Script\Header\Character_Hit_Stop_Manager.h" />
     <ClInclude Include="Script\Header\Object_Pool.h" />
+    <ClInclude Include="Script\Header\Disable_Object.h" />
+    <ClInclude Include="Script\Header\Disable_Particle.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />
