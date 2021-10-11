@@ -62,16 +62,32 @@ void Player_Move::Move_Guard()
 void Player_Move::Ground_Update()
 {
 	const auto& anim = animator.lock();
-	if (anim->Get_Bool("Add_Jump_Force"))
+	const auto& param = parameter.lock();
+
+	if (const bool stay_air = anim->Get_Bool("Stay_Air"); is_stay_air != stay_air)
 	{
-		Jump();
-		anim->Set_Bool("Add_Jump_Force", false);
+		is_stay_air = stay_air;
+		if (is_stay_air)
+		{
+			rigidbody.lock()->Use_Gravity(false);
+		}
+		else
+		{
+			rigidbody.lock()->Use_Gravity(true);
+		}
 	}
 
-	const auto& param = parameter.lock();
-	if (!param->is_ground)
+	if (!param->is_ground && !is_stay_air)
 	{
 		rigidbody.lock()->Add_Force(-transform->Get_Up() * down_power * Time::delta_time, Force_Mode::Force);
+	}
+	else
+	{
+		if (anim->Get_Bool("Add_Jump_Force"))
+		{
+			Jump();
+			anim->Set_Bool("Add_Jump_Force", false);
+		}
 	}
 }
 

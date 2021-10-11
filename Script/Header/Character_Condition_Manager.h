@@ -21,6 +21,8 @@ namespace BeastEngine
 		std::weak_ptr<Interface_Character_State_Setter> character_state_setter;
 		std::weak_ptr<Animator> animator;
 
+		int character_state_old = 0;
+
 		// シリアライズ関数
 		friend class cereal::access;
 		template<class Archive>

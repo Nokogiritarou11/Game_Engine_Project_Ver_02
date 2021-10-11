@@ -31,6 +31,7 @@ namespace BeastEngine
 
 		float jump_power = 0;
 		float down_power = 0;
+		bool is_stay_air = false;
 		Vector3 camera_forward;
 		Vector3 move_forward;
 
@@ -39,7 +40,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::MonoBehaviour>(this), cereal::base_class<BeastEngine::Interface_Character_Mover>(this), jump_power, down_power);
+			archive(cereal::base_class<MonoBehaviour>(this), cereal::base_class<Interface_Character_Mover>(this), jump_power, down_power);
 		}
 	};
 }

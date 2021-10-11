@@ -3,10 +3,10 @@
 
 namespace BeastEngine
 {
-	class Character_Parameter : public MonoBehaviour
+	class Character_Parameter final : public MonoBehaviour
 	{
 	public:
-		float Max_HP = 0;
+		float max_hp = 0;
 		float hp = 0;
 
 		bool eventing = false;
@@ -29,7 +29,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<MonoBehaviour>(this), Max_HP);
+			archive(cereal::base_class<MonoBehaviour>(this), max_hp);
 		}
 	};
 }

@@ -42,7 +42,7 @@ namespace BeastEngine
 		void Add_Force_AtPosition(Vector3 force, Vector3 position, Force_Mode mode = Force_Mode::Force) const;
 
 	private:
-		void Initialize(std::shared_ptr<Collider> col);
+		void Initialize(const std::shared_ptr<Collider>& col);
 		void Create();
 		void Resize() const;
 		void Remove();

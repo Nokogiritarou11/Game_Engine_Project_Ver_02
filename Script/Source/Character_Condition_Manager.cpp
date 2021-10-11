@@ -21,27 +21,32 @@ void Character_Condition_Manager::Update()
 	const auto& c_move = character_move.lock();
 	const auto& c_state = character_state_setter.lock();
 
-	param->moving = false;
-	param->attacking = false;
-	param->dodging = false;
-	param->damaging = false;
-	param->guarding = false;
-
-	switch (anim->Get_Int("Character_State"))
+	if(const int character_state = anim->Get_Int("Character_State"); character_state_old != character_state)
 	{
-		case 0:
-			break;
+		character_state_old = character_state;
 
-		case 1:
-			param->moving = true;
-			break;
+		param->moving = false;
+		param->attacking = false;
+		param->dodging = false;
+		param->damaging = false;
+		param->guarding = false;
 
-		case 2:
-			param->attacking = true;
-			break;
+		switch (character_state)
+		{
+			case 0:
+				break;
 
-		default:
-			break;
+			case 1:
+				param->moving = true;
+				break;
+
+			case 2:
+				param->attacking = true;
+				break;
+
+			default:
+				break;
+		}
 	}
 
 	c_state->Set_State();

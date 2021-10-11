@@ -5,7 +5,7 @@ using namespace BeastEngine;
 
 void Character_Parameter::Awake()
 {
-	hp = Max_HP;
+	hp = max_hp;
 }
 
 bool Character_Parameter::Draw_ImGui()
@@ -17,7 +17,7 @@ bool Character_Parameter::Draw_ImGui()
 	{
 		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
 
-		ImGui::LeftText_DragFloat("Max_HP", "##Max_HP", &Max_HP, window_center, -FLT_MIN, 1.0f);
+		ImGui::LeftText_DragFloat("Max_HP", "##Max_HP", &max_hp, window_center, -FLT_MIN, 1.0f);
 
 		ImGui::Text("HP");
 		ImGui::SameLine(window_center);

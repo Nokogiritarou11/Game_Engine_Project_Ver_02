@@ -12,7 +12,7 @@ RigidBody::~RigidBody()
 	Remove();
 }
 
-void RigidBody::Initialize(shared_ptr<Collider> col)
+void RigidBody::Initialize(const shared_ptr<Collider>& col)
 {
 	collider = col;
 	if (is_dynamic)
@@ -42,16 +42,16 @@ void RigidBody::Create()
 	is_dynamic = (send_mass != 0.0f);
 
 	//Static”»’è
-	btVector3 localInertia(0, 0, 0);
+	btVector3 local_inertia(0, 0, 0);
 	if (is_dynamic)
 	{
-		col->shape->calculateLocalInertia(send_mass, localInertia);
+		col->shape->calculateLocalInertia(send_mass, local_inertia);
 	}
 
 	motion_state = make_unique<btDefaultMotionState>(t);
 
 	//„‘Ìì¬
-	const btRigidBody::btRigidBodyConstructionInfo rb_info(send_mass, motion_state.get(), col->shape.get(), localInertia);
+	const btRigidBody::btRigidBodyConstructionInfo rb_info(send_mass, motion_state.get(), col->shape.get(), local_inertia);
 	rigidbody = make_unique<btRigidBody>(btRigidBody(rb_info));
 
 	if (is_kinematic)
@@ -103,7 +103,7 @@ void RigidBody::Set_Mass(float set_mass)
 	}
 }
 
-void RigidBody::Set_Kinematic(bool value)
+void RigidBody::Set_Kinematic(const bool value)
 {
 	if (is_dynamic)
 	{
@@ -134,7 +134,7 @@ void RigidBody::Set_Kinematic(bool value)
 	}
 }
 
-void RigidBody::Set_Dynamic(bool value)
+void RigidBody::Set_Dynamic(const bool value)
 {
 	if (is_dynamic != value)
 	{
@@ -211,11 +211,18 @@ Vector3 RigidBody::Get_Velocity() const
 	return v;
 }
 
-void RigidBody::Use_Gravity(bool value)
+void RigidBody::Use_Gravity(const bool value)
 {
-	if (value) gravity = Vector3(0.0f, -9.8f, 0.0f);
-	else gravity = Vector3(0.0f, 0.0f, 0.0f);
-
+	if (value)
+	{
+		if (gravity == Vector3(0.0f, -9.8f, 0.0f)) return;
+		gravity = Vector3(0.0f, -9.8f, 0.0f);
+	}
+	else
+	{
+		if (gravity == Vector3(0.0f, 0.0f, 0.0f)) return;
+		gravity = Vector3(0.0f, 0.0f, 0.0f);
+	}
 	rigidbody->activate(true);
 	rigidbody->setGravity(btVector3(gravity.x, gravity.y, gravity.z));
 
@@ -223,7 +230,7 @@ void RigidBody::Use_Gravity(bool value)
 	rigidbody->setLinearVelocity(btVector3(bt_v.x(), 0.0f, bt_v.z()));
 }
 
-void RigidBody::Add_Force(Vector3 force, Force_Mode mode) const
+void RigidBody::Add_Force(const Vector3 force, const Force_Mode mode) const
 {
 	rigidbody->activate(true);
 	const btVector3 f = { force.x, force.y, force.z };
@@ -240,7 +247,7 @@ void RigidBody::Add_Force(Vector3 force, Force_Mode mode) const
 	}
 }
 
-void RigidBody::Add_Force_AtPosition(Vector3 force, Vector3 position, Force_Mode mode) const
+void RigidBody::Add_Force_AtPosition(const Vector3 force, const Vector3 position, const Force_Mode mode) const
 {
 	rigidbody->activate(true);
 	const btVector3 f = { force.x, force.y, force.z };
@@ -258,7 +265,7 @@ void RigidBody::Add_Force_AtPosition(Vector3 force, Vector3 position, Force_Mode
 	}
 }
 
-void RigidBody::Set_Debug_Draw(bool value) const
+void RigidBody::Set_Debug_Draw(const bool value) const
 {
 	if (rigidbody)
 	{
