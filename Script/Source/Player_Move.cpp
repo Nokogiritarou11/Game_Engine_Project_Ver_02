@@ -64,22 +64,34 @@ void Player_Move::Ground_Update()
 	const auto& anim = animator.lock();
 	const auto& param = parameter.lock();
 
-	if (const bool stay_air = anim->Get_Bool("Stay_Air"); is_stay_air != stay_air)
+	if (!param->is_ground)
 	{
-		is_stay_air = stay_air;
-		if (is_stay_air)
-		{
-			rigidbody.lock()->Use_Gravity(false);
-		}
-		else
-		{
-			rigidbody.lock()->Use_Gravity(true);
-		}
-	}
+		is_add_down = anim->Get_Bool("Add_Down_Force");
 
-	if (!param->is_ground && !is_stay_air)
-	{
-		rigidbody.lock()->Add_Force(-transform->Get_Up() * down_power * Time::delta_time, Force_Mode::Force);
+		if (const bool stay_air = anim->Get_Bool("Stay_Air"); is_stay_air != stay_air)
+		{
+			is_stay_air = stay_air;
+			const auto& rigid = rigidbody.lock();
+			if (is_stay_air)
+			{
+				rigid->Set_Velocity(Vector3::Zero);
+				rigid->Use_Gravity(false);
+			}
+			else
+			{
+				rigid->Use_Gravity(true);
+			}
+		}
+
+		if (!is_stay_air && !is_add_down)
+		{
+			rigidbody.lock()->Add_Force(-transform->Get_Up() * down_power * Time::delta_time, Force_Mode::Force);
+		}
+
+		if (is_add_down)
+		{
+			rigidbody.lock()->Add_Force(-transform->Get_Up() * down_power * 10 * Time::delta_time, Force_Mode::Force);
+		}
 	}
 	else
 	{

@@ -32,6 +32,7 @@ namespace BeastEngine
 		float jump_power = 0;
 		float down_power = 0;
 		bool is_stay_air = false;
+		bool is_add_down = false;
 		Vector3 camera_forward;
 		Vector3 move_forward;
 

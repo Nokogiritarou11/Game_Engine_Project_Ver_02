@@ -187,7 +187,7 @@ void Collider::Update_Transform()
 		position_old = pos;
 		rotation_old = rot;
 
-		btTransform t(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z));
+		const btTransform t(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z));
 		if (is_trigger)	ghost->Set_BtTransform(t);
 		else rigidbody->Set_BtTransform(t);
 	}
@@ -195,23 +195,25 @@ void Collider::Update_Transform()
 
 void Collider::Update_Simulation()
 {
-	btTransform t;
-	if (is_trigger) ghost->Get_BtTransform(t);
-	else rigidbody->Get_BtTransform(t);
-
-	const btVector3 v = t.getOrigin();
-	const btQuaternion q = t.getRotation();
-
-	Vector3 pos = { v.x(), v.y(), v.z() };
-	pos -= ((transform->Get_Right() * center.x) + (transform->Get_Up() * center.y) + (transform->Get_Forward() * center.z));
-	const Quaternion rot = { q.x(), q.y(), q.z(), q.w() };
-
-	if (position_old != pos || rotation_old != rot)
+	if (!is_trigger)
 	{
-		position_old = pos;
-		rotation_old = rot;
-		transform->Set_Position(pos);
-		transform->Set_Rotation(rot);
+		btTransform t;
+		rigidbody->Get_BtTransform(t);
+
+		const btVector3 v = t.getOrigin();
+		const btQuaternion q = t.getRotation();
+
+		Vector3 pos = { v.x(), v.y(), v.z() };
+		pos -= ((transform->Get_Right() * center.x) + (transform->Get_Up() * center.y) + (transform->Get_Forward() * center.z));
+		const Quaternion rot = { q.x(), q.y(), q.z(), q.w() };
+
+		if (position_old != pos || rotation_old != rot)
+		{
+			position_old = pos;
+			rotation_old = rot;
+			transform->Set_Position(pos);
+			transform->Set_Rotation(rot);
+		}
 	}
 
 	for (auto& hit : hit_list_old)

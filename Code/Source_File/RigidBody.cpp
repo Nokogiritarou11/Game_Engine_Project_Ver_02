@@ -65,6 +65,7 @@ void RigidBody::Create()
 	rigidbody->setAngularFactor(btVector3(angular_factor.x, angular_factor.y, angular_factor.z));
 	rigidbody->setGravity(btVector3(gravity.x, gravity.y, gravity.z));
 	rigidbody->setFriction(0);
+	rigidbody->setRestitution(0);
 }
 
 void RigidBody::Resize() const
@@ -225,9 +226,6 @@ void RigidBody::Use_Gravity(const bool value)
 	}
 	rigidbody->activate(true);
 	rigidbody->setGravity(btVector3(gravity.x, gravity.y, gravity.z));
-
-	const btVector3 bt_v = rigidbody->getLinearVelocity();
-	rigidbody->setLinearVelocity(btVector3(bt_v.x(), 0.0f, bt_v.z()));
 }
 
 void RigidBody::Add_Force(const Vector3 force, const Force_Mode mode) const
