@@ -155,6 +155,8 @@ void RigidBody::Set_Dynamic(const bool value)
 
 void RigidBody::Get_BtTransform(btTransform& t) const
 {
+	t = rigidbody->getWorldTransform();
+	/*
 	if (rigidbody->isStaticOrKinematicObject())
 	{
 		t = rigidbody->getWorldTransform();
@@ -164,12 +166,14 @@ void RigidBody::Get_BtTransform(btTransform& t) const
 		const btMotionState* motion = rigidbody->getMotionState();
 		motion->getWorldTransform(t);
 	}
+	*/
 }
 
 void RigidBody::Set_BtTransform(const btTransform& t) const
 {
 	rigidbody->activate(true);
 	rigidbody->setWorldTransform(t);
+	//rigidbody->getMotionState()->setWorldTransform(t);
 }
 
 void RigidBody::Set_Freeze_Position(const bool x_axis, const bool y_axis, const bool z_axis)

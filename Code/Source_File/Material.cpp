@@ -680,7 +680,7 @@ void Material::Render_Pass::Initialize_Texture()
 	for (auto& texture : texture_info)
 	{
 		auto& info = texture.second;
-		info.texture = Texture::Load(texture.second.texture_path);
+		info.texture = Texture::Load(info.texture_path);
 
 		if (info.register_number == 1)
 		{

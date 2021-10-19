@@ -801,7 +801,9 @@ void Editor::Controller_Render() const
 	{
 		if (const auto& c = controller.lock())
 		{
+			ImGui::PushID(c->Get_Instance_Id().c_str());
 			c->Render_ImGui();
+			ImGui::PopID();
 		}
 		else
 		{

@@ -109,9 +109,9 @@ bool Damage_Collision::Draw_ImGui()
 		ImGui::LeftText_DragInt(u8"HPダメージ", "##damage_hp", &damage_hp, window_center);
 		ImGui::LeftText_DragInt(u8"スタンダメージ", "##damage_stun", &damage_stun, window_center);
 
-		const char* types[] = { "Front", "Back", "Right", "Left", "Knock_Down", "Up", "Down" };
+		const char* types[] = { "Front", "Back", "Right", "Left", "Push", "Knock_Down", "Up", "Down" };
 		int select = static_cast<int>(damage_type);
-		if (ImGui::LeftText_Combo(u8"ダメージタイプ", "##damage_type", &select, types, 7, window_center))
+		if (ImGui::LeftText_Combo(u8"ダメージタイプ", "##damage_type", &select, types, 8, window_center))
 		{
 			damage_type = static_cast<Damage_Type>(select);
 		}

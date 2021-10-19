@@ -21,7 +21,10 @@ void Character_Condition_Manager::Update()
 	const auto& c_move = character_move.lock();
 	const auto& c_state = character_state_setter.lock();
 
-	if(const int character_state = anim->Get_Int("Character_State"); character_state_old != character_state)
+	c_state->Set_State();
+	c_move->Aerial_Update();
+
+	if (const int character_state = anim->Get_Int("Character_State"); character_state_old != character_state)
 	{
 		character_state_old = character_state;
 
@@ -44,13 +47,18 @@ void Character_Condition_Manager::Update()
 				param->attacking = true;
 				break;
 
+			case 3:
+				param->dodging = true;
+				break;
+
+			case 4:
+				param->damaging = true;
+				break;
+
 			default:
 				break;
 		}
 	}
-
-	c_state->Set_State();
-	c_move->Ground_Update();
 
 	//ステート別
 	if (!param->eventing)

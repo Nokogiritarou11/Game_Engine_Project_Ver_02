@@ -7,7 +7,7 @@ namespace BeastEngine
 	class Character_Parameter;
 	class Enemy_Manager;
 
-	class Player_Move final : public MonoBehaviour, public Interface_Character_Mover
+	class Enemy_Normal_01_Move final : public MonoBehaviour, public Interface_Character_Mover
 	{
 	public:
 		void Move_Normal() override;
@@ -22,19 +22,14 @@ namespace BeastEngine
 		void Awake() override;
 		bool Draw_ImGui() override;
 
-		void Check_Move_Direction();
-
-		std::weak_ptr<Transform> camera_transform;
 		std::weak_ptr<Animator> animator;
 		std::weak_ptr<RigidBody> rigidbody;
 		std::weak_ptr<Character_Parameter> parameter;
-		std::weak_ptr<Enemy_Manager> enemy_manager;
 
 		float jump_power = 0;
 		float down_power = 0;
 		bool is_stay_air = false;
 		bool is_add_down = false;
-		Vector3 camera_forward;
 		Vector3 move_forward;
 
 		// シリアライズ関数
@@ -47,8 +42,8 @@ namespace BeastEngine
 	};
 }
 
-REGISTER_COMPONENT(Player_Move)
-CEREAL_REGISTER_TYPE(BeastEngine::Player_Move)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::MonoBehaviour, BeastEngine::Player_Move)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Interface_Character_Mover, BeastEngine::Player_Move)
-CEREAL_CLASS_VERSION(BeastEngine::Player_Move, 1)
+REGISTER_COMPONENT(Enemy_Normal_01_Move)
+CEREAL_REGISTER_TYPE(BeastEngine::Enemy_Normal_01_Move)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::MonoBehaviour, BeastEngine::Enemy_Normal_01_Move)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Interface_Character_Mover, BeastEngine::Enemy_Normal_01_Move)
+CEREAL_CLASS_VERSION(BeastEngine::Enemy_Normal_01_Move, 1)

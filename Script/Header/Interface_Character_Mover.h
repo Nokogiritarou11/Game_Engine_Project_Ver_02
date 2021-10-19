@@ -9,6 +9,7 @@ namespace BeastEngine
 		float move_speed = 0;
 		float run_speed = 0;
 		float turn_speed = 0;
+		float y_axis_velocity;
 
 		virtual void Move_Normal() = 0;
 		virtual void Move_Attack() = 0;
@@ -16,7 +17,7 @@ namespace BeastEngine
 		virtual void Move_Damage() = 0;
 		virtual void Move_Guard() = 0;
 
-		virtual void Ground_Update() = 0;
+		virtual void Aerial_Update() = 0;
 
 	private:
 		// シリアライズ関数

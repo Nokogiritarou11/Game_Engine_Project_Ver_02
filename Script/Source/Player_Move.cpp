@@ -1,5 +1,6 @@
 #include "Player_Move.h"
 #include "Character_Parameter.h"
+#include "Enemy_Manager.h"
 
 using namespace std;
 using namespace BeastEngine;
@@ -10,6 +11,7 @@ void Player_Move::Awake()
 	rigidbody = Get_Component<Capsule_Collider>()->rigidbody;
 	animator = Get_Component<Animator>();
 	parameter = Get_Component<Character_Parameter>();
+	enemy_manager = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Enemy_Manager>();
 }
 
 void Player_Move::Move_Normal()
@@ -25,11 +27,11 @@ void Player_Move::Move_Normal()
 		transform->Set_Local_Rotation(Quaternion::Slerp(transform->Get_Local_Rotation(), transform->Look_At(transform->Get_Position() + move_forward), turn_speed * Time::delta_time));
 
 		speed = transform->Get_Forward() * run_speed * Time::delta_time;
-		speed.y = rb->Get_Velocity().y;
+		speed.y = y_axis_velocity;
 	}
 	else
 	{
-		speed = Vector3(0, rb->Get_Velocity().y, 0);
+		speed = Vector3(0, y_axis_velocity, 0);
 	}
 	rb->Set_Velocity(speed);
 }
@@ -37,10 +39,34 @@ void Player_Move::Move_Normal()
 void Player_Move::Move_Attack()
 {
 	Check_Move_Direction();
+	const auto& anim = animator.lock();
+
+	if (anim->Get_Bool("Turn_To_Enemy"))
+	{
+		anim->Set_Bool("Turn_To_Enemy", false);
+
+		const auto& enemy_list = enemy_manager.lock()->enemy_list;
+		if (!enemy_list.empty())
+		{
+			Vector3 nearest_position;
+			float nearest_distance = FLT_MAX;
+			for (const auto& enemy : enemy_list)
+			{
+				const Vector3 pos = enemy.lock()->transform->Get_Position();
+				if (const float dis = Vector3::DistanceSquared(pos, transform->Get_Position()); dis < nearest_distance)
+				{
+					nearest_distance = dis;
+					nearest_position = pos;
+				}
+			}
+			nearest_position.y = transform->Get_Position().y;
+			transform->Set_Local_Rotation(transform->Look_At(nearest_position));
+		}
+	}
 
 	const auto& rb = rigidbody.lock();
 	Vector3 speed = transform->Get_Forward() * move_speed * Time::delta_time;
-	speed.y = rb->Get_Velocity().y;
+	speed.y = y_axis_velocity;
 	rb->Set_Velocity(speed);
 }
 
@@ -59,7 +85,7 @@ void Player_Move::Move_Guard()
 
 }
 
-void Player_Move::Ground_Update()
+void Player_Move::Aerial_Update()
 {
 	const auto& anim = animator.lock();
 	const auto& param = parameter.lock();
@@ -75,37 +101,28 @@ void Player_Move::Ground_Update()
 			if (is_stay_air)
 			{
 				rigid->Set_Velocity(Vector3::Zero);
-				rigid->Use_Gravity(false);
-			}
-			else
-			{
-				rigid->Use_Gravity(true);
+				y_axis_velocity = 0;
 			}
 		}
 
 		if (!is_stay_air && !is_add_down)
 		{
-			rigidbody.lock()->Add_Force(-transform->Get_Up() * down_power * Time::delta_time, Force_Mode::Force);
+			y_axis_velocity -= down_power;
 		}
 
 		if (is_add_down)
 		{
-			rigidbody.lock()->Add_Force(-transform->Get_Up() * down_power * 10 * Time::delta_time, Force_Mode::Force);
+			y_axis_velocity -= down_power * 10;
 		}
 	}
 	else
 	{
 		if (anim->Get_Bool("Add_Jump_Force"))
 		{
-			Jump();
+			y_axis_velocity = jump_power;
 			anim->Set_Bool("Add_Jump_Force", false);
 		}
 	}
-}
-
-void Player_Move::Jump() const
-{
-	rigidbody.lock()->Add_Force(transform->Get_Up() * jump_power, Force_Mode::Impulse);
 }
 
 void Player_Move::Check_Move_Direction()

@@ -65,6 +65,8 @@ void BulletPhysics_Manager::Update()
 
 	if (Engine::scene_manager->run)
 	{
+		typedef pair<shared_ptr<Collider>, Collision> hit_pair;
+		vector<hit_pair> hit_list;
 		world->stepSimulation(Time::delta_time, 2, Time::delta_time * 0.5f);
 
 		const int num = dispatcher->getNumManifolds();
@@ -96,15 +98,23 @@ void BulletPhysics_Manager::Update()
 				const shared_ptr<Collider> col_a = collider_list[obA].lock();
 				const shared_ptr<Collider> col_b = collider_list[obB].lock();
 				Collision collision_a = { col_b, col_b->gameobject, col_b->transform, contacts_b };
-				col_a->Call_Hit(collision_a);
 				Collision collision_b = { col_a, col_a->gameobject, col_a->transform, contacts_a };
-				col_b->Call_Hit(collision_b);
+				hit_list.emplace_back(hit_pair(col_a, collision_a));
+				hit_list.emplace_back(hit_pair(col_b, collision_b));
 			}
 		}
 
 		for (auto& col : collider_list)
 		{
 			col.second.lock()->Update_Simulation();
+		}
+
+		if (!hit_list.empty())
+		{
+			for (auto& hit : hit_list)
+			{
+				hit.first->Call_Hit(hit.second);
+			}
 		}
 	}
 }

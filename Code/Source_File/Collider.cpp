@@ -218,8 +218,7 @@ void Collider::Update_Simulation()
 
 	for (auto& hit : hit_list_old)
 	{
-		auto it = hit_list.find(hit.first);
-		if (it == hit_list.end())
+		if (auto it = hit_list.find(hit.first); it == hit_list.end())
 		{
 			const shared_ptr<Collider> col = hit.second.lock();
 			Collision collision = { col, col->gameobject, col->transform };

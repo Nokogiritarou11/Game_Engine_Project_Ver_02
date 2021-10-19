@@ -112,12 +112,15 @@
     <ClCompile Include="Script\Source\Character_Ground_Checker.cpp" />
     <ClCompile Include="Code\Source_File\Physics.cpp" />
     <ClCompile Include="Script\Source\Player_Input.cpp" />
-    <ClCompile Include="Script\Source\Enemy_Damageable_Normal.cpp" />
+    <ClCompile Include="Script\Source\Enemy_Normal_01_Damageable.cpp" />
     <ClCompile Include="Script\Source\Damage_Collision.cpp" />
     <ClCompile Include="Script\Source\Character_Hit_Stop_Manager.cpp" />
     <ClCompile Include="Script\Source\Object_Pool.cpp" />
     <ClCompile Include="Script\Source\Disable_Object.cpp" />
     <ClCompile Include="Script\Source\Disable_Particle.cpp" />
+    <ClCompile Include="Script\Source\Enemy_Normal_01_Move.cpp" />
+    <ClCompile Include="Script\Source\Enemy_Manager.cpp" />
+    <ClCompile Include="Script\Source\Enemy_Normal_01_State_Setter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -326,12 +329,15 @@
     <ClInclude Include="Script\Header\Interface_Character_State_Setter.h" />
     <ClInclude Include="Script\Header\Player_Input.h" />
     <ClInclude Include="Script\Header\Interface_Character_Damageable.h" />
-    <ClInclude Include="Script\Header\Enemy_Damageable_Normal.h" />
+    <ClInclude Include="Script\Header\Enemy_Normal_01_Damageable.h" />
     <ClInclude Include="Script\Header\Damage_Collision.h" />
     <ClInclude Include="Script\Header\Character_Hit_Stop_Manager.h" />
     <ClInclude Include="Script\Header\Object_Pool.h" />
     <ClInclude Include="Script\Header\Disable_Object.h" />
     <ClInclude Include="Script\Header\Disable_Particle.h" />
+    <ClInclude Include="Script\Header\Enemy_Normal_01_Move.h" />
+    <ClInclude Include="Script\Header\Enemy_Manager.h" />
+    <ClInclude Include="Script\Header\Enemy_Normal_01_State_Setter.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />
