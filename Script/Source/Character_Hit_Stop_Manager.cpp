@@ -14,8 +14,8 @@ void Character_Hit_Stop_Manager::Update()
 {
 	if (is_stop)
 	{
-		stop_timer += Time::delta_time;
-		if (stop_timer > 0.05f)
+		stop_timer -= Time::delta_time;
+		if (stop_timer < 0.0f)
 		{
 			for (auto& particle : stop_particles)
 			{
@@ -32,9 +32,24 @@ void Character_Hit_Stop_Manager::Update()
 	}
 }
 
-void Character_Hit_Stop_Manager::Start_Hit_Stop(const vector<weak_ptr<Particle>>& particles)
+void Character_Hit_Stop_Manager::Start_Hit_Stop(const float stop_time, const vector<weak_ptr<Particle>>& particles)
 {
+	stop_timer = stop_time;
 	stop_particles = particles;
+	for (auto& particle : stop_particles)
+	{
+		particle.lock()->Pause();
+	}
+
+	animator.lock()->Set_Float("Hit_Stop_Speed", 0);
+	parameter.lock()->pausing = true;
+
+	is_stop = true;
+}
+
+void Character_Hit_Stop_Manager::Start_Hit_Stop(const float stop_time)
+{
+	stop_timer = stop_time;
 	for (auto& particle : stop_particles)
 	{
 		particle.lock()->Pause();

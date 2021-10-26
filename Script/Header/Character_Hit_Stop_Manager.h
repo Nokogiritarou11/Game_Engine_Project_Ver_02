@@ -8,7 +8,8 @@ namespace BeastEngine
 	class Character_Hit_Stop_Manager final : public MonoBehaviour
 	{
 	public:
-		void Start_Hit_Stop(const std::vector<std::weak_ptr<Particle>>& particles);
+		void Start_Hit_Stop(float stop_time, const std::vector<std::weak_ptr<Particle>>& particles);
+		void Start_Hit_Stop(float stop_time);
 
 	private:
 		void Awake() override;

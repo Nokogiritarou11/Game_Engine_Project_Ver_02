@@ -19,6 +19,6 @@ namespace BeastEngine
 	{
 	public:
 		virtual ~Interface_Character_Damageable() = default;
-		virtual void Take_Damage(int damage_hp, int damage_stun, Vector3 from_pos, Damage_Type damage_state) = 0;
+		virtual bool Take_Damage(int damage_hp, int damage_stun, const std::shared_ptr<Transform>& from_transform, Damage_Type damage_state) = 0;
 	};
 }

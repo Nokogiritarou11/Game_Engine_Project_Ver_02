@@ -8,7 +8,7 @@ namespace BeastEngine
 	class Enemy_Manager;
 	class Character_Hit_Stop_Manager;
 
-	class Enemy_Normal_01_Damageable final : public MonoBehaviour, public Interface_Character_Damageable
+	class Player_Damageable final : public MonoBehaviour, public Interface_Character_Damageable
 	{
 	public:
 		bool Take_Damage(int damage_hp, int damage_stun, const std::shared_ptr<Transform>& from_transform, Damage_Type damage_state) override;
@@ -19,7 +19,6 @@ namespace BeastEngine
 
 		std::weak_ptr<Animator> animator;
 		std::weak_ptr<Character_Parameter> parameter;
-		std::weak_ptr<Enemy_Manager> enemy_manager;
 		std::weak_ptr<Character_Hit_Stop_Manager> hit_stop_manager;
 
 		// シリアライズ関数
@@ -32,7 +31,7 @@ namespace BeastEngine
 	};
 }
 
-REGISTER_COMPONENT(Enemy_Normal_01_Damageable)
-CEREAL_REGISTER_TYPE(BeastEngine::Enemy_Normal_01_Damageable)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::MonoBehaviour, BeastEngine::Enemy_Normal_01_Damageable)
-CEREAL_CLASS_VERSION(BeastEngine::Enemy_Normal_01_Damageable, 1)
+REGISTER_COMPONENT(Player_Damageable)
+CEREAL_REGISTER_TYPE(BeastEngine::Player_Damageable)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::MonoBehaviour, BeastEngine::Player_Damageable)
+CEREAL_CLASS_VERSION(BeastEngine::Player_Damageable, 1)

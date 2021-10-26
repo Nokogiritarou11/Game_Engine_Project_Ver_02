@@ -17,7 +17,7 @@ namespace BeastEngine
 		virtual void Move_Damage() = 0;
 		virtual void Move_Guard() = 0;
 
-		virtual void Aerial_Update() = 0;
+		virtual void Move_Update() = 0;
 
 	private:
 		// シリアライズ関数

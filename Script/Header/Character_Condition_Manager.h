@@ -22,13 +22,15 @@ namespace BeastEngine
 		std::weak_ptr<Animator> animator;
 
 		int character_state_old = 0;
+		float just_guard_time = 0;
+		float just_guard_timer = 0;
 
 		// シリアライズ関数
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<MonoBehaviour>(this));
+			archive(cereal::base_class<MonoBehaviour>(this), just_guard_time);
 		}
 	};
 }

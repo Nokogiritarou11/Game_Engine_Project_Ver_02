@@ -1,21 +1,19 @@
-#include "Enemy_Normal_01_Damageable.h"
+#include "Player_Damageable.h"
+
 #include "Character_Hit_Stop_Manager.h"
 #include "Character_Parameter.h"
-#include "Enemy_Manager.h"
 
 using namespace std;
 using namespace BeastEngine;
 
-void Enemy_Normal_01_Damageable::Awake()
+void Player_Damageable::Awake()
 {
 	animator = Get_Component<Animator>();
 	parameter = Get_Component<Character_Parameter>();
-	enemy_manager = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Enemy_Manager>();
-	enemy_manager.lock()->Add_Enemy_List(gameobject);
 	hit_stop_manager = Get_Component<Character_Hit_Stop_Manager>();
 }
 
-bool Enemy_Normal_01_Damageable::Take_Damage(const int damage_hp, const int damage_stun, const shared_ptr<Transform>& from_transform, const Damage_Type damage_state)
+bool Player_Damageable::Take_Damage(const int damage_hp, const int damage_stun, const shared_ptr<Transform>& from_transform, const Damage_Type damage_state)
 {
 	const auto& anim = animator.lock();
 	const auto& param = parameter.lock();
@@ -26,7 +24,15 @@ bool Enemy_Normal_01_Damageable::Take_Damage(const int damage_hp, const int dama
 
 	if (param->guarding)
 	{
-		anim->Set_Trigger("Damage");
+		if (param->just_guarding)
+		{
+			anim->Set_Trigger("Parry");
+			from_transform->Set_Local_Position(transform->Get_Position() + transform->Get_Forward() * 2.25f);
+		}
+		else
+		{
+			anim->Set_Trigger("Damage");
+		}
 		return false;
 	}
 
@@ -36,10 +42,10 @@ bool Enemy_Normal_01_Damageable::Take_Damage(const int damage_hp, const int dama
 	return true;
 }
 
-bool Enemy_Normal_01_Damageable::Draw_ImGui()
+bool Player_Damageable::Draw_ImGui()
 {
 	bool open = false;
-	if (!Draw_ImGui_Header("Enemy_Normal_01_Damageable", open)) return false;
+	if (!Draw_ImGui_Header("Player_Damageable", open)) return false;
 
 	if (open)
 	{

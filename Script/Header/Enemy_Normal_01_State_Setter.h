@@ -16,13 +16,17 @@ namespace BeastEngine
 		bool Draw_ImGui() override;
 
 		std::weak_ptr<Animator> animator;
+		std::weak_ptr<Transform> target_transform;
+		std::weak_ptr<Character_Parameter> parameter;
+
+		float attack_distance = 0;
 
 		// シリアライズ関数
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<MonoBehaviour>(this));
+			archive(cereal::base_class<MonoBehaviour>(this), attack_distance);
 		}
 	};
 }

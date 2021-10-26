@@ -1231,7 +1231,7 @@ void Editor::GameObject_Tree_Render(const shared_ptr<GameObject>& obj, int flag)
 	}
 }
 
-shared_ptr<GameObject> Editor::Get_Drag_Object()
+shared_ptr<GameObject> Editor::Get_Drag_Object() const
 {
 	if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DragDrop_Object"))
 	{

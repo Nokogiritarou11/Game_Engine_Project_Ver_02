@@ -20,7 +20,7 @@ namespace BeastEngine
 		static void Render();
 
 		void Print_Log(std::string log);
-		std::shared_ptr<GameObject> Get_Drag_Object();
+		std::shared_ptr<GameObject> Get_Drag_Object() const;
 
 		Vector2 game_view_size;
 		Vector2 game_view_position;

@@ -24,6 +24,7 @@ namespace BeastEngine
 		std::weak_ptr<Object_Pool> pool;
 		std::weak_ptr<Transform> root_transform;
 		std::weak_ptr<Transform> hit_transform;
+		std::weak_ptr<Animator> animator;
 		std::vector<std::weak_ptr<Particle>> stop_particle;
 		std::string hit_particle_key;
 

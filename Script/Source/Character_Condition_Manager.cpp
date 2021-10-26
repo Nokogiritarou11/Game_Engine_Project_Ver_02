@@ -22,7 +22,7 @@ void Character_Condition_Manager::Update()
 	const auto& c_state = character_state_setter.lock();
 
 	c_state->Set_State();
-	c_move->Aerial_Update();
+	c_move->Move_Update();
 
 	if (const int character_state = anim->Get_Int("Character_State"); character_state_old != character_state)
 	{
@@ -33,6 +33,7 @@ void Character_Condition_Manager::Update()
 		param->dodging = false;
 		param->damaging = false;
 		param->guarding = false;
+		param->just_guarding = false;
 
 		switch (character_state)
 		{
@@ -53,6 +54,12 @@ void Character_Condition_Manager::Update()
 
 			case 4:
 				param->damaging = true;
+				break;
+
+			case 5:
+				param->guarding = true;
+				param->just_guarding = true;
+				just_guard_timer = just_guard_time;
 				break;
 
 			default:
@@ -90,6 +97,15 @@ void Character_Condition_Manager::Update()
 			}
 		}
 	}
+
+	if (param->just_guarding)
+	{
+		just_guard_timer -= Time::delta_time;
+		if (just_guard_timer <= 0)
+		{
+			param->just_guarding = false;
+		}
+	}
 }
 
 bool Character_Condition_Manager::Draw_ImGui()
@@ -100,7 +116,7 @@ bool Character_Condition_Manager::Draw_ImGui()
 	if (open)
 	{
 		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
-		ImGui::Text(u8"İ’è‚Å‚«‚éƒpƒ‰ƒ[ƒ^‚Í‚ ‚è‚Ü‚¹‚ñ");
+		ImGui::LeftText_DragFloat(u8"’e‚«—P—\ŠÔ", "##Just_Guard_Time", &just_guard_time, window_center);
 	}
 	return true;
 }

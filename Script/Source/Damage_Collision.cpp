@@ -13,18 +13,20 @@ void Damage_Collision::Awake()
 	hit_stop_manager = root_transform.lock()->Get_Component<Character_Hit_Stop_Manager>();
 	pool = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Object_Pool>();
 	hit_transform = transform->Get_Child(0);
+	animator = root_transform.lock()->Get_Component<Animator>();
 }
 
 void Damage_Collision::OnTrigger_Enter(Collision& collision)
 {
 	if (const auto& hit = collision.gameobject->Get_Component<Interface_Character_Damageable>())
 	{
-		hit->Take_Damage(damage_hp, damage_stun, root_transform.lock()->Get_Position(), damage_type);
-		hit_stop_manager.lock()->Start_Hit_Stop(stop_particle);
-
-		Vector3 pos = collision.transform->Get_Position();
-		pos.y += 1;
-		pool.lock()->Instance_In_Pool(hit_particle_key, pos, hit_transform.lock()->Get_Rotation());
+		if (hit->Take_Damage(damage_hp, damage_stun, root_transform.lock(), damage_type))
+		{
+			Vector3 pos = collision.transform->Get_Position();
+			pos.y += 1;
+			pool.lock()->Instance_In_Pool(hit_particle_key, pos, hit_transform.lock()->Get_Rotation());
+		}
+		hit_stop_manager.lock()->Start_Hit_Stop(0.05f, stop_particle);
 	}
 }
 
@@ -41,12 +43,12 @@ bool Damage_Collision::Draw_ImGui()
 		ImGui::SameLine(window_center);
 		ImGui::SetNextItemWidth(-FLT_MIN);
 
-		string label = u8"未設定 (ここにドラッグ)";
+		string label_parent = u8"未設定 (ここにドラッグ)";
 		if (const auto& p = root_transform.lock())
 		{
-			label = p->gameobject->name;
+			label_parent = p->gameobject->name;
 		}
-		ImGui::InputText("##Item", &label, ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputText("##Item", &label_parent, ImGuiInputTextFlags_ReadOnly);
 
 		if (ImGui::BeginDragDropTarget())
 		{
@@ -76,19 +78,19 @@ bool Damage_Collision::Draw_ImGui()
 				ImGui::SameLine(window_center);
 				ImGui::SetNextItemWidth(-FLT_MIN);
 
-				string label = u8"未設定 (ここにドラッグ)";
-				if (auto& p = stop_particle[i].lock())
+				string label_particle = u8"未設定 (ここにドラッグ)";
+				if (const auto& p = stop_particle[i].lock())
 				{
 					if (p->gameobject)
 					{
-						label = p->gameobject->name;
+						label_particle = p->gameobject->name;
 					}
 					else
 					{
 						stop_particle[i].reset();
 					}
 				}
-				ImGui::InputText("##Item", &label, ImGuiInputTextFlags_ReadOnly);
+				ImGui::InputText("##Item", &label_particle, ImGuiInputTextFlags_ReadOnly);
 
 				if (ImGui::BeginDragDropTarget())
 				{

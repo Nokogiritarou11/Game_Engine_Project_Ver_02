@@ -2,6 +2,7 @@
 #include "Particle.h"
 #include "Transform.h"
 #include "Engine.h"
+#include "Scene_Manager.h"
 #include "Time_Engine.h"
 
 using namespace BeastEngine;
@@ -136,7 +137,10 @@ void Particle_Manager::Update()
 		particle_list.erase(remove_it, particle_list.end());
 	}
 
-	manager->Update(60.0f / (1 / Time::delta_time));
+	if (!Engine::scene_manager->pause)
+	{
+		manager->Update(60.0f / (1 / Time::delta_time));
+	}
 }
 
 void Particle_Manager::Render() const

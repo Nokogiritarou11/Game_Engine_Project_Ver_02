@@ -17,6 +17,7 @@ namespace BeastEngine
 		bool dodging = false;
 		bool damaging = false;
 		bool guarding = false;
+		bool just_guarding = false;
 
 		bool is_ground = true;
 

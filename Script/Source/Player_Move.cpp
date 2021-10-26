@@ -1,13 +1,14 @@
 #include "Player_Move.h"
 #include "Character_Parameter.h"
 #include "Enemy_Manager.h"
+#include "Player_Input.h"
 
 using namespace std;
 using namespace BeastEngine;
 
 void Player_Move::Awake()
 {
-	camera_transform = GameObject::Find_With_Tag("main_camera").lock()->transform;
+	p_input = Get_Component<Player_Input>();
 	rigidbody = Get_Component<Capsule_Collider>()->rigidbody;
 	animator = Get_Component<Animator>();
 	parameter = Get_Component<Character_Parameter>();
@@ -16,12 +17,10 @@ void Player_Move::Awake()
 
 void Player_Move::Move_Normal()
 {
-	Check_Move_Direction();
-
 	const auto& rb = rigidbody.lock();
 	Vector3 speed;
 
-	if (move_forward != Vector3::Zero)
+	if (const Vector3 move_forward = p_input.lock()->input_direction; move_forward != Vector3::Zero)
 	{
 		//滑らかに方向転換
 		transform->Set_Local_Rotation(Quaternion::Slerp(transform->Get_Local_Rotation(), transform->Look_At(transform->Get_Position() + move_forward), turn_speed * Time::delta_time));
@@ -38,29 +37,16 @@ void Player_Move::Move_Normal()
 
 void Player_Move::Move_Attack()
 {
-	Check_Move_Direction();
 	const auto& anim = animator.lock();
+	move_speed = anim->Get_Float("Move_Speed");
 
 	if (anim->Get_Bool("Turn_To_Enemy"))
 	{
 		anim->Set_Bool("Turn_To_Enemy", false);
 
-		const auto& enemy_list = enemy_manager.lock()->enemy_list;
-		if (!enemy_list.empty())
+		if (const auto& e_manager = enemy_manager.lock(); e_manager->Get_Has_Enemy())
 		{
-			Vector3 nearest_position;
-			float nearest_distance = FLT_MAX;
-			for (const auto& enemy : enemy_list)
-			{
-				const Vector3 pos = enemy.lock()->transform->Get_Position();
-				if (const float dis = Vector3::DistanceSquared(pos, transform->Get_Position()); dis < nearest_distance)
-				{
-					nearest_distance = dis;
-					nearest_position = pos;
-				}
-			}
-			nearest_position.y = transform->Get_Position().y;
-			transform->Set_Local_Rotation(transform->Look_At(nearest_position));
+			transform->Set_Local_Rotation(transform->Look_At(e_manager->Get_Nearest_Enemy_Position(transform->Get_Position())));
 		}
 	}
 
@@ -77,15 +63,27 @@ void Player_Move::Move_Dodge()
 
 void Player_Move::Move_Damage()
 {
+	const auto& anim = animator.lock();
+	move_speed = anim->Get_Float("Move_Speed");
 
+	const auto& rb = rigidbody.lock();
+	Vector3 speed = transform->Get_Forward() * move_speed * Time::delta_time;
+	speed.y = y_axis_velocity;
+	rb->Set_Velocity(speed);
 }
 
 void Player_Move::Move_Guard()
 {
+	const auto& anim = animator.lock();
+	move_speed = anim->Get_Float("Move_Speed");
 
+	const auto& rb = rigidbody.lock();
+	Vector3 speed = transform->Get_Forward() * move_speed * Time::delta_time;
+	speed.y = y_axis_velocity;
+	rb->Set_Velocity(speed);
 }
 
-void Player_Move::Aerial_Update()
+void Player_Move::Move_Update()
 {
 	const auto& anim = animator.lock();
 	const auto& param = parameter.lock();
@@ -123,31 +121,6 @@ void Player_Move::Aerial_Update()
 			anim->Set_Bool("Add_Jump_Force", false);
 		}
 	}
-}
-
-void Player_Move::Check_Move_Direction()
-{
-	const auto& camera_trans = camera_transform.lock();
-
-	// カメラの方向から、X-Z平面の単位ベクトルを取得
-	camera_forward = camera_trans->Get_Forward();
-	camera_forward.y = 0;
-	camera_forward.Normalize();
-
-	// 方向キーの入力値とカメラの向きから、移動方向を決定
-	const Vector2 axis = Input::Get_Pad_Axis_Left();
-	(camera_forward * axis.y - camera_trans->Get_Right() * axis.x).Normalize(move_forward);
-
-	const auto& anim = animator.lock();
-	if (move_forward == Vector3::Zero)
-	{
-		anim->Set_Bool("Move", false);
-	}
-	else
-	{
-		anim->Set_Bool("Move", true);
-	}
-	move_speed = anim->Get_Float("Move_Speed");
 }
 
 bool Player_Move::Draw_ImGui()

@@ -312,6 +312,7 @@
     <ClCompile Include="Script\Source\Enemy_Normal_01_State_Setter.cpp" />
     <ClCompile Include="Script\Source\Object_Pool.cpp" />
     <ClCompile Include="Script\Source\Player_Camera_Controller.cpp" />
+    <ClCompile Include="Script\Source\Player_Damageable.cpp" />
     <ClCompile Include="Script\Source\Player_Input.cpp" />
     <ClCompile Include="Script\Source\Player_Move.cpp" />
     <ClCompile Include="Script\Source\Character_Condition_Manager.cpp" />
@@ -840,6 +841,7 @@
     <ClInclude Include="Script\Header\Player_Camera_Controller.h" />
     <ClInclude Include="Script\Header\Character_Condition_Manager.h" />
     <ClInclude Include="Script\Header\Character_Parameter.h" />
+    <ClInclude Include="Script\Header\Player_Damageable.h" />
     <ClInclude Include="Script\Header\Player_Input.h" />
     <ClInclude Include="Script\Header\Player_Move.h" />
     <None Include="Script\Header\MonoBehaviour_Example.h">

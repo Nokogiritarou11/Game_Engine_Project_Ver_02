@@ -6,6 +6,7 @@ namespace BeastEngine
 {
 	class Character_Parameter;
 	class Enemy_Manager;
+	class Player_Input;
 
 	class Player_Move final : public MonoBehaviour, public Interface_Character_Mover
 	{
@@ -16,26 +17,22 @@ namespace BeastEngine
 		void Move_Damage() override;
 		void Move_Guard() override;
 
-		void Aerial_Update() override;
+		void Move_Update() override;
 
 	private:
 		void Awake() override;
 		bool Draw_ImGui() override;
 
-		void Check_Move_Direction();
-
-		std::weak_ptr<Transform> camera_transform;
 		std::weak_ptr<Animator> animator;
 		std::weak_ptr<RigidBody> rigidbody;
 		std::weak_ptr<Character_Parameter> parameter;
+		std::weak_ptr<Player_Input> p_input;
 		std::weak_ptr<Enemy_Manager> enemy_manager;
 
 		float jump_power = 0;
 		float down_power = 0;
 		bool is_stay_air = false;
 		bool is_add_down = false;
-		Vector3 camera_forward;
-		Vector3 move_forward;
 
 		// シリアライズ関数
 		friend class cereal::access;
