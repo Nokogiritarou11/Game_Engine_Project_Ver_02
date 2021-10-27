@@ -2,6 +2,7 @@
 
 #include "Character_Hit_Stop_Manager.h"
 #include "Character_Parameter.h"
+#include "Time_Manager.h"
 
 using namespace std;
 using namespace BeastEngine;
@@ -11,6 +12,7 @@ void Player_Damageable::Awake()
 	animator = Get_Component<Animator>();
 	parameter = Get_Component<Character_Parameter>();
 	hit_stop_manager = Get_Component<Character_Hit_Stop_Manager>();
+	time_manager = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Time_Manager>();
 }
 
 bool Player_Damageable::Take_Damage(const int damage_hp, const int damage_stun, const shared_ptr<Transform>& from_transform, const Damage_Type damage_state)
@@ -28,6 +30,7 @@ bool Player_Damageable::Take_Damage(const int damage_hp, const int damage_stun, 
 		{
 			anim->Set_Trigger("Parry");
 			from_transform->Set_Local_Position(transform->Get_Position() + transform->Get_Forward() * 2.25f);
+			time_manager.lock()->Start_Time_Slow(0.05f, 0.15f, 0.01f);
 		}
 		else
 		{

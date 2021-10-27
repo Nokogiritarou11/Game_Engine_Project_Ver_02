@@ -316,6 +316,7 @@
     <ClCompile Include="Script\Source\Player_Input.cpp" />
     <ClCompile Include="Script\Source\Player_Move.cpp" />
     <ClCompile Include="Script\Source\Character_Condition_Manager.cpp" />
+    <ClCompile Include="Script\Source\Time_Manager.cpp" />
     <None Include="Script\Source\MonoBehaviour_Example.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -844,6 +845,7 @@
     <ClInclude Include="Script\Header\Player_Damageable.h" />
     <ClInclude Include="Script\Header\Player_Input.h" />
     <ClInclude Include="Script\Header\Player_Move.h" />
+    <ClInclude Include="Script\Header\Time_Manager.h" />
     <None Include="Script\Header\MonoBehaviour_Example.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

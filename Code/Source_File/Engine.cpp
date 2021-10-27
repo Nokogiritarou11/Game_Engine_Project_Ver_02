@@ -43,12 +43,12 @@ Engine::Engine()
 	input_manager = make_unique<Input>();
 	cursor_manager = make_unique<Cursor>();
 	asset_manager = make_unique<Asset_Manager>();
-	shadow_manager = make_unique<Shadow_Manager>();
 	audio_manager = make_unique<Audio_Manager>();
+	particle_manager = make_unique<Particle_Manager>();
+	shadow_manager = make_unique<Shadow_Manager>();
 	render_manager = make_unique<Render_Manager>();
 	animator_manager = make_unique<Animator_Manager>();
 	light_manager = make_unique<Light_Manager>();
-	particle_manager = make_unique<Particle_Manager>();
 	bulletphysics_manager = make_unique<BulletPhysics_Manager>();
 	scene_manager = make_unique<Scene_Manager>();
 

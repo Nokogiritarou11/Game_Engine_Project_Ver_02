@@ -2,6 +2,8 @@
 #include "Particle.h"
 #include "Transform.h"
 #include "Engine.h"
+#include "Render_Manager.h"
+#include "Render_Texture.h"
 #include "Scene_Manager.h"
 #include "Time_Engine.h"
 
@@ -12,6 +14,9 @@ Particle_Manager::Particle_Manager()
 {
 	// エフェクトのレンダラーの作成
 	renderer = EffekseerRendererDX11::Renderer::Create(DxSystem::device.Get(), DxSystem::device_context.Get(), 8000, D3D11_COMPARISON_GREATER_EQUAL, true);
+
+	distorting_callback = new Distorting_Callback;
+	renderer->SetDistortingCallback(distorting_callback);
 
 	// エフェクトのマネージャーの作成
 	manager = Effekseer::Manager::Create(8000);
@@ -29,6 +34,7 @@ Particle_Manager::Particle_Manager()
 	manager->SetTextureLoader(renderer->CreateTextureLoader());
 	manager->SetModelLoader(renderer->CreateModelLoader());
 	manager->SetMaterialLoader(renderer->CreateMaterialLoader());
+
 
 	reverse.Values[0][0] = 1.0f;
 	reverse.Values[0][1] = 0.0f;
@@ -178,4 +184,11 @@ void Particle_Manager::Reset()
 		manager->SetModelLoader(renderer->CreateModelLoader());
 		manager->SetMaterialLoader(renderer->CreateMaterialLoader());
 	}
+}
+
+bool Distorting_Callback::OnDistorting(EffekseerRenderer::Renderer* renderer)
+{
+	Engine::render_manager->staging_texture->Update_Copy_Texture();
+	renderer->SetBackground(Engine::render_manager->staging_texture->Get_Back_Ground_Texture());
+	return true;
 }

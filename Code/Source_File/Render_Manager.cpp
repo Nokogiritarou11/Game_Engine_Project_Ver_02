@@ -26,8 +26,8 @@ using Microsoft::WRL::ComPtr;
 
 Render_Manager::Render_Manager()
 {
-	scene_texture = make_unique<Render_Texture>(1920, 1080, true, DXGI_FORMAT_R16G16B16A16_UNORM);
-	game_texture = make_unique<Render_Texture>(1920, 1080, true, DXGI_FORMAT_R16G16B16A16_UNORM);
+	scene_texture = make_shared<Render_Texture>(1920, 1080, true, DXGI_FORMAT_R8G8B8A8_UNORM);
+	game_texture = make_shared<Render_Texture>(1920, 1080, true, DXGI_FORMAT_R8G8B8A8_UNORM);
 	skybox = make_unique<SkyBox>();
 
 	// 定数バッファの生成
@@ -196,6 +196,7 @@ void Render_Manager::Render_Scene()
 	//通常描画
 	{
 		scene_texture->Set_Render_Target();
+		staging_texture = scene_texture;
 		// シーン用定数バッファ更新
 		DxSystem::device_context->VSSetConstantBuffers(0, 1, constant_buffer_scene.GetAddressOf());
 		DxSystem::device_context->PSSetConstantBuffers(0, 1, constant_buffer_scene.GetAddressOf());
@@ -234,6 +235,7 @@ void Render_Manager::Render_Game()
 					//通常描画
 #if _DEBUG
 					game_texture->Set_Render_Target();
+					staging_texture = game_texture;
 #else
 					// レンダーターゲットビュー設定
 					game_texture->Set_Screen_Size(DxSystem::Get_Screen_Width(), DxSystem::Get_Screen_Height());
@@ -410,12 +412,12 @@ void Render_Manager::Render_Shadow_Directional(const Vector3& color, const float
 
 void Render_Manager::Update_Constant_Buffer() const
 {
-	UINT subresourceIndex = 0;
+	constexpr UINT subresource_index = 0;
 	D3D11_MAPPED_SUBRESOURCE mapped;
-	auto hr = DxSystem::device_context->Map(constant_buffer_scene.Get(), subresourceIndex, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+	const auto hr = DxSystem::device_context->Map(constant_buffer_scene.Get(), subresource_index, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
 	if (SUCCEEDED(hr))
 	{
 		memcpy(mapped.pData, &buffer_scene, sizeof(Constant_Buffer_Scene));
-		DxSystem::device_context->Unmap(constant_buffer_scene.Get(), subresourceIndex);
+		DxSystem::device_context->Unmap(constant_buffer_scene.Get(), subresource_index);
 	}
 }

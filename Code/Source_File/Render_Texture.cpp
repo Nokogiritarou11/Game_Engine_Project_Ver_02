@@ -1,6 +1,8 @@
 #include "Render_Texture.h"
 #include "DxSystem.h"
 #include "Misc.h"
+#include "Engine.h"
+#include "Particle_Manager.h"
 using namespace BeastEngine;
 using namespace std;
 using Microsoft::WRL::ComPtr;
@@ -10,6 +12,15 @@ Render_Texture::Render_Texture(const int& x, const int& y, const bool& msaa, con
 	use_msaa = msaa;
 	color_format = format;
 	Set_Screen_Size(x, y);
+}
+
+Render_Texture::~Render_Texture()
+{
+	if (back_ground_texture != nullptr)
+	{
+		back_ground_texture.Reset();
+		back_ground_texture = nullptr;
+	}
 }
 
 void Render_Texture::Clear() const
@@ -28,6 +39,7 @@ void Render_Texture::Set_Screen_Size(const int& x, const int& y)
 
 		Create_Render_Target_View();
 		Create_Depth_Stencil();
+		back_ground_texture = EffekseerRendererDX11::CreateTexture(Engine::particle_manager->renderer->GetGraphicsDevice(), shader_resource_view_copy.Get(), nullptr, nullptr);
 	}
 }
 
@@ -38,6 +50,12 @@ void Render_Texture::Set_Render_Target()
 	DxSystem::Set_ViewPort(screen_x, screen_y);
 	DxSystem::device_context->OMSetRenderTargets(1, render_target_view.GetAddressOf(), depth_stencil_view.Get());
 }
+
+void Render_Texture::Update_Copy_Texture() const
+{
+	DxSystem::device_context->CopyResource(texture_render_copy.Get(),texture_render_target.Get());
+}
+
 
 bool Render_Texture::Create_Depth_Stencil()
 {
@@ -163,6 +181,49 @@ bool Render_Texture::Create_Render_Target_View()
 
 		// シェーダリソースビューの生成
 		hr = DxSystem::device->CreateShaderResourceView(texture_render_target.Get(), &srvDesc, shader_resource_view_render.GetAddressOf());
+		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+	}
+
+	{
+		// コピー用テクスチャの設定
+		D3D11_TEXTURE2D_DESC tex_desc = {};
+		tex_desc.Usage = D3D11_USAGE_DEFAULT;
+		tex_desc.Format = color_format;
+		tex_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		tex_desc.Width = screen_x;
+		tex_desc.Height = screen_y;
+		tex_desc.CPUAccessFlags = 0;
+		tex_desc.MipLevels = 1;
+		tex_desc.ArraySize = 1;
+		if (use_msaa)
+		{
+			tex_desc.SampleDesc = DxSystem::MSAA;
+		}
+		else
+		{
+			tex_desc.SampleDesc.Count = 1;
+			tex_desc.SampleDesc.Quality = 0;
+		}
+		// コピー用テクスチャの生成
+		HRESULT hr = DxSystem::device->CreateTexture2D(&tex_desc, nullptr, texture_render_copy.GetAddressOf());
+		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+
+		// コピー用シェーダリソースビューの設定
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Format = tex_desc.Format;
+		if (use_msaa)
+		{
+			srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
+		}
+		else
+		{
+			srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		}
+		srvDesc.Texture2D.MipLevels = 1;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+
+		// コピー用シェーダリソースビューの生成
+		hr = DxSystem::device->CreateShaderResourceView(texture_render_copy.Get(), &srvDesc, shader_resource_view_copy.GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
 

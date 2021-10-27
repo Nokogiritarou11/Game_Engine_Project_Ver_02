@@ -9,6 +9,12 @@ namespace BeastEngine
 	class Particle;
 	class Transform;
 
+	class Distorting_Callback final : public EffekseerRenderer::DistortingCallback
+	{
+	public:
+		bool OnDistorting(EffekseerRenderer::Renderer* renderer) override;
+	};
+
 	class Particle_Manager
 	{
 	public:
@@ -21,12 +27,14 @@ namespace BeastEngine
 		void Render() const;
 		void Reset();
 
+		EffekseerRendererDX11::RendererRef renderer = nullptr;
 		Effekseer::ManagerRef manager = nullptr;
 		std::unordered_map<std::string, Effekseer::EffectRef> effect_cache;
+		Distorting_Callback* distorting_callback;
 
 	private:
 		std::vector<std::weak_ptr<Particle>> particle_list;
-		EffekseerRendererDX11::RendererRef renderer = nullptr;
 		Effekseer::Matrix44 reverse;
 	};
+
 }

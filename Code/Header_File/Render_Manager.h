@@ -32,8 +32,9 @@ namespace BeastEngine
 
 		bool render_game = true;
 		bool render_scene = false;
-		std::unique_ptr<Render_Texture> scene_texture{};
-		std::unique_ptr<Render_Texture> game_texture{};
+		std::shared_ptr<Render_Texture> scene_texture{};
+		std::shared_ptr<Render_Texture> game_texture{};
+		std::shared_ptr<Render_Texture> staging_texture{};
 
 		std::shared_ptr<Material> sprite_material;
 

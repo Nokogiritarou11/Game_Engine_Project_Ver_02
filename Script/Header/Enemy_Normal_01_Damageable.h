@@ -7,6 +7,7 @@ namespace BeastEngine
 	class Character_Parameter;
 	class Enemy_Manager;
 	class Character_Hit_Stop_Manager;
+	class Time_Manager;
 
 	class Enemy_Normal_01_Damageable final : public MonoBehaviour, public Interface_Character_Damageable
 	{
@@ -21,6 +22,7 @@ namespace BeastEngine
 		std::weak_ptr<Character_Parameter> parameter;
 		std::weak_ptr<Enemy_Manager> enemy_manager;
 		std::weak_ptr<Character_Hit_Stop_Manager> hit_stop_manager;
+		std::weak_ptr<Time_Manager> time_manager;
 
 		// シリアライズ関数
 		friend class cereal::access;
