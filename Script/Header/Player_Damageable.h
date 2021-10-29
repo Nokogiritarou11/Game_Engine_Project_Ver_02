@@ -8,6 +8,7 @@ namespace BeastEngine
 	class Enemy_Manager;
 	class Character_Hit_Stop_Manager;
 	class Time_Manager;
+	class Object_Pool;
 
 	class Player_Damageable final : public MonoBehaviour, public Interface_Character_Damageable
 	{
@@ -20,15 +21,18 @@ namespace BeastEngine
 
 		std::weak_ptr<Animator> animator;
 		std::weak_ptr<Character_Parameter> parameter;
+		std::weak_ptr<Object_Pool> pool;
 		std::weak_ptr<Character_Hit_Stop_Manager> hit_stop_manager;
 		std::weak_ptr<Time_Manager> time_manager;
+
+		std::string guard_particle_key;
 
 		// シリアライズ関数
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<MonoBehaviour>(this));
+			archive(cereal::base_class<MonoBehaviour>(this), guard_particle_key);
 		}
 	};
 }

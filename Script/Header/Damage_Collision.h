@@ -33,14 +33,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			if (version <= 1)
-			{
-				archive(cereal::base_class<MonoBehaviour>(this), damage_hp, damage_stun, damage_type, root_transform, stop_particle);
-			}
-			else
-			{
-				archive(cereal::base_class<MonoBehaviour>(this), damage_hp, damage_stun, damage_type, root_transform, stop_particle, hit_particle_key);
-			}
+			archive(cereal::base_class<MonoBehaviour>(this), damage_hp, damage_stun, damage_type, root_transform, stop_particle, hit_particle_key);
 		}
 	};
 }
@@ -48,4 +41,4 @@ namespace BeastEngine
 REGISTER_COMPONENT(Damage_Collision)
 CEREAL_REGISTER_TYPE(BeastEngine::Damage_Collision)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::MonoBehaviour, BeastEngine::Damage_Collision)
-CEREAL_CLASS_VERSION(BeastEngine::Damage_Collision, 2)
+CEREAL_CLASS_VERSION(BeastEngine::Damage_Collision, 1)

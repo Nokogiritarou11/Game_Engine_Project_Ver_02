@@ -3,8 +3,6 @@
 #include <d3dcompiler.h>
 #include <wrl.h>
 #include "Object.h"
-#pragma comment( lib, "d3d11.lib" )
-#pragma comment( lib, "d3dcompiler.lib" )
 
 namespace BeastEngine
 {

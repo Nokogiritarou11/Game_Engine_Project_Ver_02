@@ -14,6 +14,9 @@ namespace BeastEngine
 		void LateUpdate() override;
 		bool Draw_ImGui() override;
 
+		void Update_Root_Transform() const;
+		void Update_Child_Transform();
+
 		float angle_limit_up = 0;
 		float angle_limit_down = 0;
 		float rotate_speed = 0;
@@ -22,14 +25,12 @@ namespace BeastEngine
 		std::weak_ptr<Transform> player_transform;
 		std::weak_ptr<Character_Parameter> parameter;
 
-
-
 		// シリアライズ関数
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<BeastEngine::MonoBehaviour>(this), angle_limit_up, angle_limit_down, rotate_speed, follow_speed);
+			archive(cereal::base_class<MonoBehaviour>(this), angle_limit_up, angle_limit_down, rotate_speed, follow_speed);
 		}
 	};
 }

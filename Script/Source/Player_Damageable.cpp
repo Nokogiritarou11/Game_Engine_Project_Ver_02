@@ -1,7 +1,7 @@
 #include "Player_Damageable.h"
-
 #include "Character_Hit_Stop_Manager.h"
 #include "Character_Parameter.h"
+#include "Object_Pool.h"
 #include "Time_Manager.h"
 
 using namespace std;
@@ -11,6 +11,7 @@ void Player_Damageable::Awake()
 {
 	animator = Get_Component<Animator>();
 	parameter = Get_Component<Character_Parameter>();
+	pool = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Object_Pool>();
 	hit_stop_manager = Get_Component<Character_Hit_Stop_Manager>();
 	time_manager = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Time_Manager>();
 }
@@ -30,12 +31,15 @@ bool Player_Damageable::Take_Damage(const int damage_hp, const int damage_stun, 
 		{
 			anim->Set_Trigger("Parry");
 			from_transform->Set_Local_Position(transform->Get_Position() + transform->Get_Forward() * 2.25f);
-			time_manager.lock()->Start_Time_Slow(0.05f, 0.15f, 0.01f);
+			time_manager.lock()->Start_Time_Slow(0.05f, 0.1f, 0.05f);
+			pool.lock()->Instance_In_Pool(guard_particle_key, transform->Get_Position() + transform->Get_Forward() * 0.7f + Vector3(0, 1.2f, 0), transform->Get_Local_Rotation());
 		}
 		else
 		{
 			anim->Set_Trigger("Damage");
+			pool.lock()->Instance_In_Pool(guard_particle_key, transform->Get_Position() + transform->Get_Forward() * 0.25f + Vector3(0, 1.1f, 0), transform->Get_Local_Rotation());
 		}
+
 		return false;
 	}
 
@@ -53,7 +57,7 @@ bool Player_Damageable::Draw_ImGui()
 	if (open)
 	{
 		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
-		ImGui::Text(u8"設定できるパラメータはありません");
+		ImGui::LeftText_InputText(u8"ガードエフェクトキー", "##hit_particle_key", &guard_particle_key, window_center);
 	}
 	return true;
 }

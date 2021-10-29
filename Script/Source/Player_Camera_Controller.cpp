@@ -13,6 +13,11 @@ void Player_Camera_Controller::Awake()
 
 void Player_Camera_Controller::LateUpdate()
 {
+	Update_Root_Transform();
+}
+
+void Player_Camera_Controller::Update_Root_Transform() const
+{
 	const auto& p_trans = player_transform.lock();
 	const auto& param = parameter.lock();
 
@@ -42,6 +47,7 @@ void Player_Camera_Controller::LateUpdate()
 	const float angle_x = 180.0f <= rot.x ? rot.x - 360 : rot.x;
 	transform->Set_Local_Euler_Angles(Mathf::Clamp(angle_x, angle_limit_down, angle_limit_up), rot.y, rot.z);
 }
+
 
 bool Player_Camera_Controller::Draw_ImGui()
 {
