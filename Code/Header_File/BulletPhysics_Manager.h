@@ -8,25 +8,27 @@ namespace BeastEngine
 {
 	class Collider;
 
+	//BulletPhysicsライブラリのラッパー兼物理系コンポーネント管理クラス
 	class BulletPhysics_Manager
 	{
 	public:
 		BulletPhysics_Manager();
-		void Initialize();
-		void Reset();
-		void Exit();
-		void Update();
 
-		void Add_RigidBody(std::weak_ptr<Collider> col, const std::unique_ptr<btRigidBody>& rigidbody, int layer);
-		void Resize_RigidBody(const std::unique_ptr<btRigidBody>& rigidbody);
-		void Remove_RigidBody(const std::unique_ptr<btRigidBody>& rigidbody);
+		void Initialize(); //初期化
+		void Reset();      //リセットする
+		void Exit();       //後始末
+		void Update();     //更新
 
-		void Add_Ghost(std::weak_ptr<Collider> col, const std::unique_ptr<btGhostObject>& ghost, int layer);
-		void Resize_Ghost(const std::unique_ptr<btGhostObject>& ghost);
-		void Remove_Ghost(const std::unique_ptr<btGhostObject>& ghost);
+		void Add_RigidBody(std::weak_ptr<Collider> col, const std::unique_ptr<btRigidBody>& rigidbody, int layer); //RigidBodyを登録する
+		void Resize_RigidBody(const std::unique_ptr<btRigidBody>& rigidbody); //RigidBodyをリサイズする
+		void Remove_RigidBody(const std::unique_ptr<btRigidBody>& rigidbody); //RigidBodyを削除する
 
-		void Set_Debug_Drawer() const;
-		void Render_Debug() const;
+		void Add_Ghost(std::weak_ptr<Collider> col, const std::unique_ptr<btGhostObject>& ghost, int layer); //Ghost(Trigger)を登録する
+		void Resize_Ghost(const std::unique_ptr<btGhostObject>& ghost); //Ghost(Trigger)をリサイズする
+		void Remove_Ghost(const std::unique_ptr<btGhostObject>& ghost); //Ghost(Trigger)を削除する
+
+		void Set_Debug_Drawer() const; //デバッグ表示(ワイヤーフレーム)に登録する
+		void Render_Debug() const; //デバッグ描画
 
 		std::unique_ptr<btDiscreteDynamicsWorld> world;
 

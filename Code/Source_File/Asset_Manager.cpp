@@ -26,7 +26,7 @@ void Asset_Manager::Erase_Asset(const std::string& id)
 	assert(it != 0);
 }
 
-weak_ptr<Object> Asset_Manager::Get_Asset_From_ID(const string& id)
+weak_ptr<Object> Asset_Manager::Get_Asset_From_Id(const string& id)
 {
 	weak_ptr<Object> obj;
 	if (const auto it = cache_asset.find(id); it != cache_asset.end())

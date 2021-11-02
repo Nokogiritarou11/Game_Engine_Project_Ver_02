@@ -7,6 +7,7 @@
 
 namespace BeastEngine
 {
+	//オーディオの再生を担当するコンポーネントクラス
 	class AudioSource final : public Behaviour
 	{
 	public:
@@ -19,19 +20,19 @@ namespace BeastEngine
 		void Stop() const;  //停止
 
 		void Play_OneShot(float volume = 1.0f, float pitch = 0.0f) const; //再生(同時再生可能),(再生中制御不可)
-		//static void PlayClipAtPoint(const char* filepath, const char* filename, Vector3 position = { 0,0,0 }, float volume = 1.0f, float pitch = 0.0f); //その場でオブジェクトを生成し再生(同時再生可能),(再生中制御不可)
 
-		[[nodiscard]] bool Is_Playing() const;
-		void Set_Volume(float volume) const;
-		[[nodiscard]] float Get_Volume() const { return volume; };
-		void Set_Pitch(float pitch) const;
-		[[nodiscard]] float Get_Pitch() const { return pitch; };
+		[[nodiscard]] bool Is_Playing() const; //再生中か
 
-		bool play_on_awake = true;
-		bool loop = false;
+		void Set_Volume(float volume) const;                      //音量を設定する
+		[[nodiscard]] float Get_Volume() const { return volume; } //音量を取得する
+
+		void Set_Pitch(float pitch) const;                        //再生時のピッチを設定する
+		[[nodiscard]] float Get_Pitch() const { return pitch; }   //再生時のピッチを取得する
+
+		bool play_on_awake = true; //アクティブ化時に自動再生するか
+		bool loop = false;         //ループ再生するか
 
 	private:
-
 		std::unique_ptr<DirectX::SoundEffectInstance> effect_instance{};
 		std::string file_name{};
 		std::string file_path{};
@@ -39,10 +40,10 @@ namespace BeastEngine
 		float volume = 1.0f;
 		float pitch = 0.0f;
 
-		void Initialize(const std::shared_ptr<GameObject>& obj) override;
-		void Set_Active(bool value) override;
-		bool Draw_ImGui() override;
-		bool Can_Multiple() override { return true; };
+		void Initialize(const std::shared_ptr<GameObject>& obj) override; //初期化
+		void Set_Active(bool value) override;                             //アクティブ状態を切り替える
+		bool Draw_ImGui() override;                                       //ImGui描画
+		bool Can_Multiple() override { return true; };                    //同コンポーネントを複数アタッチ可能か
 
 		friend class cereal::access;
 		template<class Archive>

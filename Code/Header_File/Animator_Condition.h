@@ -6,6 +6,7 @@
 
 namespace BeastEngine
 {
+	//アニメーションパラメーターの型
 	enum class Parameter_Type
 	{
 		Int,
@@ -14,6 +15,7 @@ namespace BeastEngine
 		Trigger
 	};
 
+	//判定タイプ
 	enum class Condition_Mode
 	{
 		If,
@@ -24,12 +26,14 @@ namespace BeastEngine
 		NotEquals
 	};
 
+	//ステートイベントタイプ
 	enum class State_Event_Type
 	{
 		Enter,
 		Exit
 	};
 
+	//アニメーションパラメーター用共通構造体
 	struct Animation_Parameter
 	{
 		int value_int = 0;
@@ -45,7 +49,8 @@ namespace BeastEngine
 		}
 	};
 
-	struct Condition //遷移条件
+	//遷移条件データ用構造体
+	struct Condition
 	{
 		std::string key;
 		Parameter_Type type;
@@ -61,6 +66,7 @@ namespace BeastEngine
 		}
 	};
 
+	//アニメーションイベント構造体
 	struct Animation_Event
 	{
 		std::string key;
@@ -77,6 +83,7 @@ namespace BeastEngine
 		}
 	};
 
+	//ステートイベント構造体
 	struct State_Event
 	{
 		std::string key;

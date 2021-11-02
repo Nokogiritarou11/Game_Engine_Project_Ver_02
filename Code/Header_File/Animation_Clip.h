@@ -9,9 +9,11 @@ namespace BeastEngine
 	class Transform;
 	class Fbx_Converter;
 
+	//アニメーションクリップデータ
 	class Animation_Clip final : public Object
 	{
 	public:
+		//キーフレームデータ
 		struct Keyframe
 		{
 			float time;
@@ -28,6 +30,7 @@ namespace BeastEngine
 			}
 		};
 
+		//対象(Transform)へのアニメーションデータ
 		struct Animation
 		{
 			std::string target_path;
@@ -44,14 +47,14 @@ namespace BeastEngine
 
 		std::vector<Animation> animations;
 
-		[[nodiscard]] float Get_Length() const { return length; }
-		[[nodiscard]] int Get_Frame_Count() const { return frame_count; }
+		[[nodiscard]] float Get_Length() const { return length; } //クリップの長さ(秒)を取得する
+		[[nodiscard]] int Get_Frame_Count() const { return frame_count; } //クリップのフレーム数を取得する
 
-		static std::shared_ptr<Animation_Clip> Load_Clip(const std::string& full_path);
+		static std::shared_ptr<Animation_Clip> Load_Clip(const std::string& full_path); //ファイルパスを指定してクリップを読み込む
 
 	private:
-		float length;
-		int frame_count;
+		float length; //フレームの長さ(秒)
+		int frame_count; //クリップのフレーム数
 
 		friend class Fbx_Converter;
 		friend class cereal::access;

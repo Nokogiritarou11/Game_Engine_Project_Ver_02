@@ -91,7 +91,7 @@ bool Animator_State_Transition::Check_Transition()
 	return can_transition;
 }
 
-void Animator_State_Transition::Active()
+void Animator_State_Transition::Activate()
 {
 	for (const auto& condition : conditions)
 	{

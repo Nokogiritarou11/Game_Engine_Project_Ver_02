@@ -25,7 +25,7 @@ void Animator_Controller::Initialize()
 		if (state->is_default_state)
 		{
 			playing_state_machine = state;
-			playing_state_machine->Set_Active();
+			playing_state_machine->Activate();
 		}
 	}
 }
@@ -97,7 +97,7 @@ void Animator_Controller::Update()
 			interrupt_state = 1;
 			active_transition = playing_state_machine->Get_Active_Transition();
 			next_state_machine = active_transition->next_state.lock();
-			next_state_machine->Set_Active(active_transition->transition_offset);
+			next_state_machine->Activate(active_transition->transition_offset);
 			playing_state_machine->transition_trigger = false;
 		}
 	}
@@ -129,7 +129,7 @@ void Animator_Controller::Update()
 					duration_timer = 0;
 					active_transition = playing_state_machine->Get_Active_Transition();
 					next_state_machine = active_transition->next_state.lock();
-					next_state_machine->Set_Active(active_transition->transition_offset);
+					next_state_machine->Activate(active_transition->transition_offset);
 					playing_state_machine->transition_trigger = false;
 				}
 			}
@@ -145,7 +145,7 @@ void Animator_Controller::Update()
 					duration_timer = 0;
 					active_transition = next_state_machine->Get_Active_Transition();
 					next_state_machine = active_transition->next_state.lock();
-					next_state_machine->Set_Active(active_transition->transition_offset);
+					next_state_machine->Activate(active_transition->transition_offset);
 					next_state_machine->transition_trigger = false;
 				}
 			}

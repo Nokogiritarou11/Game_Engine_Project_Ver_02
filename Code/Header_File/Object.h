@@ -1,5 +1,4 @@
 #pragma once
-#include <stdio.h>
 #include <string>
 #include <DirectXMath.h>
 #include <Original_Math.h>
@@ -24,6 +23,7 @@ namespace BeastEngine
 	class GameObject;
 	class Component;
 
+	//エンジン内で使用されるオブジェクトの基底クラス
 	class Object : public std::enable_shared_from_this<Object>
 	{
 	public:
@@ -39,15 +39,9 @@ namespace BeastEngine
 		static void Destroy(std::shared_ptr<Component> comp); //オブジェクトを削除する
 
 		static std::shared_ptr<Object> Instantiate(std::weak_ptr<Object> original); //オブジェクトを生成する
-		//static std::shared_ptr<Object> Instantiate(std::weak_ptr<Object> original, std::shared_ptr<Transform> parent);                                     //オブジェクトを生成する
-		//static std::shared_ptr<Object> Instantiate(std::weak_ptr<Object> original, std::shared_ptr<Transform> parent, bool instantiateInWorldSpace);       //オブジェクトを生成する
-		//static std::shared_ptr<Object> Instantiate(std::weak_ptr<Object> original, Vector3 position, Vector3 euler);                                       //オブジェクトを生成する
-		//static std::shared_ptr<Object> Instantiate(std::weak_ptr<Object> original, Vector3 position, Vector4 rotation);                                    //オブジェクトを生成する
-		//static std::shared_ptr<Object> Instantiate(std::weak_ptr<Object> original, Vector3 position, Vector3 euler, std::shared_ptr<Transform> parent);    //オブジェクトを生成する
-		//static std::shared_ptr<Object> Instantiate(std::weak_ptr<Object> original, Vector3 position, Vector4 rotation, std::shared_ptr<Transform> parent); //オブジェクトを生成する
 
 	private:
-		std::string instance_id;
+		std::string instance_id; //インスタンス時に生成されるユニークID
 
 		friend class cereal::access;
 		template<class Archive>

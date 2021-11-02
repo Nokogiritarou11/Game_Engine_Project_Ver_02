@@ -8,6 +8,7 @@ using namespace BeastEngine;
 
 shared_ptr<Animation_Clip> Animation_Clip::Load_Clip(const string& full_path)
 {
+	//アセットマネージャー内にキャッシュがあればそれを返す
 	if (const auto itr = Engine::asset_manager->cache_clip.find(full_path); itr != Engine::asset_manager->cache_clip.end())
 	{
 		shared_ptr<Animation_Clip> clip = itr->second;
@@ -23,6 +24,7 @@ shared_ptr<Animation_Clip> Animation_Clip::Load_Clip(const string& full_path)
 		cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
 		binaryInputArchive(clip);
 
+		//アセットマネージャーへ登録
 		Engine::asset_manager->Registration_Asset(clip);
 		Engine::asset_manager->cache_clip.insert(make_pair(full_path, clip));
 

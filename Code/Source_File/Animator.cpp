@@ -154,7 +154,7 @@ void Animator::Reset_Trigger(const string& key) const
 
 void Animator::Update()
 {
-	if (!playing) return;
+	if (!is_playing) return;
 	if (!controller) return;
 
 	controller->Update();
@@ -342,17 +342,17 @@ void Animator::Update()
 // アニメーション再生
 void Animator::Play()
 {
-	playing = true;
+	is_playing = true;
 }
 
 void Animator::Stop()
 {
-	playing = false;
+	is_playing = false;
 }
 
 void Animator::Pause()
 {
-	playing = false;
+	is_playing = false;
 }
 
 bool Animator::Draw_ImGui()

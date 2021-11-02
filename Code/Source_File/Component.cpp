@@ -17,7 +17,7 @@ bool Component::Compare_Tag(const string& tag) const
 
 shared_ptr<Component> Component::Add_Component(const string& class_name)
 {
-	if (shared_ptr<Component> buff = Component_Factory::createInstance(class_name))
+	if (shared_ptr<Component> buff = Component_Factory::Create_Instance(class_name))
 	{
 		if (buff->Can_Multiple())
 		{

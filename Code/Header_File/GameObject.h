@@ -7,35 +7,36 @@
 
 namespace BeastEngine
 {
-	class GameObject : public Object
+	class GameObject final : public Object
 	{
 	public:
-		bool Compare_Tag(const std::string& tag) const;								//指定したタグに一致するか返す
-		bool Get_Active() const;												//ゲームオブジェクトがアクティブか(親の状態を考慮しない)
-		void Set_Active(bool value);									//アクティブ状態を指定する
-		bool Get_Active_In_Hierarchy() const;									//ヒエラルキー上でアクティブか(親の状態を考慮する)
+		[[nodiscard]] bool Compare_Tag(const std::string& tag) const;	//指定したタグに一致するか返す
+		[[nodiscard]] bool Get_Active() const;						//ゲームオブジェクトがアクティブか(親の状態を考慮しない)
+		void Set_Active(bool value);					//アクティブ状態を指定する
+		[[nodiscard]] bool Get_Active_In_Hierarchy() const;			//ヒエラルキー上でアクティブか(親の状態を考慮する)
 
-		int layer = 0;
-		std::string tag = "Default";
-		std::shared_ptr<Transform> transform;
-		std::vector<std::shared_ptr<Component>> component_list;
+		int layer = 0;                                          //コリジョンや描画判定用レイヤー
+		std::string tag = "Default";                            //タグ
+		std::shared_ptr<Transform> transform;                   //アタッチされているTransform
+		std::vector<std::shared_ptr<Component>> component_list; //アタッチされているコンポーネントのリスト
 
 		template<class T>
-		std::shared_ptr<T> Get_Component();								//アタッチサれているコンポーネントを検索し返す(存在しない場合null_ptr)
+		std::shared_ptr<T> Get_Component();	//アタッチされているコンポーネントを検索し返す(存在しない場合null_ptr)
 		template<class T>
-		std::shared_ptr<T> Add_Component();								//コンポーネントをアタッチする
+		std::shared_ptr<T> Add_Component();	//コンポーネントをアタッチする
 		std::shared_ptr<Component> Add_Component(const std::string& class_name);
 
 		static std::weak_ptr<GameObject> Find(const std::string& name);			//シーン内のゲームオブジェクトを名前で検索する
 		static std::weak_ptr<GameObject> Find_With_Tag(const std::string& tag);	//シーン内のゲームオブジェクトをタグで検索する
 
 	private:
+		void Initialize(); //初期化
+		void Release();    //後始末
 
-		void Initialize();
-		void Release();
-		void Set_Child_Active(bool value) const;
-		bool active = true;
-		bool active_old = true;
+		void Set_Child_Active(bool value) const; //子のアクティブ状態を切り替える
+
+		bool active = true;     //アクティブ状態
+		bool active_old = true; //変更時トリガー用キャッシュ
 
 		friend class Resources;
 		friend class Scene;
@@ -68,6 +69,7 @@ std::shared_ptr<T> BeastEngine::GameObject::Add_Component()
 {
 	std::shared_ptr<T> buff = std::make_shared<T>();
 
+	//複数アタッチできるか確認
 	if (std::dynamic_pointer_cast<Component>(buff)->Can_Multiple())
 	{
 		std::dynamic_pointer_cast<Component>(buff)->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
@@ -75,6 +77,7 @@ std::shared_ptr<T> BeastEngine::GameObject::Add_Component()
 		return buff;
 	}
 
+	//既にアタッチされているか確認
 	bool already_attach = false;
 	for (std::shared_ptr<Component> com : component_list)
 	{

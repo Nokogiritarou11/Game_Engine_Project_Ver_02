@@ -8,27 +8,29 @@ namespace BeastEngine
 	class Transform;
 	class Animator_Manager;
 
+	//アニメーターコンポーネント
 	class Animator final : public Behaviour
 	{
 	public:
+		void Play();  //再生する
+		void Stop();  //停止する
+		void Pause(); //一時停止する
 
-		void Play();  //再生
-		void Stop();  //停止
-		void Pause(); //一時停止
+		void Set_Int(const std::string& key, const int& value) const;     //Keyに対応したInt型パラメーターをvalueで書き換える
+		void Set_Float(const std::string& key, const float& value) const; //Keyに対応したFloat型パラメーターをvalueで書き換える
+		void Set_Bool(const std::string& key, const bool& value) const;   //Keyに対応したBool型パラメーターをvalueで書き換える
+		void Set_Trigger(const std::string& key) const;                   //Keyに対応したTrigger型パラメーターをtrueにする
 
-		void Set_Int(const std::string& key, const int& value) const;
-		void Set_Float(const std::string& key, const float& value) const;
-		void Set_Bool(const std::string& key, const bool& value) const;
-		void Set_Trigger(const std::string& key) const;
+		[[nodiscard]] int Get_Int(const std::string& key) const;     //Keyに対応したInt型パラメーターを返す
+		[[nodiscard]] float Get_Float(const std::string& key) const; //Keyに対応したFloat型パラメーターを返す
+		[[nodiscard]] bool Get_Bool(const std::string& key) const;   //Keyに対応したBool型パラメーターを返す
 
-		[[nodiscard]] int Get_Int(const std::string& key) const;
-		[[nodiscard]] float Get_Float(const std::string& key) const;
-		[[nodiscard]] bool Get_Bool(const std::string& key) const;
-		void Reset_Trigger(const std::string& key) const;
+		void Reset_Trigger(const std::string& key) const; //Keyに対応したTrigger型パラメーターをリセットする
 
 		std::shared_ptr<Animator_Controller> controller;
 
 	private:
+		//map登録用アニメーションデータ
 		struct Animation_Target
 		{
 			std::weak_ptr<Transform> target;
@@ -37,22 +39,22 @@ namespace BeastEngine
 			Vector3 scale;
 		};
 
-		void Initialize(const std::shared_ptr<GameObject>& obj) override;
-		bool Draw_ImGui() override;
-		bool Can_Multiple() override { return false; };
+		void Initialize(const std::shared_ptr<GameObject>& obj) override; //初期化
+		bool Draw_ImGui() override; //ImGui描画
+		bool Can_Multiple() override { return false; }; //同コンポーネントを複数アタッチ可能か
 
-		void Set_Default_Pose();
+		void Set_Default_Pose(); //アニメーションブレンド時に必要な初期ポーズ状態を設定する
 		void Update(); //更新
 
-		bool playing = true;
+		bool is_playing = true;
 
-		std::string controller_path;
+		std::string controller_path; //アニメーションコントローラーのファイルパス
 
-		std::unordered_map<std::string, Animation_Target> animation_data;
-		std::unordered_map<std::string, Animation_Target> pose_default;
-		std::unordered_map<std::string, Animation_Target> pose_playing;
-		std::unordered_map<std::string, Animation_Target> pose_next;
-		std::unordered_map<std::string, Animation_Target> pose_interrupt;
+		std::unordered_map<std::string, Animation_Target> animation_data; //コントローラーに読み込まれた全クリップに存在するAnimationの一覧
+		std::unordered_map<std::string, Animation_Target> pose_default;   //ボーンTransformの初期姿勢
+		std::unordered_map<std::string, Animation_Target> pose_playing;   //再生されているクリップアニメーションのポーズ
+		std::unordered_map<std::string, Animation_Target> pose_next;      //ブレンド用遷移先アニメーションのポーズ
+		std::unordered_map<std::string, Animation_Target> pose_interrupt; //遷移割り込み時のブレンド用中断ポーズ
 
 		friend class Animator_Manager;
 		friend class cereal::access;

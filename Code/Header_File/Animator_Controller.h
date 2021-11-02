@@ -10,42 +10,42 @@ namespace BeastEngine
 	class Transform;
 	class Animator_State_Transition;
 
-	class Animator_Controller : public Object
+	class Animator_Controller final : public Object
 	{
 	public:
-		std::string name;
 		std::vector<std::shared_ptr<Animator_State_Machine>> state_machines;
 		std::shared_ptr<std::unordered_map<std::string, Animation_Parameter>> parameters;
-		std::string save_path;
+		std::string save_path; //上書きセーブ用パス
 
-		void Initialize();
-		void Update();
-		bool Add_State_Machine(const std::string& name);
-		bool Remove_State_Machine(const std::string& name);
-		void Render_ImGui();
-		void Add_Parameter(std::string& p_name, Parameter_Type type) const;
+		void Initialize(); //初期化
+		void Update(); //更新
+		void Render_ImGui(); //ImGui描画
 
-		static std::shared_ptr<Animator_Controller> Load_Animator_Controller(const std::string& full_path = "");
-		static std::shared_ptr<Animator_Controller> Create_New_Controller();
+		bool Add_State_Machine(const std::string& name);                    //新規ステートマシンを追加する
+		bool Remove_State_Machine(const std::string& name);                 //ステートマシンを削除する
+		void Add_Parameter(std::string& p_name, Parameter_Type type) const; //新規アニメーションパラメーターを追加する
 
-		std::shared_ptr<Animator_State_Machine> playing_state_machine;
-		std::shared_ptr<Animator_State_Machine> next_state_machine;
-		std::shared_ptr<Animator_State_Transition> active_transition;
-		float duration_timer = 0;
-		int interrupt_state = 0;
+		static std::shared_ptr<Animator_Controller> Load_Animator_Controller(const std::string& full_path = ""); //ファイルパスからアニメーターコントローラーを読み込む
+		static std::shared_ptr<Animator_Controller> Create_New_Controller(); //新規アニメーションコントローラーを生成する
+
+		std::shared_ptr<Animator_State_Machine> playing_state_machine; //再生中のステートマシン
+		std::shared_ptr<Animator_State_Machine> next_state_machine; //遷移先のステートマシン
+		std::shared_ptr<Animator_State_Transition> active_transition; //現在有効な遷移
+		float duration_timer = 0; //遷移判定用タイマー
+		int interrupt_state = 0;  //遷移割り込みの状態ステート
 
 	private:
-		int current_state_index = 0;
-		int current_transition_index = 0;
+		int current_state_index = 0;	  //現在のステートマシンのインデックス
+		int current_transition_index = 0; //現在の遷移のインデックス
 
-		void Save();
-		void Save_As();
+		void Save();    //ファイルダイアログからセーブする
+		void Save_As(); //save_pathに上書きセーブする
 
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<Object>(this), name, state_machines, parameters, save_path);
+			archive(cereal::base_class<Object>(this), state_machines, parameters, save_path);
 		}
 	};
 }

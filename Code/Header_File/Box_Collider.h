@@ -3,15 +3,16 @@
 
 namespace BeastEngine
 {
-	class Box_Collider :public Collider
+	//ボックスコライダー
+	class Box_Collider final :public Collider
 	{
 	public:
-		void Set_Size(Vector3& new_size);
-		[[nodiscard]] Vector3 Get_Size() const { return size; }
+		void Set_Size(Vector3& new_size); //サイズを設定する
+		[[nodiscard]] Vector3 Get_Size() const { return size; } //サイズを取得する
 
 	private:
-		void Create_Shape() override;
-		bool Draw_ImGui() override;
+		void Create_Shape() override; //形状を作成する(Box)
+		bool Draw_ImGui() override; //ImGui描画
 
 		Vector3 size = { 1.0f,1.0f ,1.0f };
 

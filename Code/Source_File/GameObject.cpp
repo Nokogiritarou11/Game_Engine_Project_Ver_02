@@ -8,7 +8,7 @@ using namespace BeastEngine;
 
 std::shared_ptr<Component> GameObject::Add_Component(const std::string& class_name)
 {
-	if (std::shared_ptr<Component> buff = Component_Data::Component_Factory::createInstance(class_name))
+	if (std::shared_ptr<Component> buff = Component_Data::Component_Factory::Create_Instance(class_name))
 	{
 		if (buff->Can_Multiple())
 		{

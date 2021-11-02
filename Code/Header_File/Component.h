@@ -7,39 +7,39 @@ namespace BeastEngine
 {
 	class Editor;
 
+	//ゲームオブジェクトにアタッチできるコンポーネントの基底クラス
 	class Component : public Object
 	{
 	public:
-		std::shared_ptr<GameObject> gameobject;
-		std::shared_ptr<Transform> transform;
+		std::shared_ptr<GameObject> gameobject; //アタッチしているGameObject
+		std::shared_ptr<Transform> transform;   //アタッチしているGameObjectのTransform
 
-		[[nodiscard]] bool Compare_Tag(const std::string& tag) const;
+		[[nodiscard]] bool Compare_Tag(const std::string& tag) const; //GameObjectのタグが引数と一致しているかを取得する
 
 		template<class T>
-		std::shared_ptr<T> Get_Component();
+		std::shared_ptr<T> Get_Component(); //GameObjectにアタッチされたコンポーネントを取得する(存在しない場合null_ptr)
 		template<class T>
-		std::shared_ptr<T> Add_Component();
-		std::shared_ptr<Component> Add_Component(const std::string& class_name);
+		std::shared_ptr<T> Add_Component();                                      //GameObjectにコンポーネントをアタッチする(テンプレート版)
+		std::shared_ptr<Component> Add_Component(const std::string& class_name); //GameObjectにコンポーネントをアタッチする(クラス名版)
 
 	protected:
-		virtual void Set_Active(bool value) {};
+		virtual void Set_Active(bool value) {}; //アクティブ状態を切り替える
 		Component() = default;
 
 	private:
+
+		virtual bool Can_Multiple() { return true; };                       //同じコンポーネントを複数アタッチ可能か
+		virtual void Initialize(const std::shared_ptr<GameObject>& obj) {}; //初期化
+		virtual bool Draw_ImGui() { return true; };                         //ImGuiで表示するための共通関数
+
+		friend class GameObject;
+		friend class Editor;
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
 			archive(cereal::base_class<Object>(this));
 		}
-
-		virtual bool Can_Multiple() { return true; };
-
-		friend class GameObject;
-		virtual void Initialize(const std::shared_ptr<GameObject>& obj) {};
-
-		friend class Editor;
-		virtual bool Draw_ImGui() { return true; };
 	};
 }
 
@@ -47,46 +47,48 @@ CEREAL_REGISTER_TYPE(BeastEngine::Component)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Object, BeastEngine::Component)
 CEREAL_CLASS_VERSION(BeastEngine::Component, 1)
 
-namespace BeastEngine
+namespace BeastEngine::Component_Data
 {
-	namespace Component_Data
+	template<class T>
+	std::shared_ptr<Component> Create_Component() { return std::make_shared<T>(); }
+
+	//コンポーネントを名前から作成するためのファクトリークラス
+	struct Component_Factory
 	{
-		template<class T>
-		std::shared_ptr<Component> Create_Component() { return std::make_shared<T>(); }
+		typedef std::map<std::string, std::shared_ptr<Component>(*)()> map_type;
 
-		struct Component_Factory
+		//stringからコンポーネントを作成する
+		static std::shared_ptr<Component> Create_Instance(std::string const& s)
 		{
-			typedef std::map<std::string, std::shared_ptr<Component>(*)()> map_type;
+			const auto it = Get_Map()->find(s);
+			if (it == Get_Map()->end())
+				return nullptr;
+			return it->second();
+		}
 
-			static std::shared_ptr<Component> createInstance(std::string const& s)
-			{
-				const auto it = getMap()->find(s);
-				if (it == getMap()->end())
-					return nullptr;
-				return it->second();
-			}
-
-			static std::shared_ptr<map_type> getMap()
-			{
-				if (!map) { map = std::make_shared<map_type>(); }
-				return map;
-			}
-
-		private:
-			static std::shared_ptr<map_type> map;
-		};
-
-		template<class T>
-		struct Component_Register : Component_Factory
+		//名前のリストに登録されているか確認する
+		static std::shared_ptr<map_type> Get_Map()
 		{
-			Component_Register(std::string const& s)
-			{
-				getMap()->insert(std::make_pair(s, &Create_Component<T>));
-			}
-		};
-	}
+			if (!map) { map = std::make_shared<map_type>(); }
+			return map;
+		}
+
+	private:
+		static std::shared_ptr<map_type> map;
+	};
+
+	//マクロから登録するためのレジスタークラス
+	template<class T>
+	struct Component_Register : Component_Factory
+	{
+		explicit Component_Register(std::string const& s)
+		{
+			Get_Map()->insert(std::make_pair(s, &Create_Component<T>));
+		}
+	};
 }
 
+//名前からコンポーネントを作成するためにファクトリーに登録するマクロ
 #define REGISTER_COMPONENT(NAME) \
 namespace BeastEngine\
 {\
@@ -115,13 +117,15 @@ std::shared_ptr<T> BeastEngine::Component::Add_Component()
 {
 	std::shared_ptr<T> buff = std::make_shared<T>();
 
+	//複数アタッチできるか確認
 	if (std::dynamic_pointer_cast<Component>(buff)->Can_Multiple())
 	{
-		std::dynamic_pointer_cast<Component>(buff)->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
+		std::dynamic_pointer_cast<Component>(buff)->Initialize(gameobject);
 		gameobject->component_list.emplace_back(buff);
 		return buff;
 	}
 
+	//既にアタッチされているか確認
 	bool already_attach = false;
 	for (std::shared_ptr<Component>& com : gameobject->component_list)
 	{
@@ -134,7 +138,7 @@ std::shared_ptr<T> BeastEngine::Component::Add_Component()
 	}
 	if (!already_attach)
 	{
-		std::dynamic_pointer_cast<Component>(buff)->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
+		std::dynamic_pointer_cast<Component>(buff)->Initialize(gameobject);
 		gameobject->component_list.emplace_back(buff);
 		return buff;
 	}

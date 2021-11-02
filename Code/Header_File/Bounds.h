@@ -12,28 +12,29 @@ namespace BeastEngine
 {
 	class Transform;
 
+	//AABB計算用データクラス
 	struct Bounds
 	{
 	public:
-		[[nodiscard]] Vector3 Get_Center() const { return center; }
-		[[nodiscard]] Vector3 Get_Extents() const { return extents; }
-		[[nodiscard]] Vector3 Get_Min() const { return min; }
-		[[nodiscard]] Vector3 Get_Max() const { return max; }
-		[[nodiscard]] Vector3 Get_Size() const { return size; }
+		[[nodiscard]] Vector3 Get_Center() const { return center; }   //座標オフセットを取得する
+		[[nodiscard]] Vector3 Get_Extents() const { return extents; } //半径を取得する
+		[[nodiscard]] Vector3 Get_Min() const { return min; }         //最小座標を取得する
+		[[nodiscard]] Vector3 Get_Max() const { return max; }         //最大座標を取得する
+		[[nodiscard]] Vector3 Get_Size() const { return size; }       //幅を取得する
 
-		void Set_Center(const Vector3& value);
-		auto Set_Center(const float& x, const float& y, const float& z) -> void;
-		void Set_Size(const Vector3& value);
-		void Set_Size(const float& x, const  float& y, const float& z);
+		void Set_Center(const Vector3& value);                           //座標オフセットを設定する
+		void Set_Center(const float& x, const float& y, const float& z); //座標オフセットを設定する
+		void Set_Size(const Vector3& value);                             //AABBのサイズを設定する
+		void Set_Size(const float& x, const  float& y, const float& z);  //AABBのサイズを設定する
 
-		bool Get_Is_Culling_Frustum(const std::shared_ptr<Transform>& trans, const  std::array<Vector4, 6>& planes) const;
+		[[nodiscard]] bool Get_Is_Culling_Frustum(const std::shared_ptr<Transform>& trans, const  std::array<Vector4, 6>& planes) const; //視錐台カリングされるか
 
 	private:
-		Vector3 center;
-		Vector3 extents;
-		Vector3 min;
-		Vector3 max;
-		Vector3 size;
+		Vector3 center;  //中心オフセット
+		Vector3 extents; //半径
+		Vector3 min;     //最小座標
+		Vector3 max;     //最大座標
+		Vector3 size;    //幅
 
 		friend class cereal::access;
 		template<class Archive>

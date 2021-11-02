@@ -528,7 +528,7 @@ void Editor::Inspector_Render()
 			if (ImGui::BeginPopup(u8"コンポーネントリスト"))
 			{
 				ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0, 0.5f));
-				const auto& component_map = Component_Data::Component_Factory::getMap();
+				const auto& component_map = Component_Data::Component_Factory::Get_Map();
 				for (auto it = component_map->begin(); it != component_map->end(); ++it)
 				{
 					if (ImGui::Button(it->first.c_str(), ImVec2(-FLT_MIN, 0.0f)))

@@ -36,7 +36,7 @@ void Animator_State_Machine::Set_Clip(const string& full_path)
 	}
 }
 
-void Animator_State_Machine::Set_Active(float transition_offset)
+void Animator_State_Machine::Activate(float transition_offset)
 {
 	is_end_animation = false;
 	const float end_sec = static_cast<float>(end_frame) * 0.0166666666666667f;
@@ -359,6 +359,6 @@ void Animator_State_Machine::Add_State_Event()
 
 shared_ptr<Animator_State_Transition> Animator_State_Machine::Get_Active_Transition() const
 {
-	active_transition->Active();
+	active_transition->Activate();
 	return active_transition;
 }
