@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include <list>
+#include <vector>
 
 namespace BeastEngine
 {
@@ -15,6 +15,6 @@ namespace BeastEngine
 		void Add(std::shared_ptr<Animator> animator);
 
 	private:
-		std::list<std::weak_ptr<Animator>> animator_list;
+		std::vector<std::weak_ptr<Animator>> animator_list;
 	};
 }

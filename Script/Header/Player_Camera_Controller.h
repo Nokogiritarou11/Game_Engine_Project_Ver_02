@@ -4,6 +4,7 @@
 namespace BeastEngine
 {
 	class Character_Parameter;
+	class Enemy_Manager;
 
 	class Player_Camera_Controller final : public MonoBehaviour
 	{
@@ -15,7 +16,7 @@ namespace BeastEngine
 		bool Draw_ImGui() override;
 
 		void Update_Root_Transform() const;
-		void Update_Child_Transform();
+		void Update_Child_Transform() const;
 
 		float angle_limit_up = 0;
 		float angle_limit_down = 0;
@@ -23,7 +24,11 @@ namespace BeastEngine
 		float follow_speed = 0;
 
 		std::weak_ptr<Transform> player_transform;
+		std::weak_ptr<Transform> camera_transform;
+		std::weak_ptr<Transform> target_transform;
+
 		std::weak_ptr<Character_Parameter> parameter;
+		std::weak_ptr<Enemy_Manager> enemy_manager;
 
 		// シリアライズ関数
 		friend class cereal::access;

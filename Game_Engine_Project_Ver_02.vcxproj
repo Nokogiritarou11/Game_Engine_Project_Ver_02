@@ -272,6 +272,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Code\Source_File\Thread_Pool.cpp" />
     <ClCompile Include="Code\Source_File\Time.cpp" />
     <ClCompile Include="Code\Source_File\Transform.cpp" />
     <ClCompile Include="Code\Source_File\Render_Texture.cpp" />
@@ -396,6 +397,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Code\Header_File\Thread_Pool.h" />
     <ClInclude Include="Code\Header_File\Time_Engine.h" />
     <ClInclude Include="Code\Header_File\Transform.h" />
     <ClInclude Include="Code\Header_File\Render_Texture.h" />

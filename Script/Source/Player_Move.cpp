@@ -38,15 +38,40 @@ void Player_Move::Move_Normal()
 void Player_Move::Move_Attack()
 {
 	const auto& anim = animator.lock();
+	const auto& input = p_input.lock();
+	const auto& param = parameter.lock();
+
 	move_speed = anim->Get_Float("Move_Speed");
 
 	if (anim->Get_Bool("Turn_To_Enemy"))
 	{
 		anim->Set_Bool("Turn_To_Enemy", false);
 
-		if (const auto& e_manager = enemy_manager.lock(); e_manager->Get_Has_Enemy())
+		if (input->input_direction == Vector3::Zero)
 		{
-			transform->Set_Local_Rotation(transform->Look_At(e_manager->Get_Nearest_Enemy_Position(transform->Get_Position())));
+			Vector3 pos = param->target.lock()->transform->Get_Position();
+			pos.y = transform->Get_Position().y;
+			transform->Set_Local_Rotation(transform->Look_At(pos));
+		}
+		else
+		{
+			if (const auto& enemy_list = enemy_manager.lock()->enemy_list; !enemy_list.empty())
+			{
+				Vector3 nearest_position;
+				float nearest_angle = FLT_MAX;
+				for (const auto& enemy : enemy_list)
+				{
+					const Vector3 pos = enemy.lock()->transform->Get_Position();
+					if (const float angle = input->Get_Input_To_Target_Angle(pos); angle < nearest_angle)
+					{
+						nearest_angle = angle;
+						nearest_position = pos;
+					}
+				}
+
+				nearest_position.y = transform->Get_Position().y;
+				transform->Set_Local_Rotation(transform->Look_At(nearest_position));
+			}
 		}
 	}
 
@@ -121,6 +146,16 @@ void Player_Move::Move_Update()
 			anim->Set_Bool("Add_Jump_Force", false);
 		}
 	}
+}
+
+float Player_Move::Get_Forward_To_Target_Angle(Vector3 target_position) const
+{
+	const Vector3 player_pos = transform->Get_Position();
+	target_position.y = player_pos.y;
+	const Vector3 dir = transform->Get_Forward();
+	Vector3 target_vector = target_position - (player_pos - dir * 1.5f);
+	target_vector.Normalize();
+	return acosf(dir.Dot(target_vector)) * 180.0f / static_cast<float>(M_PI);
 }
 
 bool Player_Move::Draw_ImGui()

@@ -4,7 +4,6 @@
 #include <Xinput.h>
 #pragma comment(lib,"xinput.lib ")
 
-
 namespace BeastEngine
 {
 	enum class Key_Code
@@ -177,9 +176,9 @@ namespace BeastEngine
 	private:
 		struct Controller_Input_Result
 		{
-			bool buttons[14];
-			float left_trigger;
-			float right_trigger;
+			bool buttons[14]{};
+			float left_trigger = 0;
+			float right_trigger = 0;
 			Vector2 left_axis;
 			Vector2 right_axis;
 		};

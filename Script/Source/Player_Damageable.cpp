@@ -30,7 +30,7 @@ bool Player_Damageable::Take_Damage(const int damage_hp, const int damage_stun, 
 		if (param->just_guarding)
 		{
 			anim->Set_Trigger("Parry");
-			from_transform->Set_Local_Position(transform->Get_Position() + transform->Get_Forward() * 2.25f);
+			from_transform->Set_Local_Position(transform->Get_Position() + transform->Get_Forward() * 2.0f);
 			time_manager.lock()->Start_Time_Slow(0.05f, 0.1f, 0.05f);
 			pool.lock()->Instance_In_Pool(guard_particle_key, transform->Get_Position() + transform->Get_Forward() * 0.7f + Vector3(0, 1.2f, 0), transform->Get_Local_Rotation());
 		}

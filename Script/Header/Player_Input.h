@@ -13,6 +13,7 @@ namespace BeastEngine
 		void Set_State() override;
 
 		Vector3 input_direction{};
+		[[nodiscard]] float Get_Input_To_Target_Angle(Vector3 target_position) const;
 
 	private:
 		void Awake() override;

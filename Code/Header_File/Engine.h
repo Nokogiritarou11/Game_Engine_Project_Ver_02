@@ -18,6 +18,7 @@ namespace BeastEngine
 	class Debug_Draw_Manager;
 	class Fbx_Converter;
 	class Editor;
+	class Thread_Pool;
 
 	class Engine
 	{
@@ -43,6 +44,7 @@ namespace BeastEngine
 		static std::unique_ptr<Debug_Draw_Manager> debug_draw_manager;
 		static std::unique_ptr<Fbx_Converter> fbx_converter;
 		static std::unique_ptr<Editor> editor;
+		static std::unique_ptr<Thread_Pool> thread_pool;
 	private:
 	};
 }

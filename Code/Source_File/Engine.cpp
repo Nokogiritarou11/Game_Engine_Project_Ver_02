@@ -20,6 +20,7 @@
 #include "Scene.h"
 #include "Project_Settings.h"
 #include "System_Function.h"
+#include "Thread_Pool.h"
 using namespace std;
 using namespace BeastEngine;
 
@@ -37,9 +38,11 @@ unique_ptr<BulletPhysics_Manager> Engine::bulletphysics_manager;
 unique_ptr<Debug_Draw_Manager>	  Engine::debug_draw_manager;
 unique_ptr<Fbx_Converter>	      Engine::fbx_converter;
 unique_ptr<Editor>                Engine::editor;
+unique_ptr<Thread_Pool>           Engine::thread_pool;
 
 Engine::Engine()
 {
+	thread_pool = make_unique<Thread_Pool>();
 	input_manager = make_unique<Input>();
 	cursor_manager = make_unique<Cursor>();
 	asset_manager = make_unique<Asset_Manager>();

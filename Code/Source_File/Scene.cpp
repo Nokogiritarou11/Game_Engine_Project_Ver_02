@@ -175,7 +175,7 @@ void Scene::Processing_Update(int state)
 	}
 	if (expired)
 	{
-		const auto remove_it = remove_if(monobehaviour_update_list.begin(), monobehaviour_update_list.end(), [](weak_ptr<MonoBehaviour> m) { return m.expired(); });
+		const auto& remove_it = remove_if(monobehaviour_update_list.begin(), monobehaviour_update_list.end(), [](weak_ptr<MonoBehaviour> m) { return m.expired(); });
 		monobehaviour_update_list.erase(remove_it, monobehaviour_update_list.end());
 	}
 }

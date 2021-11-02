@@ -123,6 +123,7 @@
     <ClCompile Include="Script\Source\Enemy_Normal_01_State_Setter.cpp" />
     <ClCompile Include="Script\Source\Player_Damageable.cpp" />
     <ClCompile Include="Script\Source\Time_Manager.cpp" />
+    <ClCompile Include="Code\Source_File\Thread_Pool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -342,6 +343,7 @@
     <ClInclude Include="Script\Header\Enemy_Normal_01_State_Setter.h" />
     <ClInclude Include="Script\Header\Player_Damageable.h" />
     <ClInclude Include="Script\Header\Time_Manager.h" />
+    <ClInclude Include="Code\Header_File\Thread_Pool.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

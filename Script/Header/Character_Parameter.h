@@ -21,6 +21,8 @@ namespace BeastEngine
 
 		bool is_ground = true;
 
+		std::weak_ptr<GameObject> target;
+
 	private:
 		void Awake() override;
 		bool Draw_ImGui() override;

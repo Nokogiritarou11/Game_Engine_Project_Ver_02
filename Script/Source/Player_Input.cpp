@@ -72,13 +72,9 @@ void Player_Input::Set_State()
 		{
 			for (const auto& enemy : attacking_list)
 			{
-				const Vector3 player_pos = transform->Get_Position();
-				Vector3 target_pos = enemy.lock()->transform->Get_Position();
-				target_pos.y = player_pos.y;
-				Vector3 target_vector = target_pos - (player_pos - input_direction * 1.5f);
-				target_vector.Normalize();
-				if (acosf(input_direction.Dot(target_vector)) * 180.0f / M_PI <= guard_degree)
+				if (Vector3 target_pos = enemy.lock()->transform->Get_Position(); Get_Input_To_Target_Angle(target_pos) <= guard_degree)
 				{
+					target_pos.y = transform->Get_Position().y;
 					anim->Set_Trigger("Guard");
 					input_direction = Vector3::Zero;
 					transform->Set_Local_Rotation(transform->Look_At(target_pos));
@@ -89,6 +85,15 @@ void Player_Input::Set_State()
 		can_guard_button = false;
 		can_guard_stick = false;
 	}
+}
+
+float Player_Input::Get_Input_To_Target_Angle(Vector3 target_position) const
+{
+	const Vector3 player_pos = transform->Get_Position();
+	target_position.y = player_pos.y;
+	Vector3 target_vector = target_position - (player_pos - input_direction * 1.5f);
+	target_vector.Normalize();
+	return acosf(input_direction.Dot(target_vector)) * 180.0f / static_cast<float>(M_PI);
 }
 
 bool Player_Input::Draw_ImGui()

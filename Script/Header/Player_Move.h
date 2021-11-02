@@ -23,6 +23,8 @@ namespace BeastEngine
 		void Awake() override;
 		bool Draw_ImGui() override;
 
+		[[nodiscard]] float Get_Forward_To_Target_Angle(Vector3 target_position) const;
+
 		std::weak_ptr<Animator> animator;
 		std::weak_ptr<RigidBody> rigidbody;
 		std::weak_ptr<Character_Parameter> parameter;

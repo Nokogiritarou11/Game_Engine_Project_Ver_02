@@ -139,7 +139,7 @@ void Particle_Manager::Update()
 	}
 	if (expired)
 	{
-		const auto remove_it = remove_if(particle_list.begin(), particle_list.end(), [](weak_ptr<Particle> p) { return p.expired(); });
+		const auto& remove_it = remove_if(particle_list.begin(), particle_list.end(), [](weak_ptr<Particle> p) { return p.expired(); });
 		particle_list.erase(remove_it, particle_list.end());
 	}
 
