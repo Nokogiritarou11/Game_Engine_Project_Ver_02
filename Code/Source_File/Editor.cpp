@@ -104,7 +104,7 @@ void Editor::Update()
 	Engine::fbx_converter->Draw_ImGui();
 
 	//AnimatorController編集画面描画
-	Controller_Render();
+	Animation_Controller_Render();
 
 	//ゲームオブジェクト関連
 	{
@@ -794,7 +794,7 @@ void Editor::GameView_Render()
 	ImGui::End();
 }
 
-void Editor::Controller_Render() const
+void Editor::Animation_Controller_Render() const
 {
 	constexpr ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
 	if (ImGui::Begin(u8"アニメーター", nullptr, window_flags))

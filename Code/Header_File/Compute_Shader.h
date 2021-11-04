@@ -3,17 +3,18 @@
 
 namespace BeastEngine
 {
+	//コンピュートシェーダー
 	class Compute_Shader
 	{
 	public:
-		static std::shared_ptr<Compute_Shader> Create(std::string shader_path);
+		static std::shared_ptr<Compute_Shader> Create(std::string shader_path); //ファイルパスからコンピュートシェーダーを作成する
 
-		void Run();
-		[[nodiscard]] Microsoft::WRL::ComPtr<ID3D11Buffer> Get_Copy_Buffer() const;
-		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& Get_SRV() { return srv_result; }
+		void Run(); //コンピュートシェーダーをセットし実行する
+		[[nodiscard]] Microsoft::WRL::ComPtr<ID3D11Buffer> Get_Copy_Buffer() const;        //計算結果をバッファからコピーし取得する
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& Get_SRV() { return srv_result; } //計算結果のShaderResourceViewを取得する
 
-		void Create_Buffer_Input(UINT size, UINT count, void* init_data);
-		void Create_Buffer_Result(UINT size, UINT count, void* init_data);
+		void Create_Buffer_Input(UINT size, UINT count, void* init_data);  //入力用のバッファを作成する
+		void Create_Buffer_Result(UINT size, UINT count, void* init_data); //結果出力用のバッファを作成する
 
 	private:
 		static HRESULT Compile(const WCHAR* filename, LPCSTR method, LPCSTR shader_model, ID3DBlob** pp_blob_out);

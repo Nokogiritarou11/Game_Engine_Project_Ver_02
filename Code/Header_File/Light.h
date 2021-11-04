@@ -7,15 +7,16 @@
 
 namespace BeastEngine
 {
-	class Light : public Behaviour
+	//シーン内ライトコンポーネント
+	class Light final : public Behaviour
 	{
 	public:
 		Vector3 color = { 0.5f ,0.5f ,0.5f };
-		float intensity = 1;
+		float intensity = 1; //強度
 
 	private:
-		void Initialize(const std::shared_ptr<GameObject>& obj) override;
-		bool Draw_ImGui() override;
+		void Initialize(const std::shared_ptr<GameObject>& obj) override; //初期化
+		bool Draw_ImGui() override; //ImGui描画
 
 		friend class cereal::access;
 		template<class Archive>

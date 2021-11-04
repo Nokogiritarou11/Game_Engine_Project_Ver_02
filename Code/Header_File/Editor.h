@@ -10,6 +10,7 @@ namespace BeastEngine
 	class Camera;
 	class Animator_Controller;
 
+	//ImGui描画管理クラス
 	class Editor
 	{
 	public:
@@ -50,26 +51,26 @@ namespace BeastEngine
 		Vector2 game_view_render_size;
 		float game_view_aspect{};
 
-		void Main_Window_Render();
-		void Debug_Log_Render();
-		void Hierarchy_Render();
-		void Inspector_Render();
-		void ScenePlayer_Render();
-		void SceneView_Render() const;
-		void GameView_Render();
-		void Controller_Render() const;
+		void Main_Window_Render();                //ドッキング用の全画面ウィンドウを描画する
+		void Debug_Log_Render();                  //デバッグログ描画
+		void Hierarchy_Render();                  //ヒエラルキー描画
+		void Inspector_Render();                  //インスペクタ描画
+		void ScenePlayer_Render();                //シーン再生ボタン描画
+		void SceneView_Render() const;            //シーンビュー描画
+		void GameView_Render();                   //ゲームビュー描画
+		void Animation_Controller_Render() const; //アニメーションコントローラー描画
 
-		void MenuBar_Render();
-		void Scene_File_Menu_Render();
-		void Scene_Setting_Menu_Render() const;
-		void GameObject_Tree_Render(const std::shared_ptr<GameObject>& obj, int flag);
-		void GameObject_DragMenu_Render(const std::shared_ptr<GameObject>& obj);
+		void MenuBar_Render(); //メニューバー描画
+		void Scene_File_Menu_Render(); //シーン関連メニュー描画
+		void Scene_Setting_Menu_Render() const; //シーン設定メニュー描画
+		void GameObject_Tree_Render(const std::shared_ptr<GameObject>& obj, int flag); //インスペクタ内でのゲームオブジェクト表示用再帰関数
+		void GameObject_DragMenu_Render(const std::shared_ptr<GameObject>& obj); //D&Dした際のメニューウィンドウ描画
 
-		void ShortCut_Check();
-		void Debug_Camera_Update() const;
+		void ShortCut_Check();            //ショートカットキーのチェック
+		void Debug_Camera_Update() const; //シーンビューカメラの操作
 
-		void Select_Reset();
-		void Activate_Select_Object(const std::shared_ptr<GameObject>& obj);
-		static void Set_Debug_Draw(bool value, const std::shared_ptr<GameObject>& obj);
+		void Select_Reset(); //選択状態解除時の後始末
+		void Activate_Select_Object(const std::shared_ptr<GameObject>& obj); //ゲームオブジェクト選択時の初期化
+		static void Set_Debug_Draw(bool value, const std::shared_ptr<GameObject>& obj); //選択時のデバッグ描画登録用再帰関数
 	};
 }

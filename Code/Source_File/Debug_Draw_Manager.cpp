@@ -29,7 +29,6 @@ Debug_Draw_Manager::Debug_Draw_Manager()
 	default_color.m_contactPoint = { 1, 1, 0 };
 }
 
-// ƒ‰ƒCƒ“•`‰æÀs
 void Debug_Draw_Manager::flushLines()
 {
 	if (lines.size() == 0) return;

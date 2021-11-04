@@ -1,11 +1,9 @@
-#include <windows.h>
+#include <Windows.h>
 #include <memory>
-#include <assert.h>
-#include <tchar.h>
-#include <time.h>
-#include <WinSDKVer.h>
+#include <cassert>
+#include <winsdkver.h>
 #define _WIN32_WINNT 0x0A00
-#include <SDKDDKVer.h>
+#include <sdkddkver.h>
 #include "Engine.h"
 #include "Input.h"
 #include "Include_ImGui.h"
@@ -27,8 +25,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_PAINT:
 		{
 			PAINTSTRUCT ps;
-			HDC hdc;
-			hdc = BeginPaint(hWnd, &ps);
+			HDC hdc = BeginPaint(hWnd, &ps);
 			EndPaint(hWnd, &ps);
 			break;
 		}
@@ -79,29 +76,29 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = hInstance;
-	wcex.hIcon = NULL;
-	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wcex.hIcon = nullptr;
+	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW);
-	wcex.lpszMenuName = NULL;
+	wcex.lpszMenuName = nullptr;
 	wcex.lpszClassName = szWindowClass;
 	RegisterClass(&wcex);
 
-	HWND hWnd;
-	hWnd = CreateWindow(szWindowClass,
-		szWindowClass,
-		WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
-		0, 0, BeastEngine::DxSystem::Get_Screen_Width(), BeastEngine::DxSystem::Get_Screen_Height(),
-		NULL,
-		NULL,
-		hInstance,
-		NULL);
+	const HWND hwnd = CreateWindow(szWindowClass,
+	                         szWindowClass,
+	                         WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+	                         0, 0, BeastEngine::DxSystem::Get_Screen_Width(),
+	                         BeastEngine::DxSystem::Get_Screen_Height(),
+	                         nullptr,
+	                         nullptr,
+	                         hInstance,
+	                         nullptr);
 
-	ShowWindow(hWnd, nCmdShow);
+	ShowWindow(hwnd, nCmdShow);
 
 	Microsoft::WRL::Wrappers::RoInitializeWrapper initialize(RO_INIT_MULTITHREADED);
 
 	// デバイス初期化
-	if (!BeastEngine::DxSystem::Initialize(hWnd, BeastEngine::DxSystem::Get_Screen_Width(), BeastEngine::DxSystem::Get_Screen_Height()))
+	if (!BeastEngine::DxSystem::Initialize(hwnd, BeastEngine::DxSystem::Get_Screen_Width(), BeastEngine::DxSystem::Get_Screen_Height()))
 	{
 		return 0;
 	}
@@ -110,24 +107,24 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 	BeastEngine::Time::time_scale = 1.0f;
 
 	//メインループ
-	MSG hMsg = { 0 };
+	MSG hmsg = { nullptr };
 	float Interval = 1.0f;
 	ULONGLONG before = GetTickCount64();
 	int fps = 0;
 
-	while (hMsg.message != WM_QUIT)
+	while (hmsg.message != WM_QUIT)
 	{
-		if (PeekMessage(&hMsg, NULL, 0, 0, PM_REMOVE))
+		if (PeekMessage(&hmsg, nullptr, 0, 0, PM_REMOVE))
 		{
-			TranslateMessage(&hMsg);
-			DispatchMessage(&hMsg);
+			TranslateMessage(&hmsg);
+			DispatchMessage(&hmsg);
 		}
 		else
 		{
-			BeastEngine::Time::delta_time = (GetTickCount64() - before) * 0.001f * BeastEngine::Time::time_scale;
+			BeastEngine::Time::delta_time = static_cast<float>(GetTickCount64() - before) * 0.001f * BeastEngine::Time::time_scale;
 
 			before = GetTickCount64();
-			float mspf = 1000.0f / fps;
+			const float mspf = 1000.0f / static_cast<float>(fps);
 
 			Interval -= BeastEngine::Time::delta_time;
 			++fps;
@@ -136,7 +133,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 				std::ostringstream outs;
 				outs.precision(6);
 				outs << "Game_Engine    " << "FPS : " << fps << " / " << "Frame Time : " << mspf << " (ms)";
-				SetWindowTextA(hWnd, outs.str().c_str());
+				SetWindowTextA(hwnd, outs.str().c_str());
 				Interval += 1.0f;
 				fps = 0;
 			}

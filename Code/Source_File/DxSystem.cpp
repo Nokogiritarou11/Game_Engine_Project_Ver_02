@@ -27,11 +27,6 @@ DXGI_SAMPLE_DESC					DxSystem::MSAA;
 int DxSystem::screen_width = 1920;
 int DxSystem::screen_height = 1080;
 
-//****************************************************************
-//
-//	初期化
-//
-//****************************************************************
 bool DxSystem::Initialize(HWND hWnd, int width, int height)
 {
 	hwnd = hWnd;
@@ -42,11 +37,6 @@ bool DxSystem::Initialize(HWND hWnd, int width, int height)
 	return true;
 }
 
-//****************************************************************
-//
-//	デバイス生成
-//
-//****************************************************************
 HRESULT DxSystem::Create_Device()
 {
 	HRESULT hr;
@@ -92,8 +82,8 @@ HRESULT DxSystem::Create_Device()
 		DXGI_debug->ReportLiveObjects(DXGI_DEBUG_D3D11, DXGI_DEBUG_RLO_DETAIL);
 		*/
 #endif
-	///*
-	//使用可能なMSAAを取得
+		///*
+		//使用可能なMSAAを取得
 	constexpr int max_count = 4;//D3D11_MAX_MULTISAMPLE_SAMPLE_COUNT;
 	for (int i = 0; i <= max_count; i++)
 	{
@@ -170,14 +160,6 @@ void DxSystem::Release()
 {
 }
 
-//****************************************************************
-//
-//	レンダーターゲット関連
-//
-//****************************************************************
-//------------------------------------------------
-//	初期化
-//------------------------------------------------
 bool DxSystem::Initialize_Render_Target()
 {
 	// バックバッファ取得
@@ -209,9 +191,6 @@ bool DxSystem::Initialize_Render_Target()
 	return true;
 }
 
-//------------------------------------------------
-//	ビューポートの設定
-//------------------------------------------------
 void DxSystem::Set_ViewPort(int width, int height, int Num)
 {
 	D3D11_VIEWPORT vp;
@@ -224,16 +203,12 @@ void DxSystem::Set_ViewPort(int width, int height, int Num)
 	device_context->RSSetViewports(Num, &vp);
 }
 
-// レンダーターゲットビュー設定
 void DxSystem::Set_Default_View()
 {
 	device_context->OMSetRenderTargets(1, render_target_view.GetAddressOf(), depth_stencil_view.Get());
 	Set_ViewPort(screen_width, screen_height);
 }
 
-//------------------------------------------------
-//	深度ステンシルバッファ生成
-//------------------------------------------------
 bool DxSystem::Create_Depth_Stencil()
 {
 	// 深度ステンシル設定
@@ -389,7 +364,7 @@ bool DxSystem::Create_Depth_Stencil()
 
 	// シェーダリソースビュー生成
 	hr = device->CreateShaderResourceView(depth_stencil_texture.Get(), &srvd, shader_resource_view.GetAddressOf());
-	//_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
 	if (FAILED(hr))
 	{
@@ -399,9 +374,6 @@ bool DxSystem::Create_Depth_Stencil()
 	return true;
 }
 
-//------------------------------------------------
-//	ラスタライザステートの生成
-//------------------------------------------------
 bool DxSystem::Create_Rasterizer_State()
 {
 	D3D11_RASTERIZER_DESC rd;
@@ -411,16 +383,16 @@ bool DxSystem::Create_Rasterizer_State()
 		{
 			case RS_State::Cull_Back:
 				ZeroMemory(&rd, sizeof(rd));
-				rd.FillMode = D3D11_FILL_SOLID;
-				rd.CullMode = D3D11_CULL_BACK;
-				rd.FrontCounterClockwise = TRUE;
+				rd.FillMode = D3D11_FILL_SOLID;	 // 塗りつぶし
+				rd.CullMode = D3D11_CULL_BACK;	 // カリング
+				rd.FrontCounterClockwise = TRUE; // 三角形の時計回りが正面
 				rd.DepthBias = 0;
 				rd.DepthBiasClamp = 0;
 				rd.SlopeScaledDepthBias = 0;
-				rd.DepthClipEnable = TRUE;
-				rd.ScissorEnable = FALSE;
-				rd.MultisampleEnable = TRUE;
-				rd.AntialiasedLineEnable = TRUE;
+				rd.DepthClipEnable = TRUE;	     // 距離に基づくクリッピングを有効か
+				rd.ScissorEnable = FALSE;	     // シザー長方形カリングを有効か
+				rd.MultisampleEnable = TRUE;	 // MSAAで四辺形かアルファ線を設定
+				rd.AntialiasedLineEnable = TRUE; // ラインAAが有効か
 				break;
 
 			case RS_State::Cull_Front:
@@ -453,16 +425,16 @@ bool DxSystem::Create_Rasterizer_State()
 
 			case RS_State::Standard:
 				ZeroMemory(&rd, sizeof(rd));
-				rd.FillMode = D3D11_FILL_SOLID;	// 塗りつぶし
-				rd.CullMode = D3D11_CULL_NONE;	// カリング
-				rd.FrontCounterClockwise = TRUE;	// 三角形の時計回りが正面
+				rd.FillMode = D3D11_FILL_SOLID;
+				rd.CullMode = D3D11_CULL_NONE;
+				rd.FrontCounterClockwise = TRUE;
 				rd.DepthBias = 0;
 				rd.DepthBiasClamp = 0;
 				rd.SlopeScaledDepthBias = 0;
-				rd.DepthClipEnable = TRUE;	// 距離に基づくクリッピングを有効か
-				rd.ScissorEnable = FALSE;	// シザー長方形カリングを有効か
-				rd.MultisampleEnable = TRUE;	// MSAAで四辺形かアルファ線を設定
-				rd.AntialiasedLineEnable = TRUE;	// ラインAAが有効か
+				rd.DepthClipEnable = TRUE;
+				rd.ScissorEnable = FALSE;
+				rd.MultisampleEnable = TRUE;
+				rd.AntialiasedLineEnable = TRUE;
 				break;
 
 			case RS_State::Wire:
@@ -486,7 +458,6 @@ bool DxSystem::Create_Rasterizer_State()
 	return true;
 }
 
-//ブレンドステートの作成
 bool DxSystem::Create_Blend_State()
 {
 	D3D11_BLEND_DESC bd;
@@ -630,9 +601,6 @@ bool DxSystem::Create_Blend_State()
 	return true;
 }
 
-//------------------------------------------------
-//	クリア
-//------------------------------------------------
 void DxSystem::Clear(DWORD color)
 {
 	// レンダーターゲットビュー設定
@@ -650,9 +618,6 @@ void DxSystem::Clear(DWORD color)
 	device_context->OMSetDepthStencilState(depth_stencil_state[static_cast<int>(DS_State::LEqual)].Get(), 1);
 }
 
-//------------------------------------------------
-//	フリップ
-//------------------------------------------------
 void DxSystem::Flip(int n)
 {
 	// フリップ処理

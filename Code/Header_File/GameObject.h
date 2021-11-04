@@ -7,6 +7,7 @@
 
 namespace BeastEngine
 {
+	//ゲームオブジェクト
 	class GameObject final : public Object
 	{
 	public:

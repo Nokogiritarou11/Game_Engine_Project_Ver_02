@@ -20,15 +20,15 @@ namespace BeastEngine
 	class Editor;
 	class Thread_Pool;
 
+	//エンジン本体
 	class Engine
 	{
 	public:
 		Engine();
 		~Engine();
 
-		static void Update();
-
-		static void Get_Handle(UINT msg, WPARAM w_param, LPARAM l_param);
+		static void Update(); //更新
+		static void Get_Handle(UINT msg, WPARAM w_param, LPARAM l_param); //メインウィンドウのハンドルを取得する
 
 		static std::unique_ptr<Input> input_manager;
 		static std::unique_ptr<Cursor> cursor_manager;

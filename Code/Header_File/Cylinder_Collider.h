@@ -3,17 +3,18 @@
 
 namespace BeastEngine
 {
-	class Cylinder_Collider :public Collider
+	//シリンダーコライダー
+	class Cylinder_Collider final :public Collider
 	{
 	public:
-		void Set_Radius(float new_radius);
-		void Set_Height(float new_height);
-		[[nodiscard]] float Get_Radius() const { return radius; }
-		[[nodiscard]] float Get_Height() const { return height; }
+		void Set_Radius(float new_radius); //半径を設定する
+		void Set_Height(float new_height); //高さと設定する
+		[[nodiscard]] float Get_Radius() const { return radius; } //半径を取得する
+		[[nodiscard]] float Get_Height() const { return height; } //高さを取得する
 
 	private:
-		void Create_Shape() override;
-		bool Draw_ImGui() override;
+		void Create_Shape() override; //形状を作成する(Cylinder)
+		bool Draw_ImGui() override;    //ImGui描画
 
 		float radius = 0.5f;
 		float height = 1.0f;

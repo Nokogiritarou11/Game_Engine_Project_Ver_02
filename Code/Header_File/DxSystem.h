@@ -23,8 +23,31 @@ namespace BeastEngine
 	//BlendState
 	enum class BS_State { Off, Alpha, Alpha_Test, Transparent, Add, Subtract, Replace, Multiply };
 
+	//DirectXラッパークラス
 	class DxSystem
 	{
+	public:
+		static Microsoft::WRL::ComPtr<ID3D11Device>			device;
+		static Microsoft::WRL::ComPtr<ID3D11DeviceContext>	device_context;
+		static HWND hwnd;
+		static DXGI_SAMPLE_DESC MSAA; //MSAA使用時のパラメータ
+
+		static bool Initialize(HWND hWnd, int width, int height); //初期化
+		static void Release(); //後始末
+		static void Clear(DWORD color = 0x0000FFFF); //レンダーターゲットのクリア
+		static void Flip(int n = 0); //フリップ処理
+
+		static int Get_Screen_Width() { return screen_width; }   //ウィンドウの横幅を取得
+		static int Get_Screen_Height() { return screen_height; } //ウィンドウの縦幅を取得
+		static ID3D11DepthStencilView* Get_DepthStencilView() { return depth_stencil_view.Get(); }
+		static ID3D11RenderTargetView* Get_RenderTargetView() { return render_target_view.Get(); }
+		static ID3D11ShaderResourceView* Get_ShaderResourceView() { return shader_resource_view.Get(); }
+		static ID3D11DepthStencilState* Get_DepthStencil_State(DS_State state) { return depth_stencil_state[static_cast<int>(state)].Get(); }
+		static ID3D11RasterizerState* Get_Rasterizer_State(RS_State state) { return rasterizer_state[static_cast<int>(state)].Get(); }
+		static ID3D11BlendState* Get_Blend_State(BS_State state) { return blend_state[static_cast<int>(state)].Get(); }
+		static void Set_ViewPort(int width, int height, int Num = 1); //ビューポートをセットする
+		static void Set_Default_View(); //メインウィンドウのレンダーターゲットをセットする
+
 	private:
 		static int screen_width;
 		static int screen_height;
@@ -37,38 +60,17 @@ namespace BeastEngine
 
 		static Microsoft::WRL::ComPtr<IDXGIDebug>               dxgi_debug;
 
-		static HRESULT Create_Device();
-		static bool Create_Depth_Stencil();
-		static bool Initialize_Render_Target();
+		static HRESULT Create_Device();         //デバイスの作成
+		static bool Create_Depth_Stencil();     //デプスステンシルテクスチャの作成
+		static bool Initialize_Render_Target(); //レンダーターゲットの初期化
 
-		static constexpr int rasterizer_type = 5;
+		static constexpr int rasterizer_type = 5; //用意されたラスタライザーステートの数
 		static Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizer_state[rasterizer_type];
-		static bool Create_Rasterizer_State();
+		static bool Create_Rasterizer_State(); //ラスタライザーステートの作成
 
-		static constexpr int blend_type = 8;
+		static constexpr int blend_type = 8; //用意されたブレンドステートの数
 		static Microsoft::WRL::ComPtr<ID3D11BlendState>	blend_state[blend_type];
-		static bool Create_Blend_State();
+		static bool Create_Blend_State(); //ブレンドステートの作成
 
-	public:
-		static Microsoft::WRL::ComPtr<ID3D11Device>			device;
-		static Microsoft::WRL::ComPtr<ID3D11DeviceContext>	device_context;
-		static HWND hwnd;
-		static DXGI_SAMPLE_DESC MSAA;
-
-		static bool Initialize(HWND hWnd, int width, int height);
-		static void Release();
-		static void Clear(DWORD color = 0x0000FFFF);
-		static void Flip(int n = 0);
-
-		static int Get_Screen_Width() { return screen_width; }
-		static int Get_Screen_Height() { return screen_height; }
-		static ID3D11DepthStencilView* Get_DepthStencilView() { return depth_stencil_view.Get(); }
-		static ID3D11RenderTargetView* Get_RenderTargetView() { return render_target_view.Get(); }
-		static ID3D11ShaderResourceView* Get_ShaderResourceView() { return shader_resource_view.Get(); }
-		static ID3D11DepthStencilState* Get_DepthStencil_State(DS_State state) { return depth_stencil_state[static_cast<int>(state)].Get(); }
-		static ID3D11RasterizerState* Get_Rasterizer_State(RS_State state) { return rasterizer_state[static_cast<int>(state)].Get(); }
-		static ID3D11BlendState* Get_Blend_State(BS_State state) { return blend_state[static_cast<int>(state)].Get(); }
-		static void Set_ViewPort(int width, int height, int Num = 1);
-		static void Set_Default_View();
 	};
 }

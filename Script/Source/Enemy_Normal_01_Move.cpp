@@ -30,7 +30,7 @@ void Enemy_Normal_01_Move::Move_Normal()
 
 void Enemy_Normal_01_Move::Move_Attack()
 {
-	if(is_attack_preliminary)
+	if (is_attack_preliminary)
 	{
 		const auto& target = target_transform.lock();
 		Vector3 target_position = target->Get_Position();
@@ -87,12 +87,12 @@ void Enemy_Normal_01_Move::Move_Update()
 
 		if (!is_stay_air && !is_add_down)
 		{
-			y_axis_velocity -= down_power;
+			y_axis_velocity -= down_power * Time::delta_time;
 		}
 
 		if (is_add_down)
 		{
-			y_axis_velocity -= down_power * 10;
+			y_axis_velocity -= down_power * 10 * Time::delta_time;
 		}
 	}
 	else

@@ -6,6 +6,7 @@
 
 namespace BeastEngine
 {
+	//キーマウ
 	enum class Key_Code
 	{
 		None = 0x00,
@@ -129,6 +130,7 @@ namespace BeastEngine
 		RightAlt = 0xA5,
 	};
 
+	//ゲームパッド
 	enum class Button_Code
 	{
 		DPad_Up,
@@ -147,33 +149,35 @@ namespace BeastEngine
 		Right_Shoulder,
 	};
 
+	//入力管理クラス
 	class Input
 	{
 	public:
-		static void Update();
+		static void Update(); //更新
 
-		static bool Get_Key(Key_Code key);
-		static bool Get_Key_Down(Key_Code key);
-		static bool Get_Key_Up(Key_Code key);
+		static bool Get_Key(Key_Code key);      //キー入力を取得する
+		static bool Get_Key_Down(Key_Code key); //キーがそのフレームで押されたか取得する
+		static bool Get_Key_Up(Key_Code key);   //キーがそのフレームで離されたか取得する
 
-		static bool Get_Mouse_Button(int button);
-		static bool Get_Mouse_Button_Down(int button);
-		static bool Get_Mouse_Button_Up(int button);
+		static bool Get_Mouse_Button(int button);      //マウスボタン入力を取得する
+		static bool Get_Mouse_Button_Down(int button); //マウスボタンがそのフレームで押されたか取得する
+		static bool Get_Mouse_Button_Up(int button);   //マウスボタンがそのフレームで離されたか取得する
 
-		static Vector2 Get_Mouse_Position();
-		static Vector2 Get_Mouse_Relative_Position();
+		static Vector2 Get_Mouse_Position();		  //カーソルの座標を取得する
+		static Vector2 Get_Mouse_Relative_Position(); //カーソルの移動量を取得する
 
-		static bool Get_Pad_Button(Button_Code button, int pad_id = 0);
-		static bool Get_Pad_Button_Down(Button_Code button, int pad_id = 0);
-		static bool Get_Pad_Button_Up(Button_Code button, int pad_id = 0);
+		static bool Get_Pad_Button(Button_Code button, int pad_id = 0);		 //パッド入力を取得する
+		static bool Get_Pad_Button_Down(Button_Code button, int pad_id = 0); //パッドボタンがそのフレームで押されたか取得する
+		static bool Get_Pad_Button_Up(Button_Code button, int pad_id = 0); 	 //パッドボタンがそのフレームで離されたか取得する
 
-		static float Get_Pad_Trigger_Left(int pad_id = 0);
-		static float Get_Pad_Trigger_Right(int pad_id = 0);
+		static float Get_Pad_Trigger_Left(int pad_id = 0);  //パッドの左トリガー入力を取得する
+		static float Get_Pad_Trigger_Right(int pad_id = 0); //パッドの右トリガー入力を取得する
 
-		static Vector2 Get_Pad_Axis_Left(int pad_id = 0);
-		static Vector2 Get_Pad_Axis_Right(int pad_id = 0);
+		static Vector2 Get_Pad_Axis_Left(int pad_id = 0);  //パッドの左スティック入力を取得する
+		static Vector2 Get_Pad_Axis_Right(int pad_id = 0); //パッドの右スティック入力を取得する
 
 	private:
+		//パッド入力結果
 		struct Controller_Input_Result
 		{
 			bool buttons[14]{};
@@ -183,6 +187,7 @@ namespace BeastEngine
 			Vector2 right_axis;
 		};
 
+		//パッドごとの状態
 		struct Controller_State
 		{
 			XINPUT_STATE state{};

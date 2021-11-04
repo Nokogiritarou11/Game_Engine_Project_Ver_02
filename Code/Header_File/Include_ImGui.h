@@ -8,6 +8,8 @@
 #include "Original_Math.h"
 #include <string>
 
+//自作左テキストウィジェットの追加
+
 namespace ImGui
 {
 	bool LeftText_DragInt(const char* text, const char* label, int* value, const float x_offset, const float width = -FLT_MIN);

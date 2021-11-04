@@ -130,12 +130,12 @@ void Player_Move::Move_Update()
 
 		if (!is_stay_air && !is_add_down)
 		{
-			y_axis_velocity -= down_power;
+			y_axis_velocity -= down_power * Time::delta_time;
 		}
 
 		if (is_add_down)
 		{
-			y_axis_velocity -= down_power * 10;
+			y_axis_velocity -= down_power * 10 * Time::delta_time;
 		}
 	}
 	else
