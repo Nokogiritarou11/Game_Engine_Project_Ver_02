@@ -42,13 +42,13 @@ Shadow_Manager::Shadow_Manager()
 void Shadow_Manager::Set_Shadow_Map_Texture() const
 {
 	render_texture->Set_Render_Target();
-	material_shadow->Active_Shader();
-	material_shadow->Active_State();
+	material_shadow->Activate_Shader();
+	material_shadow->Activate_State();
 }
 
 void Shadow_Manager::Set_Default_Shadow_Alpha() const
 {
-	material_shadow->Active_Texture();
+	material_shadow->Activate_Texture();
 }
 
 void Shadow_Manager::Set_PS_Resource()

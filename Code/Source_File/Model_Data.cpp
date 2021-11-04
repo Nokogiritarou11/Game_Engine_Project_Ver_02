@@ -727,7 +727,7 @@ void Model_Data::BuildAnimations(FbxScene* fbx_scene)
 					key_data.rotation = node.rotation;
 					key_data.position = node.position;
 				}
-				else if (fbx_node_index == rootMotionNodeIndex)
+				else if (fbx_node_index == root_motion_node_index)
 				{
 					// ルートモーションは無視する
 					key_data.scale = XMFLOAT3(1, 1, 1);

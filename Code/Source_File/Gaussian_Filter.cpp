@@ -157,7 +157,7 @@ void Gaussian_Filter::Filtering_Gaussian(const ComPtr<ID3D11ShaderResourceView>&
 	DxSystem::device_context->PSSetSamplers(0, 1, sampler.GetAddressOf());
 
 	// マテリアル(定数バッファ更新)
-	material[0]->Active();
+	material[0]->Activate();
 
 	DxSystem::device_context->Draw(4, 0);
 
@@ -178,7 +178,7 @@ void Gaussian_Filter::Filtering_Gaussian(const ComPtr<ID3D11ShaderResourceView>&
 	DxSystem::device_context->PSSetSamplers(0, 1, sampler.GetAddressOf());
 
 	// マテリアル(定数バッファ更新)
-	material[1]->Active();
+	material[1]->Activate();
 
 	DxSystem::device_context->Draw(4, 0);
 }

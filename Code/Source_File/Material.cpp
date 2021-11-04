@@ -695,15 +695,15 @@ void Material::Render_Pass::Initialize_Texture()
 	}
 }
 
-void Material::Render_Pass::Active()
+void Material::Render_Pass::Activate()
 {
-	Active_Shader();
-	Active_Buffer();
-	Active_Texture();
-	Active_State();
+	Activate_Shader();
+	Activate_Buffer();
+	Activate_Texture();
+	Activate_State();
 }
 
-void Material::Render_Pass::Active_Buffer()
+void Material::Render_Pass::Activate_Buffer()
 {
 	// コンスタントバッファセット
 	for (auto& i : constant_buffer_info)
@@ -733,7 +733,7 @@ void Material::Render_Pass::Active_Buffer()
 	}
 }
 
-void Material::Render_Pass::Active_Texture()
+void Material::Render_Pass::Activate_Texture()
 {
 	// テクスチャセット
 	for (auto& texture : texture_info)
@@ -746,7 +746,7 @@ void Material::Render_Pass::Active_Texture()
 	}
 }
 
-void Material::Render_Pass::Active_Shader()
+void Material::Render_Pass::Activate_Shader()
 {
 	// シェーダーセット
 	DxSystem::device_context->VSSetShader(nullptr, nullptr, 0);
@@ -763,7 +763,7 @@ void Material::Render_Pass::Active_Shader()
 	}
 }
 
-void Material::Render_Pass::Active_State() const
+void Material::Render_Pass::Activate_State() const
 {
 	//ブレンドステート設定
 	if (binding_blend_state != blend_state)
@@ -785,29 +785,29 @@ void Material::Render_Pass::Active_State() const
 	}
 }
 
-void Material::Active(int pass)
+void Material::Activate(int pass)
 {
-	render_pass[pass].Active();
+	render_pass[pass].Activate();
 }
 
-void Material::Active_Buffer(int pass)
+void Material::Activate_Buffer(int pass)
 {
-	render_pass[pass].Active_Shader();
+	render_pass[pass].Activate_Shader();
 }
 
-void Material::Active_Texture(int pass)
+void Material::Activate_Texture(int pass)
 {
-	render_pass[pass].Active_Texture();
+	render_pass[pass].Activate_Texture();
 }
 
-void Material::Active_Shader(int pass)
+void Material::Activate_Shader(int pass)
 {
-	render_pass[pass].Active_Shader();
+	render_pass[pass].Activate_Shader();
 }
 
-void Material::Active_State(int pass)
+void Material::Activate_State(int pass)
 {
-	render_pass[pass].Active_State();
+	render_pass[pass].Activate_State();
 }
 
 void Material::Save(const string& path)

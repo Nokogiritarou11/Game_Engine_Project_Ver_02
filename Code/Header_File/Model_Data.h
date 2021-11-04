@@ -6,9 +6,11 @@
 
 namespace BeastEngine
 {
+	//FBXから読み込んだモデルデータ(各ファイルに変換して使うのでこのまま使うわけではない)
 	class Model_Data
 	{
 	public:
+		//ボーン
 		struct Skeleton
 		{
 			std::string	name;
@@ -18,6 +20,7 @@ namespace BeastEngine
 			Vector3	position;
 		};
 
+		//キーフレームでの姿勢
 		struct Key_Pose
 		{
 			Vector3	scale;
@@ -25,11 +28,14 @@ namespace BeastEngine
 			Vector3	position;
 		};
 
+		//キーフレーム
 		struct Keyframe
 		{
 			float					seconds = 0;
 			std::vector<Key_Pose>	node_keys{};
 		};
+
+		//アニメーション
 		struct Animation
 		{
 			std::string			  name;
@@ -51,20 +57,16 @@ namespace BeastEngine
 		static std::shared_ptr<Model_Data> Load_Model(const std::string& file_path, const std::string& fbx_filename);
 
 	private:
-		// ノードデータを構築
-		void BuildNodes(FbxNode* fbx_node, int parent_node_index);
-		void BuildNode(const FbxNode* fbx_node, int parent_node_index);
+		void BuildNodes(FbxNode* fbx_node, int parent_node_index);     // ノードデータを構築
+		void BuildNode(const FbxNode* fbx_node, int parent_node_index);// ノードデータを構築(再帰関数)
 
-		// メッシュデータを構築
-		void BuildMeshes(FbxNode* fbx_node);
-		void BuildMesh(FbxNode* fbx_node, FbxMesh* fbx_mesh);
+		void BuildMeshes(FbxNode* fbx_node);                  // メッシュデータを構築
+		void BuildMesh(FbxNode* fbx_node, FbxMesh* fbx_mesh); // メッシュデータを構築(再帰関数)
 
-		// アニメーションデータを構築
-		void BuildAnimations(FbxScene* fbx_scene);
+		void BuildAnimations(FbxScene* fbx_scene); // アニメーションデータを構築
 
-		// インデックスの検索
-		int FindNodeIndex(const char* name);
+		int FindNodeIndex(const char* name); // インデックスの検索
 
-		int rootMotionNodeIndex = -1;
+		int root_motion_node_index = -1;
 	};
 }

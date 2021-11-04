@@ -140,7 +140,7 @@ void SkyBox::Render(const Vector3& pos)
 	material->Set_Matrix("world", world);
 
 	//シェーダーリソースのバインド
-	material->Active();
+	material->Activate();
 
 	// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
 	constexpr UINT stride = sizeof(Vector3);

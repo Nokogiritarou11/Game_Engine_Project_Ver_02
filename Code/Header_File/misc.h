@@ -1,5 +1,4 @@
 #pragma once
-
 #include <windows.h>
 #include <crtdbg.h>
 
@@ -12,33 +11,10 @@
 #define  _ASSERT_EXPR_A(expr, expr_str) ((void)0)
 #endif
 
+//デバッグ時メッセージ展開
 inline LPWSTR hr_trace(HRESULT hr)
 {
 	LPWSTR msg;
 	FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPWSTR>(&msg), 0, NULL);
 	return msg;
 }
-
-class benchmark
-{
-	LARGE_INTEGER ticks_per_second;
-	LARGE_INTEGER start_ticks;
-	LARGE_INTEGER current_ticks;
-
-public:
-	benchmark()
-	{
-		QueryPerformanceFrequency(&ticks_per_second);
-		QueryPerformanceCounter(&start_ticks);
-		QueryPerformanceCounter(&current_ticks);
-	}
-	void begin()
-	{
-		QueryPerformanceCounter(&start_ticks);
-	}
-	float end()
-	{
-		QueryPerformanceCounter(&current_ticks);
-		return static_cast<float>(current_ticks.QuadPart - start_ticks.QuadPart) / static_cast<float>(ticks_per_second.QuadPart);
-	}
-};

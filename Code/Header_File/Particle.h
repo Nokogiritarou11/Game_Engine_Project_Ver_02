@@ -9,6 +9,7 @@
 
 namespace BeastEngine
 {
+	//Effekseerのエフェクトを読み込み表示するパーティクルコンポーネント
 	class Particle final : public Component
 	{
 	public:
@@ -25,13 +26,13 @@ namespace BeastEngine
 		float play_speed = 1.0f;   //再生速度
 
 	private:
-		void Initialize(const std::shared_ptr<GameObject>& obj) override;
-		bool Draw_ImGui() override;
-		void Set_Active(bool value) override;
-		bool Can_Multiple() override { return false; };
+		void Initialize(const std::shared_ptr<GameObject>& obj) override; //初期化
+		bool Draw_ImGui() override; //ImGui描画
+		void Set_Active(bool value) override; //アクティブ状態を設定する
+		bool Can_Multiple() override { return false; }; //同コンポーネントを複数アタッチできるか
 
-		bool is_called = false;
-		bool is_playing = false;
+		bool is_called = false; //既にマネージャーに登録されているか
+		bool is_playing = false; //再生中か
 
 		Effekseer::EffectRef effect = nullptr;
 		Effekseer::Handle handle = -1;

@@ -35,7 +35,7 @@ Particle_Manager::Particle_Manager()
 	manager->SetModelLoader(renderer->CreateModelLoader());
 	manager->SetMaterialLoader(renderer->CreateMaterialLoader());
 
-
+	//InverseZ—p‹ts—ñì¬
 	reverse.Values[0][0] = 1.0f;
 	reverse.Values[0][1] = 0.0f;
 	reverse.Values[0][2] = 0.0f;

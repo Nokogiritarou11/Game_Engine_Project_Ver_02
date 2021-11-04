@@ -28,6 +28,7 @@
 
 namespace BeastEngine
 {
+	//ユーザーがコンポーネントを作成する際の基底クラス
 	class MonoBehaviour : public Behaviour
 	{
 	private:
@@ -36,27 +37,27 @@ namespace BeastEngine
 		virtual void Update() {}     //アクティブ時に毎フレーム呼ばれる
 		virtual void LateUpdate() {} //アクティブ時に毎フレーム、Updateのあとに呼ばれる
 
-		virtual void OnEnable() {}  //アクティブになった時に呼ばれる
-		virtual void OnDisable() {} //非アクティブになった時に呼ばれる
-		virtual void OnDestroy() {} //削除時に呼ばれる
+		virtual void OnEnable() {}   //アクティブになった時に呼ばれる
+		virtual void OnDisable() {}  //非アクティブになった時に呼ばれる
+		virtual void OnDestroy() {}  //削除時に呼ばれる
 
-		virtual void OnTrigger_Enter(Collision& collision) {}	  //このオブジェクトにアタッチされたコライダーが他コライダーに接触したとき
-		virtual void OnCollision_Enter(Collision& collision) {} //非トリガー時
+		virtual void OnTrigger_Enter(Collision& collision) {}	//このオブジェクトにアタッチされたコライダーが他コライダーに接触したとき呼ばれる
+		virtual void OnCollision_Enter(Collision& collision) {} //このオブジェクトにアタッチされたコライダー(非トリガー)が他コライダーに接触したとき呼ばれる
 
-		virtual void OnTrigger_Stay(Collision& collision) {}	  //接触がにフレーム以上続いたとき(接触が維持される限り毎フレーム)
-		virtual void OnCollision_Stay(Collision& collision) {}  //非トリガー時
+		virtual void OnTrigger_Stay(Collision& collision) {}	//接触が2フレーム以上続いたとき(接触が維持される限り毎フレーム)呼ばれる
+		virtual void OnCollision_Stay(Collision& collision) {}  //接触が2フレーム以上続いたとき(接触が維持される限り毎フレーム)呼ばれる(非トリガー時)
 
-		virtual void OnTrigger_Exit(Collision& collision) {}	  //接触していたコライダーと離れたとき
-		virtual void OnCollision_Exit(Collision& collision) {}  //非トリガー時
+		virtual void OnTrigger_Exit(Collision& collision) {}	//接触していたコライダーと離れたとき呼ばれる
+		virtual void OnCollision_Exit(Collision& collision) {}  //接触していたコライダー(非トリガー)と離れたとき呼ばれる
 
-		void Initialize(const std::shared_ptr<GameObject>& obj) override;
-		void Set_Active(bool value) override;
-		bool Can_Multiple() override { return true; };
+		void Initialize(const std::shared_ptr<GameObject>& obj) override; //初期化
+		void Set_Active(bool value) override;                             //アクティブ状態を設定する
+		bool Can_Multiple() override { return true; };                    //同コンポーネントを複数アタッチできるか
 
-		bool is_called_awake = false;
-		bool is_called_start = false;
-		bool is_called_update = false;
-		void Add();
+		bool is_called_awake = false;  //既にAwakeが呼ばれているか
+		bool is_called_start = false;  //既にStartが呼ばれているか
+		bool is_called_update = false; //既にUpdateが呼ばれているか
+		void Add(); //シーンマネージャーに登録する
 
 		friend class Scene;
 		friend class Collider;

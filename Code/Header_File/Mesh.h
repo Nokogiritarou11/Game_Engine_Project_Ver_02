@@ -8,9 +8,11 @@
 
 namespace BeastEngine
 {
+	//メッシュデータクラス
 	class Mesh final : public Object
 	{
 	public:
+		//頂点データ
 		struct vertex
 		{
 			Vector3 position;
@@ -32,9 +34,9 @@ namespace BeastEngine
 			}
 		};
 
+		//コンピュートシェーダー計算後の頂点データ
 		struct Vertex_Default_Buffer
 		{
-			//コンピュートシェーダー計算後の頂点データ
 			Vector3 position;
 			Vector3 normal;
 			Vector3 tangent;
@@ -44,11 +46,12 @@ namespace BeastEngine
 			Vector2 texcoord;
 		};
 
+		//サブセット
 		struct subset
 		{
-			u_int index_start = 0; // start number of index buffer
-			u_int index_count = 0; // number of vertices (indices)
-			u_int material_ID = 0;
+			u_int index_start = 0; //インデックスバッファの開始位置
+			u_int index_count = 0; //頂点数
+			u_int material_ID = 0; //マテリアルのインデックス
 
 		private:
 			friend class cereal::access;

@@ -16,9 +16,11 @@ namespace BeastEngine
 	class Debug_Draw_Manager;
 	class Texture;
 
+	//マテリアル
 	class Material : public Object
 	{
 	public:
+		//レンダリングの種類
 		enum class Rendering_Mode
 		{
 			Opaque,
@@ -26,39 +28,40 @@ namespace BeastEngine
 			Transparent
 		};
 
-		int render_queue = 2000;
+		int render_queue = 2000; //レンダーキュー 値が低いほど先に描画される
 
-		static std::shared_ptr<Material> Create(const std::string& vertex_path, const std::string& pixel_path = "", const std::string& geometry_path = "");
-		static std::shared_ptr<Material> Load_Material(const std::string& full_path);
+		static std::shared_ptr<Material> Create(const std::string& vertex_path, const std::string& pixel_path = "", const std::string& geometry_path = ""); //新規作成
+		static std::shared_ptr<Material> Load_Material(const std::string& full_path); //ファイルパスから読み込む
 
-		void Save(const std::string& path = "");
+		void Save(const std::string& path = ""); //ファイルパスにファイル化する 引数を省略した場合上書きセーブ
 
-		void Set_Rendering_Mode(Rendering_Mode mode);
-		void Set_Shader(const std::string& path, Shader::Shader_Type shader_type, int pass = 0);
-		void Set_Blend_State(BS_State state, int pass = 0);
-		void Set_Rasterizer_State(RS_State state, int pass = 0);
-		void Set_Depth_Stencil_State(DS_State state, int pass = 0);
+		void Set_Rendering_Mode(Rendering_Mode mode); //レンダリングモードを設定する
+		void Set_Shader(const std::string& path, Shader::Shader_Type shader_type, int pass = 0); //シェーダーを読み込みセットする
+		void Set_Blend_State(BS_State state, int pass = 0);         //ブレンドステートを設定する
+		void Set_Rasterizer_State(RS_State state, int pass = 0);    //ラスタライザーステートを設定する
+		void Set_Depth_Stencil_State(DS_State state, int pass = 0); //デプスステンシルステートを設定する
 
-		void Set_Texture(const std::string& texture_name, const std::shared_ptr<Texture>& texture);
-		void Set_Int(const std::string& int_name, const int& value);
-		void Set_Float(const std::string& float_name, const float& value);
-		void Set_Vector2(const std::string& vector_name, const Vector2& value);
-		void Set_Vector3(const std::string& vector_name, const Vector3& value);
-		void Set_Vector4(const std::string& vector_name, const Vector4& value);
-		void Set_Matrix(const std::string& matrix_name, const Matrix& value);
+		void Set_Texture(const std::string& texture_name, const std::shared_ptr<Texture>& texture); //テクスチャを設定する
+		void Set_Int(const std::string& int_name, const int& value);            //コンスタントバッファのパラメータを変数名から設定する
+		void Set_Float(const std::string& float_name, const float& value);      //コンスタントバッファのパラメータを変数名から設定する
+		void Set_Vector2(const std::string& vector_name, const Vector2& value); //コンスタントバッファのパラメータを変数名から設定する
+		void Set_Vector3(const std::string& vector_name, const Vector3& value); //コンスタントバッファのパラメータを変数名から設定する
+		void Set_Vector4(const std::string& vector_name, const Vector4& value); //コンスタントバッファのパラメータを変数名から設定する
+		void Set_Matrix(const std::string& matrix_name, const Matrix& value);   //コンスタントバッファのパラメータを変数名から設定する
 
-		void Add_Pass(const std::string& vertex_path, const std::string& pixel_path = "", const std::string& geometry_path = "");
-		void Remove_Pass();
+		void Add_Pass(const std::string& vertex_path, const std::string& pixel_path = "", const std::string& geometry_path = ""); //レンダリングパスを追加する
+		void Remove_Pass(); //レンダリングパスを削除する
 
-		std::shared_ptr<Texture> Get_Texture(const std::string& texture_name);
-		int Get_Int(const std::string& int_name);
-		float Get_Float(const std::string& float_name);
-		Vector2 Get_Vector2(const std::string& vector_name);
-		Vector3 Get_Vector3(const std::string& vector_name);
-		Vector4 Get_Vector4(const std::string& vector_name);
-		Matrix Get_Matrix(const std::string& matrix_name);
+		std::shared_ptr<Texture> Get_Texture(const std::string& texture_name); //テクスチャを変数名から取得する
+		int Get_Int(const std::string& int_name);                              //コンスタントバッファのパラメータを変数名から取得する
+		float Get_Float(const std::string& float_name);                        //コンスタントバッファのパラメータを変数名から取得する
+		Vector2 Get_Vector2(const std::string& vector_name);                   //コンスタントバッファのパラメータを変数名から取得する
+		Vector3 Get_Vector3(const std::string& vector_name);                   //コンスタントバッファのパラメータを変数名から取得する
+		Vector4 Get_Vector4(const std::string& vector_name);                   //コンスタントバッファのパラメータを変数名から取得する
+		Matrix Get_Matrix(const std::string& matrix_name);                     //コンスタントバッファのパラメータを変数名から取得する
 
 	private:
+		//シェーダー情報
 		struct Shader_Info
 		{
 			std::string shader_path;
@@ -73,6 +76,7 @@ namespace BeastEngine
 			}
 		};
 
+		//コンスタントバッファ
 		struct ConstantBuffer_Info
 		{
 			UINT register_number = 0;
@@ -89,6 +93,7 @@ namespace BeastEngine
 			}
 		};
 
+		//コンスタントバッファ内のパラメータ
 		struct Parameter_Info
 		{
 			Shader::Parameter_Type type;
@@ -105,6 +110,7 @@ namespace BeastEngine
 			}
 		};
 
+		//テクスチャ情報
 		struct Texture_Info
 		{
 			UINT register_number = 0;
@@ -121,6 +127,7 @@ namespace BeastEngine
 			}
 		};
 
+		//レンダリングパス
 		struct Render_Pass
 		{
 			Shader_Info shader_info[5];
@@ -135,26 +142,26 @@ namespace BeastEngine
 			RS_State rasterizer_state = RS_State::Cull_Back;
 			DS_State depth_stencil_state = DS_State::GEqual;
 
-			void Reflect_Shader();
-			void Reflect_Shader(Shader::Shader_Type type);
-			void Reflect_Texture();
-			void Reflect_Texture(Shader::Shader_Type type);
+			void Reflect_Shader();                          //コンスタントバッファ情報をリフレクションする
+			void Reflect_Shader(Shader::Shader_Type type);  //コンスタントバッファ情報をリフレクションする
+			void Reflect_Texture();                         //シェーダー内テクスチャ情報をリフレクションする
+			void Reflect_Texture(Shader::Shader_Type type); //シェーダー内テクスチャ情報をリフレクションする
 
 			static void Create_ConstantBuffer(ConstantBuffer_Info& info, const UINT& size);
-			void Initialize_Texture();
-			void Initialize_Shader();
-			void Active();
-			void Active_Buffer();
-			void Active_Texture();
-			void Active_Shader();
-			void Active_State() const;
+			void Initialize_Texture();   //テクスチャ情報の初期化
+			void Initialize_Shader();    //シェーダー情報の初期化
+			void Activate();             //レンダリングパスをアクティブにする
+			void Activate_Buffer();      //コンスタントバッファをセット
+			void Activate_Texture();     //テクスチャをセット
+			void Activate_Shader();      //シェーダーをステージする
+			void Activate_State() const; //各ステートをセットする
 
 		private:
 			friend class cereal::access;
 			template<class Archive>
 			void serialize(Archive& archive);
 		};
-		
+
 		std::vector<Render_Pass> render_pass;
 		std::string self_save_path;
 		Rendering_Mode rendering_mode = Rendering_Mode::Opaque;
@@ -163,13 +170,13 @@ namespace BeastEngine
 		static RS_State binding_rasterizer_state;
 		static DS_State binding_depth_stencil_state;
 
-		void Set_Parameter(const std::string& parameter_name, const void* value, const Shader::Parameter_Type& type);
-		void Active(int pass = 0);
-		void Active_Buffer(int pass = 0);
-		void Active_Texture(int pass = 0);
-		void Active_Shader(int pass = 0);
-		void Active_State(int pass = 0);
-		void Draw_ImGui();
+		void Set_Parameter(const std::string& parameter_name, const void* value, const Shader::Parameter_Type& type); //コンスタントバッファのパラメータを変数名から設定する
+		void Activate(int pass = 0);         //指定したレンダリングパスをアクティブに
+		void Activate_Buffer(int pass = 0);  //指定したレンダリングパスのコンスタントバッファをセットする
+		void Activate_Texture(int pass = 0); //指定したレンダリングパスのテクスチャをセットする
+		void Activate_Shader(int pass = 0);  //指定したレンダリングパスのシェーダーをステージする
+		void Activate_State(int pass = 0);   //指定したレンダリングパスの各ステートをセットする
+		void Draw_ImGui(); //ImGui描画
 
 		friend class Render_Manager;
 		friend class Shadow_Manager;

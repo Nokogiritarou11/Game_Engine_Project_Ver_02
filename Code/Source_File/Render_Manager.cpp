@@ -313,7 +313,7 @@ void Render_Manager::Render_2D()
 	{
 		//トポロジー設定
 		DxSystem::device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-		sprite_material->Active();
+		sprite_material->Activate();
 
 		for (auto& r : renderer_2D_list)
 		{

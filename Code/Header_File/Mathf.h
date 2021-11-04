@@ -5,6 +5,7 @@
 
 namespace BeastEngine
 {
+	//©ìZpŠÖ”
 	struct Mathf
 	{
 		//start‚Æend‚ğt‚ÅüŒ`•âŠÔ‚·‚é

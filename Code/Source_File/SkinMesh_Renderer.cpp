@@ -162,7 +162,7 @@ void SkinMesh_Renderer::Render(const int subset_number)
 	for (size_t i = 0; i < material[subset.material_ID]->render_pass.size(); ++i)
 	{
 		//ƒ}ƒeƒŠƒAƒ‹İ’è
-		material[subset.material_ID]->Active(i);
+		material[subset.material_ID]->Activate(i);
 		// •`‰æ
 		DxSystem::device_context->DrawIndexed(subset.index_count, subset.index_start, 0);
 	}

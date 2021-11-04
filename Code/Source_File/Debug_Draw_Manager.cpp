@@ -94,7 +94,7 @@ void Debug_Draw_Manager::Set_Dx_Settings() const
 	DxSystem::device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
 	// シェーダ
-	material->Active();
+	material->Activate();
 }
 
 void Debug_Draw_Manager::Render_Grid(shared_ptr<Transform>& trans) const
