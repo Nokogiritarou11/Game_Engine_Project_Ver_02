@@ -3,17 +3,18 @@
 
 namespace BeastEngine
 {
+	//スフィアコライダーコンポーネント
 	class Sphere_Collider :public Collider
 	{
 	public:
-		void Set_Radius(float new_radius);
-		[[nodiscard]] float Get_Radius() const { return radius; }
+		void Set_Radius(float new_radius); //半径を設定する
+		[[nodiscard]] float Get_Radius() const { return radius; } //半径を取得する
 
 	private:
-		void Create_Shape() override;
-		bool Draw_ImGui() override;
+		void Create_Shape() override; //形状を作成する(Sphere)
+		bool Draw_ImGui() override; //ImGui描画
 
-		float radius = 0.5f;
+		float radius = 0.5f; //半径
 
 		friend class cereal::access;
 		template<class Archive>

@@ -7,12 +7,13 @@ namespace BeastEngine
 {
 	class Material;
 
+	//スカイボックス
 	class SkyBox
 	{
 	public:
 		SkyBox();
 
-		void Render(const Vector3& pos);
+		void Render(const Vector3& pos); //描画実行
 
 	private:
 		std::shared_ptr<Material> material;

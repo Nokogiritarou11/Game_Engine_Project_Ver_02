@@ -6,18 +6,19 @@
 
 namespace BeastEngine
 {
+	//レンダリング用テクスチャ
 	class Render_Texture
 	{
 	public:
 		Render_Texture(const int& x, const int& y, const bool& msaa, const DXGI_FORMAT& format);
 		~Render_Texture();
 
-		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& Get_Texture();
-		void Update_Copy_Texture() const;
-		Effekseer::Backend::TextureRef& Get_Back_Ground_Texture() { return back_ground_texture; }
-		void Set_Screen_Size(const int& x, const int& y);
-		void Set_Render_Target();
-		void Clear() const;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& Get_Texture();                          //描画結果を取得する
+		void Update_Copy_Texture() const;                                                         //テクスチャを別バッファにコピーする
+		Effekseer::Backend::TextureRef& Get_Back_Ground_Texture() { return back_ground_texture; } //コピーした描画結果を取得する
+		void Set_Screen_Size(const int& x, const int& y);                                         //テクスチャのサイズを設定する
+		void Set_Render_Target();                                                                 //テクスチャをレンダーターゲットとしてセットする
+		void Clear() const;                                                                       //テクスチャのクリア
 
 		int screen_x = 0;
 		int screen_y = 0;
@@ -38,10 +39,10 @@ namespace BeastEngine
 
 		Effekseer::Backend::TextureRef back_ground_texture;
 
-		bool Create_Depth_Stencil();
-		bool Create_Render_Target_View();
+		bool Create_Depth_Stencil();      //デプスステンシルテクスチャを作成する
+		bool Create_Render_Target_View(); //レンダーターゲットを作成する
 
 		DXGI_FORMAT color_format;
-		bool use_msaa;
+		bool use_msaa; //MSAAを使用するか
 	};
 }

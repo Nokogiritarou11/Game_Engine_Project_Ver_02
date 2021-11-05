@@ -95,13 +95,13 @@ namespace BeastEngine
 
 		bool update_GUI = false;
 
-		void On_Parent_Changed();
-		void Change_Children();
-		void Remove_Parent();
+		void On_Parent_Changed(); //親Transformの姿勢が変更されたときに呼ばれる
+		void Change_Children(); //自身の姿勢が変更されたときに子に対して処理を行う
+		void Remove_Parent(); //親子関係を解除する
 
-		void Initialize(const std::shared_ptr<GameObject>& obj) override;
-		bool Draw_ImGui() override;
-		bool Can_Multiple() override { return false; };
+		void Initialize(const std::shared_ptr<GameObject>& obj) override; //初期化
+		bool Draw_ImGui() override; //ImGui描画
+		bool Can_Multiple() override { return false; } //同コンポーネントを複数アタッチできるか
 
 		friend class Editor;
 		friend class cereal::access;

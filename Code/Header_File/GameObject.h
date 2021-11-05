@@ -12,9 +12,9 @@ namespace BeastEngine
 	{
 	public:
 		[[nodiscard]] bool Compare_Tag(const std::string& tag) const;	//指定したタグに一致するか返す
-		[[nodiscard]] bool Get_Active() const;						//ゲームオブジェクトがアクティブか(親の状態を考慮しない)
-		void Set_Active(bool value);					//アクティブ状態を指定する
-		[[nodiscard]] bool Get_Active_In_Hierarchy() const;			//ヒエラルキー上でアクティブか(親の状態を考慮する)
+		[[nodiscard]] bool Get_Active() const;						    //ゲームオブジェクトがアクティブか(親の状態を考慮しない)
+		void Set_Active(bool value);					                //アクティブ状態を指定する
+		[[nodiscard]] bool Get_Active_In_Hierarchy() const;			    //ヒエラルキー上でアクティブか(親の状態を考慮する)
 
 		int layer = 0;                                          //コリジョンや描画判定用レイヤー
 		std::string tag = "Default";                            //タグ

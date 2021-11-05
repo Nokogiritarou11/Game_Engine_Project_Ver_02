@@ -10,21 +10,22 @@ namespace BeastEngine
 	class Texture;
 	class Material;
 
+	//スプライトレンダラーコンポーネント
 	class Sprite_Renderer : public Renderer
 	{
 	public:
-		Vector2 size = { 100,100 };		//表示サイズ
+		Vector2 size = { 100,100 };		    //表示サイズ
 		Vector2 uv_origin = { 0,0 };		//テクスチャのUV原点
 		Vector2 uv_size = { 100,100 };		//テクスチャから切り出すサイズ(UV原点基準)
-		Vector4 color = { 1,1,1,1 };		//テクスチャカラー({1,1,1,1}でオリジナル)
+		Vector4 color = { 1,1,1,1 };	    //テクスチャカラー({1,1,1,1}でオリジナル)
 		std::shared_ptr<Texture> texture;	//描画するテクスチャ
 
 	private:
-		void Initialize(const std::shared_ptr<GameObject>& obj) override;
-		void Recalculate_Frame() override;
-		void Render(int subset_number = 0) override;
-		bool Draw_ImGui() override;
-		void Set_Active(bool value) override;
+		void Initialize(const std::shared_ptr<GameObject>& obj) override; //初期化
+		void Recalculate_Frame() override; //表示座標を計算する
+		void Render(int subset_number = 0) override; //描画実行
+		bool Draw_ImGui() override; //ImGui描画
+		void Set_Active(bool value) override; //アクティブ状態を設定する
 
 		struct Vertex
 		{
