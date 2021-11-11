@@ -5,14 +5,12 @@
 namespace BeastEngine
 {
 	class Character_Parameter;
-	class Enemy_Manager;
 
 	class Enemy_Normal_01_Move final : public MonoBehaviour, public Interface_Character_Mover
 	{
 	public:
 		void Move_Normal() override;
 		void Move_Attack() override;
-		void Move_Dodge() override;
 		void Move_Damage() override;
 		void Move_Guard() override;
 
@@ -26,13 +24,11 @@ namespace BeastEngine
 		std::weak_ptr<RigidBody> rigidbody;
 		std::weak_ptr<Character_Parameter> parameter;
 		std::weak_ptr<Transform> target_transform;
-		std::weak_ptr<Enemy_Manager> enemy_manager;
 
 		float jump_power = 0;
 		float down_power = 0;
 		bool is_stay_air = false;
 		bool is_add_down = false;
-		bool is_attack_preliminary = false;
 
 		// シリアライズ関数
 		friend class cereal::access;

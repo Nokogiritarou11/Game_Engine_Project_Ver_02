@@ -37,8 +37,8 @@ void Animator_Manager::Update()
 		animator_list.erase(remove_it, animator_list.end());
 	}
 
-	//アニメーション計算スレッド終了街
-	while (!Engine::thread_pool->Get_Is_Empty_Pool()) {}
+	//アニメーション計算スレッド終了待ち
+	Engine::thread_pool->Wait_Job_Complete();
 }
 
 void Animator_Manager::Add(shared_ptr<Animator> animator)

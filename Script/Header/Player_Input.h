@@ -21,6 +21,7 @@ namespace BeastEngine
 
 		std::weak_ptr<Animator> animator;
 		std::weak_ptr<Transform> camera_transform;
+		std::weak_ptr<Character_Parameter> parameter;
 		std::weak_ptr<Enemy_Manager> enemy_manager;
 
 		bool is_stick_reset = false;

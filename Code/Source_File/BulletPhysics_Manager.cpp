@@ -68,6 +68,7 @@ void BulletPhysics_Manager::Update()
 		typedef pair<shared_ptr<Collider>, Collision> hit_pair;
 		vector<hit_pair> hit_list;
 		world->stepSimulation(Time::delta_time, 2, Time::delta_time * 0.5f);
+		//world->stepSimulation(Time::delta_time);
 
 		const int num = dispatcher->getNumManifolds();
 		for (int i = 0; i < num; ++i)

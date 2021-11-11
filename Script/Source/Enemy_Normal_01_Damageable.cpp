@@ -15,7 +15,7 @@ void Enemy_Normal_01_Damageable::Awake()
 
 	const auto& manager = GameObject::Find_With_Tag("Game_Manager").lock();
 	enemy_manager = manager->Get_Component<Enemy_Manager>();
-	enemy_manager.lock()->Add_Enemy_List(gameobject);
+	enemy_manager.lock()->Add_Enemy_List(parameter);
 	time_manager = manager->Get_Component<Time_Manager>();
 }
 
@@ -28,7 +28,7 @@ bool Enemy_Normal_01_Damageable::Take_Damage(const int damage_hp, const int dama
 	transform->Set_Local_Rotation(transform->Look_At(Vector3(from_pos.x, transform->Get_Position().y, from_pos.z)));
 
 	hit_stop_manager.lock()->Start_Hit_Stop(0.05f);
-	enemy_manager.lock()->last_attack_target = gameobject;
+	enemy_manager.lock()->last_attack_target = parameter;
 
 	if (param->guarding)
 	{
@@ -37,6 +37,25 @@ bool Enemy_Normal_01_Damageable::Take_Damage(const int damage_hp, const int dama
 	}
 
 	param->hp -= damage_hp;
+
+	if (param->is_ground && !param->stunning)
+	{
+		param->stun -= damage_stun;
+	}
+
+	if(param->hp <= 0)
+	{
+		param->living = false;
+		anim->Set_Trigger("Death");
+		return true;
+	}
+
+	if(param->stun <= 0)
+	{
+		anim->Set_Trigger("Stun");
+		return true;
+	}
+
 	anim->Set_Trigger("Damage");
 	anim->Set_Int("Damage_State", static_cast<int>(damage_state));
 	return true;

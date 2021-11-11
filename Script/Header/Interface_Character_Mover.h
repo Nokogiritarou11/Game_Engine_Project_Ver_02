@@ -13,7 +13,6 @@ namespace BeastEngine
 
 		virtual void Move_Normal() = 0;
 		virtual void Move_Attack() = 0;
-		virtual void Move_Dodge() = 0;
 		virtual void Move_Damage() = 0;
 		virtual void Move_Guard() = 0;
 

@@ -27,7 +27,6 @@ bool Character_Parameter::Draw_ImGui()
 		ImGui::LeftText_Checkbox(u8"¶‘¶’†", "##living", &living, window_center);
 		ImGui::LeftText_Checkbox(u8"ˆÚ“®’†", "##moving", &moving, window_center);
 		ImGui::LeftText_Checkbox(u8"UŒ‚’†", "##attacking", &attacking, window_center);
-		ImGui::LeftText_Checkbox(u8"‰ñ”ğ’†", "##dodging", &dodging, window_center);
 		ImGui::LeftText_Checkbox(u8"”íƒ_ƒ’†", "##damaging", &damaging, window_center);
 		ImGui::LeftText_Checkbox(u8"Ú’n’†", "##is_ground", &is_ground, window_center);
 	}

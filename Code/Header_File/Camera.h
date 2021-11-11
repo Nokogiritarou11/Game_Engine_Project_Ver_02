@@ -13,7 +13,8 @@ namespace BeastEngine
 	class Camera final : public Behaviour
 	{
 	public:
-		[[nodiscard]] Vector2 World_To_ViewportPoint(Vector3 pos) const; //ワールド座標を画面上の座標に変換する
+		[[nodiscard]] Vector2 World_To_Screen_Point(Vector3 pos) const; //ワールド座標を画面上の座標に変換する
+		[[nodiscard]] Vector2 World_To_Viewport_Point(Vector3 pos) const; //ワールド座標を画面上の座標に変換する
 
 		float fov = 60.0f;                 //視野角
 		float near_z = 0.1f;	           // 表示最近面までの距離

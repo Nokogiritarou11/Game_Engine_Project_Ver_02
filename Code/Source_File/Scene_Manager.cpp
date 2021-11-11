@@ -184,6 +184,7 @@ void Scene_Manager::Update()
 		{
 			active_scene->Reset();
 		}
+		Time::delta_time = 0;
 		active_scene = CreateScene_From_File(next_scene_path);
 		active_scene->Initialize();
 		load = false;

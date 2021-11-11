@@ -8,20 +8,25 @@ namespace BeastEngine
 	public:
 		float max_hp = 0;
 		float hp = 0;
+		float max_stun = 0;
+		float stun = 0;
+		float heal_stun = 0;
 
 		bool eventing = false;
 		bool pausing = false;
 		bool living = true;
 		bool moving = false;
 		bool attacking = false;
-		bool dodging = false;
 		bool damaging = false;
 		bool guarding = false;
 		bool just_guarding = false;
+		bool stunning = false;
+		bool camera_locking = false;
 
 		bool is_ground = true;
+		bool is_attack_preliminary = false;
 
-		std::weak_ptr<GameObject> target;
+		std::weak_ptr<Character_Parameter> target;
 
 	private:
 		void Awake() override;
@@ -32,7 +37,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<MonoBehaviour>(this), max_hp);
+			archive(cereal::base_class<MonoBehaviour>(this), max_hp, max_stun, heal_stun);
 		}
 	};
 }

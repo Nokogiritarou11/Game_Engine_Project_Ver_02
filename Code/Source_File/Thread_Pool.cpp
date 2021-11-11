@@ -20,6 +20,13 @@ Thread_Pool::~Thread_Pool()
 	}
 }
 
+void Thread_Pool::Wait_Job_Complete()
+{
+	std::unique_lock lock(main_mutex);
+	main_condition.wait(lock);
+}
+
+
 void Thread_Pool::Shut_Down()
 {
 	{
@@ -55,11 +62,18 @@ void Thread_Pool::Infinite_Loop_Function()
 		}
 
 		job();
+
+		if(--doing_job_count == 0)
+		{
+			main_condition.notify_one();
+		}
 	}
 }
 
 void Thread_Pool::Add_Job(const function<void()>& new_job)
 {
+	++doing_job_count;
+
 	{
 		unique_lock lock(queue_mutex);
 		job_queue.push(new_job);

@@ -135,7 +135,30 @@ bool Camera::Draw_ImGui()
 	return true;
 }
 
-Vector2 Camera::World_To_ViewportPoint(const Vector3 pos) const
+Vector2 Camera::World_To_Viewport_Point(const Vector3 pos) const
+{
+	const XMVECTOR p = XMLoadFloat3(&pos);
+	const XMVECTOR screen
+		= XMVector3Project(
+			p,
+			viewport.TopLeftX,
+			viewport.TopLeftY,
+			viewport.Width,
+			viewport.Height,
+			viewport.MinDepth,
+			viewport.MaxDepth,
+			XMLoadFloat4x4(&projection_matrix),
+			XMLoadFloat4x4(&view_matrix),
+			XMMatrixIdentity()
+		);
+	Vector2 re;
+	XMStoreFloat2(&re, screen);
+	re.x /= viewport.Width;
+	re.y /= viewport.Height;
+	return re;
+}
+
+Vector2 Camera::World_To_Screen_Point(const Vector3 pos) const
 {
 	const XMVECTOR p = XMLoadFloat3(&pos);
 	const XMVECTOR screen

@@ -30,7 +30,6 @@ void Character_Condition_Manager::Update()
 
 		param->moving = false;
 		param->attacking = false;
-		param->dodging = false;
 		param->damaging = false;
 		param->guarding = false;
 		param->just_guarding = false;
@@ -49,14 +48,10 @@ void Character_Condition_Manager::Update()
 				break;
 
 			case 3:
-				param->dodging = true;
-				break;
-
-			case 4:
 				param->damaging = true;
 				break;
 
-			case 5:
+			case 4:
 				param->guarding = true;
 				param->just_guarding = true;
 				just_guard_timer = just_guard_time;
@@ -77,10 +72,6 @@ void Character_Condition_Manager::Update()
 				if (param->attacking)
 				{
 					c_move->Move_Attack();
-				}
-				else if (param->dodging)
-				{
-					c_move->Move_Dodge();
 				}
 				else if (param->damaging)
 				{
@@ -105,6 +96,11 @@ void Character_Condition_Manager::Update()
 		{
 			param->just_guarding = false;
 		}
+	}
+
+	if (param->stun < param->max_stun)
+	{
+		param->stun = Mathf::Clamp(param->stun + param->heal_stun * Time::delta_time, 0, param->max_stun);
 	}
 }
 

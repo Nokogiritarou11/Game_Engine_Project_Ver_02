@@ -49,9 +49,12 @@ void Player_Move::Move_Attack()
 
 		if (input->input_direction == Vector3::Zero)
 		{
-			Vector3 pos = param->target.lock()->transform->Get_Position();
-			pos.y = transform->Get_Position().y;
-			transform->Set_Local_Rotation(transform->Look_At(pos));
+			if (const auto& target = param->target.lock())
+			{
+				Vector3 pos = target->transform->Get_Position();
+				pos.y = transform->Get_Position().y;
+				transform->Set_Local_Rotation(transform->Look_At(pos));
+			}
 		}
 		else
 		{
@@ -79,11 +82,6 @@ void Player_Move::Move_Attack()
 	Vector3 speed = transform->Get_Forward() * move_speed * Time::delta_time;
 	speed.y = y_axis_velocity;
 	rb->Set_Velocity(speed);
-}
-
-void Player_Move::Move_Dodge()
-{
-
 }
 
 void Player_Move::Move_Damage()

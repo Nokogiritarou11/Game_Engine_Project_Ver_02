@@ -13,7 +13,6 @@ namespace BeastEngine
 	public:
 		void Move_Normal() override;
 		void Move_Attack() override;
-		void Move_Dodge() override;
 		void Move_Damage() override;
 		void Move_Guard() override;
 

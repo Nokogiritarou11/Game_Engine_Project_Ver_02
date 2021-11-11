@@ -1,5 +1,6 @@
 #include "Player_Input.h"
 #include "Enemy_Manager.h"
+#include "Character_Parameter.h"
 
 using namespace std;
 using namespace BeastEngine;
@@ -7,6 +8,7 @@ using namespace BeastEngine;
 void Player_Input::Awake()
 {
 	animator = Get_Component<Animator>();
+	parameter = Get_Component<Character_Parameter>();
 	camera_transform = GameObject::Find_With_Tag("main_camera").lock()->transform;
 	enemy_manager = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Enemy_Manager>();
 }
@@ -15,6 +17,8 @@ void Player_Input::Set_State()
 {
 	const auto& anim = animator.lock();
 	const auto& camera_trans = camera_transform.lock();
+	const auto& param = parameter.lock();
+	const auto& e_manager = enemy_manager.lock();
 
 	// カメラの方向から、X-Z平面の単位ベクトルを取得
 	Vector3 camera_direction = camera_trans->Get_Forward();
@@ -68,7 +72,7 @@ void Player_Input::Set_State()
 
 	if (can_guard_button && can_guard_stick)
 	{
-		if (const auto& attacking_list = enemy_manager.lock()->attacking_list; !attacking_list.empty())
+		if (const auto& attacking_list = e_manager->attacking_list; !attacking_list.empty())
 		{
 			for (const auto& enemy : attacking_list)
 			{
@@ -84,6 +88,29 @@ void Player_Input::Set_State()
 		}
 		can_guard_button = false;
 		can_guard_stick = false;
+	}
+
+	if (const auto& stunning_list = e_manager->stunning_list; !stunning_list.empty())
+	{
+		for (const auto& enemy : stunning_list)
+		{
+			if (const auto& enemy_lock = enemy.lock(); Vector3::DistanceSquared(transform->Get_Position(), enemy_lock->transform->Get_Position()) <= powf(2, 2))
+			{
+				if (Input::Get_Pad_Button_Down(Button_Code::B) && param->is_ground && !param->attacking && !param->stunning && !param->damaging && !param->guarding)
+				{
+					Vector3 pos = transform->Get_Position();
+					Vector3 enemy_pos = enemy_lock->transform->Get_Position();
+					enemy_pos.y = pos.y;
+					pos.y = enemy_pos.y;
+					transform->Set_Local_Rotation(transform->Look_At(enemy_pos));
+					enemy_lock->transform->Set_Local_Rotation(enemy_lock->transform->Look_At(pos));
+
+					enemy_lock->Get_Component<Animator>()->Set_Trigger("Smash");
+					anim->Set_Int("Smash_Number", 0);
+				}
+				break;
+			}
+		}
 	}
 }
 

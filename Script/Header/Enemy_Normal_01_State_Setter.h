@@ -5,6 +5,7 @@
 namespace BeastEngine
 {
 	class Character_Parameter;
+	class Enemy_Manager;
 
 	class Enemy_Normal_01_State_Setter final : public MonoBehaviour, public Interface_Character_State_Setter
 	{
@@ -18,6 +19,7 @@ namespace BeastEngine
 		std::weak_ptr<Animator> animator;
 		std::weak_ptr<Transform> target_transform;
 		std::weak_ptr<Character_Parameter> parameter;
+		std::weak_ptr<Enemy_Manager> enemy_manager;
 
 		float attack_distance = 0;
 
