@@ -25,6 +25,7 @@ namespace BeastEngine
 
 		bool is_ground = true;
 		bool is_attack_preliminary = false;
+		bool is_invincible = false;
 
 		std::weak_ptr<Character_Parameter> target;
 

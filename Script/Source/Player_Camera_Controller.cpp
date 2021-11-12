@@ -35,9 +35,25 @@ void Player_Camera_Controller::LateUpdate()
 			Update_Battle();
 		}
 	}
+
+	if (shake_count > 0)
+	{
+		shake_timer += Time::delta_time;
+
+		if (constexpr float frame_time = 1.0f / 60.0f; shake_timer <= frame_time)
+		{
+			const auto& camera_trans = camera_transform.lock();
+			const Vector3 pos = final_position;
+			const float x = pos.x + Mathf::Random_Range(-1.0f, 1.0f) * shake_power;
+			const float y = pos.y + Mathf::Random_Range(-1.0f, 1.0f) * shake_power;
+			camera_trans->Set_Local_Position(x, y, pos.z);
+			shake_timer = 0;
+			--shake_count;
+		}
+	}
 }
 
-void Player_Camera_Controller::Update_Free_Look() const
+void Player_Camera_Controller::Update_Free_Look()
 {
 	const auto& p_trans = player_transform.lock();
 	const auto& param = parameter.lock();
@@ -74,8 +90,10 @@ void Player_Camera_Controller::Update_Free_Look() const
 	//ƒJƒƒ‰–{‘Ì
 	{
 		const auto& camera_trans = camera_transform.lock();
-		camera_trans->Set_Local_Position(Vector3::Lerp(camera_trans->Get_Local_Position(), default_position, Time::delta_time));
+		camera_trans->Set_Local_Position(Vector3::Lerp(final_position, default_position, Time::delta_time));
 		camera_trans->Set_Local_Euler_Angles(Vector3::Lerp(camera_trans->Get_Local_Euler_Angles(), default_rotation, Time::delta_time));
+
+		final_position = camera_trans->Get_Local_Position();
 	}
 }
 
@@ -160,17 +178,26 @@ void Player_Camera_Controller::Update_Battle()
 
 		pos.z -= 0.5f * (Mathf::Clamp(static_cast<float>(enemy_count), 0, 4) - 1);
 
-		camera_trans->Set_Local_Position(Vector3::Lerp(camera_trans->Get_Local_Position(), pos, Time::delta_time * 2.0f));
+		camera_trans->Set_Local_Position(Vector3::Lerp(final_position, pos, Time::delta_time * 2.0f));
 
 		camera_trans->Set_Local_Euler_Angles(Vector3::Lerp(camera_trans->Get_Local_Euler_Angles(), rot, Time::delta_time * 2.0f));
 		const Vector3 r = camera_trans->Get_Euler_Angles();
 		camera_trans->Set_Euler_Angles(r.x, r.y, 0);
+
+		final_position = camera_trans->Get_Local_Position();
 	}
 }
 
 void Player_Camera_Controller::Update_Lock_On() const
 {
 
+}
+
+void Player_Camera_Controller::Shake_Camera(const int& count, const float& power)
+{
+	shake_count = count;
+	shake_power = power;
+	shake_timer = 0;
 }
 
 

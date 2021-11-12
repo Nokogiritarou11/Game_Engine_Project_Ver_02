@@ -51,17 +51,11 @@ void Enemy_Normal_01_State_Setter::Set_State()
 		}
 	}
 
-	if (const bool stunning = anim->Get_Bool("Is_Stunning"); param->stunning != stunning)
+	if (anim->Get_Bool("Stun_End"))
 	{
-		param->stunning = stunning;
-		if (param->stunning)
-		{
-			enemy_manager.lock()->Add_Stunning_List(parameter);
-		}
-		else
-		{
-			enemy_manager.lock()->Remove_Stunning_List(parameter);
-		}
+		anim->Set_Bool("Stun_End", false);
+		param->stunning = false;
+		enemy_manager.lock()->Remove_Stunning_List(parameter);
 	}
 }
 

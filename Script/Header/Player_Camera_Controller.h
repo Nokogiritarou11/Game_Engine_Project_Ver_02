@@ -9,13 +9,14 @@ namespace BeastEngine
 	class Player_Camera_Controller final : public MonoBehaviour
 	{
 	public:
+		void Shake_Camera(const int& count, const float& power);
 
 	private:
 		void Awake() override;
 		void LateUpdate() override;
 		bool Draw_ImGui() override;
 
-		void Update_Free_Look() const;
+		void Update_Free_Look();
 		void Update_Battle();
 		void Update_Lock_On() const;
 
@@ -26,6 +27,11 @@ namespace BeastEngine
 		float rotate_speed = 0;
 		float follow_speed = 0;
 
+		int shake_count = 0;
+		float shake_power = 0;
+		float shake_timer;
+
+		Vector3 final_position;
 		Vector3 default_position;
 		Vector3 default_rotation;
 		Vector3 battle_position;

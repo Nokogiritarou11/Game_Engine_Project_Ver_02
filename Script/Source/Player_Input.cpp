@@ -94,7 +94,7 @@ void Player_Input::Set_State()
 	{
 		for (const auto& enemy : stunning_list)
 		{
-			if (const auto& enemy_lock = enemy.lock(); Vector3::DistanceSquared(transform->Get_Position(), enemy_lock->transform->Get_Position()) <= powf(2, 2))
+			if (const auto& enemy_lock = enemy.lock(); Vector3::DistanceSquared(transform->Get_Position(), enemy_lock->transform->Get_Position()) <= powf(2.5f, 2))
 			{
 				if (Input::Get_Pad_Button_Down(Button_Code::B) && param->is_ground && !param->attacking && !param->stunning && !param->damaging && !param->guarding)
 				{
