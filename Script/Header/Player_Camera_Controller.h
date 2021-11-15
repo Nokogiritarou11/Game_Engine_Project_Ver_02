@@ -5,11 +5,13 @@ namespace BeastEngine
 {
 	class Character_Parameter;
 	class Enemy_Manager;
+	class Interface_Cut_Scene;
 
 	class Player_Camera_Controller final : public MonoBehaviour
 	{
 	public:
 		void Shake_Camera(const int& count, const float& power);
+		void Play_Cut_Scene(const int& index);
 
 	private:
 		void Awake() override;
@@ -21,6 +23,7 @@ namespace BeastEngine
 		void Update_Lock_On() const;
 
 		bool is_target_right = false;
+		bool is_playing_cut_scene = false;
 
 		float angle_limit_up = 0;
 		float angle_limit_down = 0;
@@ -47,13 +50,20 @@ namespace BeastEngine
 		std::weak_ptr<Character_Parameter> parameter;
 		std::weak_ptr<Enemy_Manager> enemy_manager;
 
+		std::vector<std::weak_ptr<Interface_Cut_Scene>> cut_scene;
+		std::weak_ptr<Interface_Cut_Scene> playing_cut_scene;
+
 		// シリアライズ関数
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<MonoBehaviour>(this), angle_limit_up, angle_limit_down, rotate_speed, follow_speed,
-				default_position, default_rotation, battle_position, battle_rotation, lock_position, lock_rotation);
+			archive(cereal::base_class<MonoBehaviour>(this),
+				angle_limit_up, angle_limit_down,
+				rotate_speed, follow_speed,
+				default_position, default_rotation,
+				battle_position, battle_rotation,
+				lock_position, lock_rotation);
 		}
 	};
 }

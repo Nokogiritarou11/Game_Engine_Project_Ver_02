@@ -64,8 +64,8 @@ namespace BeastEngine
 		void Set_World_Matrix(Matrix matrix);					                //Transformのワールド変換行列を直接設定する
 
 																			    //Function
-		std::weak_ptr<Transform> Find(std::string n) const;						//Transform以下のオブジェクトを検索する
-		Quaternion Look_At(Vector3 pos) const;								    //TransformのForwardを指定した座標へ向ける
+		[[nodiscard]] std::weak_ptr<Transform> Find(std::string n) const;		//Transform以下のオブジェクトを検索する
+		[[nodiscard]] Quaternion Look_At(Vector3 pos) const;					//TransformのForwardを指定した座標へ向ける
 
 	private:
 		Vector3    position = { 0, 0, 0 };

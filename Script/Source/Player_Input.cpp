@@ -1,6 +1,7 @@
 #include "Player_Input.h"
 #include "Enemy_Manager.h"
 #include "Character_Parameter.h"
+#include "Player_Camera_Controller.h"
 
 using namespace std;
 using namespace BeastEngine;
@@ -10,6 +11,7 @@ void Player_Input::Awake()
 	animator = Get_Component<Animator>();
 	parameter = Get_Component<Character_Parameter>();
 	camera_transform = GameObject::Find_With_Tag("main_camera").lock()->transform;
+	camera_controller = camera_transform.lock()->Get_Parent().lock()->Get_Component<Player_Camera_Controller>();
 	enemy_manager = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Enemy_Manager>();
 }
 
@@ -107,6 +109,7 @@ void Player_Input::Set_State()
 
 					enemy_lock->Get_Component<Animator>()->Set_Trigger("Smash");
 					anim->Set_Int("Smash_Number", 0);
+					camera_controller.lock()->Play_Cut_Scene(0);
 				}
 				break;
 			}

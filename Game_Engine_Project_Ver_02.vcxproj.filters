@@ -124,6 +124,7 @@
     <ClCompile Include="Script\Source\Player_Damageable.cpp" />
     <ClCompile Include="Script\Source\Time_Manager.cpp" />
     <ClCompile Include="Code\Source_File\Thread_Pool.cpp" />
+    <ClCompile Include="Script\Source\Cut_Scene_Smash_01.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -344,6 +345,8 @@
     <ClInclude Include="Script\Header\Player_Damageable.h" />
     <ClInclude Include="Script\Header\Time_Manager.h" />
     <ClInclude Include="Code\Header_File\Thread_Pool.h" />
+    <ClInclude Include="Script\Header\Interface_Cut_Scene.h" />
+    <ClInclude Include="Script\Header\Cut_Scene_Smash_01.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

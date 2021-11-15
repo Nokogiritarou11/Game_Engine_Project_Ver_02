@@ -1,6 +1,7 @@
 #include "Player_Camera_Controller.h"
 #include "Character_Parameter.h"
-#include  "Enemy_Manager.h"
+#include "Enemy_Manager.h"
+#include "Interface_Cut_Scene.h"
 
 using namespace std;
 using namespace BeastEngine;
@@ -13,6 +14,10 @@ void Player_Camera_Controller::Awake()
 	camera_transform = GameObject::Find_With_Tag("main_camera").lock()->transform;
 	camera = camera_transform.lock()->Get_Component<Camera>();
 	enemy_manager = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Enemy_Manager>();
+
+	final_position = camera_transform.lock()->Get_Local_Position();
+
+	cut_scene.emplace_back(transform->Find("Cut_Scene_Smash_01").lock()->Get_Component<Interface_Cut_Scene>());
 }
 
 void Player_Camera_Controller::LateUpdate()
@@ -20,19 +25,30 @@ void Player_Camera_Controller::LateUpdate()
 	const auto& e_manager = enemy_manager.lock();
 	const auto& param = parameter.lock();
 
-	if (e_manager->enemy_list.empty())
+	if (is_playing_cut_scene)
 	{
-		Update_Free_Look();
+		if (!playing_cut_scene.lock()->Play_Cut_Scene())
+		{
+			final_position = camera_transform.lock()->Get_Local_Position();
+			is_playing_cut_scene = false;
+		}
 	}
 	else
 	{
-		if (param->camera_locking)
+		if (e_manager->enemy_list.empty())
 		{
-			Update_Lock_On();
+			Update_Free_Look();
 		}
 		else
 		{
-			Update_Battle();
+			if (param->camera_locking)
+			{
+				Update_Lock_On();
+			}
+			else
+			{
+				Update_Battle();
+			}
 		}
 	}
 
@@ -173,7 +189,7 @@ void Player_Camera_Controller::Update_Battle()
 
 		if (!param->is_ground)
 		{
-			pos.z -= 0.5f;
+			pos.z -= 0.75f;
 		}
 
 		pos.z -= 0.5f * (Mathf::Clamp(static_cast<float>(enemy_count), 0, 4) - 1);
@@ -200,6 +216,12 @@ void Player_Camera_Controller::Shake_Camera(const int& count, const float& power
 	shake_timer = 0;
 }
 
+void Player_Camera_Controller::Play_Cut_Scene(const int& index)
+{
+	playing_cut_scene = cut_scene[index];
+	is_playing_cut_scene = true;
+}
+
 
 bool Player_Camera_Controller::Draw_ImGui()
 {
@@ -215,12 +237,24 @@ bool Player_Camera_Controller::Draw_ImGui()
 		ImGui::LeftText_DragFloat(u8"回転速度", "##Rotate_Speed", &rotate_speed, window_center);
 		ImGui::LeftText_DragFloat(u8"追従速度", "##Follow_Speed", &follow_speed, window_center);
 
-		ImGui::LeftText_DragFloat3(u8"基本位置", "##Default_Position", default_position, window_center);
-		ImGui::LeftText_DragFloat3(u8"基本向き", "##Default_Rotation", default_rotation, window_center);
-		ImGui::LeftText_DragFloat3(u8"戦闘時位置", "##Battle_Position", battle_position, window_center);
-		ImGui::LeftText_DragFloat3(u8"戦闘時向き", "##Battle_Rotation", battle_rotation, window_center);
-		ImGui::LeftText_DragFloat3(u8"ロックオン時位置", "##Lock_Position", lock_position, window_center);
-		ImGui::LeftText_DragFloat3(u8"ロックオン時向き", "##Lock_Rotation", lock_rotation, window_center);
+		if (ImGui::TreeNode(u8"平常時カメラ姿勢"))
+		{
+			ImGui::LeftText_DragFloat3(u8"位置", "##Default_Position", default_position, window_center);
+			ImGui::LeftText_DragFloat3(u8"向き", "##Default_Rotation", default_rotation, window_center);
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode(u8"戦闘時カメラ姿勢"))
+		{
+			ImGui::LeftText_DragFloat3(u8"位置", "##Battle_Position", battle_position, window_center);
+			ImGui::LeftText_DragFloat3(u8"向き", "##Battle_Rotation", battle_rotation, window_center);
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode(u8"ロックオン時カメラ姿勢"))
+		{
+			ImGui::LeftText_DragFloat3(u8"位置", "##Lock_Position", lock_position, window_center);
+			ImGui::LeftText_DragFloat3(u8"向き", "##Lock_Rotation", lock_rotation, window_center);
+			ImGui::TreePop();
+		}
 	}
 	return true;
 }
