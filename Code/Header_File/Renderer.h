@@ -21,6 +21,7 @@ namespace BeastEngine
 		[[nodiscard]] bool Get_Enabled() const { return enabled; };	//現在アクティブか
 
 		std::vector<std::shared_ptr<Material>> material; //使用するマテリアル
+		std::vector<std::string> material_paths; //マテリアルのパス
 		Bounds bounds; //バウンディングボックス
 
 	protected:
@@ -45,7 +46,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<Component>(this), enabled, bounds);
+			archive(cereal::base_class<Component>(this), enabled, bounds, material_paths);
 		}
 	};
 }

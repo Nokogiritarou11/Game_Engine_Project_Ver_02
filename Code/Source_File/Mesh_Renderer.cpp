@@ -110,9 +110,14 @@ void Mesh_Renderer::Set_Mesh(const shared_ptr<Mesh>& mesh_data)
 			can_render = true;
 			file_path = mesh->file_path;
 			//マテリアル
-			for (auto& path : mesh->default_material_paths)
+			if (material_paths.empty())
 			{
-				material.push_back(Material::Load_Material(path));
+				material_paths = mesh->default_material_paths;
+			}
+
+			for (auto& path : material_paths)
+			{
+				material.emplace_back(Material::Load_Material(path));
 			}
 
 			subset_count = static_cast<int>(mesh->subsets.size());
@@ -232,10 +237,10 @@ bool Mesh_Renderer::Draw_ImGui()
 					ImGui::SameLine(window_width - 30.0f);
 					if (ImGui::Button(u8"選択"))
 					{
-						string path = System_Function::Get_Open_File_Name("mat", "\\Assets\\Model");
-						if (path != "")
+						if (string path = System_Function::Get_Open_File_Name("mat", "\\Assets\\Model"); !path.empty())
 						{
 							material[id_mat] = Material::Load_Material(path);
+							material_paths[id_mat] = path;
 						}
 					}
 					if (open_material)

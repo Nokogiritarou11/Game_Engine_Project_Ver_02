@@ -837,10 +837,10 @@ void Editor::Scene_File_Menu_Render()
 				string path = System_Function::Get_Save_File_Name("bin", "\\Assets\\Scene");
 				if (path != "")
 				{
-					int path_i = path.find_last_of("\\") + 1;//7
-					int ext_i = path.find_last_of(".");//10
-					string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
-					string filename = path.substr(path_i, ext_i - path_i); //ファイル名
+					const int path_i = path.find_last_of("\\") + 1;//7
+					const int ext_i = path.find_last_of(".");//10
+					const string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
+					const string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 					path = pathname + filename + ".bin";
 					Engine::scene_manager->Create_Scene_Default(path, filename);
 				}

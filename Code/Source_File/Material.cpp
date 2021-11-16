@@ -49,8 +49,15 @@ shared_ptr<Material> Material::Load_Material(const string& full_path)
 			pass.Initialize_Shader();
 			pass.Initialize_Texture();
 		}
+
+		const int path_i = full_path.find_last_of("\\") + 1;//7
+		const int ext_i = full_path.find_last_of(".");//10
+		const string filename = full_path.substr(path_i, ext_i - path_i); //ƒtƒ@ƒCƒ‹–¼
+		mat->name = filename;
+
 		if (!mat->self_save_path.empty())
 		{
+			mat->self_save_path = full_path;
 			mat->Save();
 		}
 		Engine::asset_manager->Registration_Asset(mat);
