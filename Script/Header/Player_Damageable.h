@@ -43,6 +43,7 @@ namespace BeastEngine
 		Vector3 guard_particle_position;
 
 		std::string guard_particle_key;
+		std::string parry_particle_key;
 
 		// シリアライズ関数
 		friend class cereal::access;
@@ -55,7 +56,7 @@ namespace BeastEngine
 				parry_shake_camera_count, parry_shake_camera_power,
 				guard_shake_camera_count, guard_shake_camera_power,
 				guard_particle_position,
-				guard_particle_key);
+				guard_particle_key, parry_particle_key);
 		}
 	};
 }
