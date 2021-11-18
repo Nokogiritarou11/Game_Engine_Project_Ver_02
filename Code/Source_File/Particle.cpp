@@ -75,7 +75,7 @@ void Particle::Set_Particle(const char* filepath, const char* filename)
 	Set_Active(gameobject->Get_Active_In_Hierarchy());
 }
 
-void Particle::Set_Active(bool value)
+void Particle::Set_Active(const bool value)
 {
 	if (value)
 	{

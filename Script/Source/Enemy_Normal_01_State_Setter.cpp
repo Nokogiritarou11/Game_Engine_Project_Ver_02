@@ -1,6 +1,7 @@
 #include "Enemy_Normal_01_State_Setter.h"
 #include "Character_Parameter.h"
 #include "Enemy_Manager.h"
+#include "Object_Pool.h"
 
 using namespace std;
 using namespace BeastEngine;
@@ -11,6 +12,7 @@ void Enemy_Normal_01_State_Setter::Awake()
 	parameter = Get_Component<Character_Parameter>();
 	target_transform = GameObject::Find_With_Tag("player").lock()->transform;
 	enemy_manager = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Enemy_Manager>();
+	pool = enemy_manager.lock()->Get_Component<Object_Pool>();
 }
 
 void Enemy_Normal_01_State_Setter::Set_State()
@@ -56,6 +58,14 @@ void Enemy_Normal_01_State_Setter::Set_State()
 		anim->Set_Bool("Stun_End", false);
 		param->stunning = false;
 		enemy_manager.lock()->Remove_Stunning_List(parameter);
+	}
+
+	if (anim->Get_Bool("Explosion"))
+	{
+		anim->Set_Bool("Explosion", false);
+		pool.lock()->Instance_In_Pool("Explosion_01", transform->Get_Position(), transform->Get_Rotation());
+		param->living = false;
+		gameobject->Set_Active(false);
 	}
 }
 

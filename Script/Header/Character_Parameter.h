@@ -3,9 +3,19 @@
 
 namespace BeastEngine
 {
+	enum class Character_Type
+	{
+		Player,
+		Enemy_Normal_01,
+		Enemy_Big_01,
+		Boss_01
+	};
+
 	class Character_Parameter final : public MonoBehaviour
 	{
 	public:
+		Character_Type type;
+
 		float max_hp = 0;
 		float hp = 0;
 		float max_stun = 0;
@@ -30,7 +40,7 @@ namespace BeastEngine
 		std::weak_ptr<Character_Parameter> target;
 
 	private:
-		void Awake() override;
+		void OnEnable() override;
 		bool Draw_ImGui() override;
 
 		// シリアライズ関数
@@ -38,7 +48,14 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<MonoBehaviour>(this), max_hp, max_stun, heal_stun);
+			if (version <= 1)
+			{
+				archive(cereal::base_class<MonoBehaviour>(this), max_hp, max_stun, heal_stun);
+			}
+			else
+			{
+				archive(cereal::base_class<MonoBehaviour>(this), type, max_hp, max_stun, heal_stun);
+			}
 		}
 	};
 }
@@ -46,4 +63,4 @@ namespace BeastEngine
 REGISTER_COMPONENT(Character_Parameter)
 CEREAL_REGISTER_TYPE(BeastEngine::Character_Parameter)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::MonoBehaviour, BeastEngine::Character_Parameter)
-CEREAL_CLASS_VERSION(BeastEngine::Character_Parameter, 1)
+CEREAL_CLASS_VERSION(BeastEngine::Character_Parameter, 2)

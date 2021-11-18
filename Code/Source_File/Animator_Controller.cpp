@@ -19,9 +19,29 @@ void Animator_Controller::Initialize()
 	{
 		parameters = make_shared<unordered_map<string, Animation_Parameter>>();
 	}
+
 	for (const auto& state : state_machines)
 	{
 		state->Initialize(parameters);
+		if (state->is_default_state)
+		{
+			playing_state_machine = state;
+			playing_state_machine->Activate();
+		}
+	}
+}
+
+void Animator_Controller::Reset()
+{
+	interrupt_state = 0;
+	duration_timer = 0;
+	playing_state_machine.reset();
+	next_state_machine.reset();
+	active_transition.reset();
+
+	for (const auto& state : state_machines)
+	{
+		state->Reset();
 		if (state->is_default_state)
 		{
 			playing_state_machine = state;
@@ -84,12 +104,12 @@ bool Animator_Controller::Remove_State_Machine(const string& name)
 	return true;
 }
 
-void Animator_Controller::Update()
+void Animator_Controller::Update(const float& speed)
 {
 	if (!active_transition)
 	{
 		playing_state_machine->Update_Transition();
-		playing_state_machine->Update_Time();
+		playing_state_machine->Update_Time(speed);
 
 		if (playing_state_machine->transition_trigger)
 		{
@@ -103,8 +123,8 @@ void Animator_Controller::Update()
 	}
 	else
 	{
-		playing_state_machine->Update_Time();
-		next_state_machine->Update_Time();
+		playing_state_machine->Update_Time(speed);
+		next_state_machine->Update_Time(speed);
 		duration_timer += Time::delta_time;
 
 		if (duration_timer >= active_transition->transition_duration)

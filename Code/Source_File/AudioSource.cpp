@@ -39,7 +39,7 @@ void AudioSource::Initialize(const shared_ptr<GameObject>& obj)
 	Set_Active(Get_Enabled());
 }
 
-void AudioSource::Set_Active(bool value)
+void AudioSource::Set_Active(const bool value)
 {
 	if (value)
 	{

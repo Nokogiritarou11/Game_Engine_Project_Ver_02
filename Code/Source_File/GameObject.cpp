@@ -102,7 +102,7 @@ bool GameObject::Get_Active_In_Hierarchy() const
 	return active;
 }
 
-void GameObject::Set_Active(bool value)
+void GameObject::Set_Active(const bool value)
 {
 	active = value;
 	if (active_old != active)

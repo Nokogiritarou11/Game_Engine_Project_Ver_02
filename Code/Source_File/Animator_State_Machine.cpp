@@ -8,6 +8,7 @@ using namespace BeastEngine;
 void Animator_State_Machine::Initialize(const shared_ptr<unordered_map<string, Animation_Parameter>>& p_parameters)
 {
 	parameters = p_parameters;
+
 	if (!path.empty())
 	{
 		Set_Clip(path);
@@ -15,6 +16,24 @@ void Animator_State_Machine::Initialize(const shared_ptr<unordered_map<string, A
 	for (const auto& transition : transitions)
 	{
 		transition->parameters = p_parameters;
+	}
+}
+
+void Animator_State_Machine::Reset()
+{
+	transition_trigger = false;
+	active_transition.reset();
+	is_end_animation = false;
+	current_seconds = 0;
+
+	for (const auto& transition : transitions)
+	{
+		transition->exit_called = false;
+		transition->exit_trigger = false;
+	}
+	for (auto& eve : animation_events)
+	{
+		eve.called = false;
 	}
 }
 
@@ -107,20 +126,7 @@ void Animator_State_Machine::Activate(float transition_offset)
 
 void Animator_State_Machine::Exit()
 {
-	transition_trigger = false;
-	active_transition.reset();
-	is_end_animation = false;
-	current_seconds = 0;
-
-	for (const auto& transition : transitions)
-	{
-		transition->exit_called = false;
-		transition->exit_trigger = false;
-	}
-	for (auto& eve : animation_events)
-	{
-		eve.called = false;
-	}
+	Reset();
 
 	for (auto& eve : state_events)
 	{
@@ -216,7 +222,7 @@ void Animator_State_Machine::Update_Transition()
 
 }
 
-void Animator_State_Machine::Update_Time()
+void Animator_State_Machine::Update_Time(const float& speed)
 {
 	const float end_sec = static_cast<float>(end_frame) * 0.0166666666666667f;
 
@@ -227,13 +233,13 @@ void Animator_State_Machine::Update_Time()
 		return;
 	}
 
-	float multiplier = 1;
+	float multiplier = speed;
 	// ŽžŠÔŒo‰ß
 	if (use_speed_multiplier && !multiplier_hash.empty())
 	{
 		if (const auto it = parameters->find(multiplier_hash); it != parameters->end())
 		{
-			multiplier = (*parameters)[multiplier_hash].value_float;
+			multiplier *= (*parameters)[multiplier_hash].value_float;
 		}
 	}
 	current_seconds += Time::delta_time * animation_speed * multiplier;

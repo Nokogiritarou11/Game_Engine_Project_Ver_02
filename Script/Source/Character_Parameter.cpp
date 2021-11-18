@@ -3,11 +3,27 @@
 using namespace std;
 using namespace BeastEngine;
 
-void Character_Parameter::Awake()
+void Character_Parameter::OnEnable()
 {
 	hp = max_hp;
 	stun = max_stun;
+
+	eventing = false;
+	pausing = false;
+	living = true;
+	moving = false;
+	attacking = false;
+	damaging = false;
+	guarding = false;
+	just_guarding = false;
+	stunning = false;
+	camera_locking = false;
+
+	is_ground = true;
+	is_attack_preliminary = false;
+	is_invincible = false;
 }
+
 
 bool Character_Parameter::Draw_ImGui()
 {
@@ -17,6 +33,13 @@ bool Character_Parameter::Draw_ImGui()
 	if (open)
 	{
 		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
+
+		static const char* type_name[] = { "Player", "Enemy_Normal_01", "Enemy_Big_01", "Boss_01" };
+		int type_current = static_cast<int>(type);
+		if (ImGui::LeftText_Combo(u8"キャラクタータイプ", "##Character_Type", &type_current, type_name, IM_ARRAYSIZE(type_name), window_center))
+		{
+			type = static_cast<Character_Type>(type_current);
+		}
 
 		ImGui::LeftText_DragFloat("Max_HP", "##Max_HP", &max_hp, window_center, -FLT_MIN, 1.0f);
 		ImGui::LeftText_DragFloat("Max_Stun", "##Max_Stun", &max_stun, window_center, -FLT_MIN, 1.0f);

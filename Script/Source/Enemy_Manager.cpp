@@ -2,6 +2,7 @@
 #include "Character_Parameter.h"
 #include "Time_Manager.h"
 #include "Player_Camera_Controller.h"
+#include "Object_Pool.h"
 
 using namespace std;
 using namespace BeastEngine;
@@ -10,13 +11,30 @@ void Enemy_Manager::Awake()
 {
 	time_manager = Get_Component<Time_Manager>();
 	camera_controller = GameObject::Find_With_Tag("main_camera").lock()->transform->Get_Parent().lock()->Get_Component<Player_Camera_Controller>();
+	pool = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Object_Pool>();
+	player_parameter = GameObject::Find_With_Tag("player").lock()->Get_Component<Character_Parameter>();
 }
 
-void Enemy_Manager::Add_Enemy_List(const weak_ptr<Character_Parameter>& parameter)
+void Enemy_Manager::Instance_Enemy(const Character_Type& type, const Vector3& position, const Quaternion& rotation)
 {
+	string key;
+
+	switch (type)
+	{
+		case Character_Type::Enemy_Normal_01:
+			key = "Enemy_Normal_01";
+			break;
+		case Character_Type::Enemy_Big_01:
+			key = "Enemy_Big_01";
+			break;
+		default:
+			return;
+	}
+
+	const auto& parameter = pool.lock()->Instance_In_Pool(key, position, rotation)->Get_Component<Character_Parameter>();
 	enemy_list.emplace_back(parameter);
 
-	if(last_attack_target.expired())
+	if (last_attack_target.expired())
 	{
 		last_attack_target = parameter;
 	}
@@ -57,10 +75,13 @@ void Enemy_Manager::Remove_Stunning_List(const std::weak_ptr<Character_Parameter
 	}
 }
 
-void Enemy_Manager::Enemy_Dead(const weak_ptr<Character_Parameter>& parameter)
+void Enemy_Manager::Enemy_Dead(const bool& use_effect, const weak_ptr<Character_Parameter>& parameter)
 {
-	time_manager.lock()->Start_Time_Slow(dead_time_stop_delay, dead_time_stop_time, dead_time_stop_speed);
-	camera_controller.lock()->Shake_Camera(dead_shake_camera_count, dead_shake_camera_power);
+	if (use_effect)
+	{
+		time_manager.lock()->Start_Time_Slow(effect_dead.time_parameter.delay, effect_dead.time_parameter.time, effect_dead.time_parameter.speed);
+		camera_controller.lock()->Shake_Camera(effect_dead.shake_parameter.count, effect_dead.shake_parameter.power);
+	}
 
 	const auto& param = parameter.lock();
 	const size_t size = enemy_list.size();
@@ -74,17 +95,45 @@ void Enemy_Manager::Enemy_Dead(const weak_ptr<Character_Parameter>& parameter)
 		}
 	}
 
+	const auto& p_param = player_parameter.lock();
+
 	if (last_attack_target.lock() == param)
 	{
-		last_attack_target.reset();
+		if (enemy_list.empty())
+		{
+			last_attack_target.reset();
+
+		}
+		else
+		{
+			float nearest_distance = FLT_MAX;
+			for (const auto& enemy : enemy_list)
+			{
+				const Vector3 pos = enemy.lock()->transform->Get_Position();
+				if (const float dis = Vector3::DistanceSquared(pos, p_param->transform->Get_Position()); dis < nearest_distance)
+				{
+					nearest_distance = dis;
+					last_attack_target = enemy;
+				}
+			}
+		}
+	}
+
+	if (p_param->target.lock() == param)
+	{
+		p_param->target.reset();
 	}
 }
 
-void Enemy_Manager::Enemy_Stunned(const weak_ptr<Character_Parameter>& parameter)
+void Enemy_Manager::Enemy_Stunned(const bool& use_effect, const weak_ptr<Character_Parameter>& parameter)
 {
 	stunning_list.emplace_back(parameter);
-	time_manager.lock()->Start_Time_Slow(stun_time_stop_delay, stun_time_stop_time, stun_time_stop_speed);
-	camera_controller.lock()->Shake_Camera(stun_shake_camera_count, stun_shake_camera_power);
+
+	if (use_effect)
+	{
+		time_manager.lock()->Start_Time_Slow(effect_stun.time_parameter.delay, effect_stun.time_parameter.time, effect_stun.time_parameter.speed);
+		camera_controller.lock()->Shake_Camera(effect_stun.shake_parameter.count, effect_stun.shake_parameter.power);
+	}
 }
 
 Vector3 Enemy_Manager::Get_Nearest_Enemy_Position(const Vector3& position)
@@ -117,16 +166,16 @@ bool Enemy_Manager::Draw_ImGui()
 		{
 			if (ImGui::TreeNode(u8"スロー効果"))
 			{
-				ImGui::LeftText_DragFloat(u8"発生ディレイ", "##dead_time_stop_delay", &dead_time_stop_delay, window_center);
-				ImGui::LeftText_DragFloat(u8"効果時間", "##dead_time_stop_time", &dead_time_stop_time, window_center);
-				ImGui::LeftText_DragFloat(u8"速度", "##dead_time_stop_speed", &dead_time_stop_speed, window_center);
+				ImGui::LeftText_DragFloat(u8"発生ディレイ", "##effect_dead_time_parameter_delay", &effect_dead.time_parameter.delay, window_center);
+				ImGui::LeftText_DragFloat(u8"効果時間", "##effect_dead_time_parameter_time", &effect_dead.time_parameter.time, window_center);
+				ImGui::LeftText_DragFloat(u8"速度", "##effect_dead_time_parameter_speed", &effect_dead.time_parameter.speed, window_center);
 				ImGui::TreePop();
 			}
 
 			if (ImGui::TreeNode(u8"カメラ揺れ"))
 			{
-				ImGui::LeftText_DragInt(u8"回数", "##dead_shake_camera_count", &dead_shake_camera_count, window_center);
-				ImGui::LeftText_DragFloat(u8"強度", "##dead_shake_camera_power", &dead_shake_camera_power, window_center);
+				ImGui::LeftText_DragInt(u8"回数", "##effect_dead_shake_parameter_count", &effect_dead.shake_parameter.count, window_center);
+				ImGui::LeftText_DragFloat(u8"強度", "##effect_dead_shake_parameter_power", &effect_dead.shake_parameter.power, window_center);
 				ImGui::TreePop();
 			}
 
@@ -137,20 +186,25 @@ bool Enemy_Manager::Draw_ImGui()
 		{
 			if (ImGui::TreeNode(u8"スロー効果"))
 			{
-				ImGui::LeftText_DragFloat(u8"発生ディレイ", "##stun_time_stop_delay", &stun_time_stop_delay, window_center);
-				ImGui::LeftText_DragFloat(u8"効果時間", "##stun_time_stop_time", &stun_time_stop_time, window_center);
-				ImGui::LeftText_DragFloat(u8"速度", "##stun_time_stop_speed", &stun_time_stop_speed, window_center);
+				ImGui::LeftText_DragFloat(u8"発生ディレイ", "##effect_stun_time_parameter_delay", &effect_stun.time_parameter.delay, window_center);
+				ImGui::LeftText_DragFloat(u8"効果時間", "##effect_stun_time_parameter_time", &effect_stun.time_parameter.time, window_center);
+				ImGui::LeftText_DragFloat(u8"速度", "##effect_stun_time_parameter_speed", &effect_stun.time_parameter.speed, window_center);
 				ImGui::TreePop();
 			}
 
 			if (ImGui::TreeNode(u8"カメラ揺れ"))
 			{
-				ImGui::LeftText_DragInt(u8"回数", "##stun_shake_camera_count", &stun_shake_camera_count, window_center);
-				ImGui::LeftText_DragFloat(u8"強度", "##stun_shake_camera_power", &stun_shake_camera_power, window_center);
+				ImGui::LeftText_DragInt(u8"回数", "##effect_stun_shake_parameter_count", &effect_stun.shake_parameter.count, window_center);
+				ImGui::LeftText_DragFloat(u8"強度", "##effect_stun_shake_parameter_power", &effect_stun.shake_parameter.power, window_center);
 				ImGui::TreePop();
 			}
 
 			ImGui::TreePop();
+		}
+
+		if (ImGui::Button(u8"敵_通常_01 生成"))
+		{
+			Instance_Enemy(Character_Type::Enemy_Normal_01, Vector3::Zero, Quaternion::Identity);
 		}
 	}
 	return true;

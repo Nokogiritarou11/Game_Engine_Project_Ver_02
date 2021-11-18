@@ -17,13 +17,60 @@ void Animator::Initialize(const shared_ptr<GameObject>& obj)
 	Engine::asset_manager->Registration_Asset(shared_from_this());
 	gameobject = obj;
 	transform = obj->transform;
-	Engine::animator_manager->Add(static_pointer_cast<Animator>(shared_from_this()));
 
 	if (!controller_path.empty())
 	{
 		controller = Animator_Controller::Load_Animator_Controller(controller_path);
 		controller->Initialize();
-		Set_Default_Pose();
+	}
+	Set_Active(Get_Enabled());
+}
+
+void Animator::Set_Active(const bool value)
+{
+	if (value)
+	{
+		if (gameobject->Get_Active_In_Hierarchy())
+		{
+			if (Get_Enabled())
+			{
+				if (!is_called)
+				{
+					Engine::animator_manager->Add(static_pointer_cast<Animator>(shared_from_this()));
+					is_called = true;
+					init_parameter = *controller->parameters.get();
+					Activate();
+				}
+				else
+				{
+					Activate();
+				}
+			}
+		}
+	}
+	else
+	{
+		Inactivate();
+	}
+}
+
+void Animator::Activate()
+{
+	is_playing = true;
+	Set_Default_Pose();
+}
+
+void Animator::Inactivate()
+{
+	if (is_playing)
+	{
+		is_playing = false;
+
+		if (!keep_state_on_disable)
+		{
+			*controller->parameters.get() = init_parameter;
+			controller->Reset();
+		}
 	}
 }
 
@@ -65,7 +112,7 @@ void Animator::Set_Int(const string& key, const int& value) const
 		}
 	}
 }
-void Animator::Set_Float(const string& key,const float& value) const
+void Animator::Set_Float(const string& key, const float& value) const
 {
 	if (const auto it = controller->parameters->find(key); it != controller->parameters->end())
 	{
@@ -157,7 +204,7 @@ void Animator::Update()
 	if (!is_playing) return;
 	if (!controller) return;
 
-	controller->Update();
+	controller->Update(speed);
 
 	switch (controller->interrupt_state)
 	{
@@ -339,22 +386,6 @@ void Animator::Update()
 	}
 }
 
-// アニメーション再生
-void Animator::Play()
-{
-	is_playing = true;
-}
-
-void Animator::Stop()
-{
-	is_playing = false;
-}
-
-void Animator::Pause()
-{
-	is_playing = false;
-}
-
 bool Animator::Draw_ImGui()
 {
 	bool open = false;
@@ -362,6 +393,8 @@ bool Animator::Draw_ImGui()
 
 	if (open)
 	{
+		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
+
 		if (controller)
 		{
 			ImGui::Text(u8"アタッチ中 : ");
@@ -373,6 +406,8 @@ bool Animator::Draw_ImGui()
 		{
 			ImGui::Text(u8"アニメーターコントローラーが登録されていません");
 		}
+
+		ImGui::LeftText_Checkbox(u8"非アクティブ時にリセットしない", "##keep_state_on_disable", &keep_state_on_disable, window_center);
 
 		ImGui::Dummy({ 0.0f, 10.0f });
 		if (ImGui::Button(u8"新規作成"))

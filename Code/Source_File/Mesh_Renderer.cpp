@@ -52,7 +52,7 @@ void Mesh_Renderer::Initialize(const shared_ptr<GameObject>& obj)
 	Set_Active(Get_Enabled());
 }
 
-void Mesh_Renderer::Set_Active(bool value)
+void Mesh_Renderer::Set_Active(const bool value)
 {
 	if (value)
 	{

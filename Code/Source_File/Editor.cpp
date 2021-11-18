@@ -441,12 +441,12 @@ void Editor::Inspector_Render()
 	{
 		if (const auto& obj = active_object.lock())
 		{
-			static bool active = false;
 			if (active_object_old.lock() != obj)
 			{
-				active = obj->Get_Active();
 				active_object_old = active_object;
 			}
+
+			bool active = obj->Get_Active();
 
 			//‘I‘ðŽž
 			if (ImGui::Checkbox("##active", &active))

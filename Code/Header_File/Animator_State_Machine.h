@@ -30,16 +30,17 @@ namespace BeastEngine
 		bool  is_end_animation = false;    //アニメーション再生が終了しているか
 
 		void Initialize(const std::shared_ptr<std::unordered_map<std::string, Animation_Parameter>>& p_parameters); //初期化
-		void Set_Clip(const std::string& full_path); //ファイルパスからクリップを読み込みセットする
-		void Activate(float transition_offset = 0.0f); //遷移時などアクティブ化時に呼ぶ
-		void Exit(); //ステートを抜ける際に呼ぶ
-		void Update_Transition(); //遷移状態を更新する
-		void Update_Time(); //再生時間を更新する
-		void Add_Transition(std::shared_ptr<Animator_State_Machine>& next_state); //遷移を追加する
-		void Add_Animation_Event(); //アニメーションイベントを追加する
-		void Add_State_Event(); //ステートイベントを追加する
-		void Remove_Transition(int index); //遷移を削除する
-		[[nodiscard]] std::shared_ptr<Animator_State_Transition> Get_Active_Transition() const; //現在有効な遷移を取得する
+		void Reset();                                                                                               //内部を起動した際の値にリセットする
+		void Set_Clip(const std::string& full_path);                                                                //ファイルパスからクリップを読み込みセットする
+		void Activate(float transition_offset = 0.0f);                                                              //遷移時などアクティブ化時に呼ぶ
+		void Exit();                                                                                                //ステートを抜ける際に呼ぶ
+		void Update_Transition();                                                                                   //遷移状態を更新する
+		void Update_Time(const float& speed);                                                                       //再生時間を更新する
+		void Add_Transition(std::shared_ptr<Animator_State_Machine>& next_state);                                   //遷移を追加する
+		void Add_Animation_Event();                                                                                 //アニメーションイベントを追加する
+		void Add_State_Event();                                                                                     //ステートイベントを追加する
+		void Remove_Transition(int index);                                                                          //遷移を削除する
+		[[nodiscard]] std::shared_ptr<Animator_State_Transition> Get_Active_Transition() const;                     //現在有効な遷移を取得する
 
 	private:
 		std::shared_ptr<std::unordered_map<std::string, Animation_Parameter>> parameters;

@@ -9,7 +9,7 @@ Behaviour::Behaviour()
 	enabled_old = enabled;
 }
 
-void Behaviour::Set_Enabled(bool value)
+void Behaviour::Set_Enabled(const bool value)
 {
 	if (value != enabled_old)
 	{

@@ -108,7 +108,8 @@ void Player_Input::Set_State()
 					enemy_lock->transform->Set_Local_Rotation(enemy_lock->transform->Look_At(pos));
 
 					enemy_lock->Get_Component<Animator>()->Set_Trigger("Smash");
-					anim->Set_Int("Smash_Number", 0);
+					enemy_manager.lock()->Enemy_Dead(false, enemy);
+					anim->Set_Int("Smash_Number", static_cast<int>(enemy_lock->type));
 					camera_controller.lock()->Play_Cut_Scene(0);
 				}
 				break;

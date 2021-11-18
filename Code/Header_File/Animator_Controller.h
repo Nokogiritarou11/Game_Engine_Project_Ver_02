@@ -17,9 +17,10 @@ namespace BeastEngine
 		std::shared_ptr<std::unordered_map<std::string, Animation_Parameter>> parameters;
 		std::string save_path; //上書きセーブ用パス
 
-		void Initialize(); //初期化
-		void Update(); //更新
-		void Render_ImGui(); //ImGui描画
+		void Initialize();               //初期化
+		void Reset();                    //起動時のデータにリセットする
+		void Update(const float& speed); //更新
+		void Render_ImGui();             //ImGui描画
 
 		bool Add_State_Machine(const std::string& name);                    //新規ステートマシンを追加する
 		bool Remove_State_Machine(const std::string& name);                 //ステートマシンを削除する
@@ -35,8 +36,8 @@ namespace BeastEngine
 		int interrupt_state = 0;  //遷移割り込みの状態ステート
 
 	private:
-		int current_state_index = 0;	  //現在のステートマシンのインデックス
-		int current_transition_index = 0; //現在の遷移のインデックス
+		int current_state_index = 0;	  //GUI上で選択されたステートマシンのインデックス
+		int current_transition_index = 0; //GUI上で選択された遷移のインデックス
 
 		void Save();    //ファイルダイアログからセーブする
 		void Save_As(); //save_pathに上書きセーブする
