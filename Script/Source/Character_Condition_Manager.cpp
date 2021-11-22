@@ -32,7 +32,6 @@ void Character_Condition_Manager::Update()
 		param->attacking = false;
 		param->damaging = false;
 		param->guarding = false;
-		param->just_guarding = false;
 
 		switch (character_state)
 		{
@@ -53,8 +52,7 @@ void Character_Condition_Manager::Update()
 
 			case 4:
 				param->guarding = true;
-				param->just_guarding = true;
-				just_guard_timer = just_guard_time;
+				param->just_guard_timer = param->max_just_guard_time;
 				break;
 
 			default:
@@ -82,20 +80,6 @@ void Character_Condition_Manager::Update()
 			c_move->Move_Normal();
 		}
 	}
-
-	if (param->just_guarding)
-	{
-		just_guard_timer -= Time::delta_time;
-		if (just_guard_timer <= 0)
-		{
-			param->just_guarding = false;
-		}
-	}
-
-	if (param->stun < param->max_stun)
-	{
-		param->stun = Mathf::Clamp(param->stun + param->heal_stun * Time::delta_time, 0, param->max_stun);
-	}
 }
 
 bool Character_Condition_Manager::Draw_ImGui()
@@ -106,7 +90,6 @@ bool Character_Condition_Manager::Draw_ImGui()
 	if (open)
 	{
 		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
-		ImGui::LeftText_DragFloat(u8"’e‚«—P—\ŽžŠÔ", "##Just_Guard_Time", &just_guard_time, window_center);
 	}
 	return true;
 }

@@ -8,9 +8,13 @@ namespace BeastEngine
 	public:
 		float max_hp = 0;
 		float hp = 0;
+
 		float max_stun = 0;
 		float stun = 0;
 		float heal_stun = 0;
+
+		float max_just_guard_time = 0;
+		float just_guard_timer = 0;
 
 		bool pausing = false;
 		bool living = true;
@@ -18,10 +22,26 @@ namespace BeastEngine
 		bool attacking = false;
 		bool damaging = false;
 		bool guarding = false;
-		bool just_guarding = false;
 
 		bool is_ground = true;
 		bool is_invincible = false;
+
+	protected:
+		void Character_Parameter_Reset()
+		{
+			hp = max_hp;
+			stun = max_stun;
+			just_guard_timer = 0;
+
+			pausing = false;
+			living = true;
+			moving = false;
+			attacking = false;
+			damaging = false;
+			guarding = false;
+			is_ground = true;
+			is_invincible = false;
+		}
 
 	private:
 		// シリアライズ関数
@@ -29,7 +49,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(max_hp, max_stun, heal_stun);
+			archive(max_hp, max_stun, heal_stun, max_just_guard_time);
 		}
 	};
 }

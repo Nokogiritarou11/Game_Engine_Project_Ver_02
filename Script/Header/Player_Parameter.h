@@ -13,6 +13,7 @@ namespace BeastEngine
 
 	private:
 		void OnEnable() override;
+		void Update() override;
 		bool Draw_ImGui() override;
 
 		// シリアライズ関数

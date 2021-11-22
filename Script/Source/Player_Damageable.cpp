@@ -39,7 +39,7 @@ bool Player_Damageable::Take_Damage(const int damage_hp, const int damage_stun, 
 
 	if (param->guarding)
 	{
-		if (param->just_guarding)
+		if (param->just_guard_timer > 0)
 		{
 			anim->Set_Trigger("Parry");
 			from_transform->Set_Local_Position(transform->Get_Position() + transform->Get_Forward() * 2.0f);

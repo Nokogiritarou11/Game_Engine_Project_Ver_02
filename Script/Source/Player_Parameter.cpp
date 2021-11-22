@@ -5,22 +5,22 @@ using namespace BeastEngine;
 
 void Player_Parameter::OnEnable()
 {
-	hp = max_hp;
-	stun = max_stun;
-
-	pausing = false;
-	living = true;
-	moving = false;
-	attacking = false;
-	damaging = false;
-	guarding = false;
-	just_guarding = false;
-	is_ground = true;
-	is_invincible = false;
+	Character_Parameter_Reset();
 
 	camera_locking = false;
 }
 
+void Player_Parameter::Update()
+{
+	if (just_guard_timer > 0)
+	{
+		just_guard_timer -= Time::delta_time;
+		if (just_guard_timer <= 0)
+		{
+			just_guard_timer = 0;
+		}
+	}
+}
 
 bool Player_Parameter::Draw_ImGui()
 {
@@ -47,6 +47,8 @@ bool Player_Parameter::Draw_ImGui()
 		ImGui::LeftText_Checkbox(u8"UŒ‚’†", "##attacking", &attacking, window_center);
 		ImGui::LeftText_Checkbox(u8"”íƒ_ƒ’†", "##damaging", &damaging, window_center);
 		ImGui::LeftText_Checkbox(u8"Ú’n’†", "##is_ground", &is_ground, window_center);
+
+		ImGui::LeftText_DragFloat(u8"’e‚«—P—\ŠÔ", "##Just_Guard_Time", &max_just_guard_time, window_center);
 	}
 	return true;
 }

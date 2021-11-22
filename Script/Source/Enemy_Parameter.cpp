@@ -5,23 +5,19 @@ using namespace BeastEngine;
 
 void Enemy_Parameter::OnEnable()
 {
-	hp = max_hp;
-	stun = max_stun;
-
-	pausing = false;
-	living = true;
-	moving = false;
-	attacking = false;
-	damaging = false;
-	guarding = false;
-	just_guarding = false;
-	stunning = false;
-	is_ground = true;
-	is_invincible = false;
+	Character_Parameter_Reset();
 
 	is_attack_preliminary = false;
+	stunning = false;
 }
 
+void Enemy_Parameter::Update()
+{
+	if (stun < max_stun)
+	{
+		stun = Mathf::Clamp(stun + heal_stun * Time::delta_time, 0, max_stun);
+	}
+}
 
 bool Enemy_Parameter::Draw_ImGui()
 {

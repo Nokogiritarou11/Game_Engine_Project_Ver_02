@@ -121,6 +121,9 @@ void Enemy_Manager::Enemy_Dead(const bool& use_effect, const weak_ptr<Enemy_Para
 		}
 	}
 
+	if(param->is_attack_preliminary) Remove_Attacking_List(parameter);
+	if(param->stunning)	Remove_Stunning_List(parameter);
+
 	if (p_param->target.lock() == param)
 	{
 		p_param->target.reset();
