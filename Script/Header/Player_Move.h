@@ -4,7 +4,7 @@
 
 namespace BeastEngine
 {
-	class Character_Parameter;
+	class Player_Parameter;
 	class Enemy_Manager;
 	class Player_Input;
 
@@ -26,7 +26,7 @@ namespace BeastEngine
 
 		std::weak_ptr<Animator> animator;
 		std::weak_ptr<RigidBody> rigidbody;
-		std::weak_ptr<Character_Parameter> parameter;
+		std::weak_ptr<Player_Parameter> parameter;
 		std::weak_ptr<Player_Input> p_input;
 		std::weak_ptr<Enemy_Manager> enemy_manager;
 

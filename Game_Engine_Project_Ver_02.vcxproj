@@ -303,7 +303,6 @@
     <ClCompile Include="Script\Source\Character_Hit_Stop_Manager.cpp" />
     <ClCompile Include="Script\Source\Character_Particles.cpp" />
     <ClCompile Include="Script\Source\Character_Ground_Checker.cpp" />
-    <ClCompile Include="Script\Source\Character_Parameter.cpp" />
     <ClCompile Include="Script\Source\Cut_Scene_Smash_01.cpp" />
     <ClCompile Include="Script\Source\Damage_Collision.cpp" />
     <ClCompile Include="Script\Source\Disable_Object.cpp" />
@@ -312,12 +311,14 @@
     <ClCompile Include="Script\Source\Enemy_Normal_01_Damageable.cpp" />
     <ClCompile Include="Script\Source\Enemy_Normal_01_Move.cpp" />
     <ClCompile Include="Script\Source\Enemy_Normal_01_State_Setter.cpp" />
+    <ClCompile Include="Script\Source\Enemy_Parameter.cpp" />
     <ClCompile Include="Script\Source\Object_Pool.cpp" />
     <ClCompile Include="Script\Source\Player_Camera_Controller.cpp" />
     <ClCompile Include="Script\Source\Player_Damageable.cpp" />
     <ClCompile Include="Script\Source\Player_Input.cpp" />
     <ClCompile Include="Script\Source\Player_Move.cpp" />
     <ClCompile Include="Script\Source\Character_Condition_Manager.cpp" />
+    <ClCompile Include="Script\Source\Player_Parameter.cpp" />
     <ClCompile Include="Script\Source\Time_Manager.cpp" />
     <None Include="Script\Source\MonoBehaviour_Example.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -839,6 +840,7 @@
     <ClInclude Include="Script\Header\Enemy_Normal_01_Damageable.h" />
     <ClInclude Include="Script\Header\Enemy_Normal_01_Move.h" />
     <ClInclude Include="Script\Header\Enemy_Normal_01_State_Setter.h" />
+    <ClInclude Include="Script\Header\Enemy_Parameter.h" />
     <ClInclude Include="Script\Header\Interface_Cut_Scene.h" />
     <ClInclude Include="Script\Header\Interface_Character_Damageable.h" />
     <ClInclude Include="Script\Header\Interface_Character_Mover.h" />
@@ -850,6 +852,7 @@
     <ClInclude Include="Script\Header\Player_Damageable.h" />
     <ClInclude Include="Script\Header\Player_Input.h" />
     <ClInclude Include="Script\Header\Player_Move.h" />
+    <ClInclude Include="Script\Header\Player_Parameter.h" />
     <ClInclude Include="Script\Header\Time_Manager.h" />
     <None Include="Script\Header\MonoBehaviour_Example.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

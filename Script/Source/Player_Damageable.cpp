@@ -1,6 +1,6 @@
 #include "Player_Damageable.h"
 #include "Character_Hit_Stop_Manager.h"
-#include "Character_Parameter.h"
+#include "Player_Parameter.h"
 #include "Player_Camera_Controller.h"
 #include "Object_Pool.h"
 #include "Time_Manager.h"
@@ -11,7 +11,7 @@ using namespace BeastEngine;
 void Player_Damageable::Awake()
 {
 	animator = Get_Component<Animator>();
-	parameter = Get_Component<Character_Parameter>();
+	parameter = Get_Component<Player_Parameter>();
 	camera_controller = GameObject::Find_With_Tag("main_camera").lock()->transform->Get_Parent().lock()->Get_Component<Player_Camera_Controller>();
 	pool = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Object_Pool>();
 	hit_stop_manager = Get_Component<Character_Hit_Stop_Manager>();

@@ -1,5 +1,5 @@
 #include "Enemy_Manager.h"
-#include "Character_Parameter.h"
+#include "Player_Parameter.h"
 #include "Time_Manager.h"
 #include "Player_Camera_Controller.h"
 #include "Object_Pool.h"
@@ -12,26 +12,26 @@ void Enemy_Manager::Awake()
 	time_manager = Get_Component<Time_Manager>();
 	camera_controller = GameObject::Find_With_Tag("main_camera").lock()->transform->Get_Parent().lock()->Get_Component<Player_Camera_Controller>();
 	pool = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Object_Pool>();
-	player_parameter = GameObject::Find_With_Tag("player").lock()->Get_Component<Character_Parameter>();
+	player_parameter = GameObject::Find_With_Tag("player").lock()->Get_Component<Player_Parameter>();
 }
 
-void Enemy_Manager::Instance_Enemy(const Character_Type& type, const Vector3& position, const Quaternion& rotation)
+void Enemy_Manager::Instance_Enemy(const Enemy_Type& type, const Vector3& position, const Quaternion& rotation)
 {
 	string key;
 
 	switch (type)
 	{
-		case Character_Type::Enemy_Normal_01:
+		case Enemy_Type::Enemy_Normal_01:
 			key = "Enemy_Normal_01";
 			break;
-		case Character_Type::Enemy_Big_01:
+		case Enemy_Type::Enemy_Big_01:
 			key = "Enemy_Big_01";
 			break;
 		default:
 			return;
 	}
 
-	const auto& parameter = pool.lock()->Instance_In_Pool(key, position, rotation)->Get_Component<Character_Parameter>();
+	const auto& parameter = pool.lock()->Instance_In_Pool(key, position, rotation)->Get_Component<Enemy_Parameter>();
 	enemy_list.emplace_back(parameter);
 
 	if (last_attack_target.expired())
@@ -40,12 +40,12 @@ void Enemy_Manager::Instance_Enemy(const Character_Type& type, const Vector3& po
 	}
 }
 
-void Enemy_Manager::Add_Attacking_List(const std::weak_ptr<Character_Parameter>& parameter)
+void Enemy_Manager::Add_Attacking_List(const std::weak_ptr<Enemy_Parameter>& parameter)
 {
 	attacking_list.emplace_back(parameter);
 }
 
-void Enemy_Manager::Remove_Attacking_List(const std::weak_ptr<Character_Parameter>& parameter)
+void Enemy_Manager::Remove_Attacking_List(const std::weak_ptr<Enemy_Parameter>& parameter)
 {
 	const auto& param = parameter.lock();
 	const size_t size = attacking_list.size();
@@ -60,7 +60,7 @@ void Enemy_Manager::Remove_Attacking_List(const std::weak_ptr<Character_Paramete
 	}
 }
 
-void Enemy_Manager::Remove_Stunning_List(const std::weak_ptr<Character_Parameter>& parameter)
+void Enemy_Manager::Remove_Stunning_List(const std::weak_ptr<Enemy_Parameter>& parameter)
 {
 	const auto& param = parameter.lock();
 	const size_t size = stunning_list.size();
@@ -75,7 +75,7 @@ void Enemy_Manager::Remove_Stunning_List(const std::weak_ptr<Character_Parameter
 	}
 }
 
-void Enemy_Manager::Enemy_Dead(const bool& use_effect, const weak_ptr<Character_Parameter>& parameter)
+void Enemy_Manager::Enemy_Dead(const bool& use_effect, const weak_ptr<Enemy_Parameter>& parameter)
 {
 	if (use_effect)
 	{
@@ -84,6 +84,8 @@ void Enemy_Manager::Enemy_Dead(const bool& use_effect, const weak_ptr<Character_
 	}
 
 	const auto& param = parameter.lock();
+	param->hp = 0;
+
 	const size_t size = enemy_list.size();
 	for (size_t i = 0; i < size; ++i)
 	{
@@ -125,7 +127,7 @@ void Enemy_Manager::Enemy_Dead(const bool& use_effect, const weak_ptr<Character_
 	}
 }
 
-void Enemy_Manager::Enemy_Stunned(const bool& use_effect, const weak_ptr<Character_Parameter>& parameter)
+void Enemy_Manager::Enemy_Stunned(const bool& use_effect, const weak_ptr<Enemy_Parameter>& parameter)
 {
 	stunning_list.emplace_back(parameter);
 
@@ -204,7 +206,7 @@ bool Enemy_Manager::Draw_ImGui()
 
 		if (ImGui::Button(u8"ìG_í èÌ_01 ê∂ê¨"))
 		{
-			Instance_Enemy(Character_Type::Enemy_Normal_01, Vector3::Zero, Quaternion::Identity);
+			Instance_Enemy(Enemy_Type::Enemy_Normal_01, Vector3::Zero, Quaternion::Identity);
 		}
 	}
 	return true;

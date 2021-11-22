@@ -3,7 +3,7 @@
 
 namespace BeastEngine
 {
-	class Character_Parameter;
+	class Player_Parameter;
 	class Enemy_Manager;
 	class Interface_Cut_Scene;
 
@@ -47,7 +47,7 @@ namespace BeastEngine
 		std::weak_ptr<Transform> target_transform;
 
 		std::weak_ptr<Camera> camera;
-		std::weak_ptr<Character_Parameter> parameter;
+		std::weak_ptr<Player_Parameter> parameter;
 		std::weak_ptr<Enemy_Manager> enemy_manager;
 
 		std::vector<std::weak_ptr<Interface_Cut_Scene>> cut_scene;

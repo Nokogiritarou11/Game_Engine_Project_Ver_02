@@ -27,6 +27,8 @@ bool Cut_Scene_Smash_01::Play_Cut_Scene()
 		root->Set_Local_Euler_Angles(Vector3::Lerp(root->Get_Euler_Angles(), p_trans->Get_Euler_Angles(), ratio));
 		camera->Set_Local_Position(Vector3::Lerp(camera->Get_Local_Position(), data.start_position, ratio));
 		camera->Set_Local_Euler_Angles(Vector3::Lerp(camera->Get_Local_Euler_Angles(), data.start_rotation, ratio));
+		const Vector3 r = camera->Get_Euler_Angles();
+		camera->Set_Euler_Angles(r.x, r.y, 0);
 
 		if (state_timer >= camera_init_time)
 		{
@@ -42,6 +44,8 @@ bool Cut_Scene_Smash_01::Play_Cut_Scene()
 
 		camera->Set_Local_Position(Vector3::Lerp(data.start_position, data.end_position, ratio));
 		camera->Set_Local_Euler_Angles(Vector3::Lerp(data.start_rotation, data.end_rotation, ratio));
+		const Vector3 r = camera->Get_Euler_Angles();
+		camera->Set_Euler_Angles(r.x, r.y, 0);
 
 		if (state_timer >= data.change_time)
 		{
@@ -57,6 +61,8 @@ bool Cut_Scene_Smash_01::Play_Cut_Scene()
 
 		camera->Set_Local_Position(Vector3::Lerp(data.start_position, data.end_position, ratio));
 		camera->Set_Local_Euler_Angles(Vector3::Lerp(data.start_rotation, data.end_rotation, ratio));
+		const Vector3 r = camera->Get_Euler_Angles();
+		camera->Set_Euler_Angles(r.x, r.y, 0);
 
 		if (state_timer >= data.change_time)
 		{

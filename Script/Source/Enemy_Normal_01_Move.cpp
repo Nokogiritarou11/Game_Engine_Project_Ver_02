@@ -1,5 +1,5 @@
 #include "Enemy_Normal_01_Move.h"
-#include "Character_Parameter.h"
+#include "Enemy_Parameter.h"
 
 using namespace std;
 using namespace BeastEngine;
@@ -8,7 +8,7 @@ void Enemy_Normal_01_Move::Awake()
 {
 	rigidbody = Get_Component<Capsule_Collider>()->rigidbody;
 	animator = Get_Component<Animator>();
-	parameter = Get_Component<Character_Parameter>();
+	parameter = Get_Component<Enemy_Parameter>();
 	target_transform = GameObject::Find_With_Tag("player").lock()->transform;
 }
 

@@ -63,29 +63,23 @@ void Character_Condition_Manager::Update()
 	}
 
 	//ステート別
-	if (!param->eventing)
+	if (!param->pausing && param->living)
 	{
-		if (!param->pausing)
+		if (param->attacking)
 		{
-			if (param->living)
-			{
-				if (param->attacking)
-				{
-					c_move->Move_Attack();
-				}
-				else if (param->damaging)
-				{
-					c_move->Move_Damage();
-				}
-				else if (param->guarding)
-				{
-					c_move->Move_Guard();
-				}
-				else
-				{
-					c_move->Move_Normal();
-				}
-			}
+			c_move->Move_Attack();
+		}
+		else if (param->damaging)
+		{
+			c_move->Move_Damage();
+		}
+		else if (param->guarding)
+		{
+			c_move->Move_Guard();
+		}
+		else
+		{
+			c_move->Move_Normal();
 		}
 	}
 

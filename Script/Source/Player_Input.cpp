@@ -1,6 +1,6 @@
 #include "Player_Input.h"
 #include "Enemy_Manager.h"
-#include "Character_Parameter.h"
+#include "Player_Parameter.h"
 #include "Player_Camera_Controller.h"
 
 using namespace std;
@@ -9,7 +9,7 @@ using namespace BeastEngine;
 void Player_Input::Awake()
 {
 	animator = Get_Component<Animator>();
-	parameter = Get_Component<Character_Parameter>();
+	parameter = Get_Component<Player_Parameter>();
 	camera_transform = GameObject::Find_With_Tag("main_camera").lock()->transform;
 	camera_controller = camera_transform.lock()->Get_Parent().lock()->Get_Component<Player_Camera_Controller>();
 	enemy_manager = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Enemy_Manager>();
@@ -98,7 +98,7 @@ void Player_Input::Set_State()
 		{
 			if (const auto& enemy_lock = enemy.lock(); Vector3::DistanceSquared(transform->Get_Position(), enemy_lock->transform->Get_Position()) <= powf(2.5f, 2))
 			{
-				if (Input::Get_Pad_Button_Down(Button_Code::B) && param->is_ground && !param->attacking && !param->stunning && !param->damaging && !param->guarding)
+				if (Input::Get_Pad_Button_Down(Button_Code::B) && param->is_ground && !param->attacking && !param->damaging && !param->guarding)
 				{
 					Vector3 pos = transform->Get_Position();
 					Vector3 enemy_pos = enemy_lock->transform->Get_Position();
@@ -110,7 +110,7 @@ void Player_Input::Set_State()
 					enemy_lock->Get_Component<Animator>()->Set_Trigger("Smash");
 					enemy_manager.lock()->Enemy_Dead(false, enemy);
 					anim->Set_Int("Smash_Number", static_cast<int>(enemy_lock->type));
-					camera_controller.lock()->Play_Cut_Scene(0);
+					camera_controller.lock()->Play_Cut_Scene(static_cast<int>(enemy_lock->type));
 				}
 				break;
 			}

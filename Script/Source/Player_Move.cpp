@@ -1,5 +1,5 @@
 #include "Player_Move.h"
-#include "Character_Parameter.h"
+#include "Player_Parameter.h"
 #include "Enemy_Manager.h"
 #include "Player_Input.h"
 
@@ -11,7 +11,7 @@ void Player_Move::Awake()
 	p_input = Get_Component<Player_Input>();
 	rigidbody = Get_Component<Capsule_Collider>()->rigidbody;
 	animator = Get_Component<Animator>();
-	parameter = Get_Component<Character_Parameter>();
+	parameter = Get_Component<Player_Parameter>();
 	enemy_manager = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Enemy_Manager>();
 }
 

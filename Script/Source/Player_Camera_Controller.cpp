@@ -1,5 +1,5 @@
 #include "Player_Camera_Controller.h"
-#include "Character_Parameter.h"
+#include "Player_Parameter.h"
 #include "Enemy_Manager.h"
 #include "Interface_Cut_Scene.h"
 
@@ -10,7 +10,7 @@ void Player_Camera_Controller::Awake()
 {
 	const auto& obj = GameObject::Find_With_Tag("player").lock();
 	player_transform = obj->transform;
-	parameter = obj->Get_Component<Character_Parameter>();
+	parameter = obj->Get_Component<Player_Parameter>();
 	camera_transform = GameObject::Find_With_Tag("main_camera").lock()->transform;
 	camera = camera_transform.lock()->Get_Component<Camera>();
 	enemy_manager = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Enemy_Manager>();
@@ -108,6 +108,8 @@ void Player_Camera_Controller::Update_Free_Look()
 		const auto& camera_trans = camera_transform.lock();
 		camera_trans->Set_Local_Position(Vector3::Lerp(final_position, default_position, Time::delta_time));
 		camera_trans->Set_Local_Euler_Angles(Vector3::Lerp(camera_trans->Get_Local_Euler_Angles(), default_rotation, Time::delta_time));
+		const Vector3 r = camera_trans->Get_Euler_Angles();
+		camera_trans->Set_Euler_Angles(r.x, r.y, 0);
 
 		final_position = camera_trans->Get_Local_Position();
 	}

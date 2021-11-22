@@ -4,7 +4,7 @@
 
 namespace BeastEngine
 {
-	class Character_Parameter;
+	class Player_Parameter;
 	class Player_Camera_Controller;
 	class Enemy_Manager;
 	class Character_Hit_Stop_Manager;
@@ -22,7 +22,7 @@ namespace BeastEngine
 		bool Draw_ImGui() override;
 
 		std::weak_ptr<Animator> animator;
-		std::weak_ptr<Character_Parameter> parameter;
+		std::weak_ptr<Player_Parameter> parameter;
 		std::weak_ptr<Player_Camera_Controller> camera_controller;
 		std::weak_ptr<Object_Pool> pool;
 		std::weak_ptr<Character_Hit_Stop_Manager> hit_stop_manager;

@@ -1,6 +1,8 @@
 #include "Enemy_Normal_01_State_Setter.h"
-#include "Character_Parameter.h"
+#include "Enemy_Parameter.h"
+#include "Editor.h"
 #include "Enemy_Manager.h"
+#include "Engine.h"
 #include "Object_Pool.h"
 
 using namespace std;
@@ -9,7 +11,7 @@ using namespace BeastEngine;
 void Enemy_Normal_01_State_Setter::Awake()
 {
 	animator = Get_Component<Animator>();
-	parameter = Get_Component<Character_Parameter>();
+	parameter = Get_Component<Enemy_Parameter>();
 	target_transform = GameObject::Find_With_Tag("player").lock()->transform;
 	enemy_manager = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Enemy_Manager>();
 	pool = enemy_manager.lock()->Get_Component<Object_Pool>();
@@ -63,9 +65,12 @@ void Enemy_Normal_01_State_Setter::Set_State()
 	if (anim->Get_Bool("Explosion"))
 	{
 		anim->Set_Bool("Explosion", false);
-		pool.lock()->Instance_In_Pool("Explosion_01", transform->Get_Position(), transform->Get_Rotation());
-		param->living = false;
-		gameobject->Set_Active(false);
+		if (param->hp <= 0)
+		{
+			pool.lock()->Instance_In_Pool("Explosion_01", spine_transform.lock()->Get_Position(), transform->Get_Rotation());
+			param->living = false;
+			gameobject->Set_Active(false);
+		}
 	}
 }
 
@@ -78,6 +83,26 @@ bool Enemy_Normal_01_State_Setter::Draw_ImGui()
 	{
 		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
 		ImGui::LeftText_DragFloat(u8"攻撃判定距離", "##Attack_Distance", &attack_distance, window_center);
+
+		ImGui::Text(u8"中心ボーン");
+		ImGui::SameLine(window_center);
+		ImGui::SetNextItemWidth(-FLT_MIN);
+
+		string label_parent = u8"未設定 (ここにドラッグ)";
+		if (const auto& p = spine_transform.lock())
+		{
+			label_parent = p->gameobject->name;
+		}
+		ImGui::InputText("##Item", &label_parent, ImGuiInputTextFlags_ReadOnly);
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const auto& drag = Engine::editor->Get_Drag_Object())
+			{
+				spine_transform = drag->transform;
+			}
+			ImGui::EndDragDropTarget();
+		}
 	}
 	return true;
 }

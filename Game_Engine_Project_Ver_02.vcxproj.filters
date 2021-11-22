@@ -102,7 +102,6 @@
     <ClCompile Include="Code\Source_File\Capsule_Collider.cpp" />
     <ClCompile Include="Code\Source_File\Compute_Shader.cpp" />
     <ClCompile Include="Code\Source_File\Gaussian_Filter.cpp" />
-    <ClCompile Include="Script\Source\Character_Parameter.cpp" />
     <ClCompile Include="Script\Source\Player_Move.cpp" />
     <ClCompile Include="Script\Source\Character_Condition_Manager.cpp" />
     <ClCompile Include="Script\Source\Player_Camera_Controller.cpp" />
@@ -125,6 +124,8 @@
     <ClCompile Include="Script\Source\Time_Manager.cpp" />
     <ClCompile Include="Code\Source_File\Thread_Pool.cpp" />
     <ClCompile Include="Script\Source\Cut_Scene_Smash_01.cpp" />
+    <ClCompile Include="Script\Source\Player_Parameter.cpp" />
+    <ClCompile Include="Script\Source\Enemy_Parameter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -347,6 +348,8 @@
     <ClInclude Include="Code\Header_File\Thread_Pool.h" />
     <ClInclude Include="Script\Header\Interface_Cut_Scene.h" />
     <ClInclude Include="Script\Header\Cut_Scene_Smash_01.h" />
+    <ClInclude Include="Script\Header\Player_Parameter.h" />
+    <ClInclude Include="Script\Header\Enemy_Parameter.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

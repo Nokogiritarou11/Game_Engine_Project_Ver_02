@@ -4,7 +4,7 @@
 
 namespace BeastEngine
 {
-	class Character_Parameter;
+	class Enemy_Parameter;
 	class Enemy_Manager;
 	class Object_Pool;
 
@@ -19,7 +19,8 @@ namespace BeastEngine
 
 		std::weak_ptr<Animator> animator;
 		std::weak_ptr<Transform> target_transform;
-		std::weak_ptr<Character_Parameter> parameter;
+		std::weak_ptr<Transform> spine_transform;
+		std::weak_ptr<Enemy_Parameter> parameter;
 		std::weak_ptr<Enemy_Manager> enemy_manager;
 		std::weak_ptr<Object_Pool> pool;
 
@@ -30,7 +31,14 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<MonoBehaviour>(this), attack_distance);
+			if (version <= 1)
+			{
+				archive(cereal::base_class<MonoBehaviour>(this), attack_distance);
+			}
+			else
+			{
+				archive(cereal::base_class<MonoBehaviour>(this), spine_transform, attack_distance);
+			}
 		}
 	};
 }
@@ -38,4 +46,4 @@ namespace BeastEngine
 REGISTER_COMPONENT(Enemy_Normal_01_State_Setter)
 CEREAL_REGISTER_TYPE(BeastEngine::Enemy_Normal_01_State_Setter)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::MonoBehaviour, BeastEngine::Enemy_Normal_01_State_Setter)
-CEREAL_CLASS_VERSION(BeastEngine::Enemy_Normal_01_State_Setter, 1)
+CEREAL_CLASS_VERSION(BeastEngine::Enemy_Normal_01_State_Setter, 2)

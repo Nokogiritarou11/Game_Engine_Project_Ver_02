@@ -38,7 +38,6 @@ void Animator::Set_Active(const bool value)
 				{
 					Engine::animator_manager->Add(static_pointer_cast<Animator>(shared_from_this()));
 					is_called = true;
-					init_parameter = *controller->parameters.get();
 					Activate();
 				}
 				else
@@ -56,8 +55,16 @@ void Animator::Set_Active(const bool value)
 
 void Animator::Activate()
 {
-	is_playing = true;
-	Set_Default_Pose();
+	if (controller)
+	{
+		is_playing = true;
+		Set_Default_Pose();
+
+		if (init_parameter.empty())
+		{
+			init_parameter = *controller->parameters.get();
+		}
+	}
 }
 
 void Animator::Inactivate()

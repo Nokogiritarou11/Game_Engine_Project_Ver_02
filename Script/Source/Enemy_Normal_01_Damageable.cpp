@@ -1,6 +1,6 @@
 #include "Enemy_Normal_01_Damageable.h"
 #include "Character_Hit_Stop_Manager.h"
-#include "Character_Parameter.h"
+#include "Enemy_Parameter.h"
 #include "Enemy_Manager.h"
 
 using namespace std;
@@ -9,7 +9,7 @@ using namespace BeastEngine;
 void Enemy_Normal_01_Damageable::Awake()
 {
 	animator = Get_Component<Animator>();
-	parameter = Get_Component<Character_Parameter>();
+	parameter = Get_Component<Enemy_Parameter>();
 	hit_stop_manager = Get_Component<Character_Hit_Stop_Manager>();
 
 	const auto& manager = GameObject::Find_With_Tag("Game_Manager").lock();
@@ -33,27 +33,31 @@ bool Enemy_Normal_01_Damageable::Take_Damage(const int damage_hp, const int dama
 		return false;
 	}
 
-	param->hp -= damage_hp;
-
-	if (param->is_ground && !param->stunning)
+	if (param->hp > 0)
 	{
-		param->stun -= damage_stun;
-	}
+		param->hp -= damage_hp;
 
-	if (param->hp <= 0)
-	{
-		param->living = false;
-		anim->Set_Trigger("Death");
-		enemy_manager.lock()->Enemy_Dead(true, parameter);
-		return true;
-	}
+		if (param->is_ground && !param->stunning)
+		{
+			param->stun -= damage_stun;
+		}
 
-	if (param->stun <= 0)
-	{
-		param->stunning = true;
-		anim->Set_Trigger("Stun");
-		enemy_manager.lock()->Enemy_Stunned(true, parameter);
-		return true;
+		if (param->hp <= 0)
+		{
+			anim->Set_Trigger("Dead");
+			anim->Set_Trigger("Damage");
+			anim->Set_Int("Damage_State", static_cast<int>(damage_state));
+			enemy_manager.lock()->Enemy_Dead(true, parameter);
+			return true;
+		}
+
+		if (param->stun <= 0)
+		{
+			param->stunning = true;
+			anim->Set_Trigger("Stun");
+			enemy_manager.lock()->Enemy_Stunned(true, parameter);
+			return true;
+		}
 	}
 
 	anim->Set_Trigger("Damage");

@@ -4,7 +4,7 @@
 
 namespace BeastEngine
 {
-	class Character_Parameter;
+	class Enemy_Parameter;
 
 	class Enemy_Normal_01_Move final : public MonoBehaviour, public Interface_Character_Mover
 	{
@@ -22,7 +22,7 @@ namespace BeastEngine
 
 		std::weak_ptr<Animator> animator;
 		std::weak_ptr<RigidBody> rigidbody;
-		std::weak_ptr<Character_Parameter> parameter;
+		std::weak_ptr<Enemy_Parameter> parameter;
 		std::weak_ptr<Transform> target_transform;
 
 		float jump_power = 0;

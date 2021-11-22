@@ -1,9 +1,10 @@
 #pragma once
 #include "MonoBehaviour.h"
-#include "Character_Parameter.h"
+#include "Enemy_Parameter.h"
 
 namespace BeastEngine
 {
+	class Player_Parameter;
 	class Player_Camera_Controller;
 	class Time_Manager;
 	class Object_Pool;
@@ -11,23 +12,23 @@ namespace BeastEngine
 	class Enemy_Manager final : public MonoBehaviour
 	{
 	public:
-		void Instance_Enemy(const Character_Type& type, const Vector3& position, const Quaternion& rotation);
+		void Instance_Enemy(const Enemy_Type& type, const Vector3& position, const Quaternion& rotation);
 
-		void Add_Attacking_List(const std::weak_ptr<Character_Parameter>& parameter);
-		void Remove_Attacking_List(const std::weak_ptr<Character_Parameter>& parameter);
+		void Add_Attacking_List(const std::weak_ptr<Enemy_Parameter>& parameter);
+		void Remove_Attacking_List(const std::weak_ptr<Enemy_Parameter>& parameter);
 
-		void Remove_Stunning_List(const std::weak_ptr<Character_Parameter>& parameter);
+		void Remove_Stunning_List(const std::weak_ptr<Enemy_Parameter>& parameter);
 
-		void Enemy_Dead(const bool& use_effect, const std::weak_ptr<Character_Parameter>& parameter);
-		void Enemy_Stunned(const bool& use_effect, const std::weak_ptr<Character_Parameter>& parameter);
+		void Enemy_Dead(const bool& use_effect, const std::weak_ptr<Enemy_Parameter>& parameter);
+		void Enemy_Stunned(const bool& use_effect, const std::weak_ptr<Enemy_Parameter>& parameter);
 
 		Vector3 Get_Nearest_Enemy_Position(const Vector3& position);
 
-		std::vector<std::weak_ptr<Character_Parameter>> enemy_list{};
-		std::vector<std::weak_ptr<Character_Parameter>> attacking_list{};
-		std::vector<std::weak_ptr<Character_Parameter>> stunning_list{};
+		std::vector<std::weak_ptr<Enemy_Parameter>> enemy_list{};
+		std::vector<std::weak_ptr<Enemy_Parameter>> attacking_list{};
+		std::vector<std::weak_ptr<Enemy_Parameter>> stunning_list{};
 
-		std::weak_ptr<Character_Parameter> last_attack_target;
+		std::weak_ptr<Enemy_Parameter> last_attack_target;
 
 	private:
 		struct Effect_Time_Stop_Parameter
@@ -76,7 +77,7 @@ namespace BeastEngine
 		void Awake() override;
 		bool Draw_ImGui() override;
 
-		std::weak_ptr<Character_Parameter> player_parameter;
+		std::weak_ptr<Player_Parameter> player_parameter;
 		std::weak_ptr<Player_Camera_Controller> camera_controller;
 		std::weak_ptr<Time_Manager> time_manager;
 		std::weak_ptr<Object_Pool> pool;
