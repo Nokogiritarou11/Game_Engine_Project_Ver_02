@@ -15,6 +15,36 @@ void Enemy_Manager::Awake()
 	player_parameter = GameObject::Find_With_Tag("player").lock()->Get_Component<Player_Parameter>();
 }
 
+void Enemy_Manager::Update()
+{
+	last_attacked_timer += Time::delta_time;
+
+	if (last_attacked_timer >= attack_check_time && !enemy_list.empty())
+	{
+		weak_ptr<Enemy_Parameter> nearest_enemy;
+		const Vector3 player_pos = player_parameter.lock()->transform->Get_Position();
+		float min_dis = FLT_MAX;
+		for (const auto& enemy_weak : enemy_list)
+		{
+			if (const auto& enemy = enemy_weak.lock(); enemy->last_damaged_timer >= damaged_check_time && !enemy->stunning && !enemy->is_attack_preliminary)
+			{
+				const Vector3 pos = enemy->transform->Get_Position();
+				if (const float dis = Vector3::DistanceSquared(pos, player_pos); dis < min_dis)
+				{
+					min_dis = dis;
+					nearest_enemy = enemy_weak;
+				}
+			}
+		}
+
+		if (const auto& enemy = nearest_enemy.lock())
+		{
+			enemy->is_attack_mode = true;
+		}
+		last_attacked_timer = 0;
+	}
+}
+
 void Enemy_Manager::Instance_Enemy(const Enemy_Type& type, const Vector3& position, const Quaternion& rotation)
 {
 	string key;
@@ -121,8 +151,8 @@ void Enemy_Manager::Enemy_Dead(const bool& use_effect, const weak_ptr<Enemy_Para
 		}
 	}
 
-	if(param->is_attack_preliminary) Remove_Attacking_List(parameter);
-	if(param->stunning)	Remove_Stunning_List(parameter);
+	if (param->is_attack_preliminary) Remove_Attacking_List(parameter);
+	if (param->stunning)	Remove_Stunning_List(parameter);
 
 	if (p_param->target.lock() == param)
 	{
@@ -144,13 +174,13 @@ void Enemy_Manager::Enemy_Stunned(const bool& use_effect, const weak_ptr<Enemy_P
 Vector3 Enemy_Manager::Get_Nearest_Enemy_Position(const Vector3& position)
 {
 	Vector3 nearest_position;
-	float nearest_distance = FLT_MAX;
+	float min_dis = FLT_MAX;
 	for (const auto& enemy : enemy_list)
 	{
 		const Vector3 pos = enemy.lock()->transform->Get_Position();
-		if (const float dis = Vector3::DistanceSquared(pos, position); dis < nearest_distance)
+		if (const float dis = Vector3::DistanceSquared(pos, position); dis < min_dis)
 		{
-			nearest_distance = dis;
+			min_dis = dis;
 			nearest_position = pos;
 		}
 	}
@@ -166,6 +196,9 @@ bool Enemy_Manager::Draw_ImGui()
 	if (open)
 	{
 		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
+
+		ImGui::LeftText_DragFloat(u8"攻撃判定時間", "##attack_check_time", &attack_check_time, window_center);
+		ImGui::LeftText_DragFloat(u8"ダメージ復帰時間", "##damaged_check_time", &damaged_check_time, window_center);
 
 		if (ImGui::TreeNode(u8"敵死亡時演出パラメータ"))
 		{

@@ -40,7 +40,7 @@ namespace BeastEngine
 		void Set_Local_Scale(float f1, float f2, float f3);					//TransformのLocalScale(ローカルサイズ)を設定する
 
 		[[nodiscard]] Vector3 Get_Forward() const;							//Transformのワールド空間でのZ軸(前方向)を返す
-		[[nodiscard]] Vector3 Get_Right() const;							//Transformのワールド空間でのX軸(右方向)を返す
+		[[nodiscard]] Vector3 Get_Left() const;							//Transformのワールド空間でのX軸(右方向)を返す
 		[[nodiscard]] Vector3 Get_Up() const;								//Transformのワールド空間でのY軸(上方向)を返す
 
 		[[nodiscard]] Vector3 Get_Euler_Angles() const;						//TransformのRotation(クォータニオン)をオイラー角に変換して返す
@@ -63,7 +63,7 @@ namespace BeastEngine
 		[[nodiscard]] Matrix Get_World_Matrix() const;						    //Transformのワールド変換行列を返す
 		void Set_World_Matrix(Matrix matrix);					                //Transformのワールド変換行列を直接設定する
 
-																			    //Function
+																				//Function
 		[[nodiscard]] std::weak_ptr<Transform> Find(std::string n) const;		//Transform以下のオブジェクトを検索する
 		[[nodiscard]] Quaternion Look_At(Vector3 pos) const;					//TransformのForwardを指定した座標へ向ける
 
@@ -77,7 +77,7 @@ namespace BeastEngine
 		Vector3    local_scale = { 1, 1, 1 };
 
 		Vector3 forward = { 0.0f, 0.0f, 1.0f };
-		Vector3 right = { 1.0f, 0.0f, 0.0f };
+		Vector3 left = { 1.0f, 0.0f, 0.0f };
 		Vector3 up = { 0.0f, 1.0f, 0.0f };
 
 		Matrix world_matrix = { 1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1 };
@@ -121,7 +121,7 @@ void BeastEngine::Transform::serialize(Archive& archive, std::uint32_t const ver
 		gameobject,
 		position, rotation, scale,
 		local_position, local_rotation, local_scale,
-		forward, right, up,
+		forward, left, up,
 		world_matrix, scale_matrix, rotation_matrix, translation_matrix,
 		local_matrix, local_scale_matrix, local_rotation_matrix, local_translation_matrix,
 		parent, children);

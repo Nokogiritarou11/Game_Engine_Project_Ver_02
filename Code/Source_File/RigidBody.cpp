@@ -35,7 +35,7 @@ void RigidBody::Create()
 	//épê®
 	const shared_ptr<Collider>& col = collider.lock();
 
-	const Vector3 pos = col->transform->Get_Position() + (col->transform->Get_Right() * col->center.x) + (col->transform->Get_Up() * col->center.y) + (col->transform->Get_Forward() * col->center.z);
+	const Vector3 pos = col->transform->Get_Position() + (col->transform->Get_Left() * col->center.x) + (col->transform->Get_Up() * col->center.y) + (col->transform->Get_Forward() * col->center.z);
 	const Quaternion rot = col->transform->Get_Rotation();
 	btTransform t(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z));
 

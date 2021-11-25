@@ -45,13 +45,13 @@ bool Player_Damageable::Take_Damage(const int damage_hp, const int damage_stun, 
 			from_transform->Set_Local_Position(transform->Get_Position() + transform->Get_Forward() * 2.0f);
 			time_manager.lock()->Start_Time_Slow(parry_time_stop_delay, parry_time_stop_time, parry_time_stop_speed);
 			camera_controller.lock()->Shake_Camera(parry_shake_camera_count, parry_shake_camera_power);
-			pool.lock()->Instance_In_Pool(parry_particle_key, transform->Get_Position() + transform->Get_Right() * parry_particle_position.x + transform->Get_Up() * parry_particle_position.y + transform->Get_Forward() * parry_particle_position.z, transform->Get_Local_Rotation());
+			pool.lock()->Instance_In_Pool(parry_particle_key, transform->Get_Position() + transform->Get_Left() * parry_particle_position.x + transform->Get_Up() * parry_particle_position.y + transform->Get_Forward() * parry_particle_position.z, transform->Get_Local_Rotation());
 		}
 		else
 		{
 			anim->Set_Trigger("Damage");
 			camera_controller.lock()->Shake_Camera(guard_shake_camera_count, guard_shake_camera_power);
-			pool.lock()->Instance_In_Pool(guard_particle_key, transform->Get_Position() + transform->Get_Right() * guard_particle_position.x + transform->Get_Up() * guard_particle_position.y + transform->Get_Forward() * guard_particle_position.z, transform->Get_Local_Rotation());
+			pool.lock()->Instance_In_Pool(guard_particle_key, transform->Get_Position() + transform->Get_Left() * guard_particle_position.x + transform->Get_Up() * guard_particle_position.y + transform->Get_Forward() * guard_particle_position.z, transform->Get_Local_Rotation());
 		}
 
 		return false;

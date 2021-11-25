@@ -126,6 +126,7 @@
     <ClCompile Include="Script\Source\Cut_Scene_Smash_01.cpp" />
     <ClCompile Include="Script\Source\Player_Parameter.cpp" />
     <ClCompile Include="Script\Source\Enemy_Parameter.cpp" />
+    <ClCompile Include="Script\Source\Instant_Camera_Shake.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -350,6 +351,7 @@
     <ClInclude Include="Script\Header\Cut_Scene_Smash_01.h" />
     <ClInclude Include="Script\Header\Player_Parameter.h" />
     <ClInclude Include="Script\Header\Enemy_Parameter.h" />
+    <ClInclude Include="Script\Header\Instant_Camera_Shake.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

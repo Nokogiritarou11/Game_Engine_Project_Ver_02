@@ -30,7 +30,7 @@ void GhostObject::Create()
 	// CF_NO_CONTACT_RESPONSE‚ðŽw’è‚µ‚È‚¢‚Æ„‘Ì‚ÆÕ“Ë‚·‚é
 	ghost->setCollisionFlags(ghost->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 	// ˆÊ’uÝ’è
-	const Vector3 pos = col->transform->Get_Position() + (col->transform->Get_Right() * col->center.x) + (col->transform->Get_Up() * col->center.y) + (col->transform->Get_Forward() * col->center.z);
+	const Vector3 pos = col->transform->Get_Position() + (col->transform->Get_Left() * col->center.x) + (col->transform->Get_Up() * col->center.y) + (col->transform->Get_Forward() * col->center.z);
 	const Quaternion rot = col->transform->Get_Rotation();
 	const btTransform t(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z));
 	ghost->setWorldTransform(t);

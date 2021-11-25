@@ -10,12 +10,22 @@ namespace BeastEngine
 		Boss_01
 	};
 
+	enum class Move_State
+	{
+		Forward,
+		Right,
+		Left
+	};
+
 	class Enemy_Parameter final : public Character_Parameter, public MonoBehaviour
 	{
 	public:
-		Enemy_Type type;
+		Enemy_Type type = Enemy_Type::Enemy_Normal_01;
 		bool stunning = false;
+		bool is_attack_mode = false;
 		bool is_attack_preliminary = false;
+		float last_damaged_timer = 0;
+		Move_State move_state = Move_State::Forward;
 
 	private:
 		void OnEnable() override;
@@ -27,7 +37,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<MonoBehaviour>(this), cereal::base_class<Character_Parameter>(this), type, max_hp, max_stun, heal_stun);
+			archive(cereal::base_class<MonoBehaviour>(this), cereal::base_class<Character_Parameter>(this), type);
 		}
 	};
 }

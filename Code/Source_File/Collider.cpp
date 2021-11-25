@@ -177,7 +177,7 @@ void Collider::Call_Hit(Collision& collision)
 
 void Collider::Update_Transform()
 {
-	const Vector3 pos = transform->Get_Position() + (transform->Get_Right() * center.x) + (transform->Get_Up() * center.y) + (transform->Get_Forward() * center.z);
+	const Vector3 pos = transform->Get_Position() + (transform->Get_Left() * center.x) + (transform->Get_Up() * center.y) + (transform->Get_Forward() * center.z);
 	const Quaternion rot = transform->Get_Rotation();
 
 	Rescale_Shape();
@@ -204,7 +204,7 @@ void Collider::Update_Simulation()
 		const btQuaternion q = t.getRotation();
 
 		Vector3 pos = { v.x(), v.y(), v.z() };
-		pos -= ((transform->Get_Right() * center.x) + (transform->Get_Up() * center.y) + (transform->Get_Forward() * center.z));
+		pos -= ((transform->Get_Left() * center.x) + (transform->Get_Up() * center.y) + (transform->Get_Forward() * center.z));
 		const Quaternion rot = { q.x(), q.y(), q.z(), q.w() };
 
 		if (position_old != pos || rotation_old != rot)

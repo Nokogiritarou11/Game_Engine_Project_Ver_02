@@ -1,7 +1,6 @@
 #pragma once
 #include <algorithm>
 #include <random>
-#include <functional>
 
 namespace BeastEngine
 {

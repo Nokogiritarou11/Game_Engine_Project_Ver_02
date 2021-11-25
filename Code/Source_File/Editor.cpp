@@ -1460,11 +1460,11 @@ void Editor::Debug_Camera_Update() const
 				}
 				if (ImGui::IsKeyDown(65))
 				{
-					move += debug_camera_transform->Get_Right() * Time::delta_time * speed;
+					move += debug_camera_transform->Get_Left() * Time::delta_time * speed;
 				}
 				if (ImGui::IsKeyDown(68))
 				{
-					move -= debug_camera_transform->Get_Right() * Time::delta_time * speed;
+					move -= debug_camera_transform->Get_Left() * Time::delta_time * speed;
 				}
 				debug_camera_transform->Set_Local_Position(debug_camera_transform->Get_Position() + move);
 			}

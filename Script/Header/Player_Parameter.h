@@ -21,7 +21,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<MonoBehaviour>(this), cereal::base_class<Character_Parameter>(this), max_hp, max_stun, heal_stun);
+			archive(cereal::base_class<MonoBehaviour>(this), cereal::base_class<Character_Parameter>(this));
 		}
 	};
 }

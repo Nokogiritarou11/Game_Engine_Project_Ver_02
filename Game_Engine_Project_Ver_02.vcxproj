@@ -312,6 +312,7 @@
     <ClCompile Include="Script\Source\Enemy_Normal_01_Move.cpp" />
     <ClCompile Include="Script\Source\Enemy_Normal_01_State_Setter.cpp" />
     <ClCompile Include="Script\Source\Enemy_Parameter.cpp" />
+    <ClCompile Include="Script\Source\Instant_Camera_Shake.cpp" />
     <ClCompile Include="Script\Source\Object_Pool.cpp" />
     <ClCompile Include="Script\Source\Player_Camera_Controller.cpp" />
     <ClCompile Include="Script\Source\Player_Damageable.cpp" />
@@ -841,6 +842,7 @@
     <ClInclude Include="Script\Header\Enemy_Normal_01_Move.h" />
     <ClInclude Include="Script\Header\Enemy_Normal_01_State_Setter.h" />
     <ClInclude Include="Script\Header\Enemy_Parameter.h" />
+    <ClInclude Include="Script\Header\Instant_Camera_Shake.h" />
     <ClInclude Include="Script\Header\Interface_Cut_Scene.h" />
     <ClInclude Include="Script\Header\Interface_Character_Damageable.h" />
     <ClInclude Include="Script\Header\Interface_Character_Mover.h" />

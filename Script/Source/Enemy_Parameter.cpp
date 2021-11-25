@@ -7,12 +7,16 @@ void Enemy_Parameter::OnEnable()
 {
 	Character_Parameter_Reset();
 
-	is_attack_preliminary = false;
 	stunning = false;
+	is_attack_mode = false;
+	is_attack_preliminary = false;
+	last_damaged_timer = 0;
+	move_state = Move_State::Forward;
 }
 
 void Enemy_Parameter::Update()
 {
+	last_damaged_timer += Time::delta_time;
 	if (stun < max_stun)
 	{
 		stun = Mathf::Clamp(stun + heal_stun * Time::delta_time, 0, max_stun);
@@ -28,7 +32,7 @@ bool Enemy_Parameter::Draw_ImGui()
 	{
 		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
 
-		static const char* type_name[] = {"Enemy_Normal_01", "Enemy_Big_01", "Boss_01" };
+		static const char* type_name[] = { "Enemy_Normal_01", "Enemy_Big_01", "Boss_01" };
 		int type_current = static_cast<int>(type);
 		if (ImGui::LeftText_Combo(u8"エネミータイプ", "##Enemy_Type", &type_current, type_name, IM_ARRAYSIZE(type_name), window_center))
 		{

@@ -29,7 +29,7 @@ void Player_Input::Set_State()
 
 	// 方向キーの入力値とカメラの向きから、移動方向を決定
 	const Vector2 axis = Input::Get_Pad_Axis_Left();
-	(camera_direction * axis.y - camera_trans->Get_Right() * axis.x).Normalize(input_direction);
+	(camera_direction * axis.y - camera_trans->Get_Left() * axis.x).Normalize(input_direction);
 
 	const bool stick_neutral = input_direction == Vector3::Zero;
 	anim->Set_Bool("Move", !stick_neutral);
@@ -98,7 +98,7 @@ void Player_Input::Set_State()
 		{
 			if (const auto& enemy_lock = enemy.lock(); Vector3::DistanceSquared(transform->Get_Position(), enemy_lock->transform->Get_Position()) <= powf(2.5f, 2))
 			{
-				if (Input::Get_Pad_Button_Down(Button_Code::B) && param->is_ground && !param->attacking && !param->damaging && !param->guarding)
+				if (Input::Get_Pad_Button_Down(Button_Code::B) && param->is_ground && !param->attacking && !param->damaging && !param->guarding && !param->is_invincible)
 				{
 					Vector3 pos = transform->Get_Position();
 					Vector3 enemy_pos = enemy_lock->transform->Get_Position();

@@ -26,6 +26,7 @@ bool Enemy_Normal_01_Damageable::Take_Damage(const int damage_hp, const int dama
 
 	hit_stop_manager.lock()->Start_Hit_Stop(0.05f);
 	enemy_manager.lock()->last_attack_target = parameter;
+	param->last_damaged_timer = 0;
 
 	if (param->guarding)
 	{

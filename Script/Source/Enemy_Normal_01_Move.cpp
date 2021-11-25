@@ -21,8 +21,27 @@ void Enemy_Normal_01_Move::Move_Normal()
 	transform->Set_Local_Rotation(Quaternion::Slerp(transform->Get_Local_Rotation(), transform->Look_At(target_position), turn_speed * Time::delta_time));
 
 	const auto& rb = rigidbody.lock();
-	Vector3 speed = transform->Get_Forward() * run_speed * Time::delta_time;
-	speed.y = y_axis_velocity;
+	Vector3 speed;
+	if (const auto& param = parameter.lock(); param->moving)
+	{
+		switch (param->move_state)
+		{
+			case Move_State::Forward:
+				speed = transform->Get_Forward() * run_speed * Time::delta_time;
+				break;
+			case Move_State::Right:
+				speed = -transform->Get_Left() * run_speed * 0.25f * Time::delta_time;
+				break;
+			case Move_State::Left:
+				speed = transform->Get_Left() * run_speed * 0.25f * Time::delta_time;
+				break;
+		}
+		speed.y = y_axis_velocity;
+	}
+	else
+	{
+		speed = Vector3(0, y_axis_velocity, 0);
+	}
 	rb->Set_Velocity(speed);
 }
 

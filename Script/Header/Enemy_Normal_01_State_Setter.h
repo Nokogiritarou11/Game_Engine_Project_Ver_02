@@ -14,7 +14,18 @@ namespace BeastEngine
 		void Set_State() override;
 
 	private:
+		enum class Wait_State
+		{
+			Wait,
+			Chase,
+			Right,
+			Left
+		};
+
+		void Change_Wait_State();
+
 		void Awake() override;
+		void OnEnable() override;
 		bool Draw_ImGui() override;
 
 		std::weak_ptr<Animator> animator;
@@ -24,21 +35,31 @@ namespace BeastEngine
 		std::weak_ptr<Enemy_Manager> enemy_manager;
 		std::weak_ptr<Object_Pool> pool;
 
+		Wait_State wait_state = Wait_State::Wait;
+		bool attack_mode_old = false;
+
+		float wait_state_timer = 0;
+		float state_change_time_min = 0;
+		float state_change_time_max = 0;
 		float attack_distance = 0;
+		float wait_distance = 0;
+		float wait_distance_min = 0;
+		float wait_distance_max = 0;
+
+		float probability_wait = 0;
+		float probability_chase = 0;
 
 		// シリアライズ関数
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			if (version <= 1)
-			{
-				archive(cereal::base_class<MonoBehaviour>(this), attack_distance);
-			}
-			else
-			{
-				archive(cereal::base_class<MonoBehaviour>(this), spine_transform, attack_distance);
-			}
+			archive(cereal::base_class<MonoBehaviour>(this),
+				spine_transform,
+				attack_distance,
+				state_change_time_min, state_change_time_max,
+				probability_wait, probability_chase,
+				wait_distance_min, wait_distance_max);
 		}
 	};
 }
@@ -46,4 +67,4 @@ namespace BeastEngine
 REGISTER_COMPONENT(Enemy_Normal_01_State_Setter)
 CEREAL_REGISTER_TYPE(BeastEngine::Enemy_Normal_01_State_Setter)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::MonoBehaviour, BeastEngine::Enemy_Normal_01_State_Setter)
-CEREAL_CLASS_VERSION(BeastEngine::Enemy_Normal_01_State_Setter, 2)
+CEREAL_CLASS_VERSION(BeastEngine::Enemy_Normal_01_State_Setter, 1)

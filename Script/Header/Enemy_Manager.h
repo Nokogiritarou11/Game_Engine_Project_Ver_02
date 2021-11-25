@@ -75,7 +75,12 @@ namespace BeastEngine
 		};
 
 		void Awake() override;
+		void Update() override;
 		bool Draw_ImGui() override;
+
+		float last_attacked_timer = 0;
+		float attack_check_time = 0;
+		float damaged_check_time = 0;
 
 		std::weak_ptr<Player_Parameter> player_parameter;
 		std::weak_ptr<Player_Camera_Controller> camera_controller;
@@ -90,7 +95,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<MonoBehaviour>(this), effect_dead, effect_stun);
+			archive(cereal::base_class<MonoBehaviour>(this), effect_dead, effect_stun, attack_check_time, damaged_check_time);
 		}
 	};
 }

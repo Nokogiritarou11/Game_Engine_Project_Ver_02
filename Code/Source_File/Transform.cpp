@@ -43,8 +43,8 @@ Transform::Transform()
 	forward = Vector3::Transform(Vector3::Forward, rotation_matrix);
 	forward.Normalize();
 
-	right = Vector3::Transform(Vector3::Right, rotation_matrix);
-	right.Normalize();
+	left = Vector3::Transform(Vector3::Right, rotation_matrix);
+	left.Normalize();
 
 	up = Vector3::Transform(Vector3::Up, rotation_matrix);
 	up.Normalize();
@@ -91,8 +91,8 @@ Transform::Transform(const Vector3 position, const Quaternion rotation)
 	forward = Vector3::Transform(Vector3::Forward, rotation_matrix);
 	forward.Normalize();
 
-	right = Vector3::Transform(Vector3::Right, rotation_matrix);
-	right.Normalize();
+	left = Vector3::Transform(Vector3::Right, rotation_matrix);
+	left.Normalize();
 
 	up = Vector3::Transform(Vector3::Up, rotation_matrix);
 	up.Normalize();
@@ -140,8 +140,8 @@ Transform::Transform(const Vector3 position, const Vector3 euler)
 	forward = Vector3::Transform(Vector3::Forward, rotation_matrix);
 	forward.Normalize();
 
-	right = Vector3::Transform(Vector3::Right, rotation_matrix);
-	right.Normalize();
+	left = Vector3::Transform(Vector3::Right, rotation_matrix);
+	left.Normalize();
 
 	up = Vector3::Transform(Vector3::Up, rotation_matrix);
 	up.Normalize();
@@ -329,8 +329,8 @@ void Transform::Set_Rotation(const Quaternion q)
 		forward = Vector3::Transform(Vector3::Forward, rotation_matrix);
 		forward.Normalize();
 
-		right = Vector3::Transform(Vector3::Right, rotation_matrix);
-		right.Normalize();
+		left = Vector3::Transform(Vector3::Right, rotation_matrix);
+		left.Normalize();
 
 		up = Vector3::Transform(Vector3::Up, rotation_matrix);
 		up.Normalize();
@@ -369,8 +369,8 @@ void Transform::Set_Rotation(const float f1, const float f2, const float f3, con
 		forward = Vector3::Transform(Vector3::Forward, rotation_matrix);
 		forward.Normalize();
 
-		right = Vector3::Transform(Vector3::Right, rotation_matrix);
-		right.Normalize();
+		left = Vector3::Transform(Vector3::Right, rotation_matrix);
+		left.Normalize();
 
 		up = Vector3::Transform(Vector3::Up, rotation_matrix);
 		up.Normalize();
@@ -530,8 +530,8 @@ void Transform::Set_Local_Rotation(const Quaternion q)
 
 		forward = Vector3::Transform(Vector3::Forward, rotation_matrix);
 		forward.Normalize();
-		right = Vector3::Transform(Vector3::Right, rotation_matrix);
-		right.Normalize();
+		left = Vector3::Transform(Vector3::Right, rotation_matrix);
+		left.Normalize();
 		up = Vector3::Transform(Vector3::Up, rotation_matrix);
 		up.Normalize();
 
@@ -563,8 +563,8 @@ void Transform::Set_Local_Rotation(const float f1, const float f2, const float f
 		forward = Vector3::Transform(Vector3::Forward, rotation_matrix);
 		forward.Normalize();
 
-		right = Vector3::Transform(Vector3::Right, rotation_matrix);
-		right.Normalize();
+		left = Vector3::Transform(Vector3::Right, rotation_matrix);
+		left.Normalize();
 
 		up = Vector3::Transform(Vector3::Up, rotation_matrix);
 		up.Normalize();
@@ -636,9 +636,9 @@ Vector3 Transform::Get_Forward() const
 	return forward;
 }
 
-Vector3 Transform::Get_Right() const
+Vector3 Transform::Get_Left() const
 {
-	return right;
+	return left;
 }
 
 Vector3 Transform::Get_Up() const
@@ -719,8 +719,8 @@ void Transform::Set_Parent(const shared_ptr<Transform>& p)
 
 			forward = Vector3::Transform(Vector3::Forward, rotation_matrix);
 			forward.Normalize();
-			right = Vector3::Transform(Vector3::Right, rotation_matrix);
-			right.Normalize();
+			left = Vector3::Transform(Vector3::Right, rotation_matrix);
+			left.Normalize();
 			up = Vector3::Transform(Vector3::Up, rotation_matrix);
 			up.Normalize();
 
@@ -782,8 +782,8 @@ void Transform::Set_Parent(const shared_ptr<Transform>& p, const int index_inser
 
 			forward = Vector3::Transform(Vector3::Forward, rotation_matrix);
 			forward.Normalize();
-			right = Vector3::Transform(Vector3::Right, rotation_matrix);
-			right.Normalize();
+			left = Vector3::Transform(Vector3::Right, rotation_matrix);
+			left.Normalize();
 			up = Vector3::Transform(Vector3::Up, rotation_matrix);
 			up.Normalize();
 
@@ -808,8 +808,8 @@ void Transform::On_Parent_Changed()
 	scale_matrix = Matrix::CreateScale(scale);
 	forward = Vector3::Transform(Vector3::Forward, rotation_matrix);
 	forward.Normalize();
-	right = Vector3::Transform(Vector3::Right, rotation_matrix);
-	right.Normalize();
+	left = Vector3::Transform(Vector3::Right, rotation_matrix);
+	left.Normalize();
 	up = Vector3::Transform(Vector3::Up, rotation_matrix);
 	up.Normalize();
 
@@ -1097,8 +1097,8 @@ void Transform::Set_World_Matrix(const Matrix matrix)
 	forward = Vector3::Transform(Vector3::Forward, rotation_matrix);
 	forward.Normalize();
 
-	right = Vector3::Transform(Vector3::Right, rotation_matrix);
-	right.Normalize();
+	left = Vector3::Transform(Vector3::Right, rotation_matrix);
+	left.Normalize();
 
 	up = Vector3::Transform(Vector3::Up, rotation_matrix);
 	up.Normalize();
