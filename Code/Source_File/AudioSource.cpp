@@ -14,6 +14,7 @@ using namespace BeastEngine;
 
 AudioSource::~AudioSource()
 {
+	//停止してから削除
 	if (effect_instance)
 	{
 		if (effect_instance->GetState() == PLAYING)
@@ -26,10 +27,12 @@ AudioSource::~AudioSource()
 
 void AudioSource::Initialize(const shared_ptr<GameObject>& obj)
 {
+	//アセットマネージャーへの登録とComponentの初期化
 	Engine::asset_manager->Registration_Asset(shared_from_this());
 	gameobject = obj;
 	transform = obj->transform;
 
+	//クリップの読み込み
 	if (file_path != "")
 	{
 		effect_instance = Engine::audio_manager->Load_SoundEffect(file_path + file_name);
@@ -43,6 +46,7 @@ void AudioSource::Set_Active(const bool value)
 {
 	if (value)
 	{
+		//アクティブ時に自動再生がオンの場合再生
 		if (play_on_awake && gameobject->Get_Active_In_Hierarchy() && Get_Enabled() && Engine::scene_manager->run)
 		{
 			Play();
@@ -56,6 +60,7 @@ void AudioSource::Set_Active(const bool value)
 
 void AudioSource::Set_Clip(const char* filepath, const char* filename)
 {
+	//既に再生中の場合は停止
 	if (effect_instance)
 	{
 		if (effect_instance->GetState() == PLAYING)
@@ -77,6 +82,7 @@ void AudioSource::Play() const
 		const auto state = effect_instance->GetState();
 		Set_Volume(volume);
 		Set_Pitch(pitch);
+		//再生状況によって分岐
 		switch (state)
 		{
 			case PAUSED:
@@ -117,15 +123,6 @@ void AudioSource::Play_OneShot(float volume, float pitch) const
 	}
 }
 
-/*
-void AudioSource::PlayClipAtPoint(const char* filepath, const char* filename, Vector3 position, float volume, float pitch)
-{
-	string path = filepath;
-	path += filename;
-	Engine::audio_manager->PlayOneShot(path, volume, pitch);
-}
-*/
-
 bool AudioSource::Is_Playing() const
 {
 	if (effect_instance)
@@ -133,10 +130,6 @@ bool AudioSource::Is_Playing() const
 		if (const auto state = effect_instance->GetState(); state == PLAYING)
 		{
 			return true;
-		}
-		else
-		{
-			return false;
 		}
 	}
 	return false;

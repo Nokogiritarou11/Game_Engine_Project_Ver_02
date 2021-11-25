@@ -9,8 +9,9 @@ void Box_Collider::Create_Shape()
 	shape = make_unique<btBoxShape>(btVector3(size.x * 0.5f, size.y * 0.5f, size.z * 0.5f));
 }
 
-void Box_Collider::Set_Size(Vector3& new_size)
+void Box_Collider::Set_Size(const Vector3& new_size)
 {
+	//重いのでサイズが変わったときのみ行う
 	if (size != new_size)
 	{
 		size = new_size;
@@ -33,10 +34,9 @@ bool Box_Collider::Draw_ImGui()
 		ImGui::Text(u8"サイズ");
 		ImGui::SameLine(window_center);
 		ImGui::SetNextItemWidth(window_center);
-		float size_im[3] = { size.x,size.y,size.z };
-		if (ImGui::DragFloat3("##Box_Size", size_im, 0.1f))
+		if (float size_im[3] = { size.x,size.y,size.z }; ImGui::DragFloat3("##Box_Size", size_im, 0.1f))
 		{
-			Vector3 new_size = { size_im[0], size_im[1], size_im[2] };
+			const Vector3 new_size = { size_im[0], size_im[1], size_im[2] };
 			Set_Size(new_size);
 		}
 		Draw_ImGui_Common();

@@ -7,7 +7,7 @@ namespace BeastEngine
 	class Box_Collider final :public Collider
 	{
 	public:
-		void Set_Size(Vector3& new_size); //サイズを設定する
+		void Set_Size(const Vector3& new_size); //サイズを設定する
 		[[nodiscard]] Vector3 Get_Size() const { return size; } //サイズを取得する
 
 	private:

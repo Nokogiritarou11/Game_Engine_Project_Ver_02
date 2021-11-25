@@ -6,6 +6,7 @@ using namespace std;
 
 Behaviour::Behaviour()
 {
+	//トリガー用キャッシュの初期化
 	enabled_old = enabled;
 }
 

@@ -40,6 +40,7 @@ bool Bounds::Get_Is_Culling_Frustum(const shared_ptr<Transform>& trans, const ar
 	const Vector3 min_scaled = (center + min) * scale;
 	const Vector3 max_scaled = (center + max) * scale;
 
+	//Plane‚Ì“à‘¤‚É‚ ‚é‚©”»’è
 	for (int plane_id = 0; plane_id < 6; ++plane_id)
 	{
 		const Vector3 plane_normal = { planes[plane_id].x, planes[plane_id].y, planes[plane_id].z };

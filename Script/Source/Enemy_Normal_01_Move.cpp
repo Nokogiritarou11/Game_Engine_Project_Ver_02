@@ -86,8 +86,6 @@ void Enemy_Normal_01_Move::Move_Update()
 
 	if (!param->is_ground)
 	{
-		is_add_down = anim->Get_Bool("Add_Down_Force");
-
 		if (const bool stay_air = anim->Get_Bool("Stay_Air"); is_stay_air != stay_air)
 		{
 			is_stay_air = stay_air;
@@ -97,14 +95,9 @@ void Enemy_Normal_01_Move::Move_Update()
 			}
 		}
 
-		if (!is_stay_air && !is_add_down)
+		if (!is_stay_air)
 		{
 			y_axis_velocity -= down_power * Time::delta_time;
-		}
-
-		if (is_add_down)
-		{
-			y_axis_velocity -= down_power * 10 * Time::delta_time;
 		}
 	}
 	else

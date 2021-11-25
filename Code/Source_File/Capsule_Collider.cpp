@@ -11,6 +11,7 @@ void Capsule_Collider::Create_Shape()
 
 void Capsule_Collider::Set_Radius(const float new_radius)
 {
+	//重いので変更時のみ
 	if (radius != new_radius)
 	{
 		radius = new_radius;
@@ -23,6 +24,7 @@ void Capsule_Collider::Set_Radius(const float new_radius)
 
 void Capsule_Collider::Set_Height(const float new_height)
 {
+	//重いので変更時のみ
 	if (height != new_height)
 	{
 		height = new_height;

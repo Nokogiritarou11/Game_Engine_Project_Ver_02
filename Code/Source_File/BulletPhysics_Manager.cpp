@@ -16,6 +16,7 @@ BulletPhysics_Manager::BulletPhysics_Manager()
 
 void BulletPhysics_Manager::Initialize()
 {
+	//各メンバの作成
 	collision_config = make_unique<btDefaultCollisionConfiguration>();
 	dispatcher = make_unique<btCollisionDispatcher>(collision_config.get());
 	broadphase = make_unique<btDbvtBroadphase>();
@@ -30,6 +31,7 @@ void BulletPhysics_Manager::Initialize()
 
 void BulletPhysics_Manager::Reset()
 {
+	//各オブジェクトを末尾から削除
 	for (int i = world->getNumConstraints() - 1; i >= 0; --i)
 	{
 		btTypedConstraint* ct = world->getConstraint(i);
@@ -58,6 +60,7 @@ void BulletPhysics_Manager::Exit()
 
 void BulletPhysics_Manager::Update()
 {
+	//シーンでの姿勢をBullet内に反映
 	for (auto& col : collider_list)
 	{
 		col.second.lock()->Update_Transform();
@@ -67,37 +70,36 @@ void BulletPhysics_Manager::Update()
 	{
 		typedef pair<shared_ptr<Collider>, Collision> hit_pair;
 		vector<hit_pair> hit_list;
+		//Bullet内の時間を進める
 		world->stepSimulation(Time::delta_time, 2, Time::delta_time * 0.5f);
-		//world->stepSimulation(Time::delta_time);
 
+		//衝突判定の数だけ回す
 		const int num = dispatcher->getNumManifolds();
 		for (int i = 0; i < num; ++i)
 		{
-			const btPersistentManifold* contactManifold = dispatcher->getManifoldByIndexInternal(i);
+			const btPersistentManifold* contact_manifold = dispatcher->getManifoldByIndexInternal(i);
 			// 衝突物体
-			const btCollisionObject* obA = contactManifold->getBody0();
-			const btCollisionObject* obB = contactManifold->getBody1();
+			const btCollisionObject* obj_a = contact_manifold->getBody0();
+			const btCollisionObject* obj_b = contact_manifold->getBody1();
 
 			vector<Vector3> contacts_a, contacts_b;
-			const int num_contacts = contactManifold->getNumContacts();
+			const int num_contacts = contact_manifold->getNumContacts();
 			for (int j = 0; j < num_contacts; ++j)
 			{
-				if (const btManifoldPoint& pt = contactManifold->getContactPoint(j); pt.getDistance() < 0.f)
+				if (const btManifoldPoint& pt = contact_manifold->getContactPoint(j); pt.getDistance() < 0.f)
 				{
-					// 実際に衝突した
-					//auto normal = pt.m_normalWorldOnB;
-					//auto impulse = pt.getAppliedImpulse();
-
+					// 衝突した
 					btVector3 pos_a = pt.getPositionWorldOnA();
 					contacts_a.emplace_back(Vector3(pos_a.x(), pos_a.y(), pos_a.z()));
 					btVector3 pos_b = pt.getPositionWorldOnB();
 					contacts_b.emplace_back(Vector3(pos_b.x(), pos_b.y(), pos_b.z()));
 				}
 			}
+			//衝突していた場合はコールバックリストに追加
 			if (!contacts_a.empty())
 			{
-				const shared_ptr<Collider> col_a = collider_list[obA].lock();
-				const shared_ptr<Collider> col_b = collider_list[obB].lock();
+				const shared_ptr<Collider> col_a = collider_list[obj_a].lock();
+				const shared_ptr<Collider> col_b = collider_list[obj_b].lock();
 				Collision collision_a = { col_b, col_b->gameobject, col_b->transform, contacts_b };
 				Collision collision_b = { col_a, col_a->gameobject, col_a->transform, contacts_a };
 				hit_list.emplace_back(hit_pair(col_a, collision_a));
@@ -105,11 +107,13 @@ void BulletPhysics_Manager::Update()
 			}
 		}
 
+		//Bullet内での変更をシーンに反映
 		for (auto& col : collider_list)
 		{
 			col.second.lock()->Update_Simulation();
 		}
 
+		//衝突コールバックを呼ぶ
 		if (!hit_list.empty())
 		{
 			for (auto& hit : hit_list)

@@ -13,6 +13,7 @@ void Animator_Manager::Reset()
 
 void Animator_Manager::Update()
 {
+	//コンポーネントの生存をチェックし、別スレッドに更新を行わせる
 	bool expired = false;
 	for (const auto& animator : animator_list)
 	{
@@ -31,6 +32,7 @@ void Animator_Manager::Update()
 			expired = true;
 		}
 	}
+	//コンポーネントが削除されていた場合、リストから削除
 	if (expired)
 	{
 		const auto& remove_it = remove_if(animator_list.begin(), animator_list.end(), [](weak_ptr<Animator> p) { return p.expired(); });

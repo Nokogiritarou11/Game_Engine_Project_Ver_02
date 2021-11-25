@@ -15,14 +15,17 @@ using namespace BeastEngine;
 
 void Animator_Controller::Initialize()
 {
+	//パラメータマップの作成
 	if (!parameters)
 	{
 		parameters = make_shared<unordered_map<string, Animation_Parameter>>();
 	}
 
+	//各ステートの初期化
 	for (const auto& state : state_machines)
 	{
 		state->Initialize(parameters);
+		//デフォルトステートを設定
 		if (state->is_default_state)
 		{
 			playing_state_machine = state;
@@ -33,15 +36,18 @@ void Animator_Controller::Initialize()
 
 void Animator_Controller::Reset()
 {
+	//各パラメータのリセット
 	interrupt_state = 0;
 	duration_timer = 0;
 	playing_state_machine.reset();
 	next_state_machine.reset();
 	active_transition.reset();
 
+	//各ステートのリセット
 	for (const auto& state : state_machines)
 	{
 		state->Reset();
+		//デフォルトステートを設定
 		if (state->is_default_state)
 		{
 			playing_state_machine = state;
@@ -52,16 +58,18 @@ void Animator_Controller::Reset()
 
 bool Animator_Controller::Add_State_Machine(const string& name)
 {
+	//同名のステートがある場合は無効
 	for (const auto& state : state_machines)
 	{
 		if (state->name == name) return false;
 	}
 
-	shared_ptr<Animator_State_Machine> state_machine = make_shared<Animator_State_Machine>();
+	//新規作成
+	auto state_machine = make_shared<Animator_State_Machine>();
 	state_machine->name = name;
 	state_machine->Initialize(parameters);
 	state_machines.emplace_back(state_machine);
-
+	//名前順にソート
 	sort(state_machines.begin(), state_machines.end(), [](const shared_ptr<Animator_State_Machine>& a, const shared_ptr<Animator_State_Machine>& b) { return a->name < b->name; });
 
 	return true;
@@ -72,6 +80,7 @@ bool Animator_Controller::Remove_State_Machine(const string& name)
 	shared_ptr<Animator_State_Machine> target_state;
 	size_t state_size = state_machines.size();
 
+	//名前でステートを検索し削除
 	for (size_t i = 0; i < state_size; ++i)
 	{
 		if (state_machines[i]->name == name)
@@ -82,8 +91,10 @@ bool Animator_Controller::Remove_State_Machine(const string& name)
 		}
 	}
 
+	//見つからなかった場合リターン
 	if (!target_state) return false;
 
+	//削除するステートが遷移対象となっていた場合、その繊維設定も削除
 	state_size = state_machines.size();
 	for (size_t i = 0; i < state_size; ++i)
 	{
@@ -106,29 +117,18 @@ bool Animator_Controller::Remove_State_Machine(const string& name)
 
 void Animator_Controller::Update(const float& speed)
 {
-	if (!active_transition)
+	//遷移が有効かで分岐
+	if (active_transition)
 	{
-		playing_state_machine->Update_Transition();
-		playing_state_machine->Update_Time(speed);
-
-		if (playing_state_machine->transition_trigger)
-		{
-			duration_timer = 0;
-			interrupt_state = 1;
-			active_transition = playing_state_machine->Get_Active_Transition();
-			next_state_machine = active_transition->next_state.lock();
-			next_state_machine->Activate(active_transition->transition_offset);
-			playing_state_machine->transition_trigger = false;
-		}
-	}
-	else
-	{
+		//経過時間の更新
 		playing_state_machine->Update_Time(speed);
 		next_state_machine->Update_Time(speed);
 		duration_timer += Time::delta_time;
 
+		//遷移が終了しているかで分岐
 		if (duration_timer >= active_transition->transition_duration)
 		{
+			//遷移終了後の後始末
 			playing_state_machine->Exit();
 			playing_state_machine = next_state_machine;
 			interrupt_state = 1;
@@ -138,10 +138,13 @@ void Animator_Controller::Update(const float& speed)
 		}
 		else
 		{
+			//割り込み設定があった場合の処理
 			if (active_transition->interruption_source == Animator_State_Transition::Interruption_Source::Current_State)
 			{
+				//遷移元ステートの遷移チェック
 				playing_state_machine->Update_Transition();
 
+				//遷移する場合
 				if (playing_state_machine->transition_trigger)
 				{
 					interrupt_state = 2;
@@ -155,8 +158,10 @@ void Animator_Controller::Update(const float& speed)
 			}
 			if (active_transition->interruption_source == Animator_State_Transition::Interruption_Source::Next_State)
 			{
+				//遷移先ステートの遷移チェック
 				next_state_machine->Update_Transition();
 
+				//遷移する場合
 				if (next_state_machine->transition_trigger)
 				{
 					interrupt_state = 2;
@@ -171,15 +176,33 @@ void Animator_Controller::Update(const float& speed)
 			}
 		}
 	}
+	else
+	{
+		//経過時間の更新と遷移チェック
+		playing_state_machine->Update_Time(speed);
+		playing_state_machine->Update_Transition();
+
+		//遷移する場合
+		if (playing_state_machine->transition_trigger)
+		{
+			duration_timer = 0;
+			interrupt_state = 1;
+			active_transition = playing_state_machine->Get_Active_Transition();
+			next_state_machine = active_transition->next_state.lock();
+			next_state_machine->Activate(active_transition->transition_offset);
+			playing_state_machine->transition_trigger = false;
+		}
+	}
 }
 
 void Animator_Controller::Save()
 {
+	//ダイアログを開いてセーブする
 	string path = System_Function::Get_Save_File_Name();
 	if (path != "")
 	{
-		const int path_i = path.find_last_of("\\") + 1;//7
-		const int ext_i = path.find_last_of(".");//10
+		const int path_i = path.find_last_of("\\") + 1;
+		const int ext_i = path.find_last_of(".");
 		const string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
 		const string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 		path = pathname + filename + ".controller";
@@ -196,12 +219,14 @@ void Animator_Controller::Save()
 
 void Animator_Controller::Save_As()
 {
+	//上書きセーブ先がない場合はダイアログを開く
 	if (save_path.empty())
 	{
 		Save();
 	}
 	else
 	{
+		//上書きセーブ
 		ofstream ss(save_path.c_str(), ios::binary);
 		cereal::BinaryOutputArchive o_archive(ss);
 		o_archive(static_pointer_cast<Animator_Controller>(shared_from_this()));
@@ -213,14 +238,15 @@ shared_ptr<Animator_Controller> Animator_Controller::Load_Animator_Controller(co
 	string path;
 	if (full_path.empty())
 	{
+		//ファイルパスが指定されていない場合ダイアログを開く
 		path = System_Function::Get_Open_File_Name("controller", "\\Assets\\Model");
 	}
 	else
 	{
 		path = full_path;
 	}
-	int path_i = path.find_last_of("\\") + 1;//7
-	int ext_i = path.find_last_of(".");//10
+	int path_i = path.find_last_of("\\") + 1;
+	int ext_i = path.find_last_of(".");
 	string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
 	string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 
@@ -240,11 +266,12 @@ shared_ptr<Animator_Controller> Animator_Controller::Load_Animator_Controller(co
 
 shared_ptr<Animator_Controller> Animator_Controller::Create_New_Controller()
 {
+	//ダイアログからセーブ先を指定し新規生成
 	string path = System_Function::Get_Save_File_Name("controller", "\\Assets\\Model");
 	if (path != "")
 	{
-		const int path_i = path.find_last_of("\\") + 1;//7
-		const int ext_i = path.find_last_of(".");//10
+		const int path_i = path.find_last_of("\\") + 1;
+		const int ext_i = path.find_last_of(".");
 		const string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
 		const string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 		path = pathname + filename + ".controller";
@@ -265,6 +292,7 @@ shared_ptr<Animator_Controller> Animator_Controller::Create_New_Controller()
 
 void Animator_Controller::Add_Parameter(string& p_name, Parameter_Type type) const
 {
+	//同名のパラメータが存在しない場合のみ追加する
 	if (const auto it = parameters->find(p_name); it == parameters->end())
 	{
 		Animation_Parameter parameter = {};
@@ -287,9 +315,9 @@ void Animator_Controller::Render_ImGui()
 	{
 		Save_As();
 	}
-	static bool Auto_Save = true;
+	static bool auto_save = true;
 	ImGui::SameLine();
-	ImGui::Checkbox(u8"オートセーブ", &Auto_Save);
+	ImGui::Checkbox(u8"オートセーブ", &auto_save);
 
 	ImGui::Dummy({ 0, 10.0f });
 	ImGui::Separator();
@@ -310,7 +338,7 @@ void Animator_Controller::Render_ImGui()
 					{
 						Add_Parameter(parameter_name, Parameter_Type::Int);
 						parameter_name.clear();
-						if (Auto_Save) Save_As();
+						if (auto_save) Save_As();
 						ImGui::CloseCurrentPopup();
 					}
 					ImGui::EndMenu();
@@ -322,7 +350,7 @@ void Animator_Controller::Render_ImGui()
 					{
 						Add_Parameter(parameter_name, Parameter_Type::Float);
 						parameter_name.clear();
-						if (Auto_Save) Save_As();
+						if (auto_save) Save_As();
 						ImGui::CloseCurrentPopup();
 					}
 					ImGui::EndMenu();
@@ -334,7 +362,7 @@ void Animator_Controller::Render_ImGui()
 					{
 						Add_Parameter(parameter_name, Parameter_Type::Bool);
 						parameter_name.clear();
-						if (Auto_Save) Save_As();
+						if (auto_save) Save_As();
 						ImGui::CloseCurrentPopup();
 					}
 					ImGui::EndMenu();
@@ -346,7 +374,7 @@ void Animator_Controller::Render_ImGui()
 					{
 						Add_Parameter(parameter_name, Parameter_Type::Trigger);
 						parameter_name.clear();
-						if (Auto_Save) Save_As();
+						if (auto_save) Save_As();
 						ImGui::CloseCurrentPopup();
 					}
 					ImGui::EndMenu();
@@ -370,26 +398,26 @@ void Animator_Controller::Render_ImGui()
 				case Parameter_Type::Int:
 					if (ImGui::InputInt("##int", &parameter.second.value_int))
 					{
-						if (Auto_Save) Save_As();
+						if (auto_save) Save_As();
 					}
 					break;
 				case Parameter_Type::Float:
 					if (ImGui::InputFloat("##float", &parameter.second.value_float))
 					{
-						if (Auto_Save) Save_As();
+						if (auto_save) Save_As();
 					}
 					break;
 				case Parameter_Type::Bool:
 					if (ImGui::Checkbox("##bool", &parameter.second.value_bool))
 					{
-						if (Auto_Save) Save_As();
+						if (auto_save) Save_As();
 					}
 					break;
 				case Parameter_Type::Trigger:
 					if (ImGui::RadioButton("##trigger", parameter.second.value_bool))
 					{
 						parameter.second.value_bool = !parameter.second.value_bool;
-						if (Auto_Save) Save_As();
+						if (auto_save) Save_As();
 					}
 					break;
 			}
@@ -407,7 +435,7 @@ void Animator_Controller::Render_ImGui()
 		if (erase_parameter)
 		{
 			parameters->erase(erase_key);
-			if (Auto_Save) Save_As();
+			if (auto_save) Save_As();
 		}
 		ImGui::EndChild();
 	}
@@ -469,7 +497,7 @@ void Animator_Controller::Render_ImGui()
 					}
 					current_state = state_machines[current_state_index];
 					state_name.clear();
-					if (Auto_Save) Save_As();
+					if (auto_save) Save_As();
 				}
 				ImGui::CloseCurrentPopup();
 			}
@@ -504,7 +532,7 @@ void Animator_Controller::Render_ImGui()
 						current_state.reset();
 						has_state = false;
 					}
-					if (Auto_Save) Save_As();
+					if (auto_save) Save_As();
 					ImGui::CloseCurrentPopup();
 				}
 				ImGui::SameLine();
@@ -535,7 +563,7 @@ void Animator_Controller::Render_ImGui()
 					if (!path.empty())
 					{
 						current_state->Set_Clip(path);
-						if (Auto_Save) Save_As();
+						if (auto_save) Save_As();
 					}
 				}
 
@@ -544,7 +572,7 @@ void Animator_Controller::Render_ImGui()
 				ImGui::SetNextItemWidth(-FLT_MIN);
 				if (ImGui::InputFloat("##Speed", &current_state->animation_speed))
 				{
-					if (Auto_Save) Save_As();
+					if (auto_save) Save_As();
 				}
 
 				ImGui::Indent();
@@ -553,7 +581,7 @@ void Animator_Controller::Render_ImGui()
 
 				if (ImGui::Checkbox("##Use_Multiply", &current_state->use_speed_multiplier))
 				{
-					if (Auto_Save) Save_As();
+					if (auto_save) Save_As();
 				}
 				if (current_state->use_speed_multiplier)
 				{
@@ -569,7 +597,7 @@ void Animator_Controller::Render_ImGui()
 								if (ImGui::Selectable(parameter.first.data(), is_selected))
 								{
 									current_state->multiplier_hash = parameter.first;
-									if (Auto_Save) Save_As();
+									if (auto_save) Save_As();
 								}
 
 								if (is_selected)
@@ -588,7 +616,7 @@ void Animator_Controller::Render_ImGui()
 				ImGui::SetNextItemWidth(-FLT_MIN);
 				if (ImGui::DragInt("##Start_Frame", &current_state->start_frame, 1, 0, 0, "%d", ImGuiSliderFlags_AlwaysClamp))
 				{
-					if (Auto_Save) Save_As();
+					if (auto_save) Save_As();
 				}
 
 				ImGui::Text(u8"終了フレーム");
@@ -596,21 +624,21 @@ void Animator_Controller::Render_ImGui()
 				ImGui::SetNextItemWidth(-FLT_MIN);
 				if (ImGui::DragInt("##End_Frame", &current_state->end_frame, 1, 0, 0, "%d", ImGuiSliderFlags_AlwaysClamp))
 				{
-					if (Auto_Save) Save_As();
+					if (auto_save) Save_As();
 				}
 
 				ImGui::Text(u8"ループアニメーション");
 				ImGui::SameLine(input_padding);
 				if (ImGui::Checkbox("##Loop", &current_state->is_loop_animation))
 				{
-					if (Auto_Save) Save_As();
+					if (auto_save) Save_As();
 				}
 
 				ImGui::Text(u8"デフォルトステート");
 				ImGui::SameLine(input_padding);
 				if (ImGui::Checkbox("##Default", &current_state->is_default_state))
 				{
-					if (Auto_Save) Save_As();
+					if (auto_save) Save_As();
 				}
 
 				ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
@@ -634,7 +662,7 @@ void Animator_Controller::Render_ImGui()
 							ImGui::SetNextItemWidth(window_width * 0.1f);
 							if (ImGui::InputInt("##animation_event_frame", &eve.frame))
 							{
-								if (Auto_Save) Save_As();
+								if (auto_save) Save_As();
 							}
 
 							ImGui::SameLine();
@@ -650,7 +678,7 @@ void Animator_Controller::Render_ImGui()
 									{
 										eve.key = parameter.first;
 										eve.parameter.type = parameter.second.type;
-										if (Auto_Save) Save_As();
+										if (auto_save) Save_As();
 									}
 									if (is_selected) ImGui::SetItemDefaultFocus();
 								}
@@ -666,26 +694,26 @@ void Animator_Controller::Render_ImGui()
 								case Parameter_Type::Int:
 									if (ImGui::InputInt("##animation_event_value", &eve.parameter.value_int))
 									{
-										if (Auto_Save) Save_As();
+										if (auto_save) Save_As();
 									}
 									break;
 								case Parameter_Type::Float:
 									if (ImGui::InputFloat("##animation_event_value", &eve.parameter.value_float))
 									{
-										if (Auto_Save) Save_As();
+										if (auto_save) Save_As();
 									}
 									break;
 								case Parameter_Type::Bool:
 									if (ImGui::Checkbox("##animation_event_value", &eve.parameter.value_bool))
 									{
-										if (Auto_Save) Save_As();
+										if (auto_save) Save_As();
 									}
 									break;
 								case Parameter_Type::Trigger:
 									if (ImGui::RadioButton("##animation_event_value", eve.parameter.value_bool))
 									{
 										eve.parameter.value_bool = !eve.parameter.value_bool;
-										if (Auto_Save) Save_As();
+										if (auto_save) Save_As();
 									}
 									break;
 							}
@@ -704,7 +732,7 @@ void Animator_Controller::Render_ImGui()
 						if (erase_event)
 						{
 							current_state->animation_events.erase(current_state->animation_events.begin() + erase_event_index);
-							if (Auto_Save) Save_As();
+							if (auto_save) Save_As();
 						}
 					}
 					else
@@ -717,7 +745,7 @@ void Animator_Controller::Render_ImGui()
 					if (ImGui::Button(u8"アニメーションイベント追加", ImVec2(200.0f, 0)))
 					{
 						current_state->Add_Animation_Event();
-						if (Auto_Save) Save_As();
+						if (auto_save) Save_As();
 					}
 					ImGui::Unindent();
 				}
@@ -747,7 +775,7 @@ void Animator_Controller::Render_ImGui()
 							if (ImGui::Combo("##state_condition_type", &current_state_type, state_type, IM_ARRAYSIZE(state_type)))
 							{
 								eve.type = static_cast<State_Event_Type>(current_state_type);
-								if (Auto_Save) Save_As();
+								if (auto_save) Save_As();
 							}
 
 							ImGui::SameLine();
@@ -763,7 +791,7 @@ void Animator_Controller::Render_ImGui()
 									{
 										eve.key = parameter.first;
 										eve.parameter.type = parameter.second.type;
-										if (Auto_Save) Save_As();
+										if (auto_save) Save_As();
 									}
 									if (is_selected) ImGui::SetItemDefaultFocus();
 								}
@@ -780,26 +808,26 @@ void Animator_Controller::Render_ImGui()
 								case Parameter_Type::Int:
 									if (ImGui::InputInt("##state_event_value", &eve.parameter.value_int))
 									{
-										if (Auto_Save) Save_As();
+										if (auto_save) Save_As();
 									}
 									break;
 								case Parameter_Type::Float:
 									if (ImGui::InputFloat("##state_event_value", &eve.parameter.value_float))
 									{
-										if (Auto_Save) Save_As();
+										if (auto_save) Save_As();
 									}
 									break;
 								case Parameter_Type::Bool:
 									if (ImGui::Checkbox("##state_event_value", &eve.parameter.value_bool))
 									{
-										if (Auto_Save) Save_As();
+										if (auto_save) Save_As();
 									}
 									break;
 								case Parameter_Type::Trigger:
 									if (ImGui::RadioButton("##state_event_value", eve.parameter.value_bool))
 									{
 										eve.parameter.value_bool = !eve.parameter.value_bool;
-										if (Auto_Save) Save_As();
+										if (auto_save) Save_As();
 									}
 									break;
 							}
@@ -818,7 +846,7 @@ void Animator_Controller::Render_ImGui()
 						if (erase_event)
 						{
 							current_state->state_events.erase(current_state->state_events.begin() + erase_event_index);
-							if (Auto_Save) Save_As();
+							if (auto_save) Save_As();
 						}
 					}
 					else
@@ -831,7 +859,7 @@ void Animator_Controller::Render_ImGui()
 					if (ImGui::Button(u8"ステートイベント追加", ImVec2(200.0f, 0)))
 					{
 						current_state->Add_State_Event();
-						if (Auto_Save) Save_As();
+						if (auto_save) Save_As();
 					}
 					ImGui::Unindent();
 				}
@@ -918,7 +946,7 @@ void Animator_Controller::Render_ImGui()
 							current_state->Add_Transition(state_machines[next_state_index]);
 							current_transition_index = static_cast<int>(current_state->transitions.size() - 1);
 							next_state_index = 0;
-							if (Auto_Save) Save_As();
+							if (auto_save) Save_As();
 							ImGui::CloseCurrentPopup();
 						}
 						ImGui::EndPopup();
@@ -952,7 +980,7 @@ void Animator_Controller::Render_ImGui()
 									current_transition.reset();
 									has_transition = false;
 								}
-								if (Auto_Save) Save_As();
+								if (auto_save) Save_As();
 								ImGui::CloseCurrentPopup();
 							}
 							ImGui::SameLine();
@@ -997,7 +1025,7 @@ void Animator_Controller::Render_ImGui()
 									iter_swap(current_state->transitions.begin() + current_transition_index, current_state->transitions.begin() + swap_state_index);
 									current_transition_index = swap_state_index;
 									swap_state_index = 0;
-									if (Auto_Save) Save_As();
+									if (auto_save) Save_As();
 									ImGui::CloseCurrentPopup();
 								}
 								ImGui::EndPopup();
@@ -1011,7 +1039,7 @@ void Animator_Controller::Render_ImGui()
 						ImGui::SameLine(input_padding);
 						if (ImGui::Checkbox("##exit", &current_transition->has_exit_time))
 						{
-							if (Auto_Save) Save_As();
+							if (auto_save) Save_As();
 						}
 
 						if (current_transition->has_exit_time)
@@ -1022,7 +1050,7 @@ void Animator_Controller::Render_ImGui()
 							ImGui::SetNextItemWidth(-FLT_MIN);
 							if (ImGui::InputFloat("##exit_time", &current_transition->exit_time))
 							{
-								if (Auto_Save) Save_As();
+								if (auto_save) Save_As();
 							}
 							ImGui::Unindent();
 						}
@@ -1032,7 +1060,7 @@ void Animator_Controller::Render_ImGui()
 						ImGui::SetNextItemWidth(-FLT_MIN);
 						if (ImGui::InputFloat("##Duration", &current_transition->transition_duration))
 						{
-							if (Auto_Save) Save_As();
+							if (auto_save) Save_As();
 						}
 
 						ImGui::Text(u8"遷移オフセット");
@@ -1040,7 +1068,7 @@ void Animator_Controller::Render_ImGui()
 						ImGui::SetNextItemWidth(-FLT_MIN);
 						if (ImGui::InputFloat("##offset", &current_transition->transition_offset))
 						{
-							if (Auto_Save) Save_As();
+							if (auto_save) Save_As();
 						}
 
 						ImGui::Text(u8"中断要因");
@@ -1052,7 +1080,7 @@ void Animator_Controller::Render_ImGui()
 						if (current_sources != static_cast<int>(current_transition->interruption_source))
 						{
 							current_transition->interruption_source = static_cast<Animator_State_Transition::Interruption_Source>(current_sources);
-							if (Auto_Save) Save_As();
+							if (auto_save) Save_As();
 						}
 
 						ImGui::Spacing();
@@ -1089,7 +1117,7 @@ void Animator_Controller::Render_ImGui()
 												{
 													condition->mode = Condition_Mode::If;
 												}
-												if (Auto_Save) Save_As();
+												if (auto_save) Save_As();
 											}
 
 											if (is_selected)
@@ -1121,7 +1149,7 @@ void Animator_Controller::Render_ImGui()
 													if (ImGui::Selectable(mode_char[mode_start], is_selected))
 													{
 														condition->mode = static_cast<Condition_Mode>(mode_start);
-														if (Auto_Save) Save_As();
+														if (auto_save) Save_As();
 													}
 													if (is_selected) ImGui::SetItemDefaultFocus();
 												}
@@ -1136,7 +1164,7 @@ void Animator_Controller::Render_ImGui()
 												if (ImGui::InputInt("##Input_Int", &threshold))
 												{
 													condition->threshold = static_cast<float>(threshold);
-													if (Auto_Save) Save_As();
+													if (auto_save) Save_As();
 												}
 											}
 											else if (it->second.type == Parameter_Type::Float)
@@ -1145,7 +1173,7 @@ void Animator_Controller::Render_ImGui()
 												ImGui::SetNextItemWidth(window_width * 0.2f);
 												if (ImGui::InputFloat("##Input_Float", &condition->threshold))
 												{
-													if (Auto_Save) Save_As();
+													if (auto_save) Save_As();
 												}
 											}
 										}
@@ -1165,7 +1193,7 @@ void Animator_Controller::Render_ImGui()
 								if (erase_condition)
 								{
 									current_transition->conditions.erase(current_transition->conditions.begin() + erase_condition_index);
-									if (Auto_Save) Save_As();
+									if (auto_save) Save_As();
 								}
 							}
 							else
@@ -1186,7 +1214,7 @@ void Animator_Controller::Render_ImGui()
 										mode = Condition_Mode::If;
 									}
 									current_transition->Add_Condition(it->first, it->second.type, mode, 0.0f);
-									if (Auto_Save) Save_As();
+									if (auto_save) Save_As();
 								}
 							}
 						}

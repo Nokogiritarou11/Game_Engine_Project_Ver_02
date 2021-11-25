@@ -8,17 +8,15 @@ shared_ptr<Component_Factory::map_type> Component_Factory::map;
 
 bool Component::Compare_Tag(const string& tag) const
 {
-	if (gameobject->tag == tag)
-	{
-		return true;
-	}
-	return false;
+	return gameobject->tag == tag;
 }
 
 shared_ptr<Component> Component::Add_Component(const string& class_name)
 {
+	//ファクトリークラスから名前でコンポーネントを生成する
 	if (shared_ptr<Component> buff = Component_Factory::Create_Instance(class_name))
 	{
+		//複数アタッチできるか
 		if (buff->Can_Multiple())
 		{
 			buff->Initialize(static_pointer_cast<GameObject>(shared_from_this()));
@@ -35,6 +33,7 @@ shared_ptr<Component> Component::Add_Component(const string& class_name)
 				break;
 			}
 		}
+		//既にアタッチされているか
 		if (!already_attach)
 		{
 			buff->Initialize(static_pointer_cast<GameObject>(shared_from_this()));

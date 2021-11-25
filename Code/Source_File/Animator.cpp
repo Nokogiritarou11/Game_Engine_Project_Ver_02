@@ -14,10 +14,12 @@ using namespace BeastEngine;
 
 void Animator::Initialize(const shared_ptr<GameObject>& obj)
 {
+	//アセットマネージャーへの登録とComponentの初期化
 	Engine::asset_manager->Registration_Asset(shared_from_this());
 	gameobject = obj;
 	transform = obj->transform;
 
+	//アタッチされたコントローラを読み込む
 	if (!controller_path.empty())
 	{
 		controller = Animator_Controller::Load_Animator_Controller(controller_path);
@@ -36,14 +38,11 @@ void Animator::Set_Active(const bool value)
 			{
 				if (!is_called)
 				{
+					//初回のみマネージャーに登録
 					Engine::animator_manager->Add(static_pointer_cast<Animator>(shared_from_this()));
 					is_called = true;
-					Activate();
 				}
-				else
-				{
-					Activate();
-				}
+				Activate();
 			}
 		}
 	}
@@ -60,6 +59,7 @@ void Animator::Activate()
 		is_playing = true;
 		Set_Default_Pose();
 
+		//リセット用のパラメーターをコピー
 		if (init_parameter.empty())
 		{
 			init_parameter = *controller->parameters.get();
@@ -73,6 +73,7 @@ void Animator::Inactivate()
 	{
 		is_playing = false;
 
+		//リセット処理
 		if (!keep_state_on_disable)
 		{
 			*controller->parameters.get() = init_parameter;
@@ -87,6 +88,7 @@ void Animator::Set_Default_Pose()
 	{
 		if (state->clip)
 		{
+			//各アニメーション対象の現在の姿勢を保存する
 			for (auto& anim : state->clip->animations)
 			{
 				if (const auto& t_trans = transform->Find(anim.target_path).lock())
@@ -107,6 +109,7 @@ void Animator::Set_Default_Pose()
 
 void Animator::Set_Int(const string& key, const int& value) const
 {
+	//Int型かどうか確認してから書き換える
 	if (const auto it = controller->parameters->find(key); it != controller->parameters->end())
 	{
 		if (it->second.type == Parameter_Type::Int)
@@ -115,12 +118,17 @@ void Animator::Set_Int(const string& key, const int& value) const
 		}
 		else
 		{
-			Debug::Log(u8"指定したアニメーションパラメーターが見つかりません");
+			Debug::Log(u8"指定したアニメーションパラメーターと型が一致しません");
 		}
+	}
+	else
+	{
+		Debug::Log(u8"指定したアニメーションパラメーターが見つかりません");
 	}
 }
 void Animator::Set_Float(const string& key, const float& value) const
 {
+	//Float型かどうか確認してから書き換える
 	if (const auto it = controller->parameters->find(key); it != controller->parameters->end())
 	{
 		if (it->second.type == Parameter_Type::Float)
@@ -129,12 +137,17 @@ void Animator::Set_Float(const string& key, const float& value) const
 		}
 		else
 		{
-			Debug::Log(u8"指定したアニメーションパラメーターが見つかりません");
+			Debug::Log(u8"指定したアニメーションパラメーターと型が一致しません");
 		}
+	}
+	else
+	{
+		Debug::Log(u8"指定したアニメーションパラメーターが見つかりません");
 	}
 }
 void Animator::Set_Bool(const string& key, const bool& value) const
 {
+	//Bool型かどうか確認してから書き換える
 	if (const auto it = controller->parameters->find(key); it != controller->parameters->end())
 	{
 		if (it->second.type == Parameter_Type::Bool)
@@ -143,12 +156,17 @@ void Animator::Set_Bool(const string& key, const bool& value) const
 		}
 		else
 		{
-			Debug::Log(u8"指定したアニメーションパラメーターが見つかりません");
+			Debug::Log(u8"指定したアニメーションパラメーターと型が一致しません");
 		}
+	}
+	else
+	{
+		Debug::Log(u8"指定したアニメーションパラメーターが見つかりません");
 	}
 }
 void Animator::Set_Trigger(const string& key) const
 {
+	//Trigger型かどうか確認してから書き換える
 	if (const auto it = controller->parameters->find(key); it != controller->parameters->end())
 	{
 		if (it->second.type == Parameter_Type::Trigger)
@@ -157,44 +175,78 @@ void Animator::Set_Trigger(const string& key) const
 		}
 		else
 		{
-			Debug::Log(u8"指定したアニメーションパラメーターが見つかりません");
+			Debug::Log(u8"指定したアニメーションパラメーターと型が一致しません");
 		}
+	}
+	else
+	{
+		Debug::Log(u8"指定したアニメーションパラメーターが見つかりません");
 	}
 }
 
 int Animator::Get_Int(const string& key) const
 {
+	//Int型かどうか確認してから取得する
 	if (const auto it = controller->parameters->find(key); it != controller->parameters->end())
 	{
 		if (it->second.type == Parameter_Type::Int)
 		{
 			return it->second.value_int;
 		}
+		else
+		{
+			Debug::Log(u8"指定したアニメーションパラメーターと型が一致しません");
+		}
 	}
+	else
+	{
+		Debug::Log(u8"指定したアニメーションパラメーターが見つかりません");
+	}
+
 	return 0;
 }
 
 float Animator::Get_Float(const string& key) const
 {
+	//Float型かどうか確認してから取得する
 	if (const auto it = controller->parameters->find(key); it != controller->parameters->end())
 	{
 		if (it->second.type == Parameter_Type::Float)
 		{
 			return it->second.value_float;
 		}
+		else
+		{
+			Debug::Log(u8"指定したアニメーションパラメーターと型が一致しません");
+		}
 	}
+	else
+	{
+		Debug::Log(u8"指定したアニメーションパラメーターが見つかりません");
+	}
+
 	return 0;
 }
 
 bool Animator::Get_Bool(const string& key) const
 {
+	//Bool型かどうか確認してから取得する
 	if (const auto it = controller->parameters->find(key); it != controller->parameters->end())
 	{
 		if (it->second.type == Parameter_Type::Bool)
 		{
 			return it->second.value_bool;
 		}
+		else
+		{
+			Debug::Log(u8"指定したアニメーションパラメーターと型が一致しません");
+		}
 	}
+	else
+	{
+		Debug::Log(u8"指定したアニメーションパラメーターが見つかりません");
+	}
+
 	return false;
 }
 
@@ -202,7 +254,18 @@ void Animator::Reset_Trigger(const string& key) const
 {
 	if (const auto it = controller->parameters->find(key); it != controller->parameters->end())
 	{
-		it->second.value_bool = false;
+		if (it->second.type == Parameter_Type::Trigger)
+		{
+			it->second.value_bool = false;
+		}
+		else
+		{
+			Debug::Log(u8"指定したアニメーションパラメーターと型が一致しません");
+		}
+	}
+	else
+	{
+		Debug::Log(u8"指定したアニメーションパラメーターが見つかりません");
 	}
 }
 
@@ -213,6 +276,7 @@ void Animator::Update()
 
 	controller->Update(speed);
 
+	//遷移割り込みの状態によって挙動を変更
 	switch (controller->interrupt_state)
 	{
 		case 1:
@@ -227,12 +291,15 @@ void Animator::Update()
 			break;
 	}
 
+	//姿勢の初期化
 	pose_playing = pose_default;
 	pose_next = pose_default;
 	animation_data = pose_default;
 
+	//遷移中かどうかで分岐
 	if (controller->next_state_machine)
 	{
+		//遷移元の姿勢を算出
 		const float& current_sec = controller->playing_state_machine->current_seconds;
 		for (auto& animation : controller->playing_state_machine->clip->animations)
 		{
@@ -261,6 +328,7 @@ void Animator::Update()
 				}
 			}
 
+			//再生が終わった場合、最終フレームの姿勢を維持
 			if (is_end_frame)
 			{
 				const Animation_Clip::Keyframe& last_keyframe = keyframes[key_count - 1];
@@ -271,6 +339,7 @@ void Animator::Update()
 			}
 		}
 
+		//遷移先の姿勢を算出
 		const float& next_sec = controller->next_state_machine->current_seconds;
 		for (auto& animation : controller->next_state_machine->clip->animations)
 		{
@@ -299,6 +368,7 @@ void Animator::Update()
 				}
 			}
 
+			//再生が終わった場合、最終フレームの姿勢を維持
 			if (is_end_frame)
 			{
 				const Animation_Clip::Keyframe& last_keyframe = keyframes[key_count - 1];
@@ -309,6 +379,7 @@ void Animator::Update()
 			}
 		}
 
+		//ブレンド度合いの算出
 		float rate;
 		if (controller->active_transition->transition_duration)
 		{
@@ -319,6 +390,7 @@ void Animator::Update()
 			rate = 1;
 		}
 
+		//ブレンド後の姿勢を算出
 		for (auto& data : animation_data)
 		{
 			const Animation_Target& playing = pose_playing[data.first];
@@ -327,6 +399,8 @@ void Animator::Update()
 			data.second.rotation = Quaternion::Slerp(playing.rotation, next.rotation, rate);
 			data.second.scale = Vector3::Lerp(playing.scale, next.scale, rate);
 		}
+
+		//割り込みの場合のブレンド
 		if (!pose_interrupt.empty())
 		{
 			for (auto& data : animation_data)
@@ -341,6 +415,7 @@ void Animator::Update()
 	}
 	else
 	{
+		//アニメーションを算出する
 		const float& current_sec = controller->playing_state_machine->current_seconds;
 		for (auto& animation : controller->playing_state_machine->clip->animations)
 		{
@@ -369,6 +444,7 @@ void Animator::Update()
 				}
 			}
 
+			//再生が終わった場合、最終フレームの姿勢を維持
 			if (is_end_frame)
 			{
 				const auto& last_keyframe = keyframes[key_count - 1];
@@ -381,6 +457,7 @@ void Animator::Update()
 		animation_data = pose_playing;
 	}
 
+	//アニメーションを適応
 	for (auto& data : animation_data)
 	{
 		auto& anim = data.second;

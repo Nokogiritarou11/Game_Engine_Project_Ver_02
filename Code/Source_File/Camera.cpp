@@ -12,21 +12,24 @@ using namespace std;
 
 void Camera::Initialize(const shared_ptr<GameObject>& obj)
 {
-	gameobject = obj;
+	//アセットマネージャーへの登録とComponentの初期化
 	Engine::asset_manager->Registration_Asset(shared_from_this());
+	gameobject = obj;
 	transform = obj->transform;
+
 	Engine::render_manager->Add(static_pointer_cast<Camera>(shared_from_this()));
 	DxSystem::device_context->RSGetViewports(&num_viewports, &viewport);
 }
 
 void Camera::Update(const float screen_x, const float screen_y)
 {
-	// プロジェクション行列を作成
+	// ReverseZ行列
 	static constexpr Matrix reverse = { 1,0,0,0,
-									0,1,0,0,
-									0,0,-1,0,
-									0,0,1,1 };
+										0,1,0,0,
+										0,0,-1,0,
+										0,0,1,1 };
 
+	// プロジェクション行列を作成
 	if (is_orthographic)
 	{
 		projection_matrix = XMMatrixOrthographicRH(orthographic_size, orthographic_size, near_z, far_z);
@@ -34,7 +37,7 @@ void Camera::Update(const float screen_x, const float screen_y)
 	}
 	else
 	{
-		const float fov_y = XMConvertToRadians(fov);	// 画角
+		const float fov_y = XMConvertToRadians(fov);// 画角
 		const float aspect = screen_x / screen_y;	// 画面比率
 		projection_matrix = XMMatrixPerspectiveFovRH(fov_y, aspect, near_z, far_z);
 		projection_matrix = projection_matrix * reverse;
@@ -54,49 +57,44 @@ void Camera::Update(const float screen_x, const float screen_y)
 
 	view_projection_matrix = view_matrix * projection_matrix;
 
-	// Left Frustum Plane
-	// Add first column of the matrix to the fourth column
+	//視錐台化リング用のPlaneを作成
+	//左
 	frustum_planes[0].x = view_projection_matrix._14 + view_projection_matrix._11;
 	frustum_planes[0].y = view_projection_matrix._24 + view_projection_matrix._21;
 	frustum_planes[0].z = view_projection_matrix._34 + view_projection_matrix._31;
 	frustum_planes[0].w = view_projection_matrix._44 + view_projection_matrix._41;
 
-	// Right Frustum Plane
-	// Subtract first column of matrix from the fourth column
+	//右
 	frustum_planes[1].x = view_projection_matrix._14 - view_projection_matrix._11;
 	frustum_planes[1].y = view_projection_matrix._24 - view_projection_matrix._21;
 	frustum_planes[1].z = view_projection_matrix._34 - view_projection_matrix._31;
 	frustum_planes[1].w = view_projection_matrix._44 - view_projection_matrix._41;
 
-	// Top Frustum Plane
-	// Subtract second column of matrix from the fourth column
+	//上
 	frustum_planes[2].x = view_projection_matrix._14 - view_projection_matrix._12;
 	frustum_planes[2].y = view_projection_matrix._24 - view_projection_matrix._22;
 	frustum_planes[2].z = view_projection_matrix._34 - view_projection_matrix._32;
 	frustum_planes[2].w = view_projection_matrix._44 - view_projection_matrix._42;
 
-	// Bottom Frustum Plane
-	// Add second column of the matrix to the fourth column
+	//下
 	frustum_planes[3].x = view_projection_matrix._14 + view_projection_matrix._12;
 	frustum_planes[3].y = view_projection_matrix._24 + view_projection_matrix._22;
 	frustum_planes[3].z = view_projection_matrix._34 + view_projection_matrix._32;
 	frustum_planes[3].w = view_projection_matrix._44 + view_projection_matrix._42;
 
-	// Near Frustum Plane
-	// We could add the third column to the fourth column to get the near plane,
-	// but we don't have to do this because the third column IS the near plane
+	//Near
 	frustum_planes[4].x = view_projection_matrix._13;
 	frustum_planes[4].y = view_projection_matrix._23;
 	frustum_planes[4].z = view_projection_matrix._33;
 	frustum_planes[4].w = view_projection_matrix._43;
 
-	// Far Frustum Plane
-	// Subtract third column of matrix from the fourth column
+	//Far
 	frustum_planes[5].x = view_projection_matrix._14 - view_projection_matrix._13;
 	frustum_planes[5].y = view_projection_matrix._24 - view_projection_matrix._23;
 	frustum_planes[5].z = view_projection_matrix._34 - view_projection_matrix._33;
 	frustum_planes[5].w = view_projection_matrix._44 - view_projection_matrix._43;
 
+	//正規化
 	for (size_t i = 0; i < 6; ++i)
 	{
 		const float length = sqrt((frustum_planes[i].x * frustum_planes[i].x) + (frustum_planes[i].y * frustum_planes[i].y) + (frustum_planes[i].z * frustum_planes[i].z));

@@ -8,6 +8,21 @@
 using namespace BeastEngine;
 using namespace std;
 
+void Collider::Initialize(const shared_ptr<GameObject>& obj)
+{
+	//アセットマネージャーへの登録とComponentの初期化
+	gameobject = obj;
+	Engine::asset_manager->Registration_Asset(shared_from_this());
+	transform = obj->transform;
+
+	//コライダーの作成
+	Create_Shape();
+	Create_Collider();
+	Rescale_Shape();
+
+	Set_Active(gameobject->Get_Active_In_Hierarchy());
+}
+
 void Collider::Set_Enabled(const bool value)
 {
 	if (value != enabled_old)
@@ -33,6 +48,7 @@ void Collider::Set_Active(const bool value)
 			{
 				if (!is_called)
 				{
+					//初回のみコールバックを登録する
 					Initialize_MonoBehaviour();
 					is_called = true;
 				}
@@ -53,19 +69,23 @@ void Collider::Set_Active(const bool value)
 		disabled = true;
 	}
 
-	if (disabled != disabled_old)
+	//変更時のトリガー
+	if (disabled_old != disabled)
 	{
 		disabled_old = disabled;
 		if (disabled)
 		{
+			//削除
 			if (is_trigger) ghost->Remove();
 			else rigidbody->Remove();
+
 			shape.reset();
 			hit_list_old.clear();
 			hit_list.clear();
 		}
 		else
 		{
+			//作成
 			Create_Shape();
 			Create_Collider();
 			Rescale_Shape();
@@ -96,7 +116,7 @@ void Collider::Create_Collider()
 		rigidbody->Initialize(static_pointer_cast<Collider>(shared_from_this()));
 	}
 
-	//デバッグ表示可否
+	//デバッグ表示可否を登録
 	Set_Debug_Draw(debug_drawed);
 }
 
@@ -116,6 +136,7 @@ void Collider::Reset_Collider()
 
 void Collider::Set_IsTrigger(bool value)
 {
+	//既に生成されているものを変更できないので再生成
 	if (is_trigger != value)
 	{
 		is_trigger = value;
@@ -123,21 +144,9 @@ void Collider::Set_IsTrigger(bool value)
 	}
 }
 
-void Collider::Initialize(const shared_ptr<GameObject>& obj)
-{
-	gameobject = obj;
-	Engine::asset_manager->Registration_Asset(shared_from_this());
-	transform = obj->transform;
-
-	Create_Shape();
-	Create_Collider();
-	Rescale_Shape();
-
-	Set_Active(gameobject->Get_Active_In_Hierarchy());
-}
-
 void Collider::Initialize_MonoBehaviour()
 {
+	//自身のゲームオブジェクトにアタッチされているMonoBehaviourを登録する
 	for (auto& com : gameobject->component_list)
 	{
 		if (const auto& buff = dynamic_pointer_cast<MonoBehaviour>(com); buff != nullptr)
@@ -150,6 +159,7 @@ void Collider::Initialize_MonoBehaviour()
 void Collider::Rescale_Shape() const
 {
 	const Vector3 scale = transform->Get_Scale();
+	//重いので変更時のみ
 	if (const btVector3 bt_scale(scale.x, scale.y, scale.z); shape->getLocalScaling() != bt_scale)
 	{
 		shape->setLocalScaling(bt_scale);
@@ -161,6 +171,7 @@ void Collider::Rescale_Shape() const
 void Collider::Call_Hit(Collision& collision)
 {
 	const string& id = collision.collider->Get_Instance_Id();
+	//前フレームでも衝突していた場合はStay、していない場合はEnterを呼び出す
 	if (const auto it = hit_list_old.find(id); it == hit_list_old.end())
 	{
 		hit_list[id] = collision.collider;
@@ -182,6 +193,7 @@ void Collider::Update_Transform()
 
 	Rescale_Shape();
 
+	//重いので変更時のみ
 	if (position_old != pos || rotation_old != rot)
 	{
 		position_old = pos;
@@ -207,6 +219,7 @@ void Collider::Update_Simulation()
 		pos -= ((transform->Get_Left() * center.x) + (transform->Get_Up() * center.y) + (transform->Get_Forward() * center.z));
 		const Quaternion rot = { q.x(), q.y(), q.z(), q.w() };
 
+		//重いので変更時のみ
 		if (position_old != pos || rotation_old != rot)
 		{
 			position_old = pos;
@@ -216,16 +229,18 @@ void Collider::Update_Simulation()
 		}
 	}
 
+	//前フレームと比較して離れていた場合Exitを呼ぶ
 	for (auto& hit : hit_list_old)
 	{
 		if (auto it = hit_list.find(hit.first); it == hit_list.end())
 		{
-			const shared_ptr<Collider> col = hit.second.lock();
+			const auto& col = hit.second.lock();
 			Collision collision = { col, col->gameobject, col->transform };
 			if (is_trigger) Call_OnTrigger_Exit(collision);
 			else Call_OnCollision_Exit(collision);
 		}
 	}
+	//キャッシュの作成更新
 	hit_list_old = hit_list;
 	hit_list.clear();
 }

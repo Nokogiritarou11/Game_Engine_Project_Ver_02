@@ -12,11 +12,12 @@ void Animator_State_Transition::Initialize(const std::shared_ptr<std::unordered_
 
 bool Animator_State_Transition::Check_Transition()
 {
+	//遷移条件に合致するかチェック
+	//条件を満たす場合その時点で切り上げ(遷移に優先順位を付けるため)
 	bool exit = true;
 	for (const auto& condition : conditions)
 	{
-		auto it = parameters->find(condition->key);
-		if (it != parameters->end())
+		if (auto it = parameters->find(condition->key); it != parameters->end())
 		{
 			switch (condition->mode)
 			{
@@ -93,12 +94,12 @@ bool Animator_State_Transition::Check_Transition()
 
 void Animator_State_Transition::Activate()
 {
+	//Trigger型のパラメータが設定されていた場合リセット
 	for (const auto& condition : conditions)
 	{
 		if (condition->type == Parameter_Type::Trigger)
 		{
-			auto it = parameters->find(condition->key);
-			if (it != parameters->end())
+			if (auto it = parameters->find(condition->key); it != parameters->end())
 			{
 				it->second.value_bool = false;
 			}
@@ -108,7 +109,7 @@ void Animator_State_Transition::Activate()
 
 void Animator_State_Transition::Add_Condition(const string& key, const Parameter_Type type, const Condition_Mode mode, const float threshold)
 {
-	shared_ptr<Condition> condition = make_shared<Condition>();
+	auto condition = make_shared<Condition>();
 	condition->key = key;
 	condition->type = type;
 	condition->mode = mode;

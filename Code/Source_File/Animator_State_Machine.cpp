@@ -7,12 +7,15 @@ using namespace BeastEngine;
 
 void Animator_State_Machine::Initialize(const shared_ptr<unordered_map<string, Animation_Parameter>>& p_parameters)
 {
+	//コントローラー内のパラメータのポインタをコピー
 	parameters = p_parameters;
 
+	//アニメーションクリップをセット
 	if (!path.empty())
 	{
 		Set_Clip(path);
 	}
+	//各遷移にもパラメータポインタを渡す
 	for (const auto& transition : transitions)
 	{
 		transition->parameters = p_parameters;
@@ -21,6 +24,7 @@ void Animator_State_Machine::Initialize(const shared_ptr<unordered_map<string, A
 
 void Animator_State_Machine::Reset()
 {
+	//各パラメータのリセット
 	transition_trigger = false;
 	active_transition.reset();
 	is_end_animation = false;
@@ -41,6 +45,7 @@ void Animator_State_Machine::Set_Clip(const string& full_path)
 {
 	if (const auto& new_clip = Animation_Clip::Load_Clip(full_path))
 	{
+		//週雨量フレームを設定
 		if (clip)
 		{
 			end_frame = -1;
@@ -57,11 +62,13 @@ void Animator_State_Machine::Set_Clip(const string& full_path)
 
 void Animator_State_Machine::Activate(float transition_offset)
 {
+	//再生開始処理
 	is_end_animation = false;
 	const float end_sec = static_cast<float>(end_frame) * 0.0166666666666667f;
 	const float start_sec = static_cast<float>(start_frame) * 0.0166666666666667f;
 	current_seconds = transition_offset * (end_sec - start_sec) + start_sec;
 
+	//ステートイベントの実行
 	for (auto& eve : state_events)
 	{
 		if (eve.type == State_Event_Type::Enter)
@@ -126,8 +133,10 @@ void Animator_State_Machine::Activate(float transition_offset)
 
 void Animator_State_Machine::Exit()
 {
+	//再生終了時の処理
 	Reset();
 
+	//ステートイベントの実行
 	for (auto& eve : state_events)
 	{
 		if (eve.type == State_Event_Type::Exit)
@@ -194,6 +203,7 @@ void Animator_State_Machine::Update_Transition()
 {
 	bool exit = false;
 	size_t i = 0;
+	//遷移条件をチェックし、該当する場合はその時点で切り上げ
 	for (const auto& transition : transitions)
 	{
 		if (transition->has_exit_time)
@@ -244,6 +254,7 @@ void Animator_State_Machine::Update_Time(const float& speed)
 	}
 	current_seconds += Time::delta_time * animation_speed * multiplier;
 
+	//終了時間のチェック
 	for (const auto& transition : transitions)
 	{
 		if (transition->has_exit_time && !transition->exit_called && current_seconds >= end_sec * transition->exit_time)
@@ -252,6 +263,7 @@ void Animator_State_Machine::Update_Time(const float& speed)
 		}
 	}
 
+	//アニメーションイベントのチェック
 	for (auto& eve : animation_events)
 	{
 		const float frame_time = eve.frame * 0.0166666666666667f;
@@ -315,6 +327,7 @@ void Animator_State_Machine::Update_Time(const float& speed)
 		}
 	}
 
+	//終了フレームを超えた場合の処理
 	if (current_seconds >= end_sec)
 	{
 		for (const auto& transition : transitions)
@@ -328,6 +341,7 @@ void Animator_State_Machine::Update_Time(const float& speed)
 
 		if (is_loop_animation)
 		{
+			//ループ時は最終フレームを超えた分から再生し直す
 			const float start_sec = static_cast<float>(start_frame) * 0.0166666666666667f;
 			current_seconds -= (end_sec - start_sec);
 		}
@@ -341,7 +355,7 @@ void Animator_State_Machine::Update_Time(const float& speed)
 
 void Animator_State_Machine::Add_Transition(shared_ptr<Animator_State_Machine>& next_state)
 {
-	shared_ptr<Animator_State_Transition> transition = make_shared<Animator_State_Transition>();
+	auto transition = make_shared<Animator_State_Transition>();
 	transition->Initialize(parameters, next_state);
 	transitions.emplace_back(transition);
 }
@@ -353,14 +367,12 @@ void Animator_State_Machine::Remove_Transition(int index)
 
 void Animator_State_Machine::Add_Animation_Event()
 {
-	Animation_Event eve = {};
-	animation_events.emplace_back(eve);
+	animation_events.emplace_back(Animation_Event{});
 }
 
 void Animator_State_Machine::Add_State_Event()
 {
-	State_Event eve = {};
-	state_events.emplace_back(eve);
+	state_events.emplace_back(State_Event{});
 }
 
 shared_ptr<Animator_State_Transition> Animator_State_Machine::Get_Active_Transition() const

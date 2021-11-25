@@ -28,7 +28,6 @@ namespace BeastEngine
 		float jump_power = 0;
 		float down_power = 0;
 		bool is_stay_air = false;
-		bool is_add_down = false;
 
 		// シリアライズ関数
 		friend class cereal::access;
