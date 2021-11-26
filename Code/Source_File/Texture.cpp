@@ -14,7 +14,7 @@ using namespace std;
 using namespace DirectX;
 using namespace BeastEngine;
 
-shared_ptr<Texture> Texture::Load(const string& texture_path)
+shared_ptr<Texture> Texture::Load(const string& texture_path, const u_int& texture_flg)
 {
 	HRESULT hr = S_OK;
 
@@ -33,10 +33,10 @@ shared_ptr<Texture> Texture::Load(const string& texture_path)
 
 	TexMetadata metadata{};
 	ScratchImage image;
-	u_int texture_flg = 0;
 
 	std::wstring extension = PathFindExtensionW(FileName);
 	std::transform(extension.begin(), extension.end(), extension.begin(), ::towlower);
+	//以下はサンプルからのコピペ
 	//WIC includes several built - in codecs.The following standard codecs are provided with the platform.
 	//	Codec																	Mime Types								Decoders	Encoders
 	//	BMP(Windows Bitmap Format), BMP Specification v5.						image / bmp								Yes			Yes
@@ -55,7 +55,6 @@ shared_ptr<Texture> Texture::Load(const string& texture_path)
 	else if (L".dds" == extension)
 	{
 		hr = LoadFromDDSFile(FileName, DDS_FLAGS::DDS_FLAGS_NONE, &metadata, image);
-		texture_flg = D3D11_RESOURCE_MISC_TEXTURECUBE;
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
 	else if (L".tga" == extension || L".vda" == extension || L".icb" == extension || L".vst" == extension)

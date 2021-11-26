@@ -11,6 +11,7 @@ void Sphere_Collider::Create_Shape()
 
 void Sphere_Collider::Set_Radius(float new_radius)
 {
+	//d‚¢‚Ì‚Å•ÏX‚Ì‚İ
 	if (radius != new_radius)
 	{
 		radius = new_radius;

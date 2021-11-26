@@ -41,6 +41,7 @@ Render_Manager::Render_Manager()
 	const HRESULT hr = DxSystem::device->CreateBuffer(&bd, nullptr, constant_buffer_scene.GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
+	//シーンビュー内のカメラ生成
 	shadow_camera_transform = make_shared<Transform>();
 	Engine::asset_manager->Registration_Asset(shadow_camera_transform);
 	shadow_camera = make_shared<Camera>();
@@ -50,7 +51,7 @@ Render_Manager::Render_Manager()
 	shadow_camera->far_z = 60;
 	shadow_camera->near_z = 10;
 
-	//デフォルトマテリアル
+	//スプライト用のデフォルトマテリアル作成
 	sprite_material = Material::Create("Shader\\2D_Shader_VS.hlsl", "Shader\\2D_Shader_PS.hlsl");
 	sprite_material->Set_Blend_State(BS_State::Alpha);
 	sprite_material->Set_Rasterizer_State(RS_State::Cull_None);
@@ -99,7 +100,7 @@ void Render_Manager::Add(const shared_ptr<Camera>& mono)
 
 void Render_Manager::Check_Renderer()
 {
-	//3Dオブジェクト
+	//3Dオブジェクトの生存確認
 	{
 		bool expired = false;
 		for (auto& r : renderer_3D_list)
@@ -119,7 +120,7 @@ void Render_Manager::Check_Renderer()
 			renderer_3D_list.erase(removeIt, renderer_3D_list.end());
 		}
 	}
-	//2Dオブジェクト
+	//2Dオブジェクトの生存確認
 	{
 		bool expired = false;
 		for (auto& r : renderer_2D_list)
@@ -145,21 +146,29 @@ void Render_Manager::Culling_Renderer(const Vector3& view_pos, const array<Vecto
 {
 	for (auto& r : renderer_3D_list)
 	{
-		const auto& p_rend = r.lock();
-		if (p_rend->can_render)
+		if (const auto& p_rend = r.lock(); p_rend->can_render)
 		{
-			if (!p_rend->bounds.Get_Is_Culling_Frustum(p_rend->transform, planes))
+			//アクティブなもののみ
+			if (p_rend->gameobject->Get_Active_In_Hierarchy())
 			{
-				for (int i = 0; i < p_rend->subset_count; ++i)
+				if (p_rend->Get_Enabled())
 				{
-					Render_Obj obj = { r, i, p_rend->material[p_rend->subset_material_index[i]]->render_queue, Vector3::DistanceSquared(p_rend->transform->Get_Position(), view_pos) };
-					if (p_rend->material[p_rend->subset_material_index[i]]->render_queue >= 2500)
+					//視錐台カリング
+					if (!p_rend->bounds.Get_Is_Culling_Frustum(p_rend->transform, planes))
 					{
-						alpha_list.emplace_back(obj);
-					}
-					else
-					{
-						opaque_list.emplace_back(obj);
+						for (int i = 0; i < p_rend->subset_count; ++i)
+						{
+							Render_Obj obj = { r, i, p_rend->material[p_rend->subset_material_index[i]]->render_queue, Vector3::DistanceSquared(p_rend->transform->Get_Position(), view_pos) };
+							//半透明なものは後回しに
+							if (p_rend->material[p_rend->subset_material_index[i]]->render_queue >= 2500)
+							{
+								alpha_list.emplace_back(obj);
+							}
+							else
+							{
+								opaque_list.emplace_back(obj);
+							}
+						}
 					}
 				}
 			}
@@ -169,6 +178,7 @@ void Render_Manager::Culling_Renderer(const Vector3& view_pos, const array<Vecto
 
 void Render_Manager::Sort_Renderer()
 {
+	//カメラからの距離とレンダーキューでソートする
 	sort(alpha_list.begin(), alpha_list.end(), [](const Render_Obj& a, const Render_Obj& b) {return (a.queue == b.queue) ? (a.z_distance > b.z_distance) : (a.queue < b.queue); });
 	sort(opaque_list.begin(), opaque_list.end(), [](const Render_Obj& a, const Render_Obj& b) {return (a.queue == b.queue) ? (a.z_distance < b.z_distance) : (a.queue < b.queue); });
 }
@@ -282,27 +292,14 @@ void Render_Manager::Render_3D(const shared_ptr<Camera>& camera)
 
 	for (auto& r : opaque_list)
 	{
-		const auto& p_rend = r.renderer.lock();
-		if (p_rend->gameobject->Get_Active_In_Hierarchy())
-		{
-			if (p_rend->Get_Enabled())
-			{
-				p_rend->Render(r.subset_number);
-			}
-		}
+		r.renderer.lock()->Render(r.subset_number);
 	}
 
 	for (auto& r : alpha_list)
 	{
-		const auto& p_rend = r.renderer.lock();
-		if (p_rend->gameobject->Get_Active_In_Hierarchy())
-		{
-			if (p_rend->Get_Enabled())
-			{
-				p_rend->Render();
-			}
-		}
+		r.renderer.lock()->Render();
 	}
+
 	opaque_list.clear();
 	alpha_list.clear();
 }
@@ -360,12 +357,14 @@ void Render_Manager::Render_Shadow(const shared_ptr<Transform>& camera_transform
 
 void Render_Manager::Render_Shadow_Directional(const Vector3& color, const float& intensity, const shared_ptr<Transform>& light_transform, const shared_ptr<Transform>& camera_transform)
 {
+	//シャドウ描画用カメラ姿勢設定
 	shadow_camera->orthographic_size = Engine::shadow_manager->shadow_distance;
-	const Vector3 Look_pos = camera_transform->Get_Position() + camera_transform->Get_Forward() * (Engine::shadow_manager->shadow_distance * 0.5f); shadow_camera->transform->Set_Position(Look_pos - light_transform->Get_Forward() * 50.0f);
-	shadow_camera->transform->Set_Rotation(shadow_camera->transform->Look_At(Look_pos));
+	const Vector3 look_pos = camera_transform->Get_Position() + camera_transform->Get_Forward() * (Engine::shadow_manager->shadow_distance * 0.5f); shadow_camera->transform->Set_Position(look_pos - light_transform->Get_Forward() * 50.0f);
+	shadow_camera->transform->Set_Rotation(shadow_camera->transform->Look_At(look_pos));
 	shadow_camera->Update(0, 0);
 
 	buffer_scene.view_projection_matrix = shadow_camera->view_projection_matrix;
+	//VSMの行列
 	static constexpr Matrix SHADOW_BIAS = {
 		0.5f, 0.0f, 0.0f, 0.0f,
 		0.0f, -0.5f, 0.0f, 0.0f,
@@ -373,6 +372,7 @@ void Render_Manager::Render_Shadow_Directional(const Vector3& color, const float
 		0.5f, 0.5f, 0.0f, 1.0f };
 	buffer_scene.shadow_matrix = shadow_camera->view_projection_matrix * SHADOW_BIAS;
 
+	//コンスタントバッファ更新
 	const Vector3& pos = shadow_camera->transform->Get_Position();
 	buffer_scene.camera_position = Vector4(pos.x, pos.y, pos.z, 0);
 	const Vector3& dir = shadow_camera->transform->Get_Forward();
@@ -394,6 +394,7 @@ void Render_Manager::Render_Shadow_Directional(const Vector3& color, const float
 	Culling_Renderer(shadow_camera->transform->Get_Position(), shadow_camera->frustum_planes);
 	Sort_Renderer();
 
+	//描画実行
 	for (auto& r : opaque_list)
 	{
 		const auto& p_rend = r.renderer.lock();
@@ -406,7 +407,7 @@ void Render_Manager::Render_Shadow_Directional(const Vector3& color, const float
 		}
 	}
 	opaque_list.clear();
-
+	//VSMぼかし実行
 	Engine::shadow_manager->Filtering_Gaussian();
 }
 

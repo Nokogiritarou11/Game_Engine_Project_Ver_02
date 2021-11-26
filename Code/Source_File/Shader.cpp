@@ -74,7 +74,8 @@ void Shader::Reflect_Resource_Buffer(const ComPtr<ID3D11ShaderReflection>& refle
 					D3D11_SHADER_TYPE_DESC t_desc;
 					t->GetDesc(&t_desc);
 
-					Parameter_Type type = Parameter_Type::Int;
+					//パラメータの型ごとの処理
+					auto type = Parameter_Type::Int;
 					if (t_desc.Class == D3D10_SVC_SCALAR)
 					{
 						if (t_desc.Type == D3D10_SVT_INT || t_desc.Type == D3D10_SVT_UINT)
@@ -119,7 +120,7 @@ void Shader::Reflect_Resource_Buffer(const ComPtr<ID3D11ShaderReflection>& refle
 				constant_buffer_info.emplace_back(info);
 			}
 		}
-		else if (desc.Type == D3D10_SHADER_INPUT_TYPE::D3D10_SIT_TEXTURE)
+		else if (desc.Type == D3D10_SIT_TEXTURE)
 		{
 			// テクスチャ
 			// 0番はエンジン予約(シャドウテクスチャ)なので飛ばす
@@ -134,11 +135,13 @@ void Shader::Reflect_Resource_Buffer(const ComPtr<ID3D11ShaderReflection>& refle
 
 shared_ptr<Shader> Shader::Create(const string& shader_path, const Shader_Type& shader_type)
 {
+	//キャッシュがあれば返す
 	if (const auto it = Engine::asset_manager->cache_shader.find(shader_path); it != Engine::asset_manager->cache_shader.end())
 	{
 		return it->second;
 	}
 
+	//新規作成
 	shared_ptr<Shader> shader;
 	switch (shader_type)
 	{
@@ -163,7 +166,6 @@ shared_ptr<Shader> Shader::Create(const string& shader_path, const Shader_Type& 
 	return shader;
 }
 
-//	シェーダー単体コンパイル
 bool Vertex_Shader::Initialize(const string& filename)
 {
 	HRESULT hr = S_OK;
@@ -198,18 +200,17 @@ bool Vertex_Shader::Initialize(const string& filename)
 
 void Vertex_Shader::Reflect_InputLayout(const ComPtr<ID3D11ShaderReflection>& reflector, const ComPtr<ID3DBlob>& blob)
 {
-	// Get shader info
+	// シェーダーの情報を得る
 	D3D11_SHADER_DESC shader_desc;
 	reflector->GetDesc(&shader_desc);
 
-	// Read input layout description from shader info
+	// シェーダ情報からInputLayout情報を得る
 	std::vector<D3D11_INPUT_ELEMENT_DESC> input_layout_desc;
 	for (UINT32 i = 0; i < shader_desc.InputParameters; ++i)
 	{
 		D3D11_SIGNATURE_PARAMETER_DESC param_desc;
 		reflector->GetInputParameterDesc(i, &param_desc);
 
-		// fill out input element desc
 		D3D11_INPUT_ELEMENT_DESC element_desc;
 		element_desc.SemanticName = param_desc.SemanticName;
 		element_desc.SemanticIndex = param_desc.SemanticIndex;
@@ -218,10 +219,8 @@ void Vertex_Shader::Reflect_InputLayout(const ComPtr<ID3D11ShaderReflection>& re
 		element_desc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 		element_desc.InstanceDataStepRate = 0;
 
-		string semantic_name = param_desc.SemanticName;
-		if (semantic_name != "SV_VertexID")
+		if (param_desc.SemanticName != "SV_VertexID")
 		{
-			// determine DXGI format
 			if (param_desc.Mask == 1)
 			{
 				if (param_desc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) element_desc.Format = DXGI_FORMAT_R32_UINT;
@@ -247,14 +246,14 @@ void Vertex_Shader::Reflect_InputLayout(const ComPtr<ID3D11ShaderReflection>& re
 				else if (param_desc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) element_desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 			}
 
-			//save element desc
+			// 得られた情報からレイアウトに追加する
 			input_layout_desc.push_back(element_desc);
 		}
 	}
 
 	if (!input_layout_desc.empty())
 	{
-		// Try to create Input Layout
+		// InputLayoutの作成
 		const HRESULT hr = DxSystem::device->CreateInputLayout(&input_layout_desc[0], input_layout_desc.size(), blob->GetBufferPointer(), blob->GetBufferSize(), vertex_layout.GetAddressOf());
 		assert(SUCCEEDED(hr));
 	}
@@ -376,8 +375,6 @@ bool Domain_Shader::Initialize(const string& filename)
 	return true;
 }
 
-//****************************************************************
-//	有効化
 void Vertex_Shader::Activate()
 {
 	DxSystem::device_context->IASetInputLayout(vertex_layout.Get());

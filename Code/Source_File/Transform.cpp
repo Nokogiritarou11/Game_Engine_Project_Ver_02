@@ -10,6 +10,7 @@ using namespace BeastEngine;
 
 Transform::Transform()
 {
+	//初期姿勢の算出
 	if (const auto& p = parent.lock())
 	{
 		local_translation_matrix = Matrix::CreateTranslation(local_position);
@@ -54,6 +55,7 @@ Transform::Transform()
 
 Transform::Transform(const Vector3 position, const Quaternion rotation)
 {
+	//初期姿勢の算出
 	this->position = position;
 	this->rotation = rotation;
 	scale = Vector3(1, 1, 1);
@@ -103,6 +105,7 @@ Transform::Transform(const Vector3 position, const Quaternion rotation)
 
 Transform::Transform(const Vector3 position, const Vector3 euler)
 {
+	//初期姿勢の算出
 	this->position = position;
 	rotation = Quaternion::Euler(euler);
 	scale = Vector3(1, 1, 1);
@@ -222,9 +225,6 @@ bool Transform::Draw_ImGui()
 	return true;
 }
 
-/*  ///////////////////////////////////////////////////////
-	Getter & Setter
-*/  ///////////////////////////////////////////////////////
 Vector3 Transform::Get_Position() const
 {
 	return position;
@@ -232,6 +232,7 @@ Vector3 Transform::Get_Position() const
 
 void Transform::Set_Position(const Vector3 v)
 {
+	//値の変更と姿勢の再計算
 	if (position != v)
 	{
 		position = v;
@@ -264,6 +265,7 @@ void Transform::Set_Position(const Vector3 v)
 
 void Transform::Set_Position(const float f1, const float f2, const float f3)
 {
+	//値の変更と姿勢の再計算
 	const Vector3 V = { f1,f2,f3 };
 	if (position != V)
 	{
@@ -302,6 +304,7 @@ Quaternion Transform::Get_Rotation() const
 
 void Transform::Set_Rotation(const Quaternion q)
 {
+	//値の変更と姿勢の再計算
 	if (rotation != q)
 	{
 		rotation = q;
@@ -342,6 +345,7 @@ void Transform::Set_Rotation(const Quaternion q)
 }
 void Transform::Set_Rotation(const float f1, const float f2, const float f3, const float f4)
 {
+	//値の変更と姿勢の再計算
 	if (const Quaternion q = { f1,f2,f3,f4 }; rotation != q)
 	{
 		rotation = q;
@@ -388,6 +392,7 @@ Vector3 Transform::Get_Scale() const
 
 void Transform::Set_Scale(const Vector3 v)
 {
+	//値の変更と姿勢の再計算
 	if (scale != v)
 	{
 		scale = v;
@@ -418,6 +423,7 @@ void Transform::Set_Scale(const Vector3 v)
 }
 void Transform::Set_Scale(const float f1, const float f2, const float f3)
 {
+	//値の変更と姿勢の再計算
 	if (const Vector3 v = { f1,f2,f3 }; scale != v)
 	{
 		scale = v;
@@ -454,6 +460,7 @@ Vector3 Transform::Get_Local_Position() const
 
 void Transform::Set_Local_Position(const Vector3 v)
 {
+	//値の変更と姿勢の再計算
 	if (local_position != v)
 	{
 		local_position = v;
@@ -479,6 +486,7 @@ void Transform::Set_Local_Position(const Vector3 v)
 }
 void Transform::Set_Local_Position(const float f1, const float f2, const float f3)
 {
+	//値の変更と姿勢の再計算
 	if (const Vector3 v = { f1,f2,f3 }; local_position != v)
 	{
 		local_position = v;
@@ -510,6 +518,7 @@ Quaternion Transform::Get_Local_Rotation() const
 
 void Transform::Set_Local_Rotation(const Quaternion q)
 {
+	//値の変更と姿勢の再計算
 	if (local_rotation != q)
 	{
 		local_rotation = q;
@@ -542,6 +551,7 @@ void Transform::Set_Local_Rotation(const Quaternion q)
 }
 void Transform::Set_Local_Rotation(const float f1, const float f2, const float f3, const float f4)
 {
+	//値の変更と姿勢の再計算
 	if (const Quaternion q = { f1,f2,f3,f4 }; local_rotation != q)
 	{
 		local_rotation = q;
@@ -582,6 +592,7 @@ Vector3 Transform::Get_Local_Scale() const
 
 void Transform::Set_Local_Scale(const Vector3 v)
 {
+	//値の変更と姿勢の再計算
 	if (local_scale != v)
 	{
 		local_scale = v;
@@ -607,6 +618,7 @@ void Transform::Set_Local_Scale(const Vector3 v)
 }
 void Transform::Set_Local_Scale(const float f1, const float f2, const float f3)
 {
+	//値の変更と姿勢の再計算
 	if (const Vector3 v = { f1,f2,f3 }; local_scale != v)
 	{
 		local_scale = v;
@@ -690,15 +702,10 @@ void Transform::Set_Parent(const shared_ptr<Transform>& p)
 				Remove_Parent();
 			}
 
+			//親子を構築したあと、ワールド座標系をローカル座標系に変換
 			parent = p;
 			p->children.emplace_back(static_pointer_cast<Transform>(shared_from_this()));
-			/*
-			localScale = { scale.x / P->scale.x, scale.y / P->scale.y, scale.z / P->scale.z };
-			localPosition = { (position.x - P->position.x) * P->localScale.x, (position.y - P->position.y) * P->localScale.y, (position.z - P->position.z) * P->localScale.z };
-			Quaternion q;
-			P->rotation.Inverse(q);
-			localRotation = rotation * q;
-			*/
+
 			Matrix m;
 			p->Get_World_Matrix().Invert(m);
 			local_matrix = Get_World_Matrix() * m;
@@ -724,11 +731,13 @@ void Transform::Set_Parent(const shared_ptr<Transform>& p)
 			up = Vector3::Transform(Vector3::Up, rotation_matrix);
 			up.Normalize();
 
+			//子に対しても変更を通知する
 			Change_Children();
 		}
 	}
 	else
 	{
+		//nullの場合は解除
 		Remove_Parent();
 	}
 	has_changed = true;
@@ -746,6 +755,7 @@ void Transform::Set_Parent(const shared_ptr<Transform>& p, const int index_inser
 				Remove_Parent();
 			}
 
+			//指定したインデックスに割り込ませる
 			parent = p;
 			if (index_insert < 0)
 			{
@@ -755,13 +765,8 @@ void Transform::Set_Parent(const shared_ptr<Transform>& p, const int index_inser
 			{
 				p->children.insert(p->children.begin() + index_insert, static_pointer_cast<Transform>(shared_from_this()));
 			}
-			/*
-			localScale = { scale.x / P->scale.x, scale.y / P->scale.y, scale.z / P->scale.z };
-			localPosition = { (position.x - P->position.x) * P->localScale.x, (position.y - P->position.y) * P->localScale.y, (position.z - P->position.z) * P->localScale.z };
-			Quaternion q;
-			P->rotation.Inverse(q);
-			localRotation = rotation * q;
-			*/
+
+			//親子を構築したあと、ワールド座標系をローカル座標系に変換
 			Matrix m;
 			p->Get_World_Matrix().Invert(m);
 			local_matrix = Get_World_Matrix() * m;
@@ -800,6 +805,7 @@ void Transform::Set_Parent(const shared_ptr<Transform>& p, const int index_inser
 
 void Transform::On_Parent_Changed()
 {
+	//親が変更されているのでワールド座標系を再計算する
 	const auto& p = parent.lock();
 	world_matrix = local_matrix * p->Get_World_Matrix();
 	world_matrix.Decompose(scale, rotation, position);
@@ -813,12 +819,14 @@ void Transform::On_Parent_Changed()
 	up = Vector3::Transform(Vector3::Up, rotation_matrix);
 	up.Normalize();
 
+	//再帰的に子も行う
 	Change_Children();
 	update_GUI = true;
 }
 
 void Transform::Change_Children()
 {
+	//子に変更を通知する
 	for (weak_ptr<Transform>& child : children)
 	{
 		if (!child.expired())
@@ -833,6 +841,7 @@ void Transform::Remove_Parent()
 {
 	if (const auto& p = parent.lock())
 	{
+		//親の子一覧から自身を探し、削除する
 		auto it = p->children.begin();
 		while (it != p->children.end())
 		{
@@ -841,11 +850,13 @@ void Transform::Remove_Parent()
 				p->children.erase(it);
 				break;
 			}
-			else ++it;
+
+			++it;
 		}
 
 		parent.reset();
 
+		//親が居なくなったのでローカル姿勢をワールド座標系に
 		local_position = position;
 		local_rotation = rotation;
 		local_scale = scale;
@@ -872,6 +883,7 @@ int Transform::Get_Sibling_Index() const
 {
 	if (const auto& p = parent.lock())
 	{
+		//親がいるならその子一覧から自身のインデックスを得る
 		for (size_t i = 0; i < p->children.size(); ++i)
 		{
 			if (p->children[i].lock() == transform)
@@ -882,6 +894,7 @@ int Transform::Get_Sibling_Index() const
 	}
 	else
 	{
+		//親が居なければヒエラルキー上で自身が何番目かを得る
 		const auto& scene = Engine::scene_manager->Get_Active_Scene();
 		int index_this = -1;
 
@@ -901,12 +914,12 @@ int Transform::Get_Sibling_Index() const
 }
 
 //指定文字での分割
-vector<string> split(const string& s, char delim)
+vector<string> Split(const string& s, const char delimit)
 {
 	vector<string> elems;
 	stringstream ss(s);
 	string item;
-	while (getline(ss, item, delim))
+	while (getline(ss, item, delimit))
 	{
 		if (!item.empty())
 		{
@@ -922,8 +935,10 @@ weak_ptr<Transform> Transform::Find(const std::string n) const
 	if (!n.empty())
 	{
 		t_trans = transform;
-		const vector<string> s = split(n, '/');
+		//孫以下は'/'で分割し、順番に調べていく
+		const vector<string> s = Split(n, '/');
 		const size_t split_size = s.size();
+		//指定したパスの深さに行き着くまで調べる
 		for (size_t i = 0; i < split_size; ++i)
 		{
 			const auto& trans = t_trans.lock();
@@ -957,9 +972,12 @@ void Transform::Set_Sibling_Index(int index)
 
 		if (const auto& p = parent.lock())
 		{
+			//親がいる(誰かの子として設定する)場合
+			//挿入する場所を探す
 			shared_ptr<Transform> insert_at;
 			if (index >= static_cast<int>(p->children.size()))
 			{
+				//指定したインデックスが現在の子の数より多い場合は末尾
 				insert_at = p->children[static_cast<int>(p->children.size()) - 1].lock();
 			}
 			else
@@ -967,6 +985,7 @@ void Transform::Set_Sibling_Index(int index)
 				insert_at = p->children[index].lock();
 			}
 
+			//移動させるために一度親から削除する
 			for (int i = 0; i < static_cast<int>(p->children.size()); ++i)
 			{
 				if (const auto& child = p->children[i].lock(); child == transform)
@@ -981,6 +1000,7 @@ void Transform::Set_Sibling_Index(int index)
 				bool is_last = true;
 				for (int i = 0; i < static_cast<int>(p->children.size()); ++i)
 				{
+					//挿入対象を検索してinsert
 					if (p->children[i].lock() == insert_at)
 					{
 						is_last = false;
@@ -988,6 +1008,7 @@ void Transform::Set_Sibling_Index(int index)
 						break;
 					}
 				}
+				//末尾ならbackに
 				if (is_last)
 				{
 					p->children.emplace_back(static_pointer_cast<Transform>(shared_from_this()));
@@ -995,13 +1016,16 @@ void Transform::Set_Sibling_Index(int index)
 			}
 			else
 			{
+				//末尾ならbackに
 				p->children.emplace_back(static_pointer_cast<Transform>(shared_from_this()));
 			}
 		}
 		else
 		{
-			const unique_ptr<Scene>& scene = Engine::scene_manager->Get_Active_Scene();
+			//親が居ない(ヒエラルキー上での移動)場合
+			const auto& scene = Engine::scene_manager->Get_Active_Scene();
 
+			//ヒエラルキー上でのインデックス(親を持っていないオブジェクトの順番)を割り出す
 			shared_ptr<Transform> insert_at;
 			int index_insert = -1;
 			for (size_t i = 0; i < scene->gameobject_list.size(); ++i)
@@ -1017,6 +1041,7 @@ void Transform::Set_Sibling_Index(int index)
 				}
 			}
 
+			//移動するために自身を一度リストから削除する
 			for (size_t i = 0; i < scene->gameobject_list.size(); ++i)
 			{
 				if (scene->gameobject_list[i]->transform->Get_Parent().expired())
@@ -1031,6 +1056,7 @@ void Transform::Set_Sibling_Index(int index)
 
 			if (index <= static_cast<int>(scene->gameobject_list.size()))
 			{
+				//挿入対象を検索してinsert
 				bool is_last = true;
 				for (size_t i = 0; i < scene->gameobject_list.size(); ++i)
 				{
@@ -1044,6 +1070,7 @@ void Transform::Set_Sibling_Index(int index)
 						}
 					}
 				}
+				//末尾ならbackに
 				if (is_last)
 				{
 					scene->gameobject_list.emplace_back(gameobject);
@@ -1051,6 +1078,7 @@ void Transform::Set_Sibling_Index(int index)
 			}
 			else
 			{
+				//末尾ならbackに
 				scene->gameobject_list.emplace_back(gameobject);
 			}
 		}
@@ -1064,6 +1092,7 @@ Matrix Transform::Get_World_Matrix() const
 
 void Transform::Set_World_Matrix(const Matrix matrix)
 {
+	//値の変更と姿勢の再計算
 	world_matrix = matrix;
 	world_matrix.Decompose(scale, rotation, position);
 
@@ -1108,12 +1137,9 @@ void Transform::Set_World_Matrix(const Matrix matrix)
 	update_GUI = true;
 }
 
-/*  ///////////////////////////////////////////////////////
-	Function
-*/  ///////////////////////////////////////////////////////
-
 Quaternion Transform::Look_At(const Vector3 pos) const
 {
+	//方向ベクトルから回転(Quaternion)を算出する
 	constexpr Vector3 up = { 0,1,0 };
 	const Vector3 z = XMVector3Normalize(pos - position);
 	const Vector3 x = XMVector3Normalize(XMVector3Cross(up, z));

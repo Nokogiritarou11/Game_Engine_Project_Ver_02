@@ -24,8 +24,9 @@ void SkinMesh_Renderer::Initialize(const shared_ptr<GameObject>& obj)
 {
 	enabled_old = enabled;
 
-	gameobject = obj;
+	//マネージャーへの登録とComponentの初期化
 	Engine::asset_manager->Registration_Asset(shared_from_this());
+	gameobject = obj;
 	transform = obj->transform;
 	// 定数バッファの生成
 	if (!constant_buffer_mesh)
@@ -66,6 +67,7 @@ void SkinMesh_Renderer::Set_Active(const bool value)
 				{
 					if (Get_Enabled())
 					{
+						//初回のみマネージャーに登録
 						Engine::render_manager->Add(static_pointer_cast<SkinMesh_Renderer>(shared_from_this()));
 						is_called = true;
 					}

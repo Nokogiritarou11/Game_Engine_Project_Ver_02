@@ -10,11 +10,13 @@ using namespace BeastEngine;
 
 shared_ptr<GameObject> Scene::Instance_GameObject(const std::string& name)
 {
-	shared_ptr<GameObject> obj = make_shared<GameObject>();
+	//オブジェクトを生成して登録する
+	auto obj = make_shared<GameObject>();
 	obj->Add_Component<Transform>();
-	gameobject_list.emplace_back(obj);
 	obj->name = name;
+	gameobject_list.emplace_back(obj);
 	Engine::asset_manager->Registration_Asset(obj);
+
 	return obj;
 }
 
@@ -22,6 +24,7 @@ void Scene::Initialize()
 {
 	for (const auto& g : gameobject_list)
 	{
+		//親を持たないものだけ実行する
 		if (g->transform->Get_Parent().expired())
 		{
 			g->Initialize();
@@ -31,6 +34,7 @@ void Scene::Initialize()
 
 void Scene::Destroy_GameObject(const shared_ptr<GameObject>& game_object)
 {
+	//解放処理をしてからリストから削除する
 	game_object->Release();
 	const auto itr_end = gameobject_list.end();
 	for (auto itr = gameobject_list.begin(); itr != itr_end; ++itr)
@@ -42,8 +46,10 @@ void Scene::Destroy_GameObject(const shared_ptr<GameObject>& game_object)
 		}
 	}
 }
+
 void Scene::Destroy_Component(const shared_ptr<Component>& component)
 {
+	//コンポーネントを探し出して削除する
 	const auto itr_end = gameobject_list.end();
 	for (auto itr = gameobject_list.begin(); itr != itr_end; ++itr)
 	{
@@ -101,6 +107,8 @@ void Scene::Update()
 
 void Scene::Processing_Start()
 {
+	//イテレーターを破壊しないために、ループ中に生成されたものは次のタイミングで処理する
+	//生成されたものをコピーする
 	if (!monobehaviour_start_next_list.empty())
 	{
 		copy(monobehaviour_start_next_list.begin(), monobehaviour_start_next_list.end(), std::back_inserter(monobehaviour_start_list));
@@ -124,6 +132,7 @@ void Scene::Processing_Start()
 							{
 								if (mono->Get_Enabled())
 								{
+									//Startが呼ばれたものからUpdateリストに登録する
 									if (!mono->is_called_update)
 									{
 										monobehaviour_update_list.emplace_back(m);
@@ -140,8 +149,10 @@ void Scene::Processing_Start()
 	}
 }
 
-void Scene::Processing_Update(int state)
+void Scene::Processing_Update(const int state)
 {
+	//イテレーターを破壊しないために、ループ中に生成されたものは次のタイミングで処理する
+	//生成されたものをコピーする
 	if (!monobehaviour_update_next_list.empty())
 	{
 		copy(monobehaviour_update_next_list.begin(), monobehaviour_update_next_list.end(), std::back_inserter(monobehaviour_update_list));
@@ -186,6 +197,7 @@ void Scene::Reset()
 	monobehaviour_start_list.clear();
 	monobehaviour_start_next_list.clear();
 
+	//再帰的に行うために親を持たないオブジェクトをリストアップする
 	vector<shared_ptr<GameObject>> no_parent_list;
 	for (const auto& g : gameobject_list)
 	{

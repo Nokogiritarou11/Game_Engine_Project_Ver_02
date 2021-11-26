@@ -5,6 +5,7 @@ using namespace std;
 
 Thread_Pool::Thread_Pool()
 {
+	//このPCで使用できるスレッドの最大数の分だけ追加する
 	const unsigned int num_threads = thread::hardware_concurrency();
 	for (unsigned int i = 0; i < num_threads; ++i)
 	{
@@ -22,6 +23,7 @@ Thread_Pool::~Thread_Pool()
 
 void Thread_Pool::Wait_Job_Complete()
 {
+	//全スレッドの終了待ち(メインスレッドが止まる)
 	std::unique_lock lock(main_mutex);
 	main_condition.wait(lock);
 }
@@ -48,6 +50,7 @@ void Thread_Pool::Shut_Down()
 
 void Thread_Pool::Infinite_Loop_Function()
 {
+	//サブスレッドでは常に回っている
 	while (true)
 	{
 		function<void()> job;
@@ -56,6 +59,7 @@ void Thread_Pool::Infinite_Loop_Function()
 
 			condition.wait(lock, [this]() {
 				return !job_queue.empty() || terminate_pool; });
+
 			if (terminate_pool && job_queue.empty()) return;
 			job = job_queue.front();
 			job_queue.pop();
@@ -63,6 +67,7 @@ void Thread_Pool::Infinite_Loop_Function()
 
 		job();
 
+		//処理が終了したので稼働スレッド数を減らす
 		if(--doing_job_count == 0)
 		{
 			main_condition.notify_one();
@@ -73,7 +78,7 @@ void Thread_Pool::Infinite_Loop_Function()
 void Thread_Pool::Add_Job(const function<void()>& new_job)
 {
 	++doing_job_count;
-
+	//サブスレッドに仕事を投げる
 	{
 		unique_lock lock(queue_mutex);
 		job_queue.push(new_job);

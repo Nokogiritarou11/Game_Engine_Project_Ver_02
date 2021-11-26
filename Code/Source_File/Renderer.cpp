@@ -10,6 +10,7 @@ void Renderer::Set_Enabled(bool value)
 	{
 		enabled = value;
 		enabled_old = value;
+		//ŠeRenderer‚²‚Æ‚Ìˆ—‚ğs‚¤
 		Set_Active(value);
 	}
 }

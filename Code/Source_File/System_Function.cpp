@@ -40,6 +40,7 @@ string System_Function::Get_Open_File_Name(const string& extension, const string
 	ofn.lpstrFile = sz_file;       // 選択ファイル格納
 	ofn.nMaxFile = MAX_PATH;
 
+	//拡張子からフィルタを作成する
 	if (extension.empty())
 	{
 		ofn.lpstrFilter = TEXT("すべてのファイル(*.*)\0*.*\0");
@@ -129,6 +130,7 @@ string System_Function::Get_Save_File_Name(string extension, string initial_dir)
 	ofn.lpstrFile = sz_file;       // 選択ファイル格納
 	ofn.nMaxFile = MAX_PATH;
 
+	//拡張子からフィルタを作成する
 	if (extension.empty())
 	{
 		ofn.lpstrFilter = TEXT("すべてのファイル(*.*)\0*.*\0");
@@ -187,7 +189,8 @@ string System_Function::Get_Save_File_Name(string extension, string initial_dir)
 
 string System_Function::Create_Id()
 {
-	UUID uuid = { 0 };
+	//UUID(絶対に被らない固有の文字列)を作成する
+	UUID uuid = {};
 	string guid;
 
 	(void)UuidCreate(&uuid);

@@ -60,6 +60,7 @@ void RigidBody::Create()
 		rigidbody->setActivationState(DISABLE_DEACTIVATION);
 	}
 
+	//パラメータ設定
 	Engine::bulletphysics_manager->Add_RigidBody(collider, rigidbody, col->gameobject->layer);
 	rigidbody->setLinearFactor(btVector3(linear_factor.x, linear_factor.y, linear_factor.z));
 	rigidbody->setAngularFactor(btVector3(angular_factor.x, angular_factor.y, angular_factor.z));
@@ -91,6 +92,7 @@ void RigidBody::Set_Mass(float set_mass)
 {
 	if (is_dynamic)
 	{
+		//重いので変更時のみ
 		if (mass != set_mass)
 		{
 			if (set_mass <= 0)
@@ -137,6 +139,7 @@ void RigidBody::Set_Kinematic(const bool value)
 
 void RigidBody::Set_Dynamic(const bool value)
 {
+	//重いので変更時のみ
 	if (is_dynamic != value)
 	{
 		is_dynamic = value;
@@ -155,6 +158,7 @@ void RigidBody::Set_Dynamic(const bool value)
 
 void RigidBody::Get_BtTransform(btTransform& t) const
 {
+	//motion_stateの姿勢を変更するとカクつくのでRigidBody内を直接変更
 	t = rigidbody->getWorldTransform();
 	/*
 	if (rigidbody->isStaticOrKinematicObject())

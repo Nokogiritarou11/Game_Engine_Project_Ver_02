@@ -75,7 +75,7 @@ namespace BeastEngine
 
 		void Check_Renderer(); //Rendererの生存をチェックする
 		void Culling_Renderer(const Vector3& view_pos, const std::array<Vector4, 6>& planes); //視錐台カリングを行う
-		void Sort_Renderer(); //レンダラーを距離ソートする
+		void Sort_Renderer(); //レンダラーを距離&キューソートする
 
 		void Render_Scene(); //シーンビューの描画実行
 		void Render_Game();  //ゲームビューの描画実行

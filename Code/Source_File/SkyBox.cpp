@@ -11,8 +11,9 @@ using namespace DirectX;
 
 SkyBox::SkyBox()
 {
+	//描画用マテリアル作成
 	material = Material::Create("Shader\\SkyBox_Shader_VS.hlsl", "Shader\\SkyBox_Shader_PS.hlsl");
-	material->Set_Texture("cubemap", Texture::Load("Default_Assets\\Image\\SkyBox\\envmap_miramar.dds"));
+	material->Set_Texture("cubemap", Texture::Load("Default_Assets\\Image\\SkyBox\\envmap_miramar.dds", D3D11_RESOURCE_MISC_TEXTURECUBE));
 	material->Set_Blend_State(BS_State::Off);
 	material->Set_Rasterizer_State(RS_State::Cull_None);
 	material->Set_Depth_Stencil_State(DS_State::None_No_Write);
@@ -22,8 +23,9 @@ SkyBox::SkyBox()
 	constexpr u_int vertex_count = ((u_max - 2) * v_max) + 2;
 	index_count = (((u_max - 3) * (v_max) * 2) + (v_max * 2)) * 3;
 
-	float sphereYaw, spherePitch = 0.0f;
-	Matrix Rotation_x, rotation_y;
+	//天球はFbxを使わずメッシュをコードで生成
+	float sphere_yaw, sphere_pitch = 0.0f;
+	Matrix rotation_x, rotation_y;
 	Vector3 curr_v_pos;
 
 	vector<Vector3> vertices(vertex_count);
@@ -32,13 +34,13 @@ SkyBox::SkyBox()
 	vertices[vertex_count - 1] = Vector3(0.0f, 0.0f, -1.0f);
 	for (u_int i = 0; i < u_max - 2; ++i)
 	{
-		spherePitch = static_cast<float>(i + 1) * (3.14f / (u_max - 1));
-		Rotation_x = XMMatrixRotationX(spherePitch);
+		sphere_pitch = static_cast<float>(i + 1) * (3.14f / (u_max - 1));
+		rotation_x = XMMatrixRotationX(sphere_pitch);
 		for (u_int j = 0; j < v_max; ++j)
 		{
-			sphereYaw = static_cast<float>(j) * (6.28f / (v_max));
-			rotation_y = XMMatrixRotationZ(sphereYaw);
-			curr_v_pos = XMVector3TransformNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), (Rotation_x * rotation_y));
+			sphere_yaw = static_cast<float>(j) * (6.28f / (v_max));
+			rotation_y = XMMatrixRotationZ(sphere_yaw);
+			curr_v_pos = XMVector3TransformNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), (rotation_x * rotation_y));
 			vertices[i * v_max + j + 1] = XMVector3Normalize(curr_v_pos);
 		}
 	}
@@ -71,7 +73,7 @@ SkyBox::SkyBox()
 			indices[k + 4] = i * v_max + j + 2;
 			indices[k + 5] = (i + 1) * v_max + j + 2;
 
-			k += 6; // next quad
+			k += 6;
 		}
 
 		indices[k] = (i * v_max) + v_max;
@@ -142,7 +144,7 @@ void SkyBox::Render(const Vector3& pos)
 	//シェーダーリソースのバインド
 	material->Activate();
 
-	// 使用する頂点バッファやシェーダーなどをGPUに教えてやる。
+	// 使用する頂点バッファやシェーダーなどをGPUに教えてやる
 	constexpr UINT stride = sizeof(Vector3);
 	constexpr UINT offset = 0;
 	DxSystem::device_context->IASetVertexBuffers(0, 1, vertex_buffer.GetAddressOf(), &stride, &offset);
