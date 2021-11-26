@@ -124,6 +124,7 @@ void Particle_Manager::Update()
 			}
 			else
 			{
+				//インスタンスが死んでいれば
 				if (manager->Exists(p_eff->handle))
 				{
 					// 再生を停止する
@@ -137,6 +138,7 @@ void Particle_Manager::Update()
 			expired = true;
 		}
 	}
+	//削除されていた場合リストからも削除
 	if (expired)
 	{
 		const auto& remove_it = remove_if(particle_list.begin(), particle_list.end(), [](weak_ptr<Particle> p) { return p.expired(); });
@@ -145,6 +147,7 @@ void Particle_Manager::Update()
 
 	if (!Engine::scene_manager->pause)
 	{
+		//時間を進める
 		manager->Update(60.0f / (1 / Time::delta_time));
 	}
 }

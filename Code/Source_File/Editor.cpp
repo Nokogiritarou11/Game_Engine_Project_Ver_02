@@ -59,15 +59,15 @@ Editor::Editor()
 	ImFont* font = io.Fonts->AddFontFromFileTTF(font_name, font_size_pixels, nullptr, io.Fonts->GetGlyphRangesJapanese());
 	IM_ASSERT(font != nullptr);
 
-	io.FontGlobalScale = font_size; // フォントの大きさを一括で変更できます。
+	io.FontGlobalScale = font_size;
 	ImGuiStyle& style = ImGui::GetStyle();
-	style.ScaleAllSizes(ui_size); // UIの大きさを一括で変更できます。
+	style.ScaleAllSizes(ui_size);
 
-	constexpr float size_icon = 20.0f; // 30.0fにすると大きすぎたので20.0fにしています。
+	constexpr float size_icon = 20.0f;
 	ImFontConfig config;
-	config.MergeMode = true; // フォントテクスチャを合体させます。
+	config.MergeMode = true;
 	config.PixelSnapH = true;
-	config.GlyphMinAdvanceX = size_icon; // アイコンを等幅にします。
+	config.GlyphMinAdvanceX = size_icon;
 	static constexpr ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 	io.Fonts->AddFontFromFileTTF("Default_Assets/Font/fontawesome-webfont.ttf", size_icon, &config, icon_ranges);
 	io.Fonts->Build();
@@ -134,15 +134,14 @@ void Editor::Render()
 	DxSystem::Set_Default_View();
 	DxSystem::Set_ViewPort(DxSystem::Get_Screen_Width(), DxSystem::Get_Screen_Height());
 	ImGui::Render();
-	DxSystem::Clear();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	ImGui::UpdatePlatformWindows();
 	ImGui::RenderPlatformWindowsDefault();
 }
 
-//ドッキング用親ウィンドウ描画
 void Editor::Main_Window_Render()
 {
+	//ドッキング用親ウィンドウ描画
 	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
@@ -166,7 +165,6 @@ void Editor::Main_Window_Render()
 	ImGui::End();
 }
 
-//ログの追加
 void Editor::Print_Log(string log)
 {
 	debug_log.push_back(log + u8"\n");
@@ -260,7 +258,6 @@ struct Debug_Logger
 	}
 };
 
-//デバッグログ描画
 void Editor::Debug_Log_Render()
 {
 	ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
@@ -278,7 +275,6 @@ void Editor::Debug_Log_Render()
 	logger.Draw((u8"コンソール"));
 }
 
-//ヒエラルキー描画
 void Editor::Hierarchy_Render()
 {
 	const unique_ptr<Scene>& scene = Engine::scene_manager->active_scene;
@@ -429,7 +425,6 @@ void Editor::Hierarchy_Render()
 	ImGui::End();
 }
 
-//インスペクタ描画
 void Editor::Inspector_Render()
 {
 	ImGui::SetNextWindowPos(ImVec2(1500, 0), ImGuiCond_FirstUseEver);
@@ -563,7 +558,6 @@ void Editor::Inspector_Render()
 	ImGui::End();
 }
 
-//シーン再生UI描画
 void Editor::ScenePlayer_Render()
 {
 	constexpr ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
@@ -647,7 +641,6 @@ void Editor::ScenePlayer_Render()
 	ImGui::End();
 }
 
-//シーンビュー描画
 void Editor::SceneView_Render() const
 {
 	ImGuiWindowFlags window_flags = 0;
@@ -723,7 +716,6 @@ void Editor::SceneView_Render() const
 	ImGui::End();
 }
 
-//ゲームビュー描画
 void Editor::GameView_Render()
 {
 	ImGui::SetNextWindowPos(ImVec2(200, 0), ImGuiCond_FirstUseEver);
@@ -814,7 +806,6 @@ void Editor::Animation_Controller_Render() const
 	ImGui::End();
 }
 
-//メニューバー描画
 void Editor::MenuBar_Render()
 {
 	if (ImGui::BeginMenuBar())
@@ -825,7 +816,6 @@ void Editor::MenuBar_Render()
 	}
 }
 
-//シーン保存、展開メニュー描画
 void Editor::Scene_File_Menu_Render()
 {
 	if (ImGui::BeginMenu(u8"ファイル"))
@@ -930,7 +920,6 @@ void Editor::Scene_File_Menu_Render()
 	}
 }
 
-//シーン設定メニュー
 void Editor::Scene_Setting_Menu_Render() const
 {
 	if (ImGui::BeginMenu(u8"シーン設定"))
@@ -1147,7 +1136,6 @@ void Editor::Scene_Setting_Menu_Render() const
 	}
 }
 
-//オブジェクトツリー描画
 void Editor::GameObject_Tree_Render(const shared_ptr<GameObject>& obj, int flag)
 {
 	ImGui::PushID(obj->Get_Instance_Id().c_str());
@@ -1243,7 +1231,6 @@ shared_ptr<GameObject> Editor::Get_Drag_Object() const
 	return nullptr;
 }
 
-//ヒエラルキーでのオブジェクトドラッグ
 void Editor::GameObject_DragMenu_Render(const shared_ptr<GameObject>& obj)
 {
 	if (ImGui::BeginDragDropSource())
@@ -1305,7 +1292,6 @@ void Editor::GameObject_DragMenu_Render(const shared_ptr<GameObject>& obj)
 	}
 }
 
-//ショートカットキーチェック
 void Editor::ShortCut_Check()
 {
 	if (ImGui::IsKeyDown(17)) //Ctrl
@@ -1393,7 +1379,6 @@ void Editor::ShortCut_Check()
 	}
 }
 
-//シーンビューのカメラ操作
 void Editor::Debug_Camera_Update() const
 {
 	if (ImGui::IsWindowHovered())

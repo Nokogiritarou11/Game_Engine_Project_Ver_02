@@ -24,6 +24,7 @@ void Cursor::Update()
 		if (cursor_lock_mode == CursorLock_Mode::Locked)
 		{
 #if _DEBUG
+			//デバッグ中(エディタでのゲームビュー)はゲームビュー中心に固定
 			if (!Engine::editor->render_cursor)
 			{
 				Set_Cursor_Visible(false);
@@ -35,6 +36,7 @@ void Cursor::Update()
 				Set_Cursor_Visible(true);
 			}
 #else
+			//ウィンドウの中心に固定
 			Vector2 m_pos = Input::Get_Mouse_Position();
 			if (m_pos.x >= 0 && m_pos.x < Screen::Get_Width() && m_pos.y >= 0 && m_pos.y < Screen::Get_Height())
 			{
@@ -54,6 +56,7 @@ void Cursor::Update()
 		{
 			if (!visible)
 			{
+				//画面上にある場合のみカーソルを消す
 				const Vector2 m_pos = Input::Get_Mouse_Position();
 				if (m_pos.x >= 0 && m_pos.x < static_cast<float>(Screen::Get_Width()) && m_pos.y >= 0 && m_pos.y < static_cast<float>(Screen::Get_Height()))
 				{

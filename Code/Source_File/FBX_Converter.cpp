@@ -27,10 +27,10 @@ void Fbx_Converter::Draw_ImGui()
 	{
 		if (ImGui::Button(u8"FBX読み込み"))
 		{
-			if (const string path = System_Function::Get_Open_File_Name("fbx", "\\Assets\\Model"); path != "")
+			if (const string path = System_Function::Get_Open_File_Name("fbx", "\\Assets\\Model"); !path.empty())
 			{
-				const int path_i = path.find_last_of("\\") + 1;//7
-				const int ext_i = path.find_last_of(".");//10
+				const int path_i = path.find_last_of("\\") + 1;
+				const int ext_i = path.find_last_of(".");
 				const string path_name = path.substr(0, path_i); //ファイルまでのディレクトリ
 				const string ext_name = path.substr(ext_i, path.size() - ext_i); //拡張子
 				const string file_name = path.substr(path_i, ext_i - path_i); //ファイル名
@@ -102,6 +102,9 @@ void Fbx_Converter::Load_From_Fbx(bool& convert_mesh, bool& convert_material, bo
 
 	if (model->bones.empty())
 	{
+		//ボーンのない場合
+
+		//メッシュを描画するためにMeshRendererをセットアップする
 		vector<shared_ptr<GameObject>> rend_list;
 		for (auto& mesh : model->meshes)
 		{
@@ -110,6 +113,7 @@ void Fbx_Converter::Load_From_Fbx(bool& convert_mesh, bool& convert_material, bo
 			shared_ptr<Mesh_Renderer> renderer = g->Add_Component<Mesh_Renderer>();
 			renderer->file_path = model->file_path + mesh->name + ".mesh";
 
+			//メッシュの逆行列から初期姿勢を算出する
 			Vector3 translate;
 			Quaternion rotation;
 			Vector3 scale;
@@ -121,18 +125,22 @@ void Fbx_Converter::Load_From_Fbx(bool& convert_mesh, bool& convert_material, bo
 			rend_list.push_back(g);
 		}
 
+		//読み込むとcm単位で出てしまうのでスケールを調整
 		obj->transform->Set_Scale(0.01f, 0.01f, 0.01f);
 
+		//メッシュを書き出す
 		if (convert_mesh)
 		{
 			Convert_Mesh();
 		}
 
+		//プレハブを書き出す
 		if (convert_prefab)
 		{
 			Resources::Create_Prefab(obj);
 		}
 
+		//マテリアルを書き出す
 		if (convert_material)
 		{
 			for (auto& path : model->default_material_paths)
@@ -148,6 +156,7 @@ void Fbx_Converter::Load_From_Fbx(bool& convert_mesh, bool& convert_material, bo
 			}
 		}
 
+		//生成したものを削除する
 		for each (shared_ptr<GameObject> g in rend_list)
 		{
 			g->transform->gameobject.reset();
@@ -165,8 +174,11 @@ void Fbx_Converter::Load_From_Fbx(bool& convert_mesh, bool& convert_material, bo
 	}
 	else
 	{
+		//ボーンを持つ場合(アニメーション含む)
+
 		obj->Add_Component<Animator>();
 
+		//メッシュを描画するためにSkinMeshRendererをセットアップする
 		vector<shared_ptr<GameObject>> rend_list;
 		for (auto& mesh : model->meshes)
 		{
@@ -177,6 +189,7 @@ void Fbx_Converter::Load_From_Fbx(bool& convert_mesh, bool& convert_material, bo
 			rend_list.push_back(g);
 		}
 
+		//ボーン用のダミー親オブジェクトを生成
 		shared_ptr<GameObject> root = Create_GameObject("RootBone");
 		root->transform->Set_Parent(obj->transform);
 
@@ -190,6 +203,7 @@ void Fbx_Converter::Load_From_Fbx(bool& convert_mesh, bool& convert_material, bo
 			bone->transform->Set_Parent(root->transform);
 		}
 
+		//ボーンの親子関係を設定
 		for (size_t i = 0; i < bones.size(); ++i)
 		{
 			if (bones[i].parent_index != -1)
@@ -198,6 +212,7 @@ void Fbx_Converter::Load_From_Fbx(bool& convert_mesh, bool& convert_material, bo
 			}
 		}
 
+		//ボーン逆行列を設定
 		vector<Matrix> bone_matrixes;
 		bone_matrixes.resize(model->bones.size());
 
@@ -218,23 +233,28 @@ void Fbx_Converter::Load_From_Fbx(bool& convert_mesh, bool& convert_material, bo
 			Bone_Decompose(bone_matrixes, bone_list, root->transform->Get_Child(i).lock());
 		}
 
+		//読み込むとcm単位で出てしまうのでスケールを調整
 		obj->transform->Set_Scale(0.01f, 0.01f, 0.01f);
 
+		//アニメーションを書き出す
 		if (convert_animation)
 		{
 			Convert_Animation(bone_list);
 		}
 
+		//メッシュを書き出す
 		if (convert_mesh)
 		{
 			Convert_Mesh();
 		}
 
+		//プレハブを書き出す
 		if (convert_prefab)
 		{
 			Resources::Create_Prefab(obj);
 		}
 
+		//マテリアルを書き出す
 		if (convert_material)
 		{
 			for (auto& path : model->default_material_paths)
@@ -250,6 +270,7 @@ void Fbx_Converter::Load_From_Fbx(bool& convert_mesh, bool& convert_material, bo
 			}
 		}
 
+		//生成したものを削除する
 		for each (shared_ptr<GameObject> g in rend_list)
 		{
 			g->transform->gameobject.reset();
@@ -285,6 +306,7 @@ void Fbx_Converter::Load_From_Fbx(bool& convert_mesh, bool& convert_material, bo
 void Fbx_Converter::Bone_Decompose(vector<Matrix>& matrixes, vector<shared_ptr<GameObject>>& bones, const shared_ptr<Transform>& trans)
 {
 	{
+		//逆行列のリストから自身の姿勢を算出
 		size_t i = 0;
 		for (; i < bones.size(); ++i)
 		{
@@ -300,6 +322,7 @@ void Fbx_Converter::Bone_Decompose(vector<Matrix>& matrixes, vector<shared_ptr<G
 		trans->Set_Scale(scale);
 	}
 
+	//子に対して再帰
 	for (int i = 0; i < trans->Get_Child_Count(); ++i)
 	{
 		Bone_Decompose(matrixes, bones, trans->Get_Child(i).lock());
@@ -310,9 +333,9 @@ void Fbx_Converter::Convert_Animation(const vector<shared_ptr<GameObject>>& bone
 {
 	for (size_t i = 0; i < model->animations.size(); ++i)
 	{
-		Model_Data::Animation& animation = model->animations[i];
+		auto& animation = model->animations[i];
 
-		shared_ptr<Animation_Clip> clip = make_shared<Animation_Clip>();
+		auto clip = make_shared<Animation_Clip>();
 		clip->name = animation.name;
 		clip->length = animation.seconds_length;
 		clip->frame_count = animation.keyframes.size() - 1;
@@ -322,7 +345,7 @@ void Fbx_Converter::Convert_Animation(const vector<shared_ptr<GameObject>>& bone
 
 		for (size_t t = 0; t < clip->animations.size(); ++t)
 		{
-			Animation_Clip::Animation& anim = clip->animations[t];
+			auto& anim = clip->animations[t];
 
 			//アニメーション対象のボーン名を登録する
 			string path;
@@ -333,7 +356,7 @@ void Fbx_Converter::Convert_Animation(const vector<shared_ptr<GameObject>>& bone
 			else
 			{
 				path = bones[t]->name;
-				weak_ptr<Transform> trans = bones[t]->transform->Get_Parent();
+				auto trans = bones[t]->transform->Get_Parent();
 				while (const auto& target = trans.lock())
 				{
 					path = target->gameobject->name + "/" + path;
@@ -360,6 +383,7 @@ void Fbx_Converter::Convert_Animation(const vector<shared_ptr<GameObject>>& bone
 			}
 		}
 
+		//書き出し
 		string save_path = model->file_path + animation.name + ".anim";
 		{
 			ofstream ss(save_path.c_str(), ios::binary);
@@ -373,6 +397,7 @@ void Fbx_Converter::Convert_Mesh() const
 {
 	for (const auto& mesh : model->meshes)
 	{
+		//書き出し
 		string save_path = model->file_path + mesh->name + ".mesh";
 		{
 			ofstream ss(save_path.c_str(), ios::binary);
@@ -384,6 +409,7 @@ void Fbx_Converter::Convert_Mesh() const
 
 shared_ptr<GameObject> Fbx_Converter::Create_GameObject(const string& n) const
 {
+	//コンバーター内部のみで使用するオブジェクトを生成する
 	auto obj = make_shared<GameObject>();
 	obj->Add_Component<Transform>();
 	obj->name = n;

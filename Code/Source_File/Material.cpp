@@ -22,8 +22,9 @@ DS_State Material::binding_depth_stencil_state = DS_State::LEqual;
 
 shared_ptr<Material> Material::Create(const string& vertex_path, const string& pixel_path, const string& geometry_path)
 {
-	shared_ptr<Material> mat = make_shared<Material>();
+	auto mat = make_shared<Material>();
 	mat->name = "material";
+	//初期レンダリングパスの追加
 	mat->Add_Pass(vertex_path, pixel_path, geometry_path);
 	Engine::asset_manager->Registration_Asset(mat);
 	return mat;
@@ -31,11 +32,13 @@ shared_ptr<Material> Material::Create(const string& vertex_path, const string& p
 
 shared_ptr<Material> Material::Load_Material(const string& full_path)
 {
+	//キャッシュがあれば返す
 	if (const auto it = Engine::asset_manager->cache_material.find(full_path); it != Engine::asset_manager->cache_material.end())
 	{
 		return it->second;
 	}
 
+	//ファイル読み込み
 	if (const ifstream in_bin(full_path, ios::binary); in_bin.is_open())
 	{
 		shared_ptr<Material> mat;
@@ -55,6 +58,7 @@ shared_ptr<Material> Material::Load_Material(const string& full_path)
 		const string filename = full_path.substr(path_i, ext_i - path_i); //ファイル名
 		mat->name = filename;
 
+		//リフレクションしたデータを保存
 		if (!mat->self_save_path.empty())
 		{
 			mat->self_save_path = full_path;
@@ -82,7 +86,7 @@ void Material::Remove_Pass()
 	if (render_pass.size() > 1) render_pass.pop_back();
 }
 
-void Material::Set_Rendering_Mode(Rendering_Mode mode)
+void Material::Set_Rendering_Mode(const Rendering_Mode mode)
 {
 	rendering_mode = mode;
 	if (rendering_mode == Rendering_Mode::Opaque)
@@ -114,22 +118,22 @@ void Material::Set_Rendering_Mode(Rendering_Mode mode)
 	}
 }
 
-void Material::Set_Blend_State(BS_State state, int pass)
+void Material::Set_Blend_State(BS_State state, const int pass)
 {
 	render_pass[pass].blend_state = state;
 }
 
-void Material::Set_Rasterizer_State(RS_State state, int pass)
+void Material::Set_Rasterizer_State(RS_State state, const int pass)
 {
 	render_pass[pass].rasterizer_state = state;
 }
 
-void Material::Set_Depth_Stencil_State(DS_State state, int pass)
+void Material::Set_Depth_Stencil_State(DS_State state, const int pass)
 {
 	render_pass[pass].depth_stencil_state = state;
 }
 
-void Material::Set_Shader(const string& path, Shader::Shader_Type shader_type, int pass)
+void Material::Set_Shader(const string& path, Shader::Shader_Type shader_type, const int pass)
 {
 	Render_Pass& r_pass = render_pass[pass];
 	Shader_Info& info = r_pass.shader_info[static_cast<int>(shader_type)];
@@ -157,6 +161,7 @@ void Material::Set_Shader(const string& path, Shader::Shader_Type shader_type, i
 		}
 	}
 
+	//変更があった場合のみリフレクション
 	if (update)
 	{
 		if (newer)
@@ -179,8 +184,8 @@ void Material::Set_Texture(const string& texture_name, const shared_ptr<Texture>
 	bool change = false;
 	for (auto& pass : render_pass)
 	{
-		auto it = pass.texture_info.find(texture_name);
-		if (it != pass.texture_info.end())
+		//テクスチャのパラメータ名からバインド先を探す
+		if (auto it = pass.texture_info.find(texture_name); it != pass.texture_info.end())
 		{
 			auto& info = it->second;
 			info.texture = texture;
@@ -211,6 +216,7 @@ void Material::Set_Parameter(const string& parameter_name, const void* value, co
 	bool change = false;
 	for (auto& pass : render_pass)
 	{
+		//パラメータ名からバインド先を探す
 		if (const auto it = pass.parameter_info.find(parameter_name); it != pass.parameter_info.end())
 		{
 			Parameter_Info& info = it->second;
@@ -290,9 +296,10 @@ int Material::Get_Int(const string& int_name)
 	{
 		if (const auto it = pass.parameter_info.find(int_name); it != pass.parameter_info.end())
 		{
+			//型をチェックしてからバイトデータをコピーする
 			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::Int)
 			{
-				ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
+				const ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
 				int value = 0;
 				memcpy(&value, &b_info.byte_data[info.offset], info.size);
 				return value;
@@ -310,6 +317,7 @@ float Material::Get_Float(const string& float_name)
 	{
 		if (const auto it = pass.parameter_info.find(float_name); it != pass.parameter_info.end())
 		{
+			//型をチェックしてからバイトデータをコピーする
 			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::Float)
 			{
 				const ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
@@ -332,6 +340,7 @@ Vector2 Material::Get_Vector2(const string& vector_name)
 	{
 		if (const auto it = pass.parameter_info.find(vector_name); it != pass.parameter_info.end())
 		{
+			//型をチェックしてからバイトデータをコピーする
 			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::Vector2)
 			{
 				ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
@@ -352,6 +361,7 @@ Vector3 Material::Get_Vector3(const string& vector_name)
 	{
 		if (const auto it = pass.parameter_info.find(vector_name); it != pass.parameter_info.end())
 		{
+			//型をチェックしてからバイトデータをコピーする
 			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::Vector3)
 			{
 				const ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
@@ -372,6 +382,7 @@ Vector4 Material::Get_Vector4(const string& vector_name)
 	{
 		if (const auto it = pass.parameter_info.find(vector_name); it != pass.parameter_info.end())
 		{
+			//型をチェックしてからバイトデータをコピーする
 			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::Vector4)
 			{
 				const ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
@@ -392,6 +403,7 @@ Matrix Material::Get_Matrix(const string& matrix_name)
 	{
 		if (const auto it = pass.parameter_info.find(matrix_name); it != pass.parameter_info.end())
 		{
+			//型をチェックしてからバイトデータをコピーする
 			if (const Parameter_Info& info = it->second; info.type == Shader::Parameter_Type::Matrix)
 			{
 				const ConstantBuffer_Info& b_info = pass.constant_buffer_info.find(info.parent_name)->second;
@@ -517,7 +529,7 @@ void Material::Render_Pass::Reflect_Texture()
 	{
 		if (const auto& shader = shader_info[i].shader)
 		{
-			// テクスチャ
+			// テクスチャ情報を取得
 			for (auto& t_info : shader->texture_info)
 			{
 				auto it = texture_info.find(t_info.name);
@@ -552,11 +564,10 @@ void Material::Render_Pass::Reflect_Texture(Shader::Shader_Type type)
 {
 	if (const auto& shader = shader_info[static_cast<int>(type)].shader)
 	{
-		// テクスチャ
+		// テクスチャ情報を取得
 		for (auto& t_info : shader->texture_info)
 		{
-			auto it = texture_info.find(t_info.name);
-			if (it == texture_info.end())
+			if (auto it = texture_info.find(t_info.name); it == texture_info.end())
 			{
 				Texture_Info tex;
 				tex.register_number = t_info.register_number;
@@ -574,6 +585,7 @@ void Material::Render_Pass::Reflect_Texture(Shader::Shader_Type type)
 
 void Material::Render_Pass::Create_ConstantBuffer(ConstantBuffer_Info& info, const UINT& size)
 {
+	//コンスタントバッファ作成
 	D3D11_BUFFER_DESC bd;
 	bd.Usage = D3D11_USAGE_DYNAMIC;
 	bd.ByteWidth = size;
@@ -603,34 +615,30 @@ void Material::Render_Pass::Initialize_Shader()
 		shader_info[i].shader = Shader::Create(shader_info[i].shader_path, static_cast<Shader::Shader_Type>(i));
 		if (const auto& shader = shader_info[i].shader)
 		{
-			// コンスタントバッファ
 			for (auto& c_info : shader->constant_buffer_info)
 			{
+				// コンスタントバッファ情報の変更確認
 				auto it = constant_buffer_info.find(c_info.name);
 				if (it == constant_buffer_info.end())
 				{
 					change = true;
 					break;
 				}
-				else
+
+				//パラメータ情報の変更確認
+				for (auto& p_info : c_info.parameters)
 				{
-					//パラメータ
-					for (auto& p_info : c_info.parameters)
+					auto itr = parameter_info.find(p_info.name);
+					if (itr == parameter_info.end())
 					{
-						auto itr = parameter_info.find(p_info.name);
-						if (itr == parameter_info.end())
-						{
-							change = true;
-							break;
-						}
-						else
-						{
-							if (p_info.type != itr->second.type)
-							{
-								change = true;
-								break;
-							}
-						}
+						change = true;
+						break;
+					}
+
+					if (p_info.type != itr->second.type)
+					{
+						change = true;
+						break;
 					}
 				}
 				if (change) break;
@@ -639,6 +647,7 @@ void Material::Render_Pass::Initialize_Shader()
 		if (change) break;
 	}
 
+	//変更があればリフレクション
 	if (change)
 	{
 		Reflect_Shader();
@@ -665,7 +674,7 @@ void Material::Render_Pass::Initialize_Texture()
 	{
 		if (const auto& shader = shader_info[i].shader)
 		{
-			// テクスチャ
+			// テクスチャ情報の変更確認
 			for (auto& t_info : shader->texture_info)
 			{
 				auto it = texture_info.find(t_info.name);
@@ -679,11 +688,13 @@ void Material::Render_Pass::Initialize_Texture()
 		if (change) break;
 	}
 
+	//変更があればリフレクション
 	if (change)
 	{
 		Reflect_Texture();
 	}
 
+	//テクスチャの作成
 	for (auto& texture : texture_info)
 	{
 		auto& info = texture.second;

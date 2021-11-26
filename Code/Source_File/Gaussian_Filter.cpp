@@ -9,6 +9,7 @@ using Microsoft::WRL::ComPtr;
 
 Gaussian_Filter::Gaussian_Filter(const Vector2& size, const DXGI_FORMAT format, const float& dispersion)
 {
+	//計算用のマテリアルを生成
 	material[0] = Material::Create("Shader/Gaussian_Shader_x_VS.hlsl", "Shader/Gaussian_Shader_x_PS.hlsl");
 	material[0]->Set_Rasterizer_State(RS_State::Cull_None);
 	material[0]->Set_Depth_Stencil_State(DS_State::None_No_Write);
@@ -59,9 +60,10 @@ Gaussian_Filter::Gaussian_Filter(const Vector2& size, const DXGI_FORMAT format, 
 
 void Gaussian_Filter::Set_Weight(const float& dispersion)
 {
+	//引数からフィルタの強度を算出する
 	float total = 0.0f;
 	constexpr int num_weight = 8;
-	float weights[num_weight];
+	float weights[num_weight] = {};
 
 	for (int i = 0; i < num_weight; ++i)
 	{
@@ -76,8 +78,8 @@ void Gaussian_Filter::Set_Weight(const float& dispersion)
 	}
 
 	//定数バッファ更新
-	Vector4 weight_0 = { weights[0], weights[1], weights[2], weights[3] };
-	Vector4 weight_1 = { weights[4], weights[5], weights[6], weights[7] };
+	const Vector4 weight_0 = { weights[0], weights[1], weights[2], weights[3] };
+	const Vector4 weight_1 = { weights[4], weights[5], weights[6], weights[7] };
 	for (size_t i = 0; i < 2; ++i)
 	{
 		material[i]->Set_Vector4("weight_0", weight_0);
@@ -137,10 +139,7 @@ void Gaussian_Filter::Create_Render_Target(const Vector2& size, const DXGI_FORMA
 
 void Gaussian_Filter::Filtering_Gaussian(const ComPtr<ID3D11ShaderResourceView>& srv)
 {
-	//===================================================================
 	// Pass1 : 横方向にぼかす
-	//===================================================================
-
 	// RTV設定
 	constexpr float clearColor[4] = { 0,0,0,0 };
 	DxSystem::device_context->OMSetRenderTargets(1, target[0].render_target_view.GetAddressOf(), nullptr);
@@ -161,10 +160,7 @@ void Gaussian_Filter::Filtering_Gaussian(const ComPtr<ID3D11ShaderResourceView>&
 
 	DxSystem::device_context->Draw(4, 0);
 
-	//===================================================================
 	// Pass2 : 縦方向にぼかす
-	//===================================================================
-
 	// RTV設定
 	DxSystem::device_context->OMSetRenderTargets(1, target[1].render_target_view.GetAddressOf(), nullptr);
 	DxSystem::device_context->ClearRenderTargetView(target[1].render_target_view.Get(), clearColor);

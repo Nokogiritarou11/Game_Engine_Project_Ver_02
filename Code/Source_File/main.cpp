@@ -38,27 +38,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_KILLFOCUS:
 			BeastEngine::Engine::Get_Handle(message, wParam, lParam);
 			break;
-			/*
-			case WM_CREATE:
-				break;
-			case WM_KEYDOWN:
-				break;
-			case WM_KEYUP:
-				break;
-			case WM_INPUT:
-				Input::ProcessMessage(message, wParam, lParam);
-				break;
-			case WM_MOUSEMOVE:
-				break;
-			case WM_LBUTTONDOWN:
-				break;
-			case WM_LBUTTONUP:
-				break;
-			case WM_RBUTTONDOWN:
-				break;
-			case WM_RBUTTONUP:
-				break;
-			*/
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -103,7 +82,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 		return 0;
 	}
 
-	std::unique_ptr<BeastEngine::Engine> engine = std::make_unique<BeastEngine::Engine>();
+	auto engine = std::make_unique<BeastEngine::Engine>();
 	BeastEngine::Time::time_scale = 1.0f;
 
 	//メインループ
@@ -121,8 +100,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 		}
 		else
 		{
+			//Timeクラス更新
 			BeastEngine::Time::delta_time = static_cast<float>(GetTickCount64() - before) * 0.001f * BeastEngine::Time::time_scale;
 
+			//FPSを算出し表示
 			before = GetTickCount64();
 			const float mspf = 1000.0f / static_cast<float>(fps);
 
@@ -142,6 +123,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 			engine->Update();
 		}
 	}
+
 	engine.reset();
 	return 0;
 }

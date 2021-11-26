@@ -15,7 +15,7 @@ namespace BeastEngine
 	public:
 		~Particle() override;
 
-		void Set_Particle(const char* filepath, const char* filename);
+		void Set_Particle(const std::string& filepath, const std::string& filename);
 		[[nodiscard]] bool Get_Is_Playing() const { return is_playing; }
 
 		void Play();  //Ä¶(ˆê’â~’†‚Ìê‡‚ÍÄŠJ)

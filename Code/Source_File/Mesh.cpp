@@ -13,12 +13,13 @@ using namespace BeastEngine;
 
 shared_ptr<Mesh> Mesh::Load_Mesh(const string& full_path)
 {
-	auto it = Engine::asset_manager->cache_mesh.find(full_path);
-	if (it != Engine::asset_manager->cache_mesh.end())
+	//キャッシュがあれば返す
+	if (auto it = Engine::asset_manager->cache_mesh.find(full_path); it != Engine::asset_manager->cache_mesh.end())
 	{
 		shared_ptr<Mesh> mesh = it->second;
 		return mesh;
 	}
+
 	//ファイルから読み込み
 	int path_i = full_path.find_last_of("\\") + 1;
 	int ext_i = full_path.find_last_of(".");

@@ -94,20 +94,21 @@ shared_ptr<Model_Data> Model_Data::Load_Model(const string& file_path, const str
 	FbxManager* fbx_manager = FbxManager::Create();
 
 	// FBXに対する入出力を定義する
-	FbxIOSettings* fbx_ios = FbxIOSettings::Create(fbx_manager, IOSROOT);	// 特別な理由がない限りIOSROOTを指定
+	// 特別な理由がない限りIOSROOTを指定
+	FbxIOSettings* fbx_ios = FbxIOSettings::Create(fbx_manager, IOSROOT);
 	fbx_manager->SetIOSettings(fbx_ios);
 
 	// インポータを生成
 	FbxImporter* fbx_importer = FbxImporter::Create(fbx_manager, "");
-	const bool result = fbx_importer->Initialize(full_path.c_str(), -1, fbx_manager->GetIOSettings());	// -1でファイルフォーマット自動判定
+	const bool result = fbx_importer->Initialize(full_path.c_str(), -1, fbx_manager->GetIOSettings()); // -1でファイルフォーマット自動判定
 	_ASSERT_EXPR_A(result, "FbxImporter::Initialize() : Failed!!\n");
 
 	// SceneオブジェクトにFBXファイル内の情報を流し込む
 	FbxScene* fbx_scene = FbxScene::Create(fbx_manager, "scene");
 	fbx_importer->Import(fbx_scene);
-	fbx_importer->Destroy();	// シーンを流し込んだらImporterは解放してOK
+	fbx_importer->Destroy(); // シーンを流し込んだらImporterは解放してOK
 
-							// ジオメトリを三角形化しておく
+	// ジオメトリを三角形化しておく
 	FbxGeometryConverter fbx_geometry_converter(fbx_manager);
 	fbx_geometry_converter.Triangulate(fbx_scene, true);
 	fbx_geometry_converter.RemoveBadPolygonsFromMeshes(fbx_scene);
@@ -127,7 +128,7 @@ shared_ptr<Model_Data> Model_Data::Load_Model(const string& file_path, const str
 		FbxAxisSystem::OpenGL.ConvertScene(fbxScene);
 	}
 #endif
-	// センチメーター単位にコンバートする。
+	// センチメーター単位にコンバートする
 	if (const FbxSystemUnit scene_system_unit = fbx_scene->GetGlobalSettings().GetSystemUnit(); scene_system_unit.GetScaleFactor() != 1.0f)
 	{
 		FbxSystemUnit::cm.ConvertScene(fbx_scene);
@@ -138,22 +139,22 @@ shared_ptr<Model_Data> Model_Data::Load_Model(const string& file_path, const str
 	::_splitpath_s(full_path.c_str(), nullptr, 0, dirname, 256, nullptr, 0, nullptr, 0);
 
 	// モデル構築
-	FbxNode* fbxRootNode = fbx_scene->GetRootNode();
-	model_ptr->BuildNodes(fbxRootNode, -1);
-	model_ptr->BuildMeshes(fbxRootNode);
+	FbxNode* fbx_root_node = fbx_scene->GetRootNode();
+	model_ptr->BuildNodes(fbx_root_node, -1);
+	model_ptr->BuildMeshes(fbx_root_node);
 
 	// アニメーション構築
 	model_ptr->BuildAnimations(fbx_scene);
 
 	// マネージャ解放
-	fbx_manager->Destroy();		// 関連するすべてのオブジェクトが解放される
+	fbx_manager->Destroy();	// 関連するすべてのオブジェクトが解放される
 
 	return model_ptr;
 }
 
-// FBXノードを再帰的に辿ってデータを構築する
 void Model_Data::BuildNodes(FbxNode* fbx_node, int parent_node_index)
 {
+	// FBXノードを再帰的に辿ってデータを構築する
 	FbxNodeAttribute* fbxNodeAttribute = fbx_node->GetNodeAttribute();
 	FbxNodeAttribute::EType fbxNodeAttributeType = FbxNodeAttribute::EType::eUnknown;
 
@@ -187,9 +188,9 @@ void Model_Data::BuildNodes(FbxNode* fbx_node, int parent_node_index)
 	}
 }
 
-// FBXノードからノードデータを構築する
 void Model_Data::BuildNode(const FbxNode* fbx_node, const int parent_node_index)
 {
+	// FBXノードからノードデータを構築する
 	Skeleton node;
 	node.name = fbx_node->GetName();
 	node.parent_index = parent_node_index;
@@ -197,21 +198,21 @@ void Model_Data::BuildNode(const FbxNode* fbx_node, const int parent_node_index)
 	bones.emplace_back(node);
 }
 
-// FBXノードを再帰的に辿ってメッシュデータを構築する
 void Model_Data::BuildMeshes(FbxNode* fbx_node)
 {
-	FbxNodeAttribute* fbxNodeAttribute = fbx_node->GetNodeAttribute();
-	FbxNodeAttribute::EType fbxNodeAttributeType = FbxNodeAttribute::EType::eUnknown;
+	// FBXノードを再帰的に辿ってメッシュデータを構築する
+	FbxNodeAttribute* fbx_node_attribute = fbx_node->GetNodeAttribute();
+	FbxNodeAttribute::EType fbx_node_attribute_type = FbxNodeAttribute::EType::eUnknown;
 
-	if (fbxNodeAttribute != nullptr)
+	if (fbx_node_attribute != nullptr)
 	{
-		fbxNodeAttributeType = fbxNodeAttribute->GetAttributeType();
+		fbx_node_attribute_type = fbx_node_attribute->GetAttributeType();
 	}
 
-	switch (fbxNodeAttributeType)
+	switch (fbx_node_attribute_type)
 	{
 		case FbxNodeAttribute::eMesh:
-			BuildMesh(fbx_node, static_cast<FbxMesh*>(fbxNodeAttribute));
+			BuildMesh(fbx_node, static_cast<FbxMesh*>(fbx_node_attribute));
 			break;
 		default:
 			break;
@@ -224,12 +225,10 @@ void Model_Data::BuildMeshes(FbxNode* fbx_node)
 	}
 }
 
-// FBXメッシュからメッシュデータを構築する
 void Model_Data::BuildMesh(FbxNode* fbx_node, FbxMesh* fbx_mesh)
 {
+	// FBXメッシュからメッシュデータを構築する
 	int fbx_control_points_count = fbx_mesh->GetControlPointsCount();
-	//int fbxPolygonVertexCount = fbxMesh->GetPolygonVertexCount();
-	//const int* fbxPolygonVertices = fbxMesh->GetPolygonVertices();
 
 	int fbx_material_count = fbx_node->GetMaterialCount();
 	int fbx_polygon_count = fbx_mesh->GetPolygonCount();
@@ -330,6 +329,7 @@ void Model_Data::BuildMesh(FbxNode* fbx_node, FbxMesh* fbx_mesh)
 			}
 		}
 	};
+
 	// 頂点影響力データを抽出する
 	vector<BoneInfluence> bone_influences;
 	{
@@ -340,6 +340,7 @@ void Model_Data::BuildMesh(FbxNode* fbx_node, FbxMesh* fbx_mesh)
 			fbx_node->GetGeometricRotation(FbxNode::eSourcePivot),
 			fbx_node->GetGeometricScaling(FbxNode::eSourcePivot)
 		);
+
 		// スキニングに必要な情報を取得する
 		int fbx_deformer_count = fbx_mesh->GetDeformerCount(FbxDeformer::eSkin);
 		for (int fbx_deformer_index = 0; fbx_deformer_index < fbx_deformer_count; ++fbx_deformer_index)
@@ -463,6 +464,7 @@ void Model_Data::BuildMesh(FbxNode* fbx_node, FbxMesh* fbx_mesh)
 			if (fbx_mesh->GetElementTangentCount() > 0)
 			{
 				const FbxGeometryElementTangent* geometry_element_tangent = fbx_mesh->GetElementTangent(0);
+				//以下コメントはサンプルからのコピペ
 				/**	\enum EMappingMode		Determines how the element is mapped to a surface.
 				* - \e eNone                The mapping is undetermined.
 				* - \e eByControlPoint      There will be one mapping coordinate for each surface control point/vertex.
@@ -564,6 +566,7 @@ void Model_Data::BuildMesh(FbxNode* fbx_node, FbxMesh* fbx_mesh)
 
 	if (no_tangent)
 	{
+		//タンジェントのデータが存在しない場合、頂点情報から新規に算出する
 		for (size_t i = 0; i < indices.size(); i += 3)
 		{
 			Mesh::vertex* v[3] = { &vertices.at(indices.at(i + 0)), &vertices.at(indices.at(i + 1)), &vertices.at(indices.at(i + 2)) };
@@ -607,7 +610,6 @@ void Model_Data::BuildMesh(FbxNode* fbx_node, FbxMesh* fbx_mesh)
 		D3D11_SUBRESOURCE_DATA subresourceData = {};
 
 		bufferDesc.ByteWidth = static_cast<UINT>(sizeof(Mesh::vertex) * vertices.size());
-		//bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
 		bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		bufferDesc.CPUAccessFlags = 0;
@@ -623,39 +625,27 @@ void Model_Data::BuildMesh(FbxNode* fbx_node, FbxMesh* fbx_mesh)
 
 	// インデックスバッファ
 	{
-		/*
-		vector<u_int> inverse_indices;
-		for (int i = 0; i < indices.size() / 3; ++i)
-		{
-			inverse_indices.push_back(i * 3 + 2);
-			inverse_indices.push_back(i * 3 + 1);
-			inverse_indices.push_back(i * 3);
-		}
-		*/
 		D3D11_BUFFER_DESC bufferDesc = {};
 		D3D11_SUBRESOURCE_DATA subresourceData = {};
 
 		bufferDesc.ByteWidth = static_cast<UINT>(sizeof(u_int) * indices.size());
-		//bufferDesc.ByteWidth = static_cast<UINT>(sizeof(u_int) * inverse_indices.size());
-		//bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
 		bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		bufferDesc.CPUAccessFlags = 0;
 		bufferDesc.MiscFlags = 0;
 		bufferDesc.StructureByteStride = 0;
 		subresourceData.pSysMem = &indices[0];
-		//subresourceData.pSysMem = &inverse_indices[0];
-		subresourceData.SysMemPitch = 0; //Not use for index buffers.
-		subresourceData.SysMemSlicePitch = 0; //Not use for index buffers.
+		subresourceData.SysMemPitch = 0;
+		subresourceData.SysMemSlicePitch = 0;
 		HRESULT hr = DxSystem::device->CreateBuffer(&bufferDesc, &subresourceData, mesh->index_buffer.GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 	}
 
 }
 
-// アニメーションデータを構築
 void Model_Data::BuildAnimations(FbxScene* fbx_scene)
 {
+	// アニメーションデータを構築
 	// すべてのアニメーション名を取得
 	FbxArray<FbxString*> fbx_anim_stack_names;
 	fbx_scene->FillAnimStackNameArray(fbx_anim_stack_names);
@@ -678,7 +668,7 @@ void Model_Data::BuildAnimations(FbxScene* fbx_scene)
 		FbxAnimStack* fbx_anim_stack = fbx_scene->FindMember<FbxAnimStack>(fbx_anim_stack_name->Buffer());
 		animation.name = fbx_anim_stack_name->Buffer();
 
-		// 再生するアニメーションを指定する。
+		// 再生するアニメーションを指定する
 		fbx_scene->SetCurrentAnimationStack(fbx_anim_stack);
 
 		// アニメーションの再生開始時間と再生終了時間を取得する
@@ -711,7 +701,7 @@ void Model_Data::BuildAnimations(FbxScene* fbx_scene)
 		const size_t fbx_node_count = fbx_nodes.size();
 		for (FbxTime fbx_current_time = fbx_start_time; fbx_current_time <= fbx_end_time; fbx_current_time += fbx_sampling_step, ++keyframe)
 		{
-			// キーフレーム毎の姿勢データを取り出す。
+			// キーフレーム毎の姿勢データを取り出す
 			keyframe->seconds = seconds;
 			if (keyframe == &animation.keyframes.back()) keyframe->seconds = animation.seconds_length;
 			keyframe->node_keys.resize(fbx_node_count);
@@ -736,7 +726,7 @@ void Model_Data::BuildAnimations(FbxScene* fbx_scene)
 				}
 				else
 				{
-					// 指定時間のローカル行列からスケール値、回転値、移動値を取り出す。
+					// 指定時間のローカル行列からスケール値、回転値、移動値を取り出す
 					const FbxAMatrix& fbx_local_transform = fbx_node->EvaluateLocalTransform(fbx_current_time);
 					key_data.scale = FbxDouble4ToFloat3(fbx_local_transform.GetS());
 					key_data.rotation = FbxDouble4ToFloat4(fbx_local_transform.GetQ());
@@ -754,9 +744,9 @@ void Model_Data::BuildAnimations(FbxScene* fbx_scene)
 	}
 }
 
-// ノードインデックスを取得する
 int Model_Data::FindNodeIndex(const char* name)
 {
+	// ノードインデックスを取得する
 	for (size_t i = 0; i < bones.size(); ++i)
 	{
 		if (bones[i].name == name)

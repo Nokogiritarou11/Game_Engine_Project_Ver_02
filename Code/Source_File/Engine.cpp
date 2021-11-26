@@ -42,6 +42,7 @@ unique_ptr<Thread_Pool>           Engine::thread_pool;
 
 Engine::Engine()
 {
+	//各マネージャーなどの生成
 	thread_pool = make_unique<Thread_Pool>();
 	input_manager = make_unique<Input>();
 	cursor_manager = make_unique<Cursor>();
@@ -65,35 +66,33 @@ Engine::Engine()
 		string load_path;
 		getline(i_ifstream, load_path);
 
-		if (load_path != "")
+		if (!load_path.empty())
 		{
 			scene_manager->Load_Scene(load_path);
 		}
 		else
 		{
-			string path = System_Function::Get_Save_File_Name("bin", "\\Assets\\Scene");
-			if (path != "")
+			if (string path = System_Function::Get_Save_File_Name("bin", "\\Assets\\Scene"); !path.empty())
 			{
-				int path_i = path.find_last_of("\\") + 1;//7
-				int ext_i = path.find_last_of(".");//10
+				int path_i = path.find_last_of("\\") + 1;
+				int ext_i = path.find_last_of(".");
 				string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
 				string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 				path = pathname + filename + ".bin";
-				Engine::scene_manager->Create_Scene_Default(path, filename);
+				scene_manager->Create_Scene_Default(path, filename);
 			}
 		}
 	}
 	else
 	{
-		string path = System_Function::Get_Save_File_Name("bin", "\\Assets\\Scene");
-		if (path != "")
+		if (string path = System_Function::Get_Save_File_Name("bin", "\\Assets\\Scene"); !path.empty())
 		{
-			int path_i = path.find_last_of("\\") + 1;//7
-			int ext_i = path.find_last_of(".");//10
+			int path_i = path.find_last_of("\\") + 1;
+			int ext_i = path.find_last_of(".");
 			string pathname = path.substr(0, path_i); //ファイルまでのディレクトリ
 			string filename = path.substr(path_i, ext_i - path_i); //ファイル名
 			path = pathname + filename + ".bin";
-			Engine::scene_manager->Create_Scene_Default(path, filename);
+			scene_manager->Create_Scene_Default(path, filename);
 		}
 	}
 
@@ -103,7 +102,7 @@ Engine::Engine()
 	if (iIfstream.is_open())
 	{
 		getline(iIfstream, load_path);
-		if (load_path != "")
+		if (!load_path.empty())
 		{
 			scene_manager->Load_Scene(load_path);
 		}

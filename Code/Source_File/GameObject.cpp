@@ -8,8 +8,10 @@ using namespace BeastEngine;
 
 std::shared_ptr<Component> GameObject::Add_Component(const std::string& class_name)
 {
+	//ファクトリークラスから名前でコンポーネントを生成する
 	if (std::shared_ptr<Component> buff = Component_Data::Component_Factory::Create_Instance(class_name))
 	{
+		//複数アタッチできるか
 		if (buff->Can_Multiple())
 		{
 			buff->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
@@ -25,6 +27,7 @@ std::shared_ptr<Component> GameObject::Add_Component(const std::string& class_na
 				already_attach = true;
 			}
 		}
+		//既にアタッチされているか
 		if (!already_attach)
 		{
 			buff->Initialize(std::static_pointer_cast<GameObject>(shared_from_this()));
@@ -37,11 +40,14 @@ std::shared_ptr<Component> GameObject::Add_Component(const std::string& class_na
 
 void GameObject::Initialize()
 {
+	//アセットマネージャーへの登録
 	Engine::asset_manager->Registration_Asset(shared_from_this());
+	//各コンポーネントの初期化を呼ぶ
 	for (const auto& c : component_list)
 	{
 		c->Initialize(dynamic_pointer_cast<GameObject>(shared_from_this()));
 	}
+	//子に対しても行う
 	for (int i = 0; i < transform->Get_Child_Count(); ++i)
 	{
 		transform->Get_Child(i).lock()->gameobject->Initialize();
@@ -50,6 +56,7 @@ void GameObject::Initialize()
 
 void GameObject::Release()
 {
+	//親子関係を解除し、子を削除する
 	transform->Set_Parent(nullptr);
 	while (transform->Get_Child_Count())
 	{
@@ -62,6 +69,7 @@ void GameObject::Release()
 		}
 	}
 
+	//各コンポーネントを削除する
 	for (auto& c : component_list)
 	{
 		c->gameobject.reset();
@@ -74,11 +82,7 @@ void GameObject::Release()
 
 bool GameObject::Compare_Tag(const string& tag) const
 {
-	if (this->tag == tag)
-	{
-		return true;
-	}
-	return false;
+	return this->tag == tag;
 }
 
 bool GameObject::Get_Active() const
@@ -94,11 +98,8 @@ bool GameObject::Get_Active_In_Hierarchy() const
 		{
 			return obj->gameobject->Get_Active_In_Hierarchy();
 		}
-		else
-		{
-			return active;
-		}
 	}
+
 	return active;
 }
 

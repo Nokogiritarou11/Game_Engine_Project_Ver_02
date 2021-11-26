@@ -10,11 +10,12 @@ using namespace BeastEngine;
 
 void Light::Initialize(const shared_ptr<GameObject>& obj)
 {
-	Engine::light_manager->Add(static_pointer_cast<Light>(shared_from_this()));
-
+	//マネージャーへの登録とComponentの初期化
 	Engine::asset_manager->Registration_Asset(shared_from_this());
 	gameobject = obj;
 	transform = obj->transform;
+	Engine::light_manager->Add(static_pointer_cast<Light>(shared_from_this()));
+
 }
 
 bool Light::Draw_ImGui()

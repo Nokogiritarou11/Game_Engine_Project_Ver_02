@@ -242,7 +242,7 @@ bool DxSystem::Create_Depth_Stencil()
 	hr = device->CreateDepthStencilView(depth_stencil_texture.Get(), &dsvd, depth_stencil_view.GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
-	//デプスステンシルステート
+	//デプスステンシルステート作成
 	D3D11_DEPTH_STENCIL_DESC depth_stencil_desc;
 
 	ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
@@ -601,18 +601,16 @@ bool DxSystem::Create_Blend_State()
 	return true;
 }
 
-void DxSystem::Clear(DWORD color)
+void DxSystem::Clear(const DWORD color)
 {
 	// レンダーターゲットビュー設定
 	device_context->OMSetRenderTargets(1, render_target_view.GetAddressOf(), depth_stencil_view.Get());
 
-	constexpr float clear_color[4] = { 1,0,0,0 };
-	/*
+	float clear_color[4] = { 0,0,0,0 };
 	for (int i = 3; i >= 0; i--)
 	{
 		clear_color[i] = ((color >> 8 * (3 - i)) & 0x00000000) / 255.0f;
 	}
-	*/
 	device_context->ClearRenderTargetView(render_target_view.Get(), clear_color);
 	device_context->ClearDepthStencilView(depth_stencil_view.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 0.0f, 0);
 	device_context->OMSetDepthStencilState(depth_stencil_state[static_cast<int>(DS_State::LEqual)].Get(), 1);

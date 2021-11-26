@@ -12,6 +12,7 @@ using Microsoft::WRL::ComPtr;
 
 Debug_Draw_Manager::Debug_Draw_Manager()
 {
+	//描画用のマテリアルを生成
 	material = Material::Create("Shader\\Debug_Shader_VS.hlsl", "Shader\\Debug_Shader_PS.hlsl");
 	material->Set_Blend_State(BS_State::Alpha);
 	material->Set_Depth_Stencil_State(DS_State::GEqual_No_Write);
@@ -20,6 +21,7 @@ Debug_Draw_Manager::Debug_Draw_Manager()
 
 	grid_length = 80;
 
+	//デフォルトカラーの設定
 	default_color.m_activeObject = { 0, 1, 0 };
 	default_color.m_deactivatedObject = { 0, 1, 0 };
 	default_color.m_wantsDeactivationObject = { 0, 1, 1 };
@@ -33,6 +35,7 @@ void Debug_Draw_Manager::flushLines()
 {
 	if (lines.size() == 0) return;
 
+	// 頂点バッファ
 	ComPtr<ID3D11Buffer> buff;
 
 	D3D11_BUFFER_DESC bd = {};
@@ -49,7 +52,6 @@ void Debug_Draw_Manager::flushLines()
 		return;
 	}
 
-	// 頂点バッファ
 	constexpr UINT stride = sizeof(VertexData);
 	constexpr UINT offset = 0;
 	ID3D11Buffer* vb[1] = { buff.Get() };
@@ -72,6 +74,7 @@ void Debug_Draw_Manager::drawLine(const btVector3& from, const btVector3& to, co
 
 void Debug_Draw_Manager::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
 {
+	// バッファにまとめて、あとから一括描画
 	btVector3 c = color;
 	c[3] = 1.0f;
 	lines.emplace_back(Line(from, to, c, c));
@@ -90,10 +93,10 @@ Debug_Draw_Manager::Vertex::Vertex(const btVector3& p, const btVector3& c)
 
 void Debug_Draw_Manager::Set_Dx_Settings() const
 {
-	// プリミティブ形状
+	// プリミティブ設定
 	DxSystem::device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
-	// シェーダ
+	// シェーダーセット
 	material->Activate();
 }
 
@@ -111,6 +114,7 @@ void Debug_Draw_Manager::Render_Grid(shared_ptr<Transform>& trans) const
 	float color_level[2];
 	int count[2];
 
+	//カメラの座標によってラインの位置を変更
 	const float next_height = abs(pos.y) / powf(10.0f, static_cast<float>(height_level + 1));
 	color_level[0] = 0.2f * (1 - next_height);
 	color_level[1] = 0.2f * next_height;
@@ -145,6 +149,7 @@ void Debug_Draw_Manager::Render_Grid(shared_ptr<Transform>& trans) const
 		}
 	}
 
+	// 頂点バッファ
 	HRESULT hr;
 	ComPtr<ID3D11Buffer> grid_vertex_buffer;
 	D3D11_BUFFER_DESC bd = {};
@@ -157,7 +162,6 @@ void Debug_Draw_Manager::Render_Grid(shared_ptr<Transform>& trans) const
 	hr = DxSystem::device->CreateBuffer(&bd, &InitData, grid_vertex_buffer.GetAddressOf());
 	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
 
-	// 頂点バッファ
 	UINT stride = sizeof(VertexData);
 	UINT offset = 0;
 	DxSystem::device_context->IASetVertexBuffers(0, 1, grid_vertex_buffer.GetAddressOf(), &stride, &offset);

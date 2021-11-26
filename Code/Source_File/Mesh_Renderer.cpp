@@ -23,9 +23,11 @@ void Mesh_Renderer::Initialize(const shared_ptr<GameObject>& obj)
 {
 	enabled_old = enabled;
 
+	//マネージャーへの登録とComponentの初期化
 	gameobject = obj;
 	Engine::asset_manager->Registration_Asset(shared_from_this());
 	transform = obj->transform;
+
 	// 定数バッファの生成
 	if (!constant_buffer_mesh)
 	{
@@ -64,6 +66,7 @@ void Mesh_Renderer::Set_Active(const bool value)
 				{
 					if (Get_Enabled())
 					{
+						//初回のみマネージャーに登録
 						Engine::render_manager->Add(static_pointer_cast<Mesh_Renderer>(shared_from_this()));
 						is_called = true;
 					}
@@ -90,6 +93,7 @@ void Mesh_Renderer::Recalculate_Frame()
 				DxSystem::device_context->Unmap(constant_buffer_mesh.Get(), subresource_index);
 			}
 		}
+		//コンピュートシェーダー実行
 		compute_shader->Run();
 
 		//AABB更新
@@ -141,7 +145,7 @@ void Mesh_Renderer::Set_Mesh(const shared_ptr<Mesh>& mesh_data)
 	}
 }
 
-void Mesh_Renderer::Render(int subset_number)
+void Mesh_Renderer::Render(const int subset_number)
 {
 	// バッファ設定
 	const auto& subset = mesh->subsets[subset_number];
@@ -157,7 +161,7 @@ void Mesh_Renderer::Render(int subset_number)
 	}
 }
 
-void Mesh_Renderer::Render_Shadow(int subset_number)
+void Mesh_Renderer::Render_Shadow(const int subset_number)
 {
 	// バッファ設定
 	const auto& subset = mesh->subsets[subset_number];

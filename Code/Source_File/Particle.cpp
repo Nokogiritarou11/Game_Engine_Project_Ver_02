@@ -32,12 +32,12 @@ void Particle::Initialize(const shared_ptr<GameObject>& obj)
 	transform = obj->transform;
 	if (file_path != "")
 	{
-		Set_Particle(file_path.c_str(), file_name.c_str());
+		Set_Particle(file_path, file_name);
 	}
 	Set_Active(gameobject->Get_Active_In_Hierarchy());
 }
 
-void Particle::Set_Particle(const char* filepath, const char* filename)
+void Particle::Set_Particle(const string& filepath, const string& filename)
 {
 	if (effect != nullptr)
 	{
@@ -52,8 +52,7 @@ void Particle::Set_Particle(const char* filepath, const char* filename)
 	}
 	file_name = filename;
 	file_path = filepath;
-	// EffekseerはUTF-16のファイルパス以外は対応していないため文字コード変換が必要
-	const string full_path = static_cast<string>(filepath) + static_cast<string>(filename);
+	const string full_path = filepath + filename;
 
 	if (const auto it = Engine::particle_manager->effect_cache.find(full_path); it != Engine::particle_manager->effect_cache.end())
 	{
@@ -61,10 +60,11 @@ void Particle::Set_Particle(const char* filepath, const char* filename)
 	}
 	else
 	{
-		const char* utf8Filename = full_path.c_str();
-		char16_t utf16Filename[MAX_PATH];
-		Effekseer::ConvertUtf8ToUtf16(utf16Filename, MAX_PATH, utf8Filename);
-		effect = Effekseer::Effect::Create(Engine::particle_manager->manager, static_cast<EFK_CHAR*>(utf16Filename));
+		// EffekseerはUTF-16のファイルパス以外は対応していないため文字コード変換が必要
+		const char* utf8_filename = full_path.c_str();
+		char16_t utf16_filename[MAX_PATH];
+		Effekseer::ConvertUtf8ToUtf16(utf16_filename, MAX_PATH, utf8_filename);
+		effect = Effekseer::Effect::Create(Engine::particle_manager->manager, static_cast<EFK_CHAR*>(utf16_filename));
 		if (effect != nullptr)
 		{
 			Engine::particle_manager->effect_cache.insert(make_pair(full_path, effect));
@@ -84,16 +84,15 @@ void Particle::Set_Active(const bool value)
 			Engine::particle_manager->Add(static_pointer_cast<Particle>(shared_from_this()));
 			is_called = true;
 		}
-		if (play_on_awake)
+
+		//自動再生がオンなら鳴らす
+		if (Engine::scene_manager->run)
 		{
-			if (Engine::scene_manager->run)
+			if (play_on_awake)
 			{
 				Play();
 			}
-		}
-		else
-		{
-			if (Engine::scene_manager->run)
+			else
 			{
 				Stop();
 			}
@@ -101,7 +100,6 @@ void Particle::Set_Active(const bool value)
 	}
 	else
 	{
-
 		if (Engine::scene_manager->run)
 		{
 			Stop();
@@ -206,7 +204,7 @@ bool Particle::Draw_ImGui()
 				const string name = file_name + ext_name;
 				if (ext_name == ".efkefc" || ext_name == ".efk")
 				{
-					Set_Particle(path_name.c_str(), name.c_str());
+					Set_Particle(path_name, name);
 				}
 				else
 				{

@@ -7,7 +7,7 @@ namespace BeastEngine
 	class Compute_Shader
 	{
 	public:
-		static std::shared_ptr<Compute_Shader> Create(std::string shader_path); //ファイルパスからコンピュートシェーダーを作成する
+		static std::shared_ptr<Compute_Shader> Create(const std::string& shader_path); //ファイルパスからコンピュートシェーダーを作成する
 
 		void Run(); //コンピュートシェーダーをセットし実行する
 		[[nodiscard]] Microsoft::WRL::ComPtr<ID3D11Buffer> Get_Copy_Buffer() const;        //計算結果をバッファからコピーし取得する
