@@ -8,6 +8,7 @@
 #include "Input.h"
 #include "Include_ImGui.h"
 #include "Time_Engine.h"
+#include "Mathf.h"
 #include <sstream>
 
 // Forward declare message handler from imgui_impl_win32.cpp
@@ -82,8 +83,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 		return 0;
 	}
 
+	//エンジン作成
 	auto engine = std::make_unique<BeastEngine::Engine>();
 	BeastEngine::Time::time_scale = 1.0f;
+	BeastEngine::Mathf::Reset_Random_Seed();
 
 	//メインループ
 	MSG hmsg = { nullptr };

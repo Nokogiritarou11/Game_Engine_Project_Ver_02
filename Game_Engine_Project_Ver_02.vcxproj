@@ -239,6 +239,7 @@
     <ClCompile Include="Code\Source_File\Light_Manager.cpp" />
     <ClCompile Include="Code\Source_File\main.cpp" />
     <ClCompile Include="Code\Source_File\Material.cpp" />
+    <ClCompile Include="Code\Source_File\Mathf.cpp" />
     <ClCompile Include="Code\Source_File\Mesh.cpp" />
     <ClCompile Include="Code\Source_File\Model_Data.cpp" />
     <ClCompile Include="Code\Source_File\Mesh_Renderer.cpp" />

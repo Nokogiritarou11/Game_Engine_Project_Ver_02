@@ -21,8 +21,10 @@ bool Enemy_Normal_01_Damageable::Take_Damage(const int damage_hp, const int dama
 	const auto& anim = animator.lock();
 	const auto& param = parameter.lock();
 
-	const Vector3 from_pos = from_transform->Get_Position();
-	transform->Set_Local_Rotation(transform->Look_At(Vector3(from_pos.x, transform->Get_Position().y, from_pos.z)));
+	const Vector3 now_pos = transform->Get_Position();
+	Vector3 look_pos = now_pos - from_transform->Get_Forward();
+	look_pos.y = now_pos.y;
+	transform->Set_Local_Rotation(transform->Look_At(look_pos));
 
 	hit_stop_manager.lock()->Start_Hit_Stop(0.05f);
 	enemy_manager.lock()->last_attack_target = parameter;

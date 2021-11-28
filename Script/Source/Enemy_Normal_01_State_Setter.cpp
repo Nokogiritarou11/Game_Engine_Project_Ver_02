@@ -31,9 +31,11 @@ void Enemy_Normal_01_State_Setter::Set_State()
 	const auto& param = parameter.lock();
 	const auto& target = target_transform.lock();
 
-	if ((param->attacking || param->damaging || param->stunning) && (param->moving || param->is_attack_mode))
+	if (param->attacking || param->damaging || param->stunning)
 	{
 		anim->Set_Bool("Move", false);
+		wait_state = Wait_State::Wait;
+		wait_state_timer = Mathf::Random_Range(state_change_time_min, state_change_time_max);
 		param->is_attack_mode = false;
 	}
 

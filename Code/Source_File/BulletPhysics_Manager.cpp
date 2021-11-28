@@ -98,8 +98,8 @@ void BulletPhysics_Manager::Update()
 			//衝突していた場合はコールバックリストに追加
 			if (!contacts_a.empty())
 			{
-				const shared_ptr<Collider> col_a = collider_list[obj_a].lock();
-				const shared_ptr<Collider> col_b = collider_list[obj_b].lock();
+				const shared_ptr<Collider>& col_a = collider_list[obj_a].lock();
+				const shared_ptr<Collider>& col_b = collider_list[obj_b].lock();
 				Collision collision_a = { col_b, col_b->gameobject, col_b->transform, contacts_b };
 				Collision collision_b = { col_a, col_a->gameobject, col_a->transform, contacts_a };
 				hit_list.emplace_back(hit_pair(col_a, collision_a));

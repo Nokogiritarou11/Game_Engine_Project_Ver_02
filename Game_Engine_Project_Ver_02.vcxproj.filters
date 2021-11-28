@@ -127,6 +127,7 @@
     <ClCompile Include="Script\Source\Player_Parameter.cpp" />
     <ClCompile Include="Script\Source\Enemy_Parameter.cpp" />
     <ClCompile Include="Script\Source\Instant_Camera_Shake.cpp" />
+    <ClCompile Include="Code\Source_File\Mathf.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
