@@ -1,15 +1,13 @@
 .vs/
 Debug/
 Default_Assets/
-DirectXTK-master/
 x64/
 Release/
-2020.0.1/
-BulletPhysics/
 Assets/Audio/
 Assets/Effect/
 Assets/Image/
 Assets/Model/
+Code/Libraries/
 *.sdf
 Game_Engine_Project_Ver_02.exe
 imgui.ini

@@ -62,6 +62,7 @@ bool Enemy_Normal_01_Damageable::Take_Damage(const shared_ptr<Damage_Collision>&
 			anim->Set_Trigger("Dead");
 			anim->Set_Trigger("Damage");
 			anim->Set_Int("Damage_State", static_cast<int>(damage_collision->damage_type));
+			pool.lock()->Instance_In_Pool(critical_particle_key, hit_pos_transform.lock()->Get_Position(), damage_collision->hit_transform.lock()->Get_Rotation());
 			enemy_manager.lock()->Enemy_Dead(true, parameter);
 			return true;
 		}
@@ -108,6 +109,8 @@ bool Enemy_Normal_01_Damageable::Draw_ImGui()
 			}
 			ImGui::EndDragDropTarget();
 		}
+
+		ImGui::LeftText_InputText(u8"致死エフェクトキー", "##critical_particle_key", &critical_particle_key, window_center);
 	}
 	return true;
 }

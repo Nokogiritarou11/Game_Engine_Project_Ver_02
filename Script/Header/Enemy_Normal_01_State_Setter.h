@@ -31,6 +31,7 @@ namespace BeastEngine
 		std::weak_ptr<Animator> animator;
 		std::weak_ptr<Transform> target_transform;
 		std::weak_ptr<Transform> spine_transform;
+		std::weak_ptr<GameObject> flash_particle;
 		std::weak_ptr<Enemy_Parameter> parameter;
 		std::weak_ptr<Enemy_Manager> enemy_manager;
 		std::weak_ptr<Object_Pool> pool;
@@ -59,7 +60,8 @@ namespace BeastEngine
 				attack_distance,
 				state_change_time_min, state_change_time_max,
 				probability_wait, probability_chase,
-				wait_distance_min, wait_distance_max);
+				wait_distance_min, wait_distance_max,
+				flash_particle);
 		}
 	};
 }

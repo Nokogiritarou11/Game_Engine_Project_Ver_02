@@ -93,6 +93,7 @@ void Enemy_Normal_01_State_Setter::Set_State()
 		if (param->is_attack_preliminary)
 		{
 			enemy_manager.lock()->Add_Attacking_List(parameter);
+			flash_particle.lock()->Set_Active(true);
 		}
 		else
 		{
@@ -167,24 +168,52 @@ bool Enemy_Normal_01_State_Setter::Draw_ImGui()
 		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
 		ImGui::LeftText_DragFloat(u8"攻撃判定距離", "##Attack_Distance", &attack_distance, window_center);
 
-		ImGui::Text(u8"中心ボーン");
-		ImGui::SameLine(window_center);
-		ImGui::SetNextItemWidth(-FLT_MIN);
-
-		string label_parent = u8"未設定 (ここにドラッグ)";
-		if (const auto& p = spine_transform.lock())
 		{
-			label_parent = p->gameobject->name;
-		}
-		ImGui::InputText("##Item", &label_parent, ImGuiInputTextFlags_ReadOnly);
+			ImGui::PushID("center_bone");
+			ImGui::Text(u8"中心ボーン");
+			ImGui::SameLine(window_center);
+			ImGui::SetNextItemWidth(-FLT_MIN);
 
-		if (ImGui::BeginDragDropTarget())
-		{
-			if (const auto& drag = Engine::editor->Get_Drag_Object())
+			string label_bone = u8"未設定 (ここにドラッグ)";
+			if (const auto& p = spine_transform.lock())
 			{
-				spine_transform = drag->transform;
+				label_bone = p->gameobject->name;
 			}
-			ImGui::EndDragDropTarget();
+			ImGui::InputText("##Item", &label_bone, ImGuiInputTextFlags_ReadOnly);
+
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const auto& drag = Engine::editor->Get_Drag_Object())
+				{
+					spine_transform = drag->transform;
+				}
+				ImGui::EndDragDropTarget();
+			}
+			ImGui::PopID();
+		}
+
+		{
+			ImGui::PushID("flash_pos");
+			ImGui::Text(u8"攻撃エフェクト座標");
+			ImGui::SameLine(window_center);
+			ImGui::SetNextItemWidth(-FLT_MIN);
+
+			string label_flush = u8"未設定 (ここにドラッグ)";
+			if (const auto& p = flash_particle.lock())
+			{
+				label_flush = p->name;
+			}
+			ImGui::InputText("##Item", &label_flush, ImGuiInputTextFlags_ReadOnly);
+
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const auto& drag = Engine::editor->Get_Drag_Object())
+				{
+					flash_particle = drag;
+				}
+				ImGui::EndDragDropTarget();
+			}
+			ImGui::PopID();
 		}
 
 		ImGui::LeftText_DragFloat(u8"最小行動時間", "##state_change_time_min", &state_change_time_min, window_center);
