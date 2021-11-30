@@ -1,7 +1,6 @@
 #include "Damage_Collision.h"
 #include "Character_Parameter.h"
 #include "Character_Hit_Stop_Manager.h"
-#include "Object_Pool.h"
 #include "Engine.h"
 #include "Editor.h"
 
@@ -11,7 +10,6 @@ using namespace BeastEngine;
 void Damage_Collision::Awake()
 {
 	hit_stop_manager = root_transform.lock()->Get_Component<Character_Hit_Stop_Manager>();
-	pool = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Object_Pool>();
 	hit_transform = transform->Get_Child(0);
 	animator = root_transform.lock()->Get_Component<Animator>();
 }
@@ -20,13 +18,10 @@ void Damage_Collision::OnTrigger_Enter(Collision& collision)
 {
 	if (const auto& hit = collision.gameobject->Get_Component<Interface_Character_Damageable>())
 	{
-		if (hit->Take_Damage(damage_hp, damage_stun, root_transform.lock(), damage_type))
+		if (hit->Take_Damage(static_pointer_cast<Damage_Collision>(shared_from_this())))
 		{
-			Vector3 pos = collision.transform->Get_Position();
-			pos.y += 1;
-			pool.lock()->Instance_In_Pool(hit_particle_key, pos, hit_transform.lock()->Get_Rotation());
+			hit_stop_manager.lock()->Start_Hit_Stop(0.05f, stop_particle);
 		}
-		hit_stop_manager.lock()->Start_Hit_Stop(0.05f, stop_particle);
 	}
 }
 

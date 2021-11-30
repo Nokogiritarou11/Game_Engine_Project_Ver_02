@@ -7,40 +7,57 @@ namespace BeastEngine
 	class Player_Parameter;
 	class Player_Camera_Controller;
 	class Enemy_Manager;
-	class Character_Hit_Stop_Manager;
 	class Time_Manager;
-	class Object_Pool;
 
 	class Player_Damageable final : public MonoBehaviour, public Interface_Character_Damageable
 	{
 	public:
-		bool Take_Damage(int damage_hp, int damage_stun, const std::shared_ptr<Transform>& from_transform, Damage_Type damage_state) override;
+		bool Take_Damage(const std::shared_ptr<Damage_Collision>& damage_collision) override;
 
 	private:
+		struct Effect_Time_Stop_Parameter
+		{
+			float delay = 0;
+			float time = 0;
+			float speed = 0;
+
+		private:
+			friend class cereal::access;
+			template<class Archive>
+			void serialize(Archive& archive)
+			{
+				archive(delay, time, speed);
+			}
+		};
+
+		struct Effect_Camera_Shake_Parameter
+		{
+			int count = 0;
+			float power = 0;
+
+		private:
+			friend class cereal::access;
+			template<class Archive>
+			void serialize(Archive& archive)
+			{
+				archive(count, power);
+			}
+		};
+
 		void Awake() override;
 		void Update() override;
 		bool Draw_ImGui() override;
 
-		std::weak_ptr<Animator> animator;
 		std::weak_ptr<Player_Parameter> parameter;
 		std::weak_ptr<Player_Camera_Controller> camera_controller;
-		std::weak_ptr<Object_Pool> pool;
-		std::weak_ptr<Character_Hit_Stop_Manager> hit_stop_manager;
 		std::weak_ptr<Time_Manager> time_manager;
 
-		float parry_time_stop_delay = 0;
-		float parry_time_stop_time = 0;
-		float parry_time_stop_speed = 0;
-
-		int parry_shake_camera_count = 0;
-		float parry_shake_camera_power = 0;
-
-		Vector3 parry_particle_position;
-
-		int guard_shake_camera_count = 0;
-		float guard_shake_camera_power = 0;
+		Effect_Time_Stop_Parameter parry_time_stop_parameter;
+		Effect_Camera_Shake_Parameter parry_camera_shake_parameter;
+		Effect_Camera_Shake_Parameter guard_camera_shake_parameter;
 
 		Vector3 guard_particle_position;
+		Vector3 parry_particle_position;
 
 		std::string guard_particle_key;
 		std::string parry_particle_key;
@@ -50,12 +67,9 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<MonoBehaviour>(this),
-				parry_time_stop_delay, parry_time_stop_time, parry_time_stop_speed,
-				parry_particle_position,
-				parry_shake_camera_count, parry_shake_camera_power,
-				guard_shake_camera_count, guard_shake_camera_power,
-				guard_particle_position,
+			archive(cereal::base_class<MonoBehaviour>(this), cereal::base_class<Interface_Character_Damageable>(this),
+				parry_time_stop_parameter, parry_camera_shake_parameter, parry_particle_position,
+				guard_camera_shake_parameter, guard_particle_position,
 				guard_particle_key, parry_particle_key);
 		}
 	};
@@ -64,4 +78,5 @@ namespace BeastEngine
 REGISTER_COMPONENT(Player_Damageable)
 CEREAL_REGISTER_TYPE(BeastEngine::Player_Damageable)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::MonoBehaviour, BeastEngine::Player_Damageable)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Interface_Character_Damageable, BeastEngine::Player_Damageable)
 CEREAL_CLASS_VERSION(BeastEngine::Player_Damageable, 1)

@@ -70,6 +70,18 @@ namespace BeastEngine
 			Vector3 light_color;
 			float	bias = 0;
 		};
+
+		//Releaseモード時のレンダリング用頂点バッファ
+		struct Vertex
+		{
+			Vector3 pos;   //位置
+			Vector2 tex;   //UV座標
+			Vector4 color; //頂点色
+		};
+
+		Microsoft::WRL::ComPtr<ID3D11Buffer> main_texture_vertex_buffer;
+		Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler = nullptr;
+
 		Constant_Buffer_Scene buffer_scene;
 		Microsoft::WRL::ComPtr <ID3D11Buffer> constant_buffer_scene;
 
@@ -79,6 +91,7 @@ namespace BeastEngine
 
 		void Render_Scene(); //シーンビューの描画実行
 		void Render_Game();  //ゲームビューの描画実行
+		void Render_Main();  //Releaseモード時のレンダリング実行
 
 		void Render_Sky(const Vector3& pos) const; //スカイボックスの描画実行
 		void Render_Shadow(const std::shared_ptr<Transform>& camera_transform); //シャドウマップの描画実行

@@ -1,7 +1,11 @@
 #include "Enemy_Normal_01_Damageable.h"
 #include "Character_Hit_Stop_Manager.h"
+#include "Editor.h"
+#include "Engine.h"
 #include "Enemy_Parameter.h"
 #include "Enemy_Manager.h"
+#include "Damage_Collision.h"
+#include "Object_Pool.h"
 
 using namespace std;
 using namespace BeastEngine;
@@ -13,18 +17,24 @@ void Enemy_Normal_01_Damageable::Awake()
 	hit_stop_manager = Get_Component<Character_Hit_Stop_Manager>();
 
 	const auto& manager = GameObject::Find_With_Tag("Game_Manager").lock();
+	pool = manager->Get_Component<Object_Pool>();
 	enemy_manager = manager->Get_Component<Enemy_Manager>();
 }
 
-bool Enemy_Normal_01_Damageable::Take_Damage(const int damage_hp, const int damage_stun, const shared_ptr<Transform>& from_transform, const Damage_Type damage_state)
+bool Enemy_Normal_01_Damageable::Take_Damage(const shared_ptr<Damage_Collision>& damage_collision)
 {
 	const auto& anim = animator.lock();
 	const auto& param = parameter.lock();
 
-	const Vector3 now_pos = transform->Get_Position();
-	Vector3 look_pos = now_pos - from_transform->Get_Forward();
-	look_pos.y = now_pos.y;
-	transform->Set_Local_Rotation(transform->Look_At(look_pos));
+	if (param->is_invincible) return false;
+
+	if (!param->is_super_armor)
+	{
+		const Vector3 now_pos = transform->Get_Position();
+		Vector3 look_pos = now_pos - damage_collision->root_transform.lock()->Get_Forward();
+		look_pos.y = now_pos.y;
+		transform->Set_Local_Rotation(transform->Look_At(look_pos));
+	}
 
 	hit_stop_manager.lock()->Start_Hit_Stop(0.05f);
 	enemy_manager.lock()->last_attack_target = parameter;
@@ -33,23 +43,25 @@ bool Enemy_Normal_01_Damageable::Take_Damage(const int damage_hp, const int dama
 	if (param->guarding)
 	{
 		anim->Set_Trigger("Damage");
-		return false;
+		return true;
 	}
 
+	pool.lock()->Instance_In_Pool(damage_collision->hit_particle_key, hit_pos_transform.lock()->Get_Position(), damage_collision->hit_transform.lock()->Get_Rotation());
 	if (param->hp > 0)
 	{
-		param->hp -= damage_hp;
+		param->hp -= damage_collision->damage_hp;
 
 		if (param->is_ground && !param->stunning)
 		{
-			param->stun -= damage_stun;
+			param->stun -= damage_collision->damage_stun;
 		}
 
 		if (param->hp <= 0)
 		{
+			param->is_invincible = true;
 			anim->Set_Trigger("Dead");
 			anim->Set_Trigger("Damage");
-			anim->Set_Int("Damage_State", static_cast<int>(damage_state));
+			anim->Set_Int("Damage_State", static_cast<int>(damage_collision->damage_type));
 			enemy_manager.lock()->Enemy_Dead(true, parameter);
 			return true;
 		}
@@ -64,7 +76,7 @@ bool Enemy_Normal_01_Damageable::Take_Damage(const int damage_hp, const int dama
 	}
 
 	anim->Set_Trigger("Damage");
-	anim->Set_Int("Damage_State", static_cast<int>(damage_state));
+	anim->Set_Int("Damage_State", static_cast<int>(damage_collision->damage_type));
 	return true;
 }
 
@@ -76,7 +88,26 @@ bool Enemy_Normal_01_Damageable::Draw_ImGui()
 	if (open)
 	{
 		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
-		ImGui::Text(u8"設定できるパラメータはありません");
+
+		ImGui::Text(u8"ヒットエフェクト位置");
+		ImGui::SameLine(window_center);
+		ImGui::SetNextItemWidth(-FLT_MIN);
+
+		string label_parent = u8"未設定 (ここにドラッグ)";
+		if (const auto& p = hit_pos_transform.lock())
+		{
+			label_parent = p->gameobject->name;
+		}
+		ImGui::InputText("##Item", &label_parent, ImGuiInputTextFlags_ReadOnly);
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const auto& drag = Engine::editor->Get_Drag_Object())
+			{
+				hit_pos_transform = drag->transform;
+			}
+			ImGui::EndDragDropTarget();
+		}
 	}
 	return true;
 }

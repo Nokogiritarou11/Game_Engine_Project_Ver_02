@@ -118,23 +118,23 @@ void Texture::Set(UINT Slot, Shader::Shader_Type type)
 	{
 		switch (type)
 		{
-			case BeastEngine::Shader::Shader_Type::Vertex:
+			case Shader::Shader_Type::Vertex:
 				DxSystem::device_context->VSSetShaderResources(Slot, 1, shader_resource_view.GetAddressOf());
 				DxSystem::device_context->VSSetSamplers(Slot, 1, sampler.GetAddressOf());
 				break;
-			case BeastEngine::Shader::Shader_Type::Geometry:
+			case Shader::Shader_Type::Geometry:
 				DxSystem::device_context->GSSetShaderResources(Slot, 1, shader_resource_view.GetAddressOf());
 				DxSystem::device_context->GSSetSamplers(Slot, 1, sampler.GetAddressOf());
 				break;
-			case BeastEngine::Shader::Shader_Type::Pixel:
+			case Shader::Shader_Type::Pixel:
 				DxSystem::device_context->PSSetShaderResources(Slot, 1, shader_resource_view.GetAddressOf());
 				DxSystem::device_context->PSSetSamplers(Slot, 1, sampler.GetAddressOf());
 				break;
-			case BeastEngine::Shader::Shader_Type::Hull:
+			case Shader::Shader_Type::Hull:
 				DxSystem::device_context->HSSetShaderResources(Slot, 1, shader_resource_view.GetAddressOf());
 				DxSystem::device_context->HSSetSamplers(Slot, 1, sampler.GetAddressOf());
 				break;
-			case BeastEngine::Shader::Shader_Type::Domain:
+			case Shader::Shader_Type::Domain:
 				DxSystem::device_context->DSSetShaderResources(Slot, 1, shader_resource_view.GetAddressOf());
 				DxSystem::device_context->DSSetSamplers(Slot, 1, sampler.GetAddressOf());
 				break;

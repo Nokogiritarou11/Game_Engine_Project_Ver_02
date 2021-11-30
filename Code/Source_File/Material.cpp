@@ -803,27 +803,27 @@ void Material::Render_Pass::Activate_State() const
 	}
 }
 
-void Material::Activate(int pass)
+void Material::Activate(const int pass)
 {
 	render_pass[pass].Activate();
 }
 
-void Material::Activate_Buffer(int pass)
+void Material::Activate_Buffer(const int pass)
 {
 	render_pass[pass].Activate_Shader();
 }
 
-void Material::Activate_Texture(int pass)
+void Material::Activate_Texture(const int pass)
 {
 	render_pass[pass].Activate_Texture();
 }
 
-void Material::Activate_Shader(int pass)
+void Material::Activate_Shader(const int pass)
 {
 	render_pass[pass].Activate_Shader();
 }
 
-void Material::Activate_State(int pass)
+void Material::Activate_State(const int pass)
 {
 	render_pass[pass].Activate_State();
 }

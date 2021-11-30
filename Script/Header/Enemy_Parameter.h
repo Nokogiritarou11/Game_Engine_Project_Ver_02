@@ -24,6 +24,7 @@ namespace BeastEngine
 		bool stunning = false;
 		bool is_attack_mode = false;
 		bool is_attack_preliminary = false;
+		bool is_super_armor = false;
 		float last_damaged_timer = 0;
 		Move_State move_state = Move_State::Forward;
 

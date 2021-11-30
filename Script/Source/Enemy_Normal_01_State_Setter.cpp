@@ -52,7 +52,10 @@ void Enemy_Normal_01_State_Setter::Set_State()
 
 	if (param->is_attack_mode)
 	{
-		if (Vector3::DistanceSquared(target->Get_Position(), transform->Get_Position()) < powf(attack_distance, 2))
+		const Vector3 self_pos = transform->Get_Position();
+		Vector3 target_pos = target->Get_Position();
+		target_pos.y = self_pos.y;
+		if (Vector3::DistanceSquared(target_pos, self_pos) < powf(attack_distance, 2))
 		{
 			param->is_attack_mode = false;
 			anim->Set_Trigger("Attack");
@@ -65,7 +68,10 @@ void Enemy_Normal_01_State_Setter::Set_State()
 		{
 			anim->Set_Bool("Move", true);
 			anim->Set_Int("Move_State", static_cast<int>(param->move_state));
-			if (Vector3::DistanceSquared(target->Get_Position(), transform->Get_Position()) < powf(wait_distance, 2))
+			const Vector3 self_pos = transform->Get_Position();
+			Vector3 target_pos = target->Get_Position();
+			target_pos.y = self_pos.y;
+			if (Vector3::DistanceSquared(target_pos, self_pos) < powf(wait_distance, 2))
 			{
 				Change_Wait_State();
 			}
@@ -111,6 +117,8 @@ void Enemy_Normal_01_State_Setter::Set_State()
 			gameobject->Set_Active(false);
 		}
 	}
+
+	param->is_super_armor = anim->Get_Bool("Super_Armor");
 }
 
 void Enemy_Normal_01_State_Setter::Change_Wait_State()

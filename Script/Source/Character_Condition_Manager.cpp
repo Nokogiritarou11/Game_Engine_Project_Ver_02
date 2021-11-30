@@ -90,6 +90,7 @@ bool Character_Condition_Manager::Draw_ImGui()
 	if (open)
 	{
 		const float window_center = ImGui::GetWindowContentRegionWidth() * 0.5f;
+		ImGui::Text(u8"İ’è‚Å‚«‚éƒpƒ‰ƒ[ƒ^‚Í‚ ‚è‚Ü‚¹‚ñ");
 	}
 	return true;
 }

@@ -653,7 +653,7 @@ void Editor::SceneView_Render() const
 
 		Engine::render_manager->render_scene = true;
 		Engine::render_manager->scene_texture->Set_Screen_Size(static_cast<int>(window_width), static_cast<int>(window_height));
-		ImGui::Image(static_cast<void*>(Engine::render_manager->scene_texture->Get_Texture().Get()), ImVec2(window_width, window_height));
+		ImGui::Image(Engine::render_manager->scene_texture->Get_Texture().Get(), ImVec2(window_width, window_height));
 
 		static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::OPERATION::TRANSLATE);
 		static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::MODE::LOCAL);
@@ -761,7 +761,7 @@ void Editor::GameView_Render()
 			ImGui::Dummy({ 0, (game_view_size.y - game_view_render_size.y) * 0.5f });
 		}
 
-		ImGui::Image(static_cast<void*>(Engine::render_manager->game_texture->Get_Texture().Get()), ImVec2(game_view_render_size.x, game_view_render_size.y));
+		ImGui::Image(Engine::render_manager->game_texture->Get_Texture().Get(), ImVec2(game_view_render_size.x, game_view_render_size.y));
 
 		game_view_center_position = Vector2(pos.x + game_view_size.x / 2, pos.y + game_view_size.y / 2);
 

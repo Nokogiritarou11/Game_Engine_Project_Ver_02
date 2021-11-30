@@ -111,6 +111,7 @@ void Player_Input::Set_State()
 					enemy_manager.lock()->Enemy_Dead(false, enemy);
 					anim->Set_Int("Smash_Number", static_cast<int>(enemy_lock->type));
 					camera_controller.lock()->Play_Cut_Scene(static_cast<int>(enemy_lock->type));
+					input_direction = Vector3::Zero;
 				}
 				break;
 			}

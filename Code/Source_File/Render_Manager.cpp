@@ -30,25 +30,64 @@ Render_Manager::Render_Manager()
 	game_texture = make_shared<Render_Texture>(1920, 1080, true, DXGI_FORMAT_R8G8B8A8_UNORM);
 	skybox = make_unique<SkyBox>();
 
-	// 定数バッファの生成
-	D3D11_BUFFER_DESC bd;
-	bd.Usage = D3D11_USAGE_DYNAMIC;
-	bd.ByteWidth = sizeof(Constant_Buffer_Scene);
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	bd.MiscFlags = 0;
-	bd.StructureByteStride = 0;
-	const HRESULT hr = DxSystem::device->CreateBuffer(&bd, nullptr, constant_buffer_scene.GetAddressOf());
-	_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+	{
+		// 定数バッファの生成
+		D3D11_BUFFER_DESC bd;
+		bd.Usage = D3D11_USAGE_DYNAMIC;
+		bd.ByteWidth = sizeof(Constant_Buffer_Scene);
+		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		bd.MiscFlags = 0;
+		bd.StructureByteStride = 0;
+		const HRESULT hr = DxSystem::device->CreateBuffer(&bd, nullptr, constant_buffer_scene.GetAddressOf());
+		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+	}
 
-	//シーンビュー内のカメラ生成
+	{
+		//	頂点バッファ作成
+		constexpr Vertex v[] = {
+			Vector3(-1.0f, 1.0f,0), Vector2(0,0), Vector4(1,1,1,1), //左上
+			Vector3(1.0f, 1.0f,0),  Vector2(1,0), Vector4(1,1,1,1), //右上
+			Vector3(-1.0f,-1.0f,0), Vector2(0,1), Vector4(1,1,1,1), //左下
+			Vector3(1.0f,-1.0f,0),  Vector2(1,1), Vector4(1,1,1,1), //右下
+		};
+		D3D11_BUFFER_DESC bd;
+		ZeroMemory(&bd, sizeof(bd));
+		bd.Usage = D3D11_USAGE_DYNAMIC;
+		bd.ByteWidth = sizeof(v);
+		bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+		D3D11_SUBRESOURCE_DATA res;
+		ZeroMemory(&res, sizeof(res));
+		res.pSysMem = v;
+
+		DxSystem::device->CreateBuffer(&bd, &res, main_texture_vertex_buffer.GetAddressOf());
+
+		//	サンプラステート作成
+		D3D11_SAMPLER_DESC sd = {};
+		sd.Filter = D3D11_FILTER_ANISOTROPIC;	  // 異方性フィルタ
+		sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP; // U
+		sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP; // V
+		sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP; // W
+		sd.MipLODBias = 0;
+		sd.MaxAnisotropy = 4; // 最大異方性(1Pixelあたりのテクスチャ点数)
+		sd.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		sd.MinLOD = 0;
+		sd.MaxLOD = D3D11_FLOAT32_MAX;
+
+		HRESULT hr = DxSystem::device->CreateSamplerState(&sd, sampler.GetAddressOf());
+		_ASSERT_EXPR(SUCCEEDED(hr), hr_trace(hr));
+	}
+
+	//シャドー用のカメラ生成
 	shadow_camera_transform = make_shared<Transform>();
 	Engine::asset_manager->Registration_Asset(shadow_camera_transform);
 	shadow_camera = make_shared<Camera>();
 	Engine::asset_manager->Registration_Asset(shadow_camera);
 	shadow_camera->transform = shadow_camera_transform;
 	shadow_camera->is_orthographic = true;
-	shadow_camera->far_z = 60;
+	shadow_camera->far_z = 100.0f;
 	shadow_camera->near_z = 10;
 
 	//スプライト用のデフォルトマテリアル作成
@@ -191,10 +230,15 @@ void Render_Manager::Render()
 	{
 		Render_Game();
 	}
+
+#if _DEBUG
 	if (render_scene)
 	{
 		Render_Scene();
 	}
+#else
+	Render_Main();
+#endif
 }
 
 void Render_Manager::Render_Scene()
@@ -243,14 +287,8 @@ void Render_Manager::Render_Game()
 					Render_Shadow(camera->transform);
 
 					//通常描画
-#if _DEBUG
 					game_texture->Set_Render_Target();
 					staging_texture = game_texture;
-#else
-					// レンダーターゲットビュー設定
-					game_texture->Set_Screen_Size(DxSystem::Get_Screen_Width(), DxSystem::Get_Screen_Height());
-					DxSystem::Set_Default_View();
-#endif
 					// シーン用定数バッファ更新
 					DxSystem::device_context->VSSetConstantBuffers(0, 1, constant_buffer_scene.GetAddressOf());
 					DxSystem::device_context->PSSetConstantBuffers(0, 1, constant_buffer_scene.GetAddressOf());
@@ -279,6 +317,24 @@ void Render_Manager::Render_Game()
 		const auto remove_it = remove_if(camera_list.begin(), camera_list.end(), [](weak_ptr<Camera> m) { return m.expired(); });
 		camera_list.erase(remove_it, camera_list.end());
 	}
+}
+
+void Render_Manager::Render_Main()
+{
+	DxSystem::Set_Default_View();
+	//トポロジー設定
+	DxSystem::device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	sprite_material->Activate();
+
+	constexpr UINT stride = sizeof(Vertex);
+	constexpr UINT offset = 0;
+	DxSystem::device_context->IASetVertexBuffers(0, 1, main_texture_vertex_buffer.GetAddressOf(), &stride, &offset);
+	//テクスチャの設定
+	DxSystem::device_context->PSSetShaderResources(1, 1, game_texture->Get_Texture().GetAddressOf());
+	DxSystem::device_context->PSSetSamplers(1, 1, sampler.GetAddressOf());
+
+	// 描画
+	DxSystem::device_context->Draw(4, 0);
 }
 
 void Render_Manager::Render_3D(const shared_ptr<Camera>& camera)

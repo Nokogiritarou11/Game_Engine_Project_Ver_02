@@ -5,28 +5,28 @@
 namespace BeastEngine
 {
 	class Character_Hit_Stop_Manager;
-	class Object_Pool;
 
 	class Damage_Collision final : public MonoBehaviour
 	{
 	public:
+		int damage_hp;
+		int damage_stun;
+
+		Damage_Type damage_type;
+
+		std::weak_ptr<Transform> root_transform;
+		std::weak_ptr<Transform> hit_transform;
+
+		std::string hit_particle_key;
 
 	private:
 		void Awake() override;
 		void OnTrigger_Enter(Collision& collision) override;
 		bool Draw_ImGui() override;
 
-		int damage_hp;
-		int damage_stun;
-		Damage_Type damage_type;
-
 		std::weak_ptr<Character_Hit_Stop_Manager> hit_stop_manager;
-		std::weak_ptr<Object_Pool> pool;
-		std::weak_ptr<Transform> root_transform;
-		std::weak_ptr<Transform> hit_transform;
 		std::weak_ptr<Animator> animator;
 		std::vector<std::weak_ptr<Particle>> stop_particle;
-		std::string hit_particle_key;
 
 		// シリアライズ関数
 		friend class cereal::access;
