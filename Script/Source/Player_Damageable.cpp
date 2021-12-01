@@ -13,6 +13,7 @@ using namespace BeastEngine;
 
 void Player_Damageable::Awake()
 {
+	//メンバポインタの取得
 	animator = Get_Component<Animator>();
 	parameter = Get_Component<Player_Parameter>();
 	camera_controller = GameObject::Find_With_Tag("main_camera").lock()->transform->Get_Parent().lock()->Get_Component<Player_Camera_Controller>();
@@ -26,6 +27,7 @@ void Player_Damageable::Update()
 	const auto& anim = animator.lock();
 	const auto& param = parameter.lock();
 
+	//無敵状態の切り替え
 	param->is_invincible = anim->Get_Bool("Invincible");
 }
 
@@ -34,25 +36,35 @@ bool Player_Damageable::Take_Damage(const shared_ptr<Damage_Collision>& damage_c
 	const auto& anim = animator.lock();
 	const auto& param = parameter.lock();
 
+	//無敵状態の場合はリターン
 	if (param->is_invincible) return false;
 
+	//攻撃してきた方へ向き直る
 	const Vector3 from_pos = damage_collision->root_transform.lock()->Get_Position();
 	transform->Set_Local_Rotation(transform->Look_At(Vector3(from_pos.x, transform->Get_Position().y, from_pos.z)));
 	hit_stop_manager.lock()->Start_Hit_Stop(0.05f);
 
 	if (param->guarding)
 	{
+		//ガード状態だった場合
+		//ガードを開始してからの時間でジャストガードかどうかを判定する
 		if (param->just_guard_timer > 0)
 		{
+			//ジャストガード成功時
 			anim->Set_Trigger("Parry");
+			//攻撃してきた相手を反撃が当たる位置へ移動させる
 			damage_collision->root_transform.lock()->Set_Local_Position(transform->Get_Position() + transform->Get_Forward() * 2.0f);
+			//時間停止とカメラシェイクを行う
 			time_manager.lock()->Start_Time_Slow(parry_time_stop_parameter.delay, parry_time_stop_parameter.time, parry_time_stop_parameter.speed);
 			camera_controller.lock()->Shake_Camera(parry_camera_shake_parameter.count, parry_camera_shake_parameter.power);
+			//ジャストガードエフェクトを再生
 			pool.lock()->Instance_In_Pool(parry_particle_key, transform->Get_Position() + transform->Get_Left() * parry_particle_position.x + transform->Get_Up() * parry_particle_position.y + transform->Get_Forward() * parry_particle_position.z, transform->Get_Local_Rotation());
 		}
 		else
 		{
+			//通常ガード時
 			anim->Set_Trigger("Damage");
+			//カメラシェイクとエフェクトの再生を行う
 			camera_controller.lock()->Shake_Camera(guard_camera_shake_parameter.count, guard_camera_shake_parameter.power);
 			pool.lock()->Instance_In_Pool(guard_particle_key, transform->Get_Position() + transform->Get_Left() * guard_particle_position.x + transform->Get_Up() * guard_particle_position.y + transform->Get_Forward() * guard_particle_position.z, transform->Get_Local_Rotation());
 		}
@@ -60,6 +72,7 @@ bool Player_Damageable::Take_Damage(const shared_ptr<Damage_Collision>& damage_c
 		return true;
 	}
 
+	//ダメージ処理とヒットエフェクトの再生
 	param->hp -= damage_collision->damage_hp;
 	pool.lock()->Instance_In_Pool(damage_collision->hit_particle_key, hit_pos_transform.lock()->Get_Position(), damage_collision->hit_transform.lock()->Get_Rotation());
 	anim->Set_Trigger("Damage");

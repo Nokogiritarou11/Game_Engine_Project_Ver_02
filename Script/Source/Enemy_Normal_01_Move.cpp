@@ -6,6 +6,7 @@ using namespace BeastEngine;
 
 void Enemy_Normal_01_Move::Awake()
 {
+	//メンバポインタの取得
 	rigidbody = Get_Component<Capsule_Collider>()->rigidbody;
 	animator = Get_Component<Animator>();
 	parameter = Get_Component<Enemy_Parameter>();
@@ -17,13 +18,15 @@ void Enemy_Normal_01_Move::Move_Normal()
 	const auto& target = target_transform.lock();
 	Vector3 target_position = target->Get_Position();
 	target_position.y = transform->Get_Position().y;
-	//滑らかに方向転換
+	//プレイヤー方向へ滑らかに方向転換
 	transform->Set_Local_Rotation(Quaternion::Slerp(transform->Get_Local_Rotation(), transform->Look_At(target_position), turn_speed * Time::delta_time));
 
 	const auto& rb = rigidbody.lock();
 	Vector3 speed;
+	//移動状態時
 	if (const auto& param = parameter.lock(); param->moving)
 	{
+		//移動方向によって速度方向も変化
 		switch (param->move_state)
 		{
 			case Move_State::Forward:
@@ -36,10 +39,12 @@ void Enemy_Normal_01_Move::Move_Normal()
 				speed = transform->Get_Left() * run_speed * 0.25f * Time::delta_time;
 				break;
 		}
+		//重力処理
 		speed.y = y_axis_velocity;
 	}
 	else
 	{
+		//重力処理
 		speed = Vector3(0, y_axis_velocity, 0);
 	}
 	rb->Set_Velocity(speed);
@@ -47,16 +52,18 @@ void Enemy_Normal_01_Move::Move_Normal()
 
 void Enemy_Normal_01_Move::Move_Attack()
 {
+	//攻撃前モーション中の場合
 	if (const auto& param = parameter.lock(); param->is_attack_preliminary)
 	{
 		const auto& target = target_transform.lock();
 		Vector3 target_position = target->Get_Position();
 		target_position.y = transform->Get_Position().y;
-		//滑らかに方向転換
+		//プレイヤー方向へ滑らかに方向転換
 		transform->Set_Local_Rotation(Quaternion::Slerp(transform->Get_Local_Rotation(), transform->Look_At(target_position), turn_speed * Time::delta_time));
 	}
 	const auto& rb = rigidbody.lock();
 	Vector3 speed = transform->Get_Forward() * move_speed * Time::delta_time;
+	//重力処理
 	speed.y = y_axis_velocity;
 	rb->Set_Velocity(speed);
 }
@@ -65,6 +72,7 @@ void Enemy_Normal_01_Move::Move_Damage()
 {
 	const auto& rb = rigidbody.lock();
 	Vector3 speed = transform->Get_Forward() * move_speed * Time::delta_time;
+	//重力処理
 	speed.y = y_axis_velocity;
 	rb->Set_Velocity(speed);
 }
@@ -73,6 +81,7 @@ void Enemy_Normal_01_Move::Move_Guard()
 {
 	const auto& rb = rigidbody.lock();
 	Vector3 speed = transform->Get_Forward() * move_speed * Time::delta_time;
+	//重力処理
 	speed.y = y_axis_velocity;
 	rb->Set_Velocity(speed);
 }
@@ -82,12 +91,26 @@ void Enemy_Normal_01_Move::Move_Update()
 	const auto& anim = animator.lock();
 	const auto& param = parameter.lock();
 
+	//アニメーションから移動速度を得る
 	move_speed = anim->Get_Float("Move_Speed");
 
-	if (!param->is_ground)
+	if (param->is_ground)
 	{
+		//地上にいる場合
+		//Animatorからジャンプするかを判断
+		if (anim->Get_Bool("Add_Jump_Force"))
+		{
+			y_axis_velocity = jump_power;
+			anim->Set_Bool("Add_Jump_Force", false);
+		}
+	}
+	else
+	{
+		//空中にいる場合
+		//空中攻撃などで空中に留まるかをAnimatorから判断
 		if (const bool stay_air = anim->Get_Bool("Stay_Air"); is_stay_air != stay_air)
 		{
+			//重力を切る
 			is_stay_air = stay_air;
 			if (is_stay_air)
 			{
@@ -95,17 +118,10 @@ void Enemy_Normal_01_Move::Move_Update()
 			}
 		}
 
+		//重力を加算する
 		if (!is_stay_air)
 		{
 			y_axis_velocity -= down_power * Time::delta_time;
-		}
-	}
-	else
-	{
-		if (anim->Get_Bool("Add_Jump_Force"))
-		{
-			y_axis_velocity = jump_power;
-			anim->Set_Bool("Add_Jump_Force", false);
 		}
 	}
 }

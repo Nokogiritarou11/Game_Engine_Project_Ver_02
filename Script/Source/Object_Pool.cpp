@@ -5,11 +5,13 @@ using namespace BeastEngine;
 
 void Object_Pool::Start()
 {
+	//プーリング対象のオブジェクトを生成して保持する
 	for (const auto& obj : pool_list)
 	{
 		const vector<weak_ptr<GameObject>> add_list;
 		instance_pool[obj.instance_key] = add_list;
 
+		//キーでプーリングするオブジェクトを登録する
 		auto& obj_list = instance_pool[obj.instance_key];
 		for (int i = 0; i < obj.instance_counts; ++i)
 		{
@@ -22,7 +24,9 @@ void Object_Pool::Start()
 
 shared_ptr<GameObject> Object_Pool::Instance_In_Pool(const string& key, Vector3 position, Quaternion rotation)
 {
+	//プールからオブジェクトを取得する
 	const auto& obj = Get_Object(key);
+	//姿勢を更新してアクティブ化
 	obj->transform->Set_Local_Position(position);
 	obj->transform->Set_Local_Rotation(rotation);
 	obj->Set_Active(true);

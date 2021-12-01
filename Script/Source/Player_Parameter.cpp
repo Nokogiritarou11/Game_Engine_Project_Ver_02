@@ -5,13 +5,14 @@ using namespace BeastEngine;
 
 void Player_Parameter::OnEnable()
 {
+	//アクティブ時にメンバ変数をリセットする(オブジェクトプールから呼び出されたときなど)
 	Character_Parameter_Reset();
-
 	camera_locking = false;
 }
 
 void Player_Parameter::Update()
 {
+	//ジャストガードが成立してからの時間を計測する
 	if (just_guard_timer > 0)
 	{
 		just_guard_timer -= Time::delta_time;

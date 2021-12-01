@@ -9,6 +9,7 @@ using namespace BeastEngine;
 
 void Damage_Collision::Awake()
 {
+	//メンバポインタの取得
 	hit_stop_manager = root_transform.lock()->Get_Component<Character_Hit_Stop_Manager>();
 	hit_transform = transform->Get_Child(0);
 	animator = root_transform.lock()->Get_Component<Animator>();
@@ -16,10 +17,13 @@ void Damage_Collision::Awake()
 
 void Damage_Collision::OnTrigger_Enter(Collision& collision)
 {
+	//ダメージを受ける事ができるオブジェクトか判定
 	if (const auto& hit = collision.gameobject->Get_Component<Interface_Character_Damageable>())
 	{
+		//ダメージを与える
 		if (hit->Take_Damage(static_pointer_cast<Damage_Collision>(shared_from_this())))
 		{
+			//攻撃成功時はヒットストップ
 			hit_stop_manager.lock()->Start_Hit_Stop(0.05f, stop_particle);
 		}
 	}

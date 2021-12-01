@@ -6,11 +6,13 @@ using namespace BeastEngine;
 
 void Instant_Camera_Shake::Awake()
 {
+	//メンバポインタの取得
 	camera_controller = GameObject::Find_With_Tag("main_camera").lock()->transform->Get_Parent().lock()->Get_Component<Player_Camera_Controller>();
 }
 
 void Instant_Camera_Shake::OnEnable()
 {
+	//アクティブ化時にカメラシェイクを呼ぶ
 	camera_controller.lock()->Shake_Camera(shake_count, shake_power);
 }
 

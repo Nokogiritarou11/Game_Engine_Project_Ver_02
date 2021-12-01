@@ -8,6 +8,7 @@ using namespace BeastEngine;
 
 void Player_Move::Awake()
 {
+	//メンバポインタの取得
 	p_input = Get_Component<Player_Input>();
 	rigidbody = Get_Component<Capsule_Collider>()->rigidbody;
 	animator = Get_Component<Animator>();
@@ -20,17 +21,19 @@ void Player_Move::Move_Normal()
 	const auto& rb = rigidbody.lock();
 	Vector3 speed;
 
-	if (const Vector3 move_forward = p_input.lock()->input_direction; move_forward != Vector3::Zero)
+	if (const Vector3 move_forward = p_input.lock()->input_direction; move_forward == Vector3::Zero)
 	{
-		//滑らかに方向転換
-		transform->Set_Local_Rotation(Quaternion::Slerp(transform->Get_Local_Rotation(), transform->Look_At(transform->Get_Position() + move_forward), turn_speed * Time::delta_time));
-
-		speed = transform->Get_Forward() * run_speed * Time::delta_time;
-		speed.y = y_axis_velocity;
+		//入力がない場合は重力処理のみ
+		speed = Vector3(0, y_axis_velocity, 0);
 	}
 	else
 	{
-		speed = Vector3(0, y_axis_velocity, 0);
+		//入力方向へ滑らかに方向転換
+		transform->Set_Local_Rotation(Quaternion::Slerp(transform->Get_Local_Rotation(), transform->Look_At(transform->Get_Position() + move_forward), turn_speed * Time::delta_time));
+
+		speed = transform->Get_Forward() * run_speed * Time::delta_time;
+		//重力処理
+		speed.y = y_axis_velocity;
 	}
 	rb->Set_Velocity(speed);
 }
@@ -41,14 +44,17 @@ void Player_Move::Move_Attack()
 	const auto& input = p_input.lock();
 	const auto& param = parameter.lock();
 
+	//移動速度をアニメーションから取得する
 	move_speed = anim->Get_Float("Move_Speed");
 
+	//攻撃対象への向き直り
 	if (anim->Get_Bool("Turn_To_Enemy"))
 	{
 		anim->Set_Bool("Turn_To_Enemy", false);
 
 		if (input->input_direction == Vector3::Zero)
 		{
+			//入力がない場合はロックオン対象へ向く
 			if (const auto& target = param->target.lock())
 			{
 				Vector3 pos = target->transform->Get_Position();
@@ -58,6 +64,7 @@ void Player_Move::Move_Attack()
 		}
 		else
 		{
+			//入力がある場合は入力方向に一番近い敵の方へ向く
 			if (const auto& enemy_list = enemy_manager.lock()->enemy_list; !enemy_list.empty())
 			{
 				Vector3 nearest_position;
@@ -80,6 +87,7 @@ void Player_Move::Move_Attack()
 
 	const auto& rb = rigidbody.lock();
 	Vector3 speed = transform->Get_Forward() * move_speed * Time::delta_time;
+	//重力処理
 	speed.y = y_axis_velocity;
 	rb->Set_Velocity(speed);
 }
@@ -91,6 +99,7 @@ void Player_Move::Move_Damage()
 
 	const auto& rb = rigidbody.lock();
 	Vector3 speed = transform->Get_Forward() * move_speed * Time::delta_time;
+	//重力処理
 	speed.y = y_axis_velocity;
 	rb->Set_Velocity(speed);
 }
@@ -102,6 +111,7 @@ void Player_Move::Move_Guard()
 
 	const auto& rb = rigidbody.lock();
 	Vector3 speed = transform->Get_Forward() * move_speed * Time::delta_time;
+	//重力処理
 	speed.y = y_axis_velocity;
 	rb->Set_Velocity(speed);
 }
@@ -111,43 +121,48 @@ void Player_Move::Move_Update()
 	const auto& anim = animator.lock();
 	const auto& param = parameter.lock();
 
-	if (!param->is_ground)
+	if (param->is_ground)
 	{
-		is_add_down = anim->Get_Bool("Add_Down_Force");
-
-		if (const bool stay_air = anim->Get_Bool("Stay_Air"); is_stay_air != stay_air)
-		{
-			is_stay_air = stay_air;
-			const auto& rigid = rigidbody.lock();
-			if (is_stay_air)
-			{
-				rigid->Set_Velocity(Vector3::Zero);
-				y_axis_velocity = 0;
-			}
-		}
-
-		if (!is_stay_air && !is_add_down)
-		{
-			y_axis_velocity -= down_power * Time::delta_time;
-		}
-
-		if (is_add_down)
-		{
-			y_axis_velocity -= down_power * 10 * Time::delta_time;
-		}
-	}
-	else
-	{
+		//ジャンプ判定
 		if (anim->Get_Bool("Add_Jump_Force"))
 		{
 			y_axis_velocity = jump_power;
 			anim->Set_Bool("Add_Jump_Force", false);
 		}
 	}
+	else
+	{
+		//空中停止
+		if (const bool stay_air = anim->Get_Bool("Stay_Air"); is_stay_air != stay_air)
+		{
+			is_stay_air = stay_air;
+			const auto& rigid = rigidbody.lock();
+			if (is_stay_air)
+			{
+				//重力を0に
+				rigid->Set_Velocity(Vector3::Zero);
+				y_axis_velocity = 0;
+			}
+		}
+
+		is_add_down = anim->Get_Bool("Add_Down_Force");
+		//重力を加算
+		if (!is_stay_air && !is_add_down)
+		{
+			y_axis_velocity -= down_power * Time::delta_time;
+		}
+
+		//下方向へ速度を与える
+		if (is_add_down)
+		{
+			y_axis_velocity -= down_power * 10 * Time::delta_time;
+		}
+	}
 }
 
 float Player_Move::Get_Forward_To_Target_Angle(Vector3 target_position) const
 {
+	//引数の座標とプレイヤーの正面ベクトルの角度さを求める
 	const Vector3 player_pos = transform->Get_Position();
 	target_position.y = player_pos.y;
 	const Vector3 dir = transform->Get_Forward();

@@ -6,19 +6,23 @@ using namespace BeastEngine;
 
 void Character_Ground_Checker::Awake()
 {
+	//メンバポインタの取得
 	parameter = Get_Component<Character_Parameter>();
 	animator = Get_Component<Animator>();
 }
 
 void Character_Ground_Checker::Update()
 {
+	//自身の原点(足元)から少し上の座標をレイの原点とする
 	Vector3 from = transform->Get_Position();
 	from.y += 0.1f;
 	Vector3 to = from;
 	to.y -= ray_distance;
 
+	//レイキャストのヒット判定
 	if (const bool ground = Physics::Raycast(from, to); ground != ground_old)
 	{
+		//ヒットした場合は接地していると判断する
 		ground_old = ground;
 		parameter.lock()->is_ground = ground;
 		animator.lock()->Set_Bool("Is_Ground", ground);

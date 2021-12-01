@@ -7,6 +7,7 @@ using namespace BeastEngine;
 
 void Character_Particles::Awake()
 {
+	//メンバポインタの取得
 	animator = Get_Component<Animator>();
 }
 
@@ -14,16 +15,20 @@ void Character_Particles::Update()
 {
 	const auto& anim = animator.lock();
 
+	//Animatorからアクティブにするパーティクルの情報を受け取る
 	int number = anim->Get_Int("Particle_Number");
 	if (number >= 0)
 	{
+		//アクティブ化したあとAnimatorのパラメータをリセットする
 		particle_list[number].lock()->Set_Active(true);
 		anim->Set_Int("Particle_Number", -1);
 	}
 
+	//Animatorからアクティブにするコライダーの情報を受け取る
 	number = anim->Get_Int("Collider_Number");
 	if (number >= 0)
 	{
+		//アクティブ化したあとAnimatorのパラメータをリセットする
 		collider_list[number].lock()->Set_Active(true);
 		anim->Set_Int("Collider_Number", -1);
 	}

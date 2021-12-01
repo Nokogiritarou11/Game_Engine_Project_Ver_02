@@ -5,8 +5,8 @@ using namespace BeastEngine;
 
 void Enemy_Parameter::OnEnable()
 {
+	//アクティブ時にメンバ変数をリセットする(オブジェクトプールから呼び出されたときなど)
 	Character_Parameter_Reset();
-
 	stunning = false;
 	is_attack_mode = false;
 	is_attack_preliminary = false;
@@ -16,7 +16,9 @@ void Enemy_Parameter::OnEnable()
 
 void Enemy_Parameter::Update()
 {
+	//最後に攻撃されてからの経過時間を更新
 	last_damaged_timer += Time::delta_time;
+	//スタン値の回復
 	if (stun < max_stun)
 	{
 		stun = Mathf::Clamp(stun + heal_stun * Time::delta_time, 0, max_stun);

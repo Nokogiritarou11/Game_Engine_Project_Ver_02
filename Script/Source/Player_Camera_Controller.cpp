@@ -8,6 +8,7 @@ using namespace BeastEngine;
 
 void Player_Camera_Controller::Awake()
 {
+	//メンバポインタの取得
 	const auto& obj = GameObject::Find_With_Tag("player").lock();
 	player_transform = obj->transform;
 	parameter = obj->Get_Component<Player_Parameter>();
@@ -15,8 +16,10 @@ void Player_Camera_Controller::Awake()
 	camera = camera_transform.lock()->Get_Component<Camera>();
 	enemy_manager = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Enemy_Manager>();
 
+	//初期位置を保存する
 	final_position = camera_transform.lock()->Get_Local_Position();
 
+	//使用するカットシーンを登録する
 	cut_scene.emplace_back(transform->Find("Cut_Scene_Smash_01").lock()->Get_Component<Interface_Cut_Scene>());
 }
 
@@ -27,8 +30,11 @@ void Player_Camera_Controller::LateUpdate()
 
 	if (is_playing_cut_scene)
 	{
+		//カットシーン再生中の場合
+		//カットシーンの再生が終了するまで待機
 		if (!playing_cut_scene.lock()->Play_Cut_Scene())
 		{
+			//再生が終了したのでカメラの位置を登録する
 			final_position = camera_transform.lock()->Get_Local_Position();
 			is_playing_cut_scene = false;
 		}
@@ -37,33 +43,41 @@ void Player_Camera_Controller::LateUpdate()
 	{
 		if (e_manager->enemy_list.empty())
 		{
+			//敵が居ない場合
 			Update_Free_Look();
 		}
 		else
 		{
 			if (param->camera_locking)
 			{
+				//ロックオン中
 				Update_Lock_On();
 			}
 			else
 			{
+				//非ロックオンかつ戦闘中
 				Update_Battle();
 			}
 		}
 	}
 
+	//カメラシェイク回数が残っている場合
 	if (shake_count > 0)
 	{
+		//タイマーの更新
 		shake_timer += Time::delta_time;
 
+		//60fps基準でカメラシェイクを行う
 		if (constexpr float frame_time = 1.0f / 60.0f; shake_timer <= frame_time)
 		{
+			//カメラシェイク処理
 			const auto& camera_trans = camera_transform.lock();
 			const Vector3 pos = final_position;
 			const float x = pos.x + Mathf::Random_Range(-1.0f, 1.0f) * shake_power;
 			const float y = pos.y + Mathf::Random_Range(-1.0f, 1.0f) * shake_power;
 			camera_trans->Set_Local_Position(x, y, pos.z);
 			shake_timer = 0;
+			//残りのシェイク回数を減らす
 			--shake_count;
 		}
 	}
@@ -76,21 +90,26 @@ void Player_Camera_Controller::Update_Free_Look()
 
 	//親
 	{
+		//移動入力を取得
 		const Vector2 left_axis = Input::Get_Pad_Axis_Left();
 
 		const Vector3 now_pos = transform->Get_Position();
 		Vector3 follow_pos = p_trans->Get_Position();
 		follow_pos.y += 1;
 
+		//プレイヤーへの追従処理
+		//移動入力によって追従速度を変える
 		follow_pos.x = Mathf::Lerp(now_pos.x, follow_pos.x, follow_speed * (1 + abs(left_axis.y) * 0.75f) * Time::delta_time);
 		follow_pos.y = Mathf::Lerp(now_pos.y, follow_pos.y, follow_speed * 0.75f * Time::delta_time);
 		follow_pos.z = Mathf::Lerp(now_pos.z, follow_pos.z, follow_speed * (1 + abs(left_axis.y) * 0.75f) * Time::delta_time);
 
 		transform->Set_Local_Position(follow_pos);
 
+		//カメラの回転処理
 		const Vector2 axis = Input::Get_Pad_Axis_Right();
 		Vector3 angle = { -axis.y * rotate_speed * Time::delta_time, -axis.x * rotate_speed * Time::delta_time, 0 };
 
+		//移動方向によってカメラを自動回転させる
 		if (param->moving)
 		{
 			angle.y -= left_axis.x * rotate_speed * 0.25f * Time::delta_time;
@@ -105,6 +124,7 @@ void Player_Camera_Controller::Update_Free_Look()
 
 	//カメラ本体
 	{
+		//指定位置へ滑らかに移動させる
 		const auto& camera_trans = camera_transform.lock();
 		camera_trans->Set_Local_Position(Vector3::Lerp(final_position, default_position, Time::delta_time));
 		camera_trans->Set_Local_Euler_Angles(Vector3::Lerp(camera_trans->Get_Local_Euler_Angles(), default_rotation, Time::delta_time));
@@ -123,12 +143,15 @@ void Player_Camera_Controller::Update_Battle()
 	const auto& camera_trans = camera_transform.lock();
 	const auto& target = e_manager->last_attack_target.lock();
 
+	//最終攻撃対象をロックオン対象に設定
 	param->target = target;
+
 	const int enemy_count = e_manager->enemy_list.size();
 	const Vector2 target_view_pos = camera.lock()->World_To_Viewport_Point(target->transform->Get_Position());
 
 	//親
 	{
+		//プレイヤーへの追従処理
 		const Vector3 now_pos = transform->Get_Position();
 		Vector3 follow_pos = p_trans->Get_Position();
 		follow_pos.y += 1;
@@ -139,6 +162,7 @@ void Player_Camera_Controller::Update_Battle()
 
 		transform->Set_Local_Position(follow_pos);
 
+		//カメラの回転処理
 		const Vector2 axis = Input::Get_Pad_Axis_Right();
 		Vector3 angle = { -axis.y * rotate_speed * Time::delta_time, -axis.x * rotate_speed * Time::delta_time, 0 };
 
@@ -174,6 +198,8 @@ void Player_Camera_Controller::Update_Battle()
 
 		if (is_target_right)
 		{
+			//中止対象が画面右側にいる場合
+			//中止対象が左に行ったら切り替え
 			if (target_view_pos.x < 0.425f)
 			{
 				is_target_right = false;
@@ -181,19 +207,24 @@ void Player_Camera_Controller::Update_Battle()
 		}
 		else
 		{
+			//中止対象が画面左側にいる場合
+			//中止対象が右に行ったら切り替え
 			if (target_view_pos.x > 0.575f)
 			{
 				is_target_right = true;
 			}
+			//姿勢を左右反転
 			pos.x *= -1;
 			rot.y *= -1;
 		}
 
+		//プレイヤーが空中にいる場合は少しカメラを引く
 		if (!param->is_ground)
 		{
 			pos.z -= 0.75f;
 		}
 
+		//敵の数によってカメラを引く
 		pos.z -= 0.5f * (Mathf::Clamp(static_cast<float>(enemy_count), 0, 4) - 1);
 
 		camera_trans->Set_Local_Position(Vector3::Lerp(final_position, pos, Time::delta_time * 2.0f));
@@ -208,11 +239,12 @@ void Player_Camera_Controller::Update_Battle()
 
 void Player_Camera_Controller::Update_Lock_On() const
 {
-
+	//未実装
 }
 
 void Player_Camera_Controller::Shake_Camera(const int& count, const float& power)
 {
+	//カメラシェイク回数を追加する
 	shake_count = count;
 	shake_power = power;
 	shake_timer = 0;
@@ -220,6 +252,7 @@ void Player_Camera_Controller::Shake_Camera(const int& count, const float& power
 
 void Player_Camera_Controller::Play_Cut_Scene(const int& index)
 {
+	//カットシーンの再生
 	playing_cut_scene = cut_scene[index];
 	is_playing_cut_scene = true;
 }

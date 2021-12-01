@@ -5,13 +5,16 @@ using namespace BeastEngine;
 
 void Disable_Object::Update()
 {
+	//タイマーの更新
 	timer += Time::delta_time;
 	if (disable_time <= timer)
 	{
+		//親子を解除する場合
 		if (remove_parent)
 		{
 			transform->Set_Parent(nullptr);
 		}
+		//タイマーによって非アクティブ化する
 		gameobject->Set_Active(false);
 		timer = 0;
 	}

@@ -6,13 +6,16 @@ using namespace BeastEngine;
 
 void Time_Manager::Update()
 {
+	//スロー効果再生中か
 	if (is_slow)
 	{
 		if (active_slow)
 		{
+			//スロー効果中なのでdelta_timeに逆数を掛けて実際の時間を算出する
 			slow_timer -= Time::delta_time * inverse_time_scale;
 			if (slow_timer < 0.0f)
 			{
+				//スロー効果の終了
 				Time::time_scale = 1;
 				is_slow = false;
 				active_slow = false;
@@ -20,6 +23,8 @@ void Time_Manager::Update()
 		}
 		else
 		{
+			//効果発生ディレイ中
+			//ディレイ時間が経過するまで処理を延期する
 			delay_timer -= Time::delta_time;
 			if (delay_timer <= 0)
 			{
@@ -32,8 +37,10 @@ void Time_Manager::Update()
 
 void Time_Manager::Start_Time_Slow(const float delay_time, const float slow_time, const float slow_speed)
 {
+	//重複防止
 	if (!is_slow)
 	{
+		//スロー効果のパラメータを設定する
 		slow_timer = slow_time;
 		delay_timer = delay_time;
 		inverse_time_scale = 1 / slow_speed;

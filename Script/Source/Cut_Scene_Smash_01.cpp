@@ -5,6 +5,7 @@ using namespace BeastEngine;
 
 void Cut_Scene_Smash_01::Awake()
 {
+	//メンバポインタの取得
 	camera_transform = GameObject::Find_With_Tag("main_camera").lock()->transform;
 	root_transform = camera_transform.lock()->Get_Parent();
 	player_transform = GameObject::Find_With_Tag("player").lock()->transform;
@@ -12,24 +13,29 @@ void Cut_Scene_Smash_01::Awake()
 
 bool Cut_Scene_Smash_01::Play_Cut_Scene()
 {
+	//タイマーの更新
 	state_timer += Time::delta_time;
 
 	const auto& root = root_transform.lock();
 	const auto& p_trans = player_transform.lock();
+	//プレイヤーを追従する
 	root->Set_Local_Position(Vector3::Lerp(root->Get_Position(), p_trans->Get_Position() + Vector3(0, 1, 0), Time::delta_time * 30.0f));
 
 	if (cut_state == 0)
 	{
+		//カットシーン開始直後
 		const auto& data = state_data[0];
 		const auto& camera = camera_transform.lock();
 		const float ratio = Time::delta_time * 30.0f;
 
+		//急にカメラの視点が切り替わるのを防ぐため、Lerpで初期位置にセットする
 		root->Set_Local_Euler_Angles(Vector3::Lerp(root->Get_Euler_Angles(), p_trans->Get_Euler_Angles(), ratio));
 		camera->Set_Local_Position(Vector3::Lerp(camera->Get_Local_Position(), data.start_position, ratio));
 		camera->Set_Local_Euler_Angles(Vector3::Lerp(camera->Get_Local_Euler_Angles(), data.start_rotation, ratio));
 		const Vector3 r = camera->Get_Euler_Angles();
 		camera->Set_Euler_Angles(r.x, r.y, 0);
 
+		//ステートの切り替え
 		if (state_timer >= camera_init_time)
 		{
 			state_timer = 0;
@@ -38,6 +44,7 @@ bool Cut_Scene_Smash_01::Play_Cut_Scene()
 	}
 	else if (cut_state == 1)
 	{
+		//1つ目のカメラ移動シークエンス
 		const auto& data = state_data[0];
 		const auto& camera = camera_transform.lock();
 		const float ratio = state_timer / data.change_time;
@@ -47,6 +54,7 @@ bool Cut_Scene_Smash_01::Play_Cut_Scene()
 		const Vector3 r = camera->Get_Euler_Angles();
 		camera->Set_Euler_Angles(r.x, r.y, 0);
 
+		//ステートの切り替え
 		if (state_timer >= data.change_time)
 		{
 			state_timer = 0;
@@ -55,6 +63,7 @@ bool Cut_Scene_Smash_01::Play_Cut_Scene()
 	}
 	else if (cut_state == 2)
 	{
+		//2つ目のカメラ移動シークエンス
 		const auto& data = state_data[1];
 		const auto& camera = camera_transform.lock();
 		const float ratio = state_timer / data.change_time;
@@ -64,6 +73,7 @@ bool Cut_Scene_Smash_01::Play_Cut_Scene()
 		const Vector3 r = camera->Get_Euler_Angles();
 		camera->Set_Euler_Angles(r.x, r.y, 0);
 
+		//カットシーンの終了
 		if (state_timer >= data.change_time)
 		{
 			state_timer = 0;

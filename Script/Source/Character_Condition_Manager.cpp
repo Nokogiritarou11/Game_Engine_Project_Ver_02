@@ -8,6 +8,7 @@ using namespace BeastEngine;
 
 void Character_Condition_Manager::Awake()
 {
+	//メンバポインタの取得
 	parameter = Get_Component<Character_Parameter>();
 	character_move = Get_Component<Interface_Character_Mover>();
 	character_state_setter = Get_Component<Interface_Character_State_Setter>();
@@ -21,9 +22,12 @@ void Character_Condition_Manager::Update()
 	const auto& c_move = character_move.lock();
 	const auto& c_state = character_state_setter.lock();
 
+	//操作の入力やAIの更新
 	c_state->Set_State();
+	//重力計算などの移動に関連した更新
 	c_move->Move_Update();
 
+	//行動ステートの切り替え検知
 	if (const int character_state = anim->Get_Int("Character_State"); character_state_old != character_state)
 	{
 		character_state_old = character_state;
@@ -33,6 +37,7 @@ void Character_Condition_Manager::Update()
 		param->damaging = false;
 		param->guarding = false;
 
+		//Animatorのパラメータから現在の状態を切り替える
 		switch (character_state)
 		{
 			case 0:
@@ -60,7 +65,7 @@ void Character_Condition_Manager::Update()
 		}
 	}
 
-	//ステート別
+	//ステート別動作
 	if (!param->pausing && param->living)
 	{
 		if (param->attacking)

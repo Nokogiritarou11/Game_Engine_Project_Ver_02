@@ -5,19 +5,24 @@ using namespace BeastEngine;
 
 void Disable_Particle::Awake()
 {
+	//メンバポインタの取得
 	particle = Get_Component<Particle>();
 }
 
 void Disable_Particle::Update()
 {
+	//パーティクルの存在チェック
 	if (const auto& p = particle.lock())
 	{
+		//パーティクルが再生終了していた場合
 		if (!p->Get_Is_Playing())
 		{
+			//親子を解除する場合
 			if (remove_parent)
 			{
 				transform->Set_Parent(nullptr);
 			}
+			//ゲームオブジェクトを非アクティブ化
 			gameobject->Set_Active(false);
 		}
 	}
