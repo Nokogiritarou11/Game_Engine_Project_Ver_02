@@ -117,6 +117,7 @@ bool Damage_Collision::Draw_ImGui()
 			damage_type = static_cast<Damage_Type>(select);
 		}
 
+		ImGui::LeftText_Checkbox(u8"パリィ可能", "##can_parry", &can_parry, window_center);
 		ImGui::LeftText_InputText(u8"ヒットエフェクトキー", "##hit_particle_key", &hit_particle_key, window_center);
 	}
 	return true;

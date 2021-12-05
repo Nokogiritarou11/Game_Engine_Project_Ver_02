@@ -23,7 +23,7 @@ SamplerState diffuseMapSamplerState : register(s1);
 Texture2D normalMap : register(t2);
 SamplerState normalMapSamplerState : register(s2);
 
-Texture2D ramplMap : register(t3);
+Texture2D rampMap : register(t3);
 SamplerState RampMapSamplerState : register(s3);
 
 float4 main(VERTEX_OUT input) : SV_TARGET
@@ -50,7 +50,7 @@ float4 main(VERTEX_OUT input) : SV_TARGET
 
     float4 mapdiff = diffuseMap.Sample(diffuseMapSamplerState, input.texcoord) * main_color * float4(lightcolor, 1);
 
-    float4 main_level = mapdiff * ramplMap.Sample(RampMapSamplerState, float2(diffuse_factor, 0));
+    float4 main_level = mapdiff * rampMap.Sample(RampMapSamplerState, float2(diffuse_factor, 0));
 
     float2 d = shadowMap.Sample(ShadowMapSamplerState, input.sdwcoord.xy).rg;
     // •ªŽU‚ÌŒvŽZ

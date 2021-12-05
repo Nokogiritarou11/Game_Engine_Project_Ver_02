@@ -13,6 +13,7 @@ namespace BeastEngine
 		int damage_stun;
 
 		Damage_Type damage_type;
+		bool can_parry = true;
 
 		std::weak_ptr<Transform> root_transform;
 		std::weak_ptr<Transform> hit_transform;
@@ -33,7 +34,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<MonoBehaviour>(this), damage_hp, damage_stun, damage_type, root_transform, stop_particle, hit_particle_key);
+			archive(cereal::base_class<MonoBehaviour>(this), damage_hp, damage_stun, damage_type, can_parry, root_transform, stop_particle, hit_particle_key);
 		}
 	};
 }

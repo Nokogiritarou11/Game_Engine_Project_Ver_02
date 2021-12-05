@@ -48,7 +48,7 @@ bool Player_Damageable::Take_Damage(const shared_ptr<Damage_Collision>& damage_c
 	{
 		//ガード状態だった場合
 		//ガードを開始してからの時間でジャストガードかどうかを判定する
-		if (param->just_guard_timer > 0)
+		if (param->just_guard_timer > 0 && damage_collision->can_parry)
 		{
 			//ジャストガード成功時
 			anim->Set_Trigger("Parry");

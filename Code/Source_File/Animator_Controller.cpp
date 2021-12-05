@@ -258,6 +258,13 @@ shared_ptr<Animator_Controller> Animator_Controller::Load_Animator_Controller(co
 		cereal::BinaryInputArchive binaryInputArchive(bin_s_stream);
 		binaryInputArchive(controller);
 		Engine::asset_manager->Registration_Asset(controller);
+		controller->name = filename;
+
+		if(controller->save_path != path)
+		{
+			controller->save_path = path;
+		}
+
 		return controller;
 	}
 

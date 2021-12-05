@@ -1,5 +1,8 @@
 #include "Enemy_Parameter.h"
 
+#include "Editor.h"
+#include "Engine.h"
+
 using namespace std;
 using namespace BeastEngine;
 
@@ -39,6 +42,26 @@ bool Enemy_Parameter::Draw_ImGui()
 		if (ImGui::LeftText_Combo(u8"エネミータイプ", "##Enemy_Type", &type_current, type_name, IM_ARRAYSIZE(type_name), window_center))
 		{
 			type = static_cast<Enemy_Type>(type_current);
+		}
+
+		ImGui::Text(u8"ロックオンマーカー座標");
+		ImGui::SameLine(window_center);
+		ImGui::SetNextItemWidth(-FLT_MIN);
+
+		string label_flush = u8"未設定 (ここにドラッグ)";
+		if (const auto& p = lock_on_target.lock())
+		{
+			label_flush = p->gameobject->name;
+		}
+		ImGui::InputText("##Item", &label_flush, ImGuiInputTextFlags_ReadOnly);
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const auto& drag = Engine::editor->Get_Drag_Object())
+			{
+				lock_on_target = drag->transform;
+			}
+			ImGui::EndDragDropTarget();
 		}
 
 		ImGui::LeftText_DragFloat("Max_HP", "##Max_HP", &max_hp, window_center, -FLT_MIN, 1.0f);
