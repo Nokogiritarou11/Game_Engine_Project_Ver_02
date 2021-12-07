@@ -27,6 +27,7 @@ namespace BeastEngine
 		void Set_Enabled(bool value);           //表示するか
 		[[nodiscard]] bool Get_Enabled() const; //現在アクティブか
 		void Set_IsTrigger(bool value);         //コライダーをGhost(Trigger)に設定する
+		void Set_Layer(int new_layer);
 		std::shared_ptr<RigidBody> rigidbody;
 		Vector3 center;                         //中心オフセット
 

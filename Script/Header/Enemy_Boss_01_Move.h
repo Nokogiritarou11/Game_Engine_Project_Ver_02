@@ -25,6 +25,7 @@ namespace BeastEngine
 		void Attack_Jump();
 
 		std::weak_ptr<Animator> animator;
+		std::weak_ptr<Capsule_Collider> collider;
 		std::weak_ptr<RigidBody> rigidbody;
 		std::weak_ptr<Enemy_Parameter> parameter;
 		std::weak_ptr<Transform> target_transform;
@@ -35,7 +36,6 @@ namespace BeastEngine
 
 		Vector3 dash_forward;
 		Vector3 jump_start_position;
-		Vector3 jump_end_position;
 		float jump_attack_rate_timer = 0;
 
 		// シリアライズ関数

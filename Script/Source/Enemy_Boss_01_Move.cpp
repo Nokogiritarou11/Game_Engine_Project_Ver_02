@@ -7,7 +7,8 @@ using namespace BeastEngine;
 void Enemy_Boss_01_Move::Awake()
 {
 	//メンバポインタの取得
-	rigidbody = Get_Component<Capsule_Collider>()->rigidbody;
+	collider = Get_Component<Capsule_Collider>();
+	rigidbody = collider.lock()->rigidbody;
 	animator = Get_Component<Animator>();
 	parameter = Get_Component<Enemy_Parameter>();
 	target_transform = GameObject::Find_With_Tag("player").lock()->transform;
@@ -162,27 +163,39 @@ void Enemy_Boss_01_Move::Attack_Dash()
 	}
 	else if (state == 1)
 	{
+		//衝突しないようにレイヤーを切り替え
+		collider.lock()->Set_Layer(5);
+		anim->Set_Int("Attack_Dash_State", 2);
+	}
+	else if (state == 2)
+	{
 		//攻撃距離に達するまで直進
 		const Vector3 self_pos = transform->Get_Position();
 		Vector3 target_pos = target->Get_Position();
 		target_pos.y = self_pos.y;
-		if (Vector3::DistanceSquared(target_pos, self_pos) < powf(2.5f, 2))
+		if (Vector3::DistanceSquared(target_pos, self_pos) < powf(3.5f, 2))
 		{
-			anim->Set_Int("Attack_Dash_State", 2);
+			anim->Set_Int("Attack_Dash_State", 3);
 		}
 		//進行方向を保存
 		dash_forward = transform->Get_Forward();
 		speed = dash_forward * move_speed * Time::delta_time;
 	}
-	else if (state == 2)
+	else if (state == 3)
 	{
 		Vector3 target_position = target->Get_Position();
 		target_position.y = transform->Get_Position().y;
 		//プレイヤー方向へ滑らかに方向転換
-		transform->Set_Local_Rotation(Quaternion::Slerp(transform->Get_Local_Rotation(), transform->Look_At(target_position), turn_speed * 2.0f * Time::delta_time));
+		transform->Set_Local_Rotation(Quaternion::Slerp(transform->Get_Local_Rotation(), transform->Look_At(target_position), turn_speed * Time::delta_time));
 
 		//進行方向は維持
 		speed = dash_forward * move_speed * Time::delta_time;
+	}
+	else if (state == 4)
+	{
+		//レイヤーを戻す
+		collider.lock()->Set_Layer(2);
+		anim->Set_Int("Attack_Dash_State", 5);
 	}
 
 	//重力処理
@@ -206,20 +219,40 @@ void Enemy_Boss_01_Move::Attack_Jump()
 	else if (state == 1)
 	{
 		//移動先を算出
-		const Vector3 target_pos = target->Get_Position();
 		jump_start_position = transform->Get_Position();
-		Vector3 target_dir = target_pos - jump_start_position;
-		target_dir.Normalize();
-		jump_end_position = target_pos - target_dir * 2.0f;
 		jump_attack_rate_timer = 0;
 		anim->Set_Int("Attack_Jump_State", 2);
 	}
 	else if (state == 2)
 	{
+		constexpr float jump_all_time = 0.8f;
+		constexpr float jump_up_time = 0.3f;
+		constexpr float jump_down_time = 0.25f;
+		constexpr float jump_height = 3.0f;
 		//アニメーションに合わせて指定時間で移動
 		jump_attack_rate_timer += Time::delta_time;
-		const float rate = jump_attack_rate_timer / 0.8f;
-		transform->Set_Local_Position(Vector3::Lerp(jump_start_position, jump_end_position, rate));
+		const float rate = jump_attack_rate_timer / jump_all_time;
+		Vector3 target_pos = target->Get_Position();
+		target_pos.y = jump_start_position.y;
+		Vector3 target_dir = target_pos - jump_start_position;
+		target_dir.Normalize();
+		Vector3 jump_end_position = Vector3::Lerp(jump_start_position, target_pos - target_dir * 2.0f, rate);
+
+		float jump_y = 0;
+		if (jump_attack_rate_timer <= jump_up_time)
+		{
+			jump_y = Mathf::Lerp(0, jump_height, jump_attack_rate_timer / jump_up_time);
+		}
+		else if (jump_attack_rate_timer <= jump_all_time - jump_down_time)
+		{
+			jump_y = jump_height;
+		}
+		else if(jump_attack_rate_timer <= jump_all_time)
+		{
+			jump_y = Mathf::Lerp(jump_height, 0, (jump_attack_rate_timer - (jump_all_time - jump_down_time)) / jump_down_time);
+		}
+		jump_end_position.y = jump_y;
+		transform->Set_Local_Position(jump_end_position);
 	}
 
 	Vector3 speed = transform->Get_Forward() * move_speed * Time::delta_time;

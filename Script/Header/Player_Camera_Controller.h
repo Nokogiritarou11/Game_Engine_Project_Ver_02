@@ -20,7 +20,7 @@ namespace BeastEngine
 
 		void Update_Free_Look();
 		void Update_Battle();
-		void Update_Lock_On() const;
+		void Update_Lock_On();
 
 		bool is_target_right = false;
 		bool is_playing_cut_scene = false;
@@ -29,6 +29,7 @@ namespace BeastEngine
 		float angle_limit_down = 0;
 		float rotate_speed = 0;
 		float follow_speed = 0;
+		float lock_on_targeting_speed = 0;
 
 		int shake_count = 0;
 		float shake_power = 0;
@@ -61,6 +62,7 @@ namespace BeastEngine
 			archive(cereal::base_class<MonoBehaviour>(this),
 				angle_limit_up, angle_limit_down,
 				rotate_speed, follow_speed,
+				lock_on_targeting_speed,
 				default_position, default_rotation,
 				battle_position, battle_rotation,
 				lock_position, lock_rotation);

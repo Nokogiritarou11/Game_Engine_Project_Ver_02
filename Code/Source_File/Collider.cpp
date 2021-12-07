@@ -93,6 +93,16 @@ void Collider::Set_Active(const bool value)
 	}
 }
 
+void Collider::Set_Layer(const int new_layer)
+{
+	if (gameobject->layer != new_layer)
+	{
+		//Šù‚É¶¬‚³‚ê‚Ä‚¢‚é‚à‚Ì‚ğ•ÏX‚Å‚«‚È‚¢‚Ì‚ÅÄ¶¬
+		gameobject->layer = new_layer;
+		Create_Collider();
+	}
+}
+
 void Collider::Create_Collider()
 {
 	if (is_trigger)

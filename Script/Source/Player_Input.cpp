@@ -64,6 +64,15 @@ void Player_Input::Set_State()
 		anim->Set_Trigger("Jump");
 	}
 
+	//ロックオン
+	if (Input::Get_Pad_Button_Down(Button_Code::Right_Shoulder))
+	{
+		if (!enemy_manager.lock()->enemy_list.empty())
+		{
+			param->camera_locking = !param->camera_locking;
+		}
+	}
+
 	//スティックがニュートラル状態から倒された直後
 	if (can_guard_stick)
 	{
@@ -80,7 +89,7 @@ void Player_Input::Set_State()
 	}
 
 	//ガード入力成立時
-	if (can_guard_button && can_guard_stick)
+	if (can_guard_button && can_guard_stick && !param->guarding)
 	{
 		//攻撃中の敵が存在しているか
 		if (const auto& attacking_list = e_manager->attacking_list; !attacking_list.empty())

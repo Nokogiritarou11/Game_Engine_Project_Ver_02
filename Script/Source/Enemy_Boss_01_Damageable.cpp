@@ -72,16 +72,10 @@ bool Enemy_Boss_01_Damageable::Take_Damage(const shared_ptr<Damage_Collision>& d
 		//ダメージによる致死時
 		if (param->hp <= 0)
 		{
-			//以後のダメージ判定を無効化
-			param->is_invincible = true;
-			//Animatorに通知
-			anim->Set_Trigger("Dead");
-			anim->Set_Trigger("Damage");
-			anim->Set_Int("Damage_State", static_cast<int>(damage_collision->damage_type));
-			//致死エフェクトを再生する
-			pool.lock()->Instance_In_Pool(critical_particle_key, hit_pos_transform.lock()->Get_Position(), damage_collision->hit_transform.lock()->Get_Rotation());
-			//死亡時処理
-			enemy_manager.lock()->Enemy_Dead(true, parameter);
+			//ボスなのでスタンフィニッシュのみで死亡する
+			param->stunning = true;
+			anim->Set_Trigger("Stun");
+			enemy_manager.lock()->Enemy_Stunned(true, parameter);
 			return true;
 		}
 

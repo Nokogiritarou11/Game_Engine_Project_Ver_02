@@ -64,8 +64,9 @@ void Enemy_Manager::Instance_Enemy(const Enemy_Type& type, const Vector3& positi
 		case Enemy_Type::Enemy_Big_01:
 			key = "Enemy_Big_01";
 			break;
-		default:
-			return;
+		case Enemy_Type::Boss_01:
+			key = "Enemy_Boss_01";
+			break;
 	}
 
 	//オブジェクトプールからエネミーを呼び出し、リストに加える
@@ -180,6 +181,7 @@ void Enemy_Manager::Enemy_Dead(const bool& use_effect, const weak_ptr<Enemy_Para
 	{
 		//ロックオンを解除する
 		p_param->target.reset();
+		p_param->camera_locking = false;
 	}
 }
 
@@ -270,6 +272,10 @@ bool Enemy_Manager::Draw_ImGui()
 		if (ImGui::Button(u8"敵_通常_01 生成"))
 		{
 			Instance_Enemy(Enemy_Type::Enemy_Normal_01, Vector3::Zero, Quaternion::Identity);
+		}
+		if (ImGui::Button(u8"敵_ボス_01 生成"))
+		{
+			Instance_Enemy(Enemy_Type::Boss_01, Vector3::Zero, Quaternion::Identity);
 		}
 	}
 	return true;

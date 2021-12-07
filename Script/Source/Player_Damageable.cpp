@@ -63,7 +63,7 @@ bool Player_Damageable::Take_Damage(const shared_ptr<Damage_Collision>& damage_c
 		else
 		{
 			//通常ガード時
-			anim->Set_Trigger("Damage");
+			anim->Set_Trigger("Guard_Hit");
 			//カメラシェイクとエフェクトの再生を行う
 			camera_controller.lock()->Shake_Camera(guard_camera_shake_parameter.count, guard_camera_shake_parameter.power);
 			pool.lock()->Instance_In_Pool(guard_particle_key, transform->Get_Position() + transform->Get_Left() * guard_particle_position.x + transform->Get_Up() * guard_particle_position.y + transform->Get_Forward() * guard_particle_position.z, transform->Get_Local_Rotation());
