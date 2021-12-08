@@ -5,11 +5,11 @@ namespace BeastEngine
 {
 	struct Cut_Scene_State_Data
 	{
-		Vector3 start_position;
-		Vector3 start_rotation;
-		Vector3 end_position;
-		Vector3 end_rotation;
-		float change_time;
+		Vector3 start_position{};
+		Vector3 start_rotation{};
+		Vector3 end_position{};
+		Vector3 end_rotation{};
+		float change_time = 0;
 
 	private:
 		friend class cereal::access;
@@ -27,9 +27,10 @@ namespace BeastEngine
 	{
 	public:
 		virtual ~Interface_Cut_Scene() = default;
-		virtual bool Play_Cut_Scene() { return  false; }
+		virtual Vector3 Play_Cut_Scene() { return Vector3::Zero; };
 
-		int cut_state = 0;
+		bool is_end_play = false;
+		int cut_state = -1;
 		float state_timer = 0;
 		std::vector<Cut_Scene_State_Data> state_data{};
 

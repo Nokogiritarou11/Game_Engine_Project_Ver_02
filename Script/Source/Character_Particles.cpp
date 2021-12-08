@@ -1,4 +1,5 @@
 #include "Character_Particles.h"
+#include "Object_Pool.h"
 #include "Engine.h"
 #include "Editor.h"
 
@@ -9,6 +10,7 @@ void Character_Particles::Awake()
 {
 	//メンバポインタの取得
 	animator = Get_Component<Animator>();
+	pool = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Object_Pool>();
 }
 
 void Character_Particles::Update()
@@ -31,6 +33,17 @@ void Character_Particles::Update()
 		//アクティブ化したあとAnimatorのパラメータをリセットする
 		collider_list[number].lock()->Set_Active(true);
 		anim->Set_Int("Collider_Number", -1);
+	}
+
+	//Animatorからインスタンスするプールのキー情報を受け取る
+	number = anim->Get_Int("Instance_Number");
+	if (number >= 0)
+	{
+		//インスタンスしたあとAnimatorのパラメータをリセットする
+		const auto& data = instance_list[number];
+		const Vector3 pos = transform->Get_Position();
+		pool.lock()->Instance_In_Pool(data.key, pos + transform->Get_Forward() * data.position.z + transform->Get_Left() * data.position.x + transform->Get_Up() * data.position.y, transform->Get_Rotation());
+		anim->Set_Int("Instance_Number", -1);
 	}
 }
 
@@ -115,6 +128,34 @@ bool Character_Particles::Draw_ImGui()
 						collider_list[i] = drag;
 					}
 					ImGui::EndDragDropTarget();
+				}
+				ImGui::PopID();
+			}
+			ImGui::TreePop();
+		}
+
+		if (ImGui::TreeNode(u8"プールインスタンスリスト"))
+		{
+			int size = static_cast<int>(instance_list.size());
+
+			ImGui::Text(u8"要素数");
+			ImGui::SameLine(window_center);
+			ImGui::SetNextItemWidth(-FLT_MIN);
+			if (ImGui::InputInt("##list_count", &size, 1, 1, ImGuiInputTextFlags_EnterReturnsTrue))
+			{
+				instance_list.resize(size);
+			}
+
+			for (int i = 0; i < size; ++i)
+			{
+				ImGui::PushID(i);
+				const string label = u8"要素" + to_string(i);
+				if (ImGui::TreeNode(label.c_str()))
+				{
+					auto& data = instance_list[i];
+					ImGui::LeftText_InputText(u8"キー", "##key", &data.key, window_center);
+					ImGui::LeftText_DragFloat3(u8"ローカル座標", "##position", data.position, window_center);
+					ImGui::TreePop();
 				}
 				ImGui::PopID();
 			}

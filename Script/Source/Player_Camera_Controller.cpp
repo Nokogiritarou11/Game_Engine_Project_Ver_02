@@ -20,7 +20,9 @@ void Player_Camera_Controller::Awake()
 	final_position = camera_transform.lock()->Get_Local_Position();
 
 	//使用するカットシーンを登録する
-	cut_scene.emplace_back(transform->Find("Cut_Scene_Smash_01").lock()->Get_Component<Interface_Cut_Scene>());
+	cut_scene.resize(3);
+	cut_scene[0] = transform->Find("Cut_Scene_Smash_01").lock()->Get_Component<Interface_Cut_Scene>();
+	cut_scene[2] = transform->Find("Cut_Scene_Smash_03").lock()->Get_Component<Interface_Cut_Scene>();
 }
 
 void Player_Camera_Controller::LateUpdate()
@@ -32,11 +34,16 @@ void Player_Camera_Controller::LateUpdate()
 	{
 		//カットシーン再生中の場合
 		//カットシーンの再生が終了するまで待機
-		if (!playing_cut_scene.lock()->Play_Cut_Scene())
+		const auto& cut = playing_cut_scene.lock();
+		if (cut->is_end_play)
 		{
 			//再生が終了したのでカメラの位置を登録する
 			final_position = camera_transform.lock()->Get_Local_Position();
 			is_playing_cut_scene = false;
+		}
+		else
+		{
+			final_position = cut->Play_Cut_Scene();
 		}
 	}
 	else
@@ -320,6 +327,7 @@ void Player_Camera_Controller::Play_Cut_Scene(const int& index)
 	{
 		//カットシーンの再生
 		playing_cut_scene = cut_scene[index];
+		playing_cut_scene.lock()->is_end_play = false;
 		is_playing_cut_scene = true;
 	}
 }

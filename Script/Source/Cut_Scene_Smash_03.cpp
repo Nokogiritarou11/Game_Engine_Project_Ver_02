@@ -1,17 +1,19 @@
-#include "Cut_Scene_Smash_01.h"
+#include "Cut_Scene_Smash_03.h"
+#include "Player_Camera_Controller.h"
 
 using namespace std;
 using namespace BeastEngine;
 
-void Cut_Scene_Smash_01::Awake()
+void Cut_Scene_Smash_03::Awake()
 {
 	//メンバポインタの取得
 	camera_transform = GameObject::Find_With_Tag("main_camera").lock()->transform;
+	camera_controller = camera_transform.lock()->Get_Parent().lock()->Get_Component<Player_Camera_Controller>();
 	root_transform = camera_transform.lock()->Get_Parent();
 	player_transform = GameObject::Find_With_Tag("player").lock()->transform;
 }
 
-Vector3 Cut_Scene_Smash_01::Play_Cut_Scene()
+Vector3 Cut_Scene_Smash_03::Play_Cut_Scene()
 {
 	//タイマーの更新
 	state_timer += Time::delta_time;
@@ -52,8 +54,18 @@ Vector3 Cut_Scene_Smash_01::Play_Cut_Scene()
 		//ステートの切り替え
 		if (state_timer >= data.change_time)
 		{
+			if (cut_state == 0)
+			{
+				camera_controller.lock()->Shake_Camera(12, 0.1f);
+			}
+			if (cut_state == 1)
+			{
+				camera_controller.lock()->Shake_Camera(12, 0.05f);
+			}
+
 			state_timer = 0;
 			++cut_state;
+
 			if (cut_state >= static_cast<int>(state_data.size()))
 			{
 				cut_state = -1;
@@ -65,10 +77,10 @@ Vector3 Cut_Scene_Smash_01::Play_Cut_Scene()
 	return camera->Get_Local_Position();
 }
 
-bool Cut_Scene_Smash_01::Draw_ImGui()
+bool Cut_Scene_Smash_03::Draw_ImGui()
 {
 	bool open = false;
-	if (!Draw_ImGui_Header("Cut_Scene_Smash_01", open)) return false;
+	if (!Draw_ImGui_Header("Cut_Scene_Smash_03", open)) return false;
 
 	if (open)
 	{

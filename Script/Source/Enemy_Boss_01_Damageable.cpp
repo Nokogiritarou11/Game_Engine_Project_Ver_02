@@ -64,7 +64,7 @@ bool Enemy_Boss_01_Damageable::Take_Damage(const shared_ptr<Damage_Collision>& d
 		param->hp -= damage_collision->damage_hp;
 
 		//スタンダメージ処理
-		if (param->is_ground && !param->stunning)
+		if (param->is_ground && !param->stunning && !param->is_super_armor)
 		{
 			param->stun -= damage_collision->damage_stun;
 		}
@@ -81,10 +81,7 @@ bool Enemy_Boss_01_Damageable::Take_Damage(const shared_ptr<Damage_Collision>& d
 
 		if (param->stun <= 0)
 		{
-			param->stunning = true;
-			anim->Set_Trigger("Stun");
-			enemy_manager.lock()->Enemy_Stunned(true, parameter);
-			return true;
+			anim->Set_Trigger("Damage");
 		}
 	}
 

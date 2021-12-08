@@ -132,6 +132,7 @@ void Player_Input::Set_State()
 					pos.y = enemy_pos.y;
 					transform->Set_Local_Rotation(transform->Look_At(enemy_pos));
 					enemy_lock->transform->Set_Local_Rotation(enemy_lock->transform->Look_At(pos));
+					enemy_lock->transform->Set_Local_Position(pos + transform->Get_Forward() * 2.0f);
 
 					//敵のアニメーションを再生し、死亡させる
 					enemy_lock->Get_Component<Animator>()->Set_Trigger("Smash");

@@ -4,7 +4,9 @@
 
 namespace BeastEngine
 {
-	class Cut_Scene_Smash_01 final : public MonoBehaviour, public Interface_Cut_Scene
+	class Player_Camera_Controller;
+
+	class Cut_Scene_Smash_03 final : public MonoBehaviour, public Interface_Cut_Scene
 	{
 	public:
 		Vector3 Play_Cut_Scene() override;
@@ -17,6 +19,7 @@ namespace BeastEngine
 		std::weak_ptr<Transform> root_transform;
 		std::weak_ptr<Transform> camera_transform;
 		std::weak_ptr<Transform> player_transform;
+		std::weak_ptr<Player_Camera_Controller> camera_controller;
 
 		// シリアライズ関数
 		friend class cereal::access;
@@ -28,8 +31,8 @@ namespace BeastEngine
 	};
 }
 
-REGISTER_COMPONENT(Cut_Scene_Smash_01)
-CEREAL_REGISTER_TYPE(BeastEngine::Cut_Scene_Smash_01)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::MonoBehaviour, BeastEngine::Cut_Scene_Smash_01)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Interface_Cut_Scene, BeastEngine::Cut_Scene_Smash_01)
-CEREAL_CLASS_VERSION(BeastEngine::Cut_Scene_Smash_01, 1)
+REGISTER_COMPONENT(Cut_Scene_Smash_03)
+CEREAL_REGISTER_TYPE(BeastEngine::Cut_Scene_Smash_03)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::MonoBehaviour, BeastEngine::Cut_Scene_Smash_03)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::Interface_Cut_Scene, BeastEngine::Cut_Scene_Smash_03)
+CEREAL_CLASS_VERSION(BeastEngine::Cut_Scene_Smash_03, 1)
