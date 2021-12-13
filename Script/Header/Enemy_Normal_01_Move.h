@@ -18,9 +18,11 @@ namespace BeastEngine
 
 	private:
 		void Awake() override;
+		void OnEnable() override;
 		bool Draw_ImGui() override;
 
 		std::weak_ptr<Animator> animator;
+		std::weak_ptr<Collider> collider;
 		std::weak_ptr<RigidBody> rigidbody;
 		std::weak_ptr<Enemy_Parameter> parameter;
 		std::weak_ptr<Transform> target_transform;

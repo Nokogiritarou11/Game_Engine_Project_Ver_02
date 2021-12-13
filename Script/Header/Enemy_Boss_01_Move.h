@@ -37,6 +37,7 @@ namespace BeastEngine
 		Vector3 dash_forward;
 		Vector3 jump_start_position;
 		float jump_attack_rate_timer = 0;
+		bool no_collision_old = false;
 
 		// シリアライズ関数
 		friend class cereal::access;

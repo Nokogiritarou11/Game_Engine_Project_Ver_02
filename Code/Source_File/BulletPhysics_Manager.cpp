@@ -71,9 +71,9 @@ void BulletPhysics_Manager::Update()
 		typedef pair<shared_ptr<Collider>, Collision> hit_pair;
 		vector<hit_pair> hit_list;
 		//Bullet“à‚ÌŽžŠÔ‚ði‚ß‚é
-		constexpr float fixed_step = 1.0f / 240.0f;
+		constexpr float fixed_step = 1.0f / 360.0f;
 		//world->stepSimulation(Time::delta_time, 2, Time::delta_time * 0.5f);
-		world->stepSimulation(Time::delta_time,4, fixed_step);
+		world->stepSimulation(Time::delta_time,6, fixed_step);
 
 		//Õ“Ë”»’è‚Ì”‚¾‚¯‰ñ‚·
 		const int num = dispatcher->getNumManifolds();

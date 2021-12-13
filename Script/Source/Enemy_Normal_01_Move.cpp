@@ -7,10 +7,16 @@ using namespace BeastEngine;
 void Enemy_Normal_01_Move::Awake()
 {
 	//メンバポインタの取得
-	rigidbody = Get_Component<Capsule_Collider>()->rigidbody;
+	collider = Get_Component<Capsule_Collider>();
+	rigidbody = collider.lock()->rigidbody;
 	animator = Get_Component<Animator>();
 	parameter = Get_Component<Enemy_Parameter>();
 	target_transform = GameObject::Find_With_Tag("player").lock()->transform;
+}
+
+void Enemy_Normal_01_Move::OnEnable()
+{
+	collider.lock()->Set_Layer(2);
 }
 
 void Enemy_Normal_01_Move::Move_Normal()
@@ -37,6 +43,8 @@ void Enemy_Normal_01_Move::Move_Normal()
 				break;
 			case Move_State::Left:
 				speed = transform->Get_Left() * run_speed * 0.25f * Time::delta_time;
+				break;
+			default:
 				break;
 		}
 		//重力処理

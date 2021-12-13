@@ -135,6 +135,7 @@ void Player_Input::Set_State()
 					enemy_lock->transform->Set_Local_Position(pos + transform->Get_Forward() * 2.0f);
 
 					//敵のアニメーションを再生し、死亡させる
+					enemy_lock->Get_Component<Collider>()->Set_Layer(5);
 					enemy_lock->Get_Component<Animator>()->Set_Trigger("Smash");
 					enemy_manager.lock()->Enemy_Dead(false, enemy);
 

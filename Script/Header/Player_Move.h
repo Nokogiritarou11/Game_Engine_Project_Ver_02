@@ -26,6 +26,7 @@ namespace BeastEngine
 
 		std::weak_ptr<Animator> animator;
 		std::weak_ptr<RigidBody> rigidbody;
+		std::weak_ptr<Collider> collider;
 		std::weak_ptr<Player_Parameter> parameter;
 		std::weak_ptr<Player_Input> p_input;
 		std::weak_ptr<Enemy_Manager> enemy_manager;
@@ -34,6 +35,8 @@ namespace BeastEngine
 		float down_power = 0;
 		bool is_stay_air = false;
 		bool is_add_down = false;
+
+		bool no_collision_old = false;
 
 		// シリアライズ関数
 		friend class cereal::access;

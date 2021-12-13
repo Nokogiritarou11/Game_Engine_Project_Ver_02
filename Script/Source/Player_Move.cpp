@@ -10,7 +10,8 @@ void Player_Move::Awake()
 {
 	//メンバポインタの取得
 	p_input = Get_Component<Player_Input>();
-	rigidbody = Get_Component<Capsule_Collider>()->rigidbody;
+	collider = Get_Component<Capsule_Collider>();
+	rigidbody = collider.lock()->rigidbody;
 	animator = Get_Component<Animator>();
 	parameter = Get_Component<Player_Parameter>();
 	enemy_manager = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Enemy_Manager>();
@@ -156,6 +157,19 @@ void Player_Move::Move_Update()
 		if (is_add_down)
 		{
 			y_axis_velocity -= down_power * 10 * Time::delta_time;
+		}
+	}
+
+	if (anim->Get_Bool("No_Collision") != no_collision_old)
+	{
+		no_collision_old = !no_collision_old;
+		if (no_collision_old)
+		{
+			collider.lock()->Set_Layer(5);
+		}
+		else
+		{
+			collider.lock()->Set_Layer(1);
 		}
 	}
 }

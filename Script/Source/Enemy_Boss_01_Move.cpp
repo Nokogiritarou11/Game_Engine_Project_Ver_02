@@ -127,6 +127,19 @@ void Enemy_Boss_01_Move::Move_Update()
 			y_axis_velocity -= down_power * Time::delta_time;
 		}
 	}
+
+	if (anim->Get_Bool("No_Collision") != no_collision_old)
+	{
+		no_collision_old = !no_collision_old;
+		if (no_collision_old)
+		{
+			collider.lock()->Set_Layer(5);
+		}
+		else
+		{
+			collider.lock()->Set_Layer(2);
+		}
+	}
 }
 
 void Enemy_Boss_01_Move::Attack_Melee() const
@@ -163,25 +176,19 @@ void Enemy_Boss_01_Move::Attack_Dash()
 	}
 	else if (state == 1)
 	{
-		//衝突しないようにレイヤーを切り替え
-		collider.lock()->Set_Layer(5);
-		anim->Set_Int("Attack_Dash_State", 2);
-	}
-	else if (state == 2)
-	{
 		//攻撃距離に達するまで直進
 		const Vector3 self_pos = transform->Get_Position();
 		Vector3 target_pos = target->Get_Position();
 		target_pos.y = self_pos.y;
 		if (Vector3::DistanceSquared(target_pos, self_pos) < powf(3.5f, 2))
 		{
-			anim->Set_Int("Attack_Dash_State", 3);
+			anim->Set_Int("Attack_Dash_State", 2);
 		}
 		//進行方向を保存
 		dash_forward = transform->Get_Forward();
 		speed = dash_forward * move_speed * Time::delta_time;
 	}
-	else if (state == 3)
+	else if (state == 2)
 	{
 		Vector3 target_position = target->Get_Position();
 		target_position.y = transform->Get_Position().y;
@@ -190,12 +197,6 @@ void Enemy_Boss_01_Move::Attack_Dash()
 
 		//進行方向は維持
 		speed = dash_forward * move_speed * Time::delta_time;
-	}
-	else if (state == 4)
-	{
-		//レイヤーを戻す
-		collider.lock()->Set_Layer(2);
-		anim->Set_Int("Attack_Dash_State", 5);
 	}
 
 	//重力処理
