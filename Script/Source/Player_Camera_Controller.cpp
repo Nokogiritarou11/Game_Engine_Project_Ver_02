@@ -315,10 +315,13 @@ void Player_Camera_Controller::Update_Lock_On()
 
 void Player_Camera_Controller::Shake_Camera(const int& count, const float& power)
 {
-	//カメラシェイク回数を追加する
-	shake_count = count;
-	shake_power = power;
-	shake_timer = 0;
+	if (count > 0)
+	{
+		//カメラシェイク回数を追加する
+		shake_count = count;
+		shake_power = power;
+		shake_timer = 0;
+	}
 }
 
 void Player_Camera_Controller::Play_Cut_Scene(const int& index)

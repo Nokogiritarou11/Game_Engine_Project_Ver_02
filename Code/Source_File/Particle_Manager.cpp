@@ -15,8 +15,12 @@ Particle_Manager::Particle_Manager()
 	// エフェクトのレンダラーの作成
 	renderer = EffekseerRendererDX11::Renderer::Create(DxSystem::device.Get(), DxSystem::device_context.Get(), 8000, D3D11_COMPARISON_GREATER_EQUAL, true);
 
+	//歪み描画用のコールバックを設定
 	distorting_callback = new Distorting_Callback;
 	renderer->SetDistortingCallback(distorting_callback);
+
+	//このエンジンはリニアスペースなのでEffekseer側でガンマカラーを再現させる
+	renderer->SetMaintainGammaColorInLinearColorSpace(true);
 
 	// エフェクトのマネージャーの作成
 	manager = Effekseer::Manager::Create(8000);

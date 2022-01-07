@@ -804,7 +804,7 @@ template <size_t LANE>
 Float4 Float4::Dup()
 {
 	return (LANE < 2) ?
-		vdupq_lane_f32(vget_low_f32(s), LANE) :
+		vdupq_lane_f32(vget_low_f32(s), LANE & 1) :
 		vdupq_lane_f32(vget_high_f32(s), LANE & 1);
 }
 
@@ -934,7 +934,7 @@ inline Float4 Float4::SetInt(int32_t x, int32_t y, int32_t z, int32_t w)
 inline Float4 Float4::SetUInt(uint32_t x, uint32_t y, uint32_t z, uint32_t w)
 {
 	const uint32_t i[4] = {x, y, z, w};
-	return vreinterpretq_u32_f32(vld1q_u32(i));
+	return vreinterpretq_f32_u32(vld1q_u32(i));
 }
 
 inline Float4 Float4::Sqrt(const Float4& in)
@@ -3857,7 +3857,7 @@ public:
 	static void* operator new(size_t size) {
 #if defined(__EMSCRIPTEN__) && __EMSCRIPTEN_minor__ < 38
 		return malloc(size);
-#elif defined(_MSC_VER)
+#elif defined(_WIN32)
 		return _mm_malloc(size, align);
 #else
 		void *ptr = nullptr;
@@ -3868,7 +3868,7 @@ public:
 	static void operator delete(void* ptr) {
 #if defined(__EMSCRIPTEN__) && __EMSCRIPTEN_minor__ < 38
 		free(ptr);
-#elif defined(_MSC_VER)
+#elif defined(_WIN32)
 		_mm_free(ptr);
 #else
 		return free(ptr);

@@ -24,7 +24,7 @@ void Damage_Collision::OnTrigger_Enter(Collision& collision)
 		if (hit->Take_Damage(static_pointer_cast<Damage_Collision>(shared_from_this())))
 		{
 			//攻撃成功時はヒットストップ
-			hit_stop_manager.lock()->Start_Hit_Stop(0.05f, stop_particle);
+			hit_stop_manager.lock()->Start_Hit_Stop(hit_stop_time, stop_particle);
 		}
 	}
 }
@@ -118,6 +118,9 @@ bool Damage_Collision::Draw_ImGui()
 		}
 
 		ImGui::LeftText_Checkbox(u8"パリィ可能", "##can_parry", &can_parry, window_center);
+		ImGui::LeftText_DragFloat(u8"ヒットストップ時間", "##hit_stop_time", &hit_stop_time, window_center);
+		ImGui::LeftText_InputInt(u8"カメラシェイク回数", "##shake_count", &shake_count, window_center);
+		ImGui::LeftText_DragFloat(u8"カメラシェイク強度", "##shake_power", &shake_power, window_center);
 		ImGui::LeftText_InputText(u8"ヒットエフェクトキー", "##hit_particle_key", &hit_particle_key, window_center);
 	}
 	return true;

@@ -42,7 +42,7 @@ bool Player_Damageable::Take_Damage(const shared_ptr<Damage_Collision>& damage_c
 	//UŒ‚‚µ‚Ä‚«‚½•û‚ÖŒü‚«’¼‚é
 	const Vector3 from_pos = damage_collision->root_transform.lock()->Get_Position();
 	transform->Set_Local_Rotation(transform->Look_At(Vector3(from_pos.x, transform->Get_Position().y, from_pos.z)));
-	hit_stop_manager.lock()->Start_Hit_Stop(0.05f);
+	hit_stop_manager.lock()->Start_Hit_Stop(damage_collision->hit_stop_time);
 
 	if (param->guarding)
 	{

@@ -18,6 +18,9 @@ namespace BeastEngine
 		std::weak_ptr<Transform> root_transform;
 		std::weak_ptr<Transform> hit_transform;
 
+		float hit_stop_time = 0;
+		int shake_count = 0;
+		float shake_power = 0;
 		std::string hit_particle_key;
 
 	private:
@@ -34,7 +37,11 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<MonoBehaviour>(this), damage_hp, damage_stun, damage_type, can_parry, root_transform, stop_particle, hit_particle_key);
+			archive(cereal::base_class<MonoBehaviour>(this),
+				damage_hp, damage_stun, damage_type,
+				can_parry, root_transform, stop_particle,
+				hit_stop_time, shake_count, shake_power,
+				hit_particle_key);
 		}
 	};
 }

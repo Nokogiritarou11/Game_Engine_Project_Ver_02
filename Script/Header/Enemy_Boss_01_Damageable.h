@@ -6,6 +6,7 @@ namespace BeastEngine
 {
 	class Enemy_Parameter;
 	class Enemy_Manager;
+	class Player_Camera_Controller;
 
 	class Enemy_Boss_01_Damageable final : public MonoBehaviour, public Interface_Character_Damageable
 	{
@@ -18,6 +19,7 @@ namespace BeastEngine
 
 		std::weak_ptr<Enemy_Parameter> parameter;
 		std::weak_ptr<Enemy_Manager> enemy_manager;
+		std::weak_ptr<Player_Camera_Controller> camera_controller;
 		std::string critical_particle_key;
 
 		// シリアライズ関数

@@ -6,6 +6,7 @@
 #include "Enemy_Manager.h"
 #include "Damage_Collision.h"
 #include "Object_Pool.h"
+#include "Player_Camera_Controller.h"
 
 using namespace std;
 using namespace BeastEngine;
@@ -20,6 +21,7 @@ void Enemy_Boss_01_Damageable::Awake()
 	const auto& manager = GameObject::Find_With_Tag("Game_Manager").lock();
 	pool = manager->Get_Component<Object_Pool>();
 	enemy_manager = manager->Get_Component<Enemy_Manager>();
+	camera_controller = GameObject::Find_With_Tag("main_camera").lock()->transform->Get_Parent().lock()->Get_Component<Player_Camera_Controller>();
 }
 
 bool Enemy_Boss_01_Damageable::Take_Damage(const shared_ptr<Damage_Collision>& damage_collision)
@@ -41,9 +43,11 @@ bool Enemy_Boss_01_Damageable::Take_Damage(const shared_ptr<Damage_Collision>& d
 	}
 
 	//ヒットストップ
-	hit_stop_manager.lock()->Start_Hit_Stop(0.05f);
+	hit_stop_manager.lock()->Start_Hit_Stop(damage_collision->hit_stop_time);
 	//プレイヤーの最終攻撃対象を自身に設定する
 	enemy_manager.lock()->last_attack_target = parameter;
+	//ヒット時カメラシェイク
+	camera_controller.lock()->Shake_Camera(damage_collision->shake_count, damage_collision->shake_power);
 	//ダメージを受けてからのタイマーをリセットする
 	param->last_damaged_timer = 0;
 
