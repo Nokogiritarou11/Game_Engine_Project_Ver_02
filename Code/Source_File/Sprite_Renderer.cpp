@@ -64,7 +64,7 @@ void Sprite_Renderer::Set_Active(const bool value)
 	{
 		if (!is_called)
 		{
-			if (gameobject->Get_Active())
+			if (gameobject->Get_Active_In_Hierarchy())
 			{
 				if (Get_Enabled())
 				{
@@ -85,26 +85,28 @@ void Sprite_Renderer::Recalculate_Frame()
 		Vertex data[4];
 
 		const Vector3 trans_pos = gameobject->transform->Get_Position();
+		const Vector3 trans_scale = gameobject->transform->Get_Scale();
+		const Vector2 scaled_size = size * Vector2(trans_scale.x, trans_scale.y);
 
 		data[0].pos.x = trans_pos.x;
 		data[0].pos.y = trans_pos.y;
 		data[0].pos.z = 0.0f;
 
-		data[1].pos.x = trans_pos.x + size.x;
+		data[1].pos.x = trans_pos.x + scaled_size.x;
 		data[1].pos.y = trans_pos.y;
 		data[1].pos.z = 0.0f;
 
 		data[2].pos.x = trans_pos.x;
-		data[2].pos.y = trans_pos.y + size.y;
+		data[2].pos.y = trans_pos.y + scaled_size.y;
 		data[2].pos.z = 0.0f;
 
-		data[3].pos.x = trans_pos.x + size.x;
-		data[3].pos.y = trans_pos.y + size.y;
+		data[3].pos.x = trans_pos.x + scaled_size.x;
+		data[3].pos.y = trans_pos.y + scaled_size.y;
 		data[3].pos.z = 0.0f;
 
 		// íÜêSç¿ïWÇå¥ì_Ç÷
-		const float mx = trans_pos.x + size.x * 0.5f;
-		const float my = trans_pos.y + size.y * 0.5f;
+		const float mx = trans_pos.x + scaled_size.x * 0.5f;
+		const float my = trans_pos.y + scaled_size.y * 0.5f;
 		data[0].pos.x -= mx; data[0].pos.y -= my;
 		data[1].pos.x -= mx; data[1].pos.y -= my;
 		data[2].pos.x -= mx; data[2].pos.y -= my;

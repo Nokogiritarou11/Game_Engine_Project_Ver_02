@@ -7,6 +7,7 @@
 #include "Player_Camera_Controller.h"
 #include "Object_Pool.h"
 #include "Time_Manager.h"
+#include "UI_Manager.h"
 
 using namespace std;
 using namespace BeastEngine;
@@ -19,7 +20,9 @@ void Player_Damageable::Awake()
 	camera_controller = GameObject::Find_With_Tag("main_camera").lock()->transform->Get_Parent().lock()->Get_Component<Player_Camera_Controller>();
 	pool = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Object_Pool>();
 	hit_stop_manager = Get_Component<Character_Hit_Stop_Manager>();
+
 	time_manager = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Time_Manager>();
+	GameObject::Find_With_Tag("UI_Manager").lock()->Get_Component<UI_Manager>()->Activate_Player_Health_Bar(parameter);
 }
 
 void Player_Damageable::Update()
@@ -73,10 +76,20 @@ bool Player_Damageable::Take_Damage(const shared_ptr<Damage_Collision>& damage_c
 	}
 
 	//ダメージ処理とヒットエフェクトの再生
-	param->hp -= damage_collision->damage_hp;
 	pool.lock()->Instance_In_Pool(damage_collision->hit_particle_key, hit_pos_transform.lock()->Get_Position(), damage_collision->hit_transform.lock()->Get_Rotation());
-	anim->Set_Trigger("Damage");
-	anim->Set_Int("Damage_State", static_cast<int>(damage_collision->damage_type));
+
+	param->hp -= damage_collision->damage_hp;
+	Mathf::Clamp(param->hp, 0, param->max_hp);
+
+	if(param->hp <= 0)
+	{
+		//anim->Set_Trigger("Death");
+	}
+	else
+	{
+		anim->Set_Trigger("Damage");
+		anim->Set_Int("Damage_State", static_cast<int>(damage_collision->damage_type));
+	}
 	return true;
 }
 

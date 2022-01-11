@@ -132,6 +132,8 @@
     <ClCompile Include="Script\Source\Enemy_Boss_01_Move.cpp" />
     <ClCompile Include="Script\Source\Enemy_Boss_01_Damageable.cpp" />
     <ClCompile Include="Script\Source\Cut_Scene_Smash_03.cpp" />
+    <ClCompile Include="Script\Source\UI_Manager.cpp" />
+    <ClCompile Include="Script\Source\UI_Health_Bar.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -361,6 +363,8 @@
     <ClInclude Include="Script\Header\Enemy_Boss_01_Move.h" />
     <ClInclude Include="Script\Header\Enemy_Boss_01_State_Setter.h" />
     <ClInclude Include="Script\Header\Cut_Scene_Smash_03.h" />
+    <ClInclude Include="Script\Header\UI_Manager.h" />
+    <ClInclude Include="Script\Header\UI_Health_Bar.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

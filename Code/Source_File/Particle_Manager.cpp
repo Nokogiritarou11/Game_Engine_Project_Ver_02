@@ -20,7 +20,7 @@ Particle_Manager::Particle_Manager()
 	renderer->SetDistortingCallback(distorting_callback);
 
 	//このエンジンはリニアスペースなのでEffekseer側でガンマカラーを再現させる
-	renderer->SetMaintainGammaColorInLinearColorSpace(true);
+	renderer->SetMaintainGammaColorInLinearColorSpace(false);
 
 	// エフェクトのマネージャーの作成
 	manager = Effekseer::Manager::Create(8000);

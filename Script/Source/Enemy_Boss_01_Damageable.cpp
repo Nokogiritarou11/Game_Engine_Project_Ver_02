@@ -7,6 +7,7 @@
 #include "Damage_Collision.h"
 #include "Object_Pool.h"
 #include "Player_Camera_Controller.h"
+#include "UI_Manager.h"
 
 using namespace std;
 using namespace BeastEngine;
@@ -21,6 +22,8 @@ void Enemy_Boss_01_Damageable::Awake()
 	const auto& manager = GameObject::Find_With_Tag("Game_Manager").lock();
 	pool = manager->Get_Component<Object_Pool>();
 	enemy_manager = manager->Get_Component<Enemy_Manager>();
+
+	GameObject::Find_With_Tag("UI_Manager").lock()->Get_Component<UI_Manager>()->Activate_Enemy_Health_Bar(parameter);
 	camera_controller = GameObject::Find_With_Tag("main_camera").lock()->transform->Get_Parent().lock()->Get_Component<Player_Camera_Controller>();
 }
 
@@ -66,6 +69,7 @@ bool Enemy_Boss_01_Damageable::Take_Damage(const shared_ptr<Damage_Collision>& d
 	{
 		//HPへのダメージ処理
 		param->hp -= damage_collision->damage_hp;
+		Mathf::Clamp(param->hp, 0, param->max_hp);
 
 		//スタンダメージ処理
 		if (param->is_ground && !param->stunning && !param->is_super_armor)
