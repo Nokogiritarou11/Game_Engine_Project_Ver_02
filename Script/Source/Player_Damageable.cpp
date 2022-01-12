@@ -79,7 +79,7 @@ bool Player_Damageable::Take_Damage(const shared_ptr<Damage_Collision>& damage_c
 	pool.lock()->Instance_In_Pool(damage_collision->hit_particle_key, hit_pos_transform.lock()->Get_Position(), damage_collision->hit_transform.lock()->Get_Rotation());
 
 	param->hp -= damage_collision->damage_hp;
-	Mathf::Clamp(param->hp, 0, param->max_hp);
+	param->hp = Mathf::Clamp(param->hp, 0, param->max_hp);
 
 	if(param->hp <= 0)
 	{

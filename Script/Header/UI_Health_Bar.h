@@ -11,21 +11,30 @@ namespace BeastEngine
 		void Set_Parameter(const std::weak_ptr<Character_Parameter>& character_parameter);
 
 	private:
+		struct Bar_Sprite
+		{
+			std::weak_ptr<Sprite_Renderer> sprite;
+			float max = 0;
+			float old = 0;
+		};
+
 		void Awake() override;
 		void LateUpdate() override;
 		bool Draw_ImGui() override;
 
 		std::weak_ptr<Character_Parameter> parameter;
-		std::weak_ptr<Sprite_Renderer> fill_sprite;
-		float fill_max = 0;
-		float health_old = 0;
+		Bar_Sprite bar_main;
+		Bar_Sprite bar_delay;
+
+		float delay_timer = 0;
+		float delay_start_time = 0;
 
 		// シリアライズ関数
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<MonoBehaviour>(this));
+			archive(cereal::base_class<MonoBehaviour>(this), delay_start_time);
 		}
 	};
 }

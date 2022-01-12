@@ -44,26 +44,48 @@ bool Enemy_Parameter::Draw_ImGui()
 			type = static_cast<Enemy_Type>(type_current);
 		}
 
-		ImGui::Text(u8"ロックオンマーカー座標");
-		ImGui::SameLine(window_center);
-		ImGui::SetNextItemWidth(-FLT_MIN);
-
-		string label_flush = u8"未設定 (ここにドラッグ)";
-		if (const auto& p = lock_on_target.lock())
 		{
-			label_flush = p->gameobject->name;
-		}
-		ImGui::InputText("##Item", &label_flush, ImGuiInputTextFlags_ReadOnly);
+			ImGui::Text(u8"ロックオン対象オブジェクト");
+			ImGui::SameLine(window_center);
+			ImGui::SetNextItemWidth(-FLT_MIN);
 
-		if (ImGui::BeginDragDropTarget())
-		{
-			if (const auto& drag = Engine::editor->Get_Drag_Object())
+			string label_flush = u8"未設定 (ここにドラッグ)";
+			if (const auto& p = lock_on_target.lock())
 			{
-				lock_on_target = drag->transform;
+				label_flush = p->gameobject->name;
 			}
-			ImGui::EndDragDropTarget();
-		}
+			ImGui::InputText("##Drag_Target", &label_flush, ImGuiInputTextFlags_ReadOnly);
 
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const auto& drag = Engine::editor->Get_Drag_Object())
+				{
+					lock_on_target = drag->transform;
+				}
+				ImGui::EndDragDropTarget();
+			}
+		}
+		{
+			ImGui::Text(u8"ロックオンマーカー座標");
+			ImGui::SameLine(window_center);
+			ImGui::SetNextItemWidth(-FLT_MIN);
+
+			string label_flush = u8"未設定 (ここにドラッグ)";
+			if (const auto& p = lock_on_marker.lock())
+			{
+				label_flush = p->gameobject->name;
+			}
+			ImGui::InputText("##Drag_Marker", &label_flush, ImGuiInputTextFlags_ReadOnly);
+
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const auto& drag = Engine::editor->Get_Drag_Object())
+				{
+					lock_on_marker = drag->transform;
+				}
+				ImGui::EndDragDropTarget();
+			}
+		}
 		ImGui::LeftText_DragFloat("Max_HP", "##Max_HP", &max_hp, window_center, -FLT_MIN, 1.0f);
 		ImGui::LeftText_DragFloat("Max_Stun", "##Max_Stun", &max_stun, window_center, -FLT_MIN, 1.0f);
 		ImGui::LeftText_DragFloat(u8"スタン回復量", "##heal_stun", &heal_stun, window_center);

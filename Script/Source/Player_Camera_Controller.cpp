@@ -1,6 +1,7 @@
 #include "Player_Camera_Controller.h"
 #include "Player_Parameter.h"
 #include "Enemy_Manager.h"
+#include "UI_Manager.h"
 #include "Interface_Cut_Scene.h"
 
 using namespace std;
@@ -15,6 +16,7 @@ void Player_Camera_Controller::Awake()
 	camera_transform = GameObject::Find_With_Tag("main_camera").lock()->transform;
 	camera = camera_transform.lock()->Get_Component<Camera>();
 	enemy_manager = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Enemy_Manager>();
+	ui_manager = GameObject::Find_With_Tag("UI_Manager").lock()->Get_Component<UI_Manager>();
 
 	//初期位置を保存する
 	final_position = camera_transform.lock()->Get_Local_Position();
@@ -45,6 +47,7 @@ void Player_Camera_Controller::LateUpdate()
 		{
 			final_position = cut->Play_Cut_Scene();
 		}
+		ui_manager.lock()->Set_Target_State(0);
 	}
 	else
 	{
@@ -52,6 +55,7 @@ void Player_Camera_Controller::LateUpdate()
 		{
 			//敵が居ない場合
 			Update_Free_Look();
+			ui_manager.lock()->Set_Target_State(0);
 		}
 		else
 		{
@@ -59,11 +63,13 @@ void Player_Camera_Controller::LateUpdate()
 			{
 				//ロックオン中
 				Update_Lock_On();
+				ui_manager.lock()->Set_Target_State(2);
 			}
 			else
 			{
 				//非ロックオンかつ戦闘中
 				Update_Battle();
+				ui_manager.lock()->Set_Target_State(1);
 			}
 		}
 	}

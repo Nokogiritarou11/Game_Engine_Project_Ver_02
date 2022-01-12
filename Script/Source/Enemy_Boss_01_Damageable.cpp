@@ -69,7 +69,7 @@ bool Enemy_Boss_01_Damageable::Take_Damage(const shared_ptr<Damage_Collision>& d
 	{
 		//HPへのダメージ処理
 		param->hp -= damage_collision->damage_hp;
-		Mathf::Clamp(param->hp, 0, param->max_hp);
+		param->hp = Mathf::Clamp(param->hp, 0, param->max_hp);
 
 		//スタンダメージ処理
 		if (param->is_ground && !param->stunning && !param->is_super_armor)

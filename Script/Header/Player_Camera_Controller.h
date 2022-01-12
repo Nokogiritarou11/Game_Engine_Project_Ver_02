@@ -5,6 +5,7 @@ namespace BeastEngine
 {
 	class Player_Parameter;
 	class Enemy_Manager;
+	class UI_Manager;
 	class Interface_Cut_Scene;
 
 	class Player_Camera_Controller final : public MonoBehaviour
@@ -50,6 +51,7 @@ namespace BeastEngine
 		std::weak_ptr<Camera> camera;
 		std::weak_ptr<Player_Parameter> parameter;
 		std::weak_ptr<Enemy_Manager> enemy_manager;
+		std::weak_ptr<UI_Manager> ui_manager;
 
 		std::vector<std::weak_ptr<Interface_Cut_Scene>> cut_scene;
 		std::weak_ptr<Interface_Cut_Scene> playing_cut_scene;

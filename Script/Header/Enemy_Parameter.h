@@ -30,6 +30,7 @@ namespace BeastEngine
 		Move_State move_state = Move_State::Forward;
 		int attack_state = 0;
 		std::weak_ptr<Transform> lock_on_target;
+		std::weak_ptr<Transform> lock_on_marker;
 
 	private:
 		void OnEnable() override;
@@ -41,14 +42,7 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			if (version <= 1)
-			{
-				archive(cereal::base_class<MonoBehaviour>(this), cereal::base_class<Character_Parameter>(this), type);
-			}
-			else
-			{
-				archive(cereal::base_class<MonoBehaviour>(this), cereal::base_class<Character_Parameter>(this), type, lock_on_target);
-			}
+			archive(cereal::base_class<MonoBehaviour>(this), cereal::base_class<Character_Parameter>(this), type, lock_on_target, lock_on_marker);
 		}
 	};
 }
@@ -56,4 +50,4 @@ namespace BeastEngine
 REGISTER_COMPONENT(Enemy_Parameter)
 CEREAL_REGISTER_TYPE(BeastEngine::Enemy_Parameter)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::MonoBehaviour, BeastEngine::Enemy_Parameter)
-CEREAL_CLASS_VERSION(BeastEngine::Enemy_Parameter, 2)
+CEREAL_CLASS_VERSION(BeastEngine::Enemy_Parameter, 1)
