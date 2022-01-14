@@ -121,12 +121,18 @@ void Enemy_Normal_01_State_Setter::Set_State()
 		}
 	}
 
-	if (anim->Get_Bool("Stun_End"))
+	if (const bool stun = anim->Get_Bool("Stunning"); param->stunning != stun)
 	{
-		//スタン終了処理
-		anim->Set_Bool("Stun_End", false);
-		param->stunning = false;
-		enemy_manager.lock()->Remove_Stunning_List(parameter);
+		param->stunning = stun;
+		if (stun)
+		{
+			enemy_manager.lock()->Add_Stunning_List(parameter);
+		}
+		else
+		{
+			//スタン終了処理
+			enemy_manager.lock()->Remove_Stunning_List(parameter);
+		}
 	}
 
 	if (anim->Get_Bool("Explosion"))

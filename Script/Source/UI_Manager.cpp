@@ -1,6 +1,7 @@
 #include "UI_Manager.h"
 #include "UI_Health_Bar.h"
 #include "UI_Targeting.h"
+#include "UI_Smash.h"
 
 using namespace std;
 using namespace BeastEngine;
@@ -8,6 +9,7 @@ using namespace BeastEngine;
 void UI_Manager::Awake()
 {
 	ui_target = transform->Find("Target_Marker").lock()->Get_Component<UI_Targeting>();
+	ui_smash = transform->Find("Smash_Marker").lock()->Get_Component<UI_Smash>();
 }
 
 void UI_Manager::Activate_Enemy_Health_Bar(const std::weak_ptr<Character_Parameter>& character_parameter) const
@@ -27,6 +29,11 @@ void UI_Manager::Activate_Player_Health_Bar(const std::weak_ptr<Character_Parame
 void UI_Manager::Set_Target_State(const int value) const
 {
 	ui_target.lock()->Set_State(value);
+}
+
+void UI_Manager::Set_Smash_State(const int value) const
+{
+	ui_smash.lock()->Set_State(value);
 }
 
 bool UI_Manager::Draw_ImGui()

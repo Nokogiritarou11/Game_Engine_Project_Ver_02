@@ -135,6 +135,7 @@
     <ClCompile Include="Script\Source\UI_Manager.cpp" />
     <ClCompile Include="Script\Source\UI_Health_Bar.cpp" />
     <ClCompile Include="Script\Source\UI_Targeting.cpp" />
+    <ClCompile Include="Script\Source\UI_Smash.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -367,6 +368,7 @@
     <ClInclude Include="Script\Header\UI_Manager.h" />
     <ClInclude Include="Script\Header\UI_Health_Bar.h" />
     <ClInclude Include="Script\Header\UI_Targeting.h" />
+    <ClInclude Include="Script\Header\UI_Smash.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

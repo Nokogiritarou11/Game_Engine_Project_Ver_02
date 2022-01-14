@@ -78,6 +78,20 @@ void Enemy_Boss_01_State_Setter::Set_State()
 		}
 	}
 
+	if (const bool stun = anim->Get_Bool("Stunning"); param->stunning != stun)
+	{
+		param->stunning = stun;
+		if (stun)
+		{
+			enemy_manager.lock()->Add_Stunning_List(parameter);
+		}
+		else
+		{
+			//ƒXƒ^ƒ“I—¹ˆ—
+			enemy_manager.lock()->Remove_Stunning_List(parameter);
+		}
+	}
+
 	if (anim->Get_Bool("Explosion"))
 	{
 		//€–S‚Ì”š”­ˆ—

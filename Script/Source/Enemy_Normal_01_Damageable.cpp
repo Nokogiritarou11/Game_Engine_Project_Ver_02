@@ -91,9 +91,8 @@ bool Enemy_Normal_01_Damageable::Take_Damage(const shared_ptr<Damage_Collision>&
 
 		if (param->stun <= 0)
 		{
-			param->stunning = true;
 			anim->Set_Trigger("Stun");
-			enemy_manager.lock()->Enemy_Stunned(true, parameter);
+			enemy_manager.lock()->Enemy_Stunned();
 			return true;
 		}
 	}

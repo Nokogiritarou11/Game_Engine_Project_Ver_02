@@ -17,12 +17,13 @@ namespace BeastEngine
 		void Add_Attacking_List(const std::weak_ptr<Enemy_Parameter>& parameter);
 		void Remove_Attacking_List(const std::weak_ptr<Enemy_Parameter>& parameter);
 
+		void Add_Stunning_List(const std::weak_ptr<Enemy_Parameter>& parameter);
 		void Remove_Stunning_List(const std::weak_ptr<Enemy_Parameter>& parameter);
 
 		void Enemy_Dead(const bool& use_effect, const std::weak_ptr<Enemy_Parameter>& parameter);
-		void Enemy_Stunned(const bool& use_effect, const std::weak_ptr<Enemy_Parameter>& parameter);
+		void Enemy_Stunned() const;
 
-		Vector3 Get_Nearest_Enemy_Position(const Vector3& position);
+		Vector3 Get_Nearest_Enemy_Position(const Vector3& position) const;
 
 		std::vector<std::weak_ptr<Enemy_Parameter>> enemy_list{};
 		std::vector<std::weak_ptr<Enemy_Parameter>> attacking_list{};

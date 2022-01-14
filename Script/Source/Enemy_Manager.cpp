@@ -102,6 +102,11 @@ void Enemy_Manager::Remove_Attacking_List(const std::weak_ptr<Enemy_Parameter>& 
 	}
 }
 
+void Enemy_Manager::Add_Stunning_List(const std::weak_ptr<Enemy_Parameter>& parameter)
+{
+	stunning_list.emplace_back(parameter);
+}
+
 void Enemy_Manager::Remove_Stunning_List(const std::weak_ptr<Enemy_Parameter>& parameter)
 {
 	//リストから削除対象を探して削除する
@@ -185,21 +190,14 @@ void Enemy_Manager::Enemy_Dead(const bool& use_effect, const weak_ptr<Enemy_Para
 	}
 }
 
-void Enemy_Manager::Enemy_Stunned(const bool& use_effect, const weak_ptr<Enemy_Parameter>& parameter)
+void Enemy_Manager::Enemy_Stunned() const
 {
-	//スタン状態リストに追加
-	stunning_list.emplace_back(parameter);
-
-	//スタン時演出を行う場合
-	if (use_effect)
-	{
-		//時間停止とカメラシェイクを行う
-		time_manager.lock()->Start_Time_Slow(effect_stun.time_parameter.delay, effect_stun.time_parameter.time, effect_stun.time_parameter.speed);
-		camera_controller.lock()->Shake_Camera(effect_stun.shake_parameter.count, effect_stun.shake_parameter.power);
-	}
+	//時間停止とカメラシェイクを行う
+	time_manager.lock()->Start_Time_Slow(effect_stun.time_parameter.delay, effect_stun.time_parameter.time, effect_stun.time_parameter.speed);
+	camera_controller.lock()->Shake_Camera(effect_stun.shake_parameter.count, effect_stun.shake_parameter.power);
 }
 
-Vector3 Enemy_Manager::Get_Nearest_Enemy_Position(const Vector3& position)
+Vector3 Enemy_Manager::Get_Nearest_Enemy_Position(const Vector3& position) const
 {
 	//引数の座標に一番近いエネミーを検索する
 	Vector3 nearest_position;

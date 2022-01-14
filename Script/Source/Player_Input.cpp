@@ -2,6 +2,7 @@
 #include "Enemy_Manager.h"
 #include "Player_Parameter.h"
 #include "Player_Camera_Controller.h"
+#include "UI_Manager.h"
 
 using namespace std;
 using namespace BeastEngine;
@@ -14,6 +15,7 @@ void Player_Input::Awake()
 	camera_transform = GameObject::Find_With_Tag("main_camera").lock()->transform;
 	camera_controller = camera_transform.lock()->Get_Parent().lock()->Get_Component<Player_Camera_Controller>();
 	enemy_manager = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Enemy_Manager>();
+	ui_manager = GameObject::Find_With_Tag("UI_Manager").lock()->Get_Component<UI_Manager>();
 }
 
 void Player_Input::Set_State()
@@ -22,6 +24,7 @@ void Player_Input::Set_State()
 	const auto& camera_trans = camera_transform.lock();
 	const auto& param = parameter.lock();
 	const auto& e_manager = enemy_manager.lock();
+	const auto& u_manager = ui_manager.lock();
 
 	// カメラの方向から、X-Z平面の単位ベクトルを取得
 	Vector3 camera_direction = camera_trans->Get_Forward();
@@ -125,6 +128,7 @@ void Player_Input::Set_State()
 				//待機状態でボタンの入力があったかをチェック
 				if (Input::Get_Pad_Button_Down(Button_Code::B) && param->is_ground && !param->attacking && !param->damaging && !param->guarding && !param->is_invincible)
 				{
+					u_manager->Set_Smash_State(1);
 					//お互いが向き直る
 					Vector3 pos = transform->Get_Position();
 					Vector3 enemy_pos = enemy_lock->transform->Get_Position();
@@ -144,9 +148,19 @@ void Player_Input::Set_State()
 					anim->Set_Int("Smash_Number", static_cast<int>(enemy_lock->type));
 					input_direction = Vector3::Zero;
 				}
+				else
+				{
+					u_manager->Set_Smash_State(0);
+				}
 				break;
 			}
+
+			u_manager->Set_Smash_State(2);
 		}
+	}
+	else
+	{
+		u_manager->Set_Smash_State(2);
 	}
 }
 

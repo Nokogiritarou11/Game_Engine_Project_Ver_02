@@ -7,6 +7,7 @@ namespace BeastEngine
 	class Player_Parameter;
 	class Player_Camera_Controller;
 	class Enemy_Manager;
+	class UI_Manager;
 
 	class Player_Input final : public MonoBehaviour, public Interface_Character_State_Setter
 	{
@@ -25,6 +26,7 @@ namespace BeastEngine
 		std::weak_ptr<Player_Camera_Controller> camera_controller;
 		std::weak_ptr<Player_Parameter> parameter;
 		std::weak_ptr<Enemy_Manager> enemy_manager;
+		std::weak_ptr<UI_Manager> ui_manager;
 
 		bool is_stick_reset = false;
 		bool can_guard_stick = false;
