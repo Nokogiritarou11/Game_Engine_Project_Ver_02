@@ -76,11 +76,11 @@ inline XMFLOAT4X4 FbxAMatrixToFloat4x4(const FbxAMatrix& fbx_value)
 
 inline Vector3 Vector_Min(Vector3 a, Vector3 b)
 {
-	return Vector3(min(a.x, b.x), min(a.y, b.y), min(a.y, b.y));
+	return Vector3(min(a.x, b.x), min(a.y, b.y), min(a.z, b.z));
 }
 inline Vector3 Vector_Max(Vector3 a, Vector3 b)
 {
-	return Vector3(max(a.x, b.x), max(a.y, b.y), max(a.y, b.y));
+	return Vector3(max(a.x, b.x), max(a.y, b.y), max(a.z, b.z));
 }
 
 shared_ptr<Model_Data> Model_Data::Load_Model(const string& file_path, const string& fbx_filename)

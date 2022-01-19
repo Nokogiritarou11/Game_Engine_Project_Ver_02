@@ -81,7 +81,7 @@ void Player_Camera_Controller::LateUpdate()
 		shake_timer += Time::delta_time;
 
 		//60fps基準でカメラシェイクを行う
-		if (constexpr float frame_time = 1.0f / 60.0f; shake_timer <= frame_time)
+		if (constexpr float frame_time = 1.0f / 60.0f; shake_timer >= frame_time)
 		{
 			//カメラシェイク処理
 			const auto& camera_trans = camera_transform.lock();
@@ -93,6 +93,13 @@ void Player_Camera_Controller::LateUpdate()
 			//残りのシェイク回数を減らす
 			--shake_count;
 		}
+	}
+
+	const auto& camera_trans = camera_transform.lock();
+	//カメラのめり込み対策
+	if (Vector3 hit_pos; Physics::Raycast(player_transform.lock()->Get_Position() + Vector3(0, 0.25f, 0), camera_trans->Get_Position(), hit_pos, 1 << 0))
+	{
+		camera_trans->Set_Position(hit_pos.x, camera_trans->Get_Position().y, hit_pos.z);
 	}
 }
 
@@ -324,9 +331,13 @@ void Player_Camera_Controller::Shake_Camera(const int& count, const float& power
 	if (count > 0)
 	{
 		//カメラシェイク回数を追加する
-		shake_count = count;
-		shake_power = power;
-		shake_timer = 0;
+		//カメラシェイク中かつ現在のもののほうが強い場合は更新しない
+		if (shake_count == 0 || (shake_count > 0 && power > shake_power))
+		{
+			shake_count = count;
+			shake_power = power;
+			shake_timer = 0;
+		}
 	}
 }
 

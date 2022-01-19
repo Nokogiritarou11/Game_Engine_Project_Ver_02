@@ -92,7 +92,7 @@ void Player_Input::Set_State()
 	}
 
 	//ƒK[ƒh“ü—Í¬—§
-	if (can_guard_button && can_guard_stick && !param->guarding)
+	if (can_guard_button && can_guard_stick && !param->guarding && param->is_ground)
 	{
 		//UŒ‚’†‚Ì“G‚ª‘¶İ‚µ‚Ä‚¢‚é‚©
 		if (const auto& attacking_list = e_manager->attacking_list; !attacking_list.empty())

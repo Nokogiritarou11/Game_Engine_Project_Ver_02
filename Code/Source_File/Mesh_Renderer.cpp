@@ -198,6 +198,7 @@ bool Mesh_Renderer::Draw_ImGui()
 		ImGui::SameLine();
 		ImGui::Text(mesh->name.c_str());
 
+		ImGui::SetNextItemOpen(true);
 		if (ImGui::TreeNode(u8"バンディングボックス"))
 		{
 			const Vector3& min_scaled = transform->Get_Position() + (bounds.Get_Center() + bounds.Get_Min()) * transform->Get_Scale();

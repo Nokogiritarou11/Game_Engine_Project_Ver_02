@@ -112,6 +112,7 @@ void Fbx_Converter::Load_From_Fbx(bool& convert_mesh, bool& convert_material, bo
 			g->transform->Set_Parent(obj->transform);
 			shared_ptr<Mesh_Renderer> renderer = g->Add_Component<Mesh_Renderer>();
 			renderer->file_path = model->file_path + mesh->name + ".mesh";
+			renderer->bounds.Set_Size(mesh->boundingbox.Get_Size());
 
 			//ƒƒbƒVƒ…‚Ì‹ts—ñ‚©‚ç‰ŠúŽp¨‚ðŽZo‚·‚é
 			Vector3 translate;
@@ -186,6 +187,7 @@ void Fbx_Converter::Load_From_Fbx(bool& convert_mesh, bool& convert_material, bo
 			g->transform->Set_Parent(obj->transform);
 			shared_ptr<SkinMesh_Renderer> renderer = g->Add_Component<SkinMesh_Renderer>();
 			renderer->file_path = model->file_path + mesh->name + ".mesh";
+			renderer->bounds.Set_Size(mesh->boundingbox.Get_Size());
 			rend_list.push_back(g);
 		}
 

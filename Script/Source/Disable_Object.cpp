@@ -7,7 +7,8 @@ void Disable_Object::Update()
 {
 	//タイマーの更新
 	timer += Time::delta_time;
-	if (disable_time <= timer)
+	++frame_count;
+	if (disable_time <= timer && frame_count > 1)
 	{
 		//親子を解除する場合
 		if (remove_parent)
@@ -17,6 +18,7 @@ void Disable_Object::Update()
 		//タイマーによって非アクティブ化する
 		gameobject->Set_Active(false);
 		timer = 0;
+		frame_count = 0;
 	}
 }
 

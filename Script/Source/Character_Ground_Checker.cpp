@@ -19,8 +19,9 @@ void Character_Ground_Checker::Update()
 	Vector3 to = from;
 	to.y -= ray_distance;
 
+	Vector3 hit_pos;
 	//レイキャストのヒット判定
-	if (const bool ground = Physics::Raycast(from, to); ground != ground_old)
+	if (const bool ground = Physics::Raycast(from, to, hit_pos); ground != ground_old)
 	{
 		//ヒットした場合は接地していると判断する
 		ground_old = ground;

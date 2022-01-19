@@ -10,7 +10,7 @@ using namespace std;
 
 Shadow_Manager::Shadow_Manager()
 {
-	shadow_map_texture_size = 2048;
+	shadow_map_texture_size = 2048 * 2;
 	Set_Shadow_Map_Texture_Size(shadow_map_texture_size);
 	gaussian_filter = make_unique<Gaussian_Filter>(Vector2(static_cast<float>(shadow_map_texture_size), static_cast<float>(shadow_map_texture_size)), DXGI_FORMAT_R32G32_FLOAT, 0.1f);
 

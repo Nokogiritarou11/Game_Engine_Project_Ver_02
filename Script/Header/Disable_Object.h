@@ -10,6 +10,7 @@ namespace BeastEngine
 		bool Draw_ImGui() override;
 
 		bool remove_parent;
+		u_int frame_count = 0;
 		float disable_time;
 		float timer;
 
