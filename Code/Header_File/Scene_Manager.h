@@ -16,7 +16,7 @@ namespace BeastEngine
 	public:
 		Scene_Manager();
 
-		void Load_Scene(const std::string& scene_path);	//ファイルパスからシーンファイルをロードし、切り替える
+		static void Load_Scene(const std::string& scene_path);	//ファイルパスからシーンファイルをロードし、切り替える
 		std::unique_ptr<Scene>& Get_Active_Scene();     //現在アクティブなシーンを取得する
 
 		bool run = false;   //再生中か

@@ -40,6 +40,8 @@ void Enemy_Boss_01_State_Setter::Set_State()
 				break;
 			case Preparation_State::Leave:
 				end_move = Vector3::DistanceSquared(target_pos, self_pos) > powf(preparation_distance, 2);
+				const Vector3 start_pos = transform->Get_Position() + Vector3(0, 0.5f, 0);
+				if (Vector3 hit_pos; !end_move && Physics::Raycast(start_pos, start_pos - transform->Get_Forward() * 1.5f, hit_pos, 1 << 0)) end_move = true;
 				break;
 		}
 

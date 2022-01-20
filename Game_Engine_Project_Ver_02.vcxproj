@@ -325,7 +325,9 @@
     <ClCompile Include="Script\Source\Player_Move.cpp" />
     <ClCompile Include="Script\Source\Character_Condition_Manager.cpp" />
     <ClCompile Include="Script\Source\Player_Parameter.cpp" />
+    <ClCompile Include="Script\Source\Scene_Change_Manager.cpp" />
     <ClCompile Include="Script\Source\Time_Manager.cpp" />
+    <ClCompile Include="Script\Source\Title.cpp" />
     <ClCompile Include="Script\Source\UI_Health_Bar.cpp" />
     <ClCompile Include="Script\Source\UI_Manager.cpp" />
     <ClCompile Include="Script\Source\UI_Smash.cpp" />
@@ -868,7 +870,9 @@
     <ClInclude Include="Script\Header\Player_Input.h" />
     <ClInclude Include="Script\Header\Player_Move.h" />
     <ClInclude Include="Script\Header\Player_Parameter.h" />
+    <ClInclude Include="Script\Header\Scene_Change_Manager.h" />
     <ClInclude Include="Script\Header\Time_Manager.h" />
+    <ClInclude Include="Script\Header\Title.h" />
     <ClInclude Include="Script\Header\UI_Health_Bar.h" />
     <ClInclude Include="Script\Header\UI_Manager.h" />
     <ClInclude Include="Script\Header\UI_Smash.h" />

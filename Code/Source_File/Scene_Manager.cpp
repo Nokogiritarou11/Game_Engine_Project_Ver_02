@@ -174,8 +174,8 @@ void Scene_Manager::End_Debug_Scene()
 
 void Scene_Manager::Load_Scene(const string& scene_path)
 {
-	load = true;
-	next_scene_path = scene_path;
+	Engine::scene_manager->load = true;
+	Engine::scene_manager->next_scene_path = scene_path;
 }
 
 void Scene_Manager::Update()

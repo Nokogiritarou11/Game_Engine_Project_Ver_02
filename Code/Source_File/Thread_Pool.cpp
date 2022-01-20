@@ -24,8 +24,11 @@ Thread_Pool::~Thread_Pool()
 void Thread_Pool::Wait_Job_Complete()
 {
 	//全スレッドの終了待ち(メインスレッドが止まる)
-	std::unique_lock lock(main_mutex);
-	main_condition.wait(lock);
+	if (doing_job_count > 0)
+	{
+		std::unique_lock lock(main_mutex);
+		main_condition.wait(lock);
+	}
 }
 
 
@@ -68,7 +71,7 @@ void Thread_Pool::Infinite_Loop_Function()
 		job();
 
 		//処理が終了したので稼働スレッド数を減らす
-		if(--doing_job_count == 0)
+		if (--doing_job_count == 0)
 		{
 			main_condition.notify_one();
 		}
