@@ -83,7 +83,7 @@ bool Player_Damageable::Take_Damage(const shared_ptr<Damage_Collision>& damage_c
 
 	if(param->hp <= 0)
 	{
-		//anim->Set_Trigger("Death");
+		anim->Set_Trigger("Death");
 	}
 	else
 	{

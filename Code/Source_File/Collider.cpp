@@ -21,6 +21,7 @@ void Collider::Initialize(const shared_ptr<GameObject>& obj)
 	Rescale_Shape();
 
 	Set_Active(gameobject->Get_Active_In_Hierarchy());
+	enabled_old = enabled;
 }
 
 void Collider::Set_Enabled(const bool value)

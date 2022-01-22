@@ -41,6 +41,7 @@ void Animator::Set_Active(const bool value)
 					//初回のみマネージャーに登録
 					Engine::animator_manager->Add(static_pointer_cast<Animator>(shared_from_this()));
 					is_called = true;
+					Set_Default_Pose();
 				}
 				Activate();
 			}
@@ -57,7 +58,6 @@ void Animator::Activate()
 	if (controller)
 	{
 		is_playing = true;
-		Set_Default_Pose();
 
 		//リセット用のパラメーターをコピー
 		if (init_parameter.empty())
@@ -78,6 +78,18 @@ void Animator::Inactivate()
 		{
 			*controller->parameters.get() = init_parameter;
 			controller->Reset();
+
+			//アニメーションを適応
+			for (auto& data : pose_default)
+			{
+				auto& anim = data.second;
+				if (const auto& target = anim.target.lock())
+				{
+					target->Set_Local_Position(anim.position);
+					target->Set_Local_Rotation(anim.rotation);
+					target->Set_Local_Scale(anim.scale);
+				}
+			}
 		}
 	}
 }
@@ -100,11 +112,11 @@ void Animator::Set_Default_Pose()
 					}
 				}
 			}
-			pose_playing = pose_default;
-			pose_next = pose_default;
-			pose_interrupt.clear();
 		}
 	}
+	pose_playing = pose_default;
+	pose_next = pose_default;
+	pose_interrupt.clear();
 }
 
 void Animator::Set_Int(const string& key, const int& value) const

@@ -19,7 +19,7 @@ void Instant_Camera_Shake::OnEnable()
 bool Instant_Camera_Shake::Draw_ImGui()
 {
 	bool open = false;
-	if (!Draw_ImGui_Header("Character_Condition_Manager", open)) return false;
+	if (!Draw_ImGui_Header("Instant_Camera_Shake", open)) return false;
 
 	if (open)
 	{

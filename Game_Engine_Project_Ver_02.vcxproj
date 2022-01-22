@@ -332,6 +332,8 @@
     <ClCompile Include="Script\Source\UI_Manager.cpp" />
     <ClCompile Include="Script\Source\UI_Smash.cpp" />
     <ClCompile Include="Script\Source\UI_Targeting.cpp" />
+    <ClCompile Include="Script\Source\Wall.cpp" />
+    <ClCompile Include="Script\Source\Wave_Manager.cpp" />
     <None Include="Script\Source\MonoBehaviour_Example.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -877,6 +879,8 @@
     <ClInclude Include="Script\Header\UI_Manager.h" />
     <ClInclude Include="Script\Header\UI_Smash.h" />
     <ClInclude Include="Script\Header\UI_Targeting.h" />
+    <ClInclude Include="Script\Header\Wall.h" />
+    <ClInclude Include="Script\Header\Wave_Manager.h" />
     <None Include="Script\Header\MonoBehaviour_Example.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
