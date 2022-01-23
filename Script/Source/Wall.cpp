@@ -21,11 +21,11 @@ void Wall::Awake()
 
 void Wall::Update()
 {
-	if (state != 0)
+	if (state != Wall_State::Stay)
 	{
 		const auto& wall = wall_obj.lock();
 		fade_timer += Time::delta_time;
-		if (state == 1)
+		if (state == Wall_State::Up)
 		{
 			if (const float rate = fade_timer / fade_time; rate < 1)
 			{
@@ -34,10 +34,10 @@ void Wall::Update()
 			else
 			{
 				wall->Set_Local_Position(end_pos);
-				state = 0;
+				state = Wall_State::Stay;
 			}
 		}
-		else if (state == 2)
+		else if (state == Wall_State::Down)
 		{
 			if (const float rate = fade_timer / fade_time; rate < 1)
 			{
@@ -46,7 +46,7 @@ void Wall::Update()
 			else
 			{
 				wall->Set_Local_Position(start_pos);
-				state = 0;
+				state = Wall_State::Stay;
 			}
 		}
 	}
@@ -54,14 +54,14 @@ void Wall::Update()
 
 void Wall::Wall_Up()
 {
-	state = 1;
+	state = Wall_State::Up;
 	fade_timer = 0;
 	collider.lock()->Set_Enabled(true);
 }
 
 void Wall::Wall_Down()
 {
-	state = 2;
+	state = Wall_State::Down;
 	fade_timer = 0;
 	collider.lock()->Set_Enabled(false);
 }

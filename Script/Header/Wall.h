@@ -10,13 +10,15 @@ namespace BeastEngine
 		void Wall_Down();
 
 	private:
+		enum class Wall_State { Stay, Up, Down };
+
 		void Awake() override;
 		void Update() override;
 		bool Draw_ImGui() override;
 
 		Vector3 start_pos;
 		Vector3 end_pos;
-		int state = 0;
+		Wall_State state = Wall_State::Stay;
 		float fade_time = 0;
 		float fade_timer = 0;
 		std::weak_ptr<Collider> collider;

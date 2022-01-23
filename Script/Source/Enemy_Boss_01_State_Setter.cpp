@@ -4,6 +4,7 @@
 #include "Enemy_Manager.h"
 #include "Engine.h"
 #include "Object_Pool.h"
+#include "Main_Scene_Manager.h"
 
 using namespace std;
 using namespace BeastEngine;
@@ -106,6 +107,7 @@ void Enemy_Boss_01_State_Setter::Set_State()
 			param->living = false;
 			//オブジェクトプールに戻す(非アクティブ化)
 			gameobject->Set_Active(false);
+			GameObject::Find("Main_Scene_Manager").lock()->Get_Component<Main_Scene_Manager>()->Game_Clear(3);
 		}
 	}
 

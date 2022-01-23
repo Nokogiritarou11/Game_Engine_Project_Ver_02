@@ -140,6 +140,9 @@
     <ClCompile Include="Script\Source\Title.cpp" />
     <ClCompile Include="Script\Source\Wave_Manager.cpp" />
     <ClCompile Include="Script\Source\Wall.cpp" />
+    <ClCompile Include="Script\Source\Sound_Manager.cpp" />
+    <ClCompile Include="Script\Source\Main_Scene_Manager.cpp" />
+    <ClCompile Include="Script\Source\Instant_Play_SE.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -377,6 +380,9 @@
     <ClInclude Include="Script\Header\Title.h" />
     <ClInclude Include="Script\Header\Wave_Manager.h" />
     <ClInclude Include="Script\Header\Wall.h" />
+    <ClInclude Include="Script\Header\Sound_Manager.h" />
+    <ClInclude Include="Script\Header\Main_Scene_Manager.h" />
+    <ClInclude Include="Script\Header\Instant_Play_SE.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

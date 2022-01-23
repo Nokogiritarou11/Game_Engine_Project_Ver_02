@@ -1,4 +1,6 @@
 #include "Scene_Change_Manager.h"
+#include "Sound_Manager.h"
+
 using namespace std;
 using namespace BeastEngine;
 
@@ -13,13 +15,18 @@ void Scene_Change_Manager::Update()
 	const auto& fade = fade_sprite.lock();
 	fade_timer += Time::delta_time;
 
-	if(fade_state <= 1)
+	if (fade_state == Fade_State::Before_Fade)
 	{
+		//delta_timeが大きくなりすぎるのを防ぐために2フレーム休む
 		fade_timer = 0;
-		++fade_state;
+		if (++fade_frame > 1)
+		{
+			fade_state = Fade_State::Fade_Out;
+		}
 	}
-	else if (fade_state == 2)
+	else if (fade_state == Fade_State::Fade_Out)
 	{
+		//暗転用テクスチャをフェードアウトさせる
 		if (const float rate = fade_timer / fade_time; rate < 1)
 		{
 			fade->color.w = Mathf::Lerp(1, 0, rate);
@@ -31,8 +38,9 @@ void Scene_Change_Manager::Update()
 			gameobject->Set_Active(false);
 		}
 	}
-	else if (fade_state == 3)
+	else if (fade_state == Fade_State::Fade_In)
 	{
+		//暗転用テクスチャをフェードインさせる
 		if (const float rate = fade_timer / fade_time; rate < 1)
 		{
 			fade->color.w = Mathf::Lerp(0, 1, rate);
@@ -42,22 +50,25 @@ void Scene_Change_Manager::Update()
 			fade->color.w = 1;
 			fade_timer = 0;
 			loading_object.lock()->Set_Active(true);
-			++fade_state;
+			fade_state = Fade_State::Fade_End;
 		}
 	}
-	else if (fade_state == 4)
+	else if (fade_state == Fade_State::Fade_End)
 	{
+		//フェードインが終了したのでシーンチェンジを実行
 		Scene_Manager::Load_Scene(next_scene);
 	}
 }
 
 void Scene_Change_Manager::Change_Scene(const std::string& scene_name)
 {
-	if (fade_state < 3)
+	//フェード中は無効化
+	if (fade_state == Fade_State::Before_Fade)
 	{
 		next_scene = scene_name;
-		fade_state = 3;
+		fade_state = Fade_State::Fade_In;
 		gameobject->Set_Active(true);
+		GameObject::Find("Sound_Manager").lock()->Get_Component<Sound_Manager>()->Play_BGM(BGM_Name::None);
 	}
 }
 

@@ -20,6 +20,7 @@ void UI_Health_Bar::Set_Parameter(const weak_ptr<Character_Parameter>& character
 
 void UI_Health_Bar::LateUpdate()
 {
+	//ƒQ[ƒW‚Ì’·‚³‚ÌXV
 	if(const auto& param = parameter.lock(); param->hp != bar_main.old)
 	{
 		bar_main.old = param->hp;
@@ -27,6 +28,7 @@ void UI_Health_Bar::LateUpdate()
 		delay_timer = delay_start_time;
 	}
 
+	//­‚µ’x‚ê‚ÄÁ‚¦‚éÔƒQ[ƒW
 	if(delay_timer > 0)
 	{
 		delay_timer -= Time::delta_time;

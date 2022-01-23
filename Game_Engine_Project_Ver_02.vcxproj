@@ -318,6 +318,8 @@
     <ClCompile Include="Script\Source\Enemy_Normal_01_State_Setter.cpp" />
     <ClCompile Include="Script\Source\Enemy_Parameter.cpp" />
     <ClCompile Include="Script\Source\Instant_Camera_Shake.cpp" />
+    <ClCompile Include="Script\Source\Instant_Play_SE.cpp" />
+    <ClCompile Include="Script\Source\Main_Scene_Manager.cpp" />
     <ClCompile Include="Script\Source\Object_Pool.cpp" />
     <ClCompile Include="Script\Source\Player_Camera_Controller.cpp" />
     <ClCompile Include="Script\Source\Player_Damageable.cpp" />
@@ -326,6 +328,7 @@
     <ClCompile Include="Script\Source\Character_Condition_Manager.cpp" />
     <ClCompile Include="Script\Source\Player_Parameter.cpp" />
     <ClCompile Include="Script\Source\Scene_Change_Manager.cpp" />
+    <ClCompile Include="Script\Source\Sound_Manager.cpp" />
     <ClCompile Include="Script\Source\Time_Manager.cpp" />
     <ClCompile Include="Script\Source\Title.cpp" />
     <ClCompile Include="Script\Source\UI_Health_Bar.cpp" />
@@ -860,10 +863,12 @@
     <ClInclude Include="Script\Header\Enemy_Normal_01_State_Setter.h" />
     <ClInclude Include="Script\Header\Enemy_Parameter.h" />
     <ClInclude Include="Script\Header\Instant_Camera_Shake.h" />
+    <ClInclude Include="Script\Header\Instant_Play_SE.h" />
     <ClInclude Include="Script\Header\Interface_Cut_Scene.h" />
     <ClInclude Include="Script\Header\Interface_Character_Damageable.h" />
     <ClInclude Include="Script\Header\Interface_Character_Mover.h" />
     <ClInclude Include="Script\Header\Interface_Character_State_Setter.h" />
+    <ClInclude Include="Script\Header\Main_Scene_Manager.h" />
     <ClInclude Include="Script\Header\Object_Pool.h" />
     <ClInclude Include="Script\Header\Player_Camera_Controller.h" />
     <ClInclude Include="Script\Header\Character_Condition_Manager.h" />
@@ -873,6 +878,7 @@
     <ClInclude Include="Script\Header\Player_Move.h" />
     <ClInclude Include="Script\Header\Player_Parameter.h" />
     <ClInclude Include="Script\Header\Scene_Change_Manager.h" />
+    <ClInclude Include="Script\Header\Sound_Manager.h" />
     <ClInclude Include="Script\Header\Time_Manager.h" />
     <ClInclude Include="Script\Header\Title.h" />
     <ClInclude Include="Script\Header\UI_Health_Bar.h" />

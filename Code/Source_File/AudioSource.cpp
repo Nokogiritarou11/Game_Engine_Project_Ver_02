@@ -17,7 +17,7 @@ AudioSource::~AudioSource()
 	//停止してから削除
 	if (effect_instance)
 	{
-		if (effect_instance->GetState() == PLAYING)
+		if (effect_instance->GetState() == SoundState::PLAYING)
 		{
 			effect_instance->Stop();
 		}
@@ -75,7 +75,7 @@ void AudioSource::Set_Clip(const char* filepath, const char* filename)
 	Set_Pitch(pitch);
 }
 
-void AudioSource::Play() const
+void AudioSource::Play()
 {
 	if (effect_instance)
 	{
@@ -135,20 +135,20 @@ bool AudioSource::Is_Playing() const
 	return false;
 }
 
-void AudioSource::Set_Volume(float volume) const
+void AudioSource::Set_Volume(const float volume)
 {
-	volume = max(0, volume);
+	this->volume = max(0, volume);
 	if (effect_instance)
 	{
-		effect_instance->SetVolume(volume);
+		effect_instance->SetVolume(this->volume);
 	}
 }
-void AudioSource::Set_Pitch(float pitch) const
+void AudioSource::Set_Pitch(const float pitch)
 {
-	pitch = Mathf::Clamp(pitch, -1.0f, 1.0f);
+	this->pitch = Mathf::Clamp(pitch, -1.0f, 1.0f);
 	if (effect_instance)
 	{
-		effect_instance->SetPitch(pitch);
+		effect_instance->SetPitch(this->pitch);
 	}
 }
 
@@ -187,9 +187,9 @@ bool AudioSource::Draw_ImGui()
 		ImGui::Text(u8"音量　");
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50);
-		const bool Input_volume = ImGui::DragFloat(u8"##音量", &volume, 0.01f, 0.0f, 5.0f, "%.2f");
+		const bool Input_volume = ImGui::DragFloat(u8"##音量_Drag", &volume, 0.01f, 0.0f, 5.0f, "%.2f");
 		ImGui::SameLine();
-		const bool slide_volume = ImGui::SliderFloat(u8"##音量", &volume, 0.0f, 5.0f, "%.2f");
+		const bool slide_volume = ImGui::SliderFloat(u8"##音量_Slider", &volume, 0.0f, 5.0f, "%.2f");
 		if (Input_volume || slide_volume)
 		{
 			if (effect_instance)
@@ -204,9 +204,9 @@ bool AudioSource::Draw_ImGui()
 		ImGui::Text(u8"ピッチ");
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50);
-		const bool Input_pitch = ImGui::DragFloat(u8"##ピッチ", &pitch, 0.01f, -1.0f, 1.0f, "%.2f");
+		const bool Input_pitch = ImGui::DragFloat(u8"##ピッチ_Drag", &pitch, 0.01f, -1.0f, 1.0f, "%.2f");
 		ImGui::SameLine();
-		const bool slide_pitch = ImGui::SliderFloat(u8"##ピッチ", &pitch, -1.0f, 1.0f, "%.2f");
+		const bool slide_pitch = ImGui::SliderFloat(u8"##ピッチ_Slider", &pitch, -1.0f, 1.0f, "%.2f");
 		if (Input_pitch || slide_pitch)
 		{
 			if (effect_instance)

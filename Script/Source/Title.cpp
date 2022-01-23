@@ -1,5 +1,6 @@
 #include "Title.h"
 #include "Scene_Change_Manager.h"
+#include "Sound_Manager.h"
 using namespace std;
 using namespace BeastEngine;
 
@@ -7,12 +8,15 @@ void Title::Awake()
 {
 	start_sprite = transform->Find("Start_Sprite").lock()->Get_Component<Sprite_Renderer>();
 	scene_change_manager = GameObject::Find("Scene_Change_Manager").lock()->Get_Component<Scene_Change_Manager>();
+	GameObject::Find("Sound_Manager").lock()->Get_Component<Sound_Manager>()->Play_BGM(BGM_Name::Title);
 }
 
 void Title::Update()
 {
 	const auto& fade = start_sprite.lock();
 	timer += Time::delta_time;
+
+	//画像を点滅させる
 	if (state == 0)
 	{
 		if (const float rate = timer; rate < 1)
@@ -48,6 +52,7 @@ void Title::Update()
 		}
 	}
 
+	//スタートボタンが押されたら暗転後シーン切り替え
 	if(Input::Get_Pad_Button_Down(Button_Code::Start))
 	{
 		scene_change_manager.lock()->Change_Scene("Assets\\Scene\\Main_Stage.bin");

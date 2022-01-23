@@ -19,14 +19,14 @@ void UI_Targeting::Set_State(const int value)
 		state = value;
 		switch (state)
 		{
-			case 0:
+			case 0: //非表示
 				gameobject->Set_Active(false);
 				break;
-			case 1:
+			case 1: //通常表示
 				gameobject->Set_Active(true);
 				sprite_target.lock()->color = default_color;
 				break;
-			case 2:
+			case 2: //ロックオン表示
 				gameobject->Set_Active(true);
 				sprite_target.lock()->color = locking_color;
 				break;
@@ -38,6 +38,7 @@ void UI_Targeting::Set_State(const int value)
 
 void UI_Targeting::LateUpdate()
 {
+	//ターゲットの画面上の位置に移動させる
 	const auto& param = parameter.lock();
 	const auto& target = param->target.lock()->lock_on_marker.lock();
 	const auto& sprite = sprite_target.lock();

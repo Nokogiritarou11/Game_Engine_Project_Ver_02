@@ -15,7 +15,7 @@ namespace BeastEngine
 
 		void Set_Clip(const char* filepath, const char* filename);
 
-		void Play() const;  //再生(一時停止中の場合は再開),(同一AudioSourceでの同時再生不可)
+		void Play();  //再生(一時停止中の場合は再開),(同一AudioSourceでの同時再生不可)
 		void Pause() const; //一時停止
 		void Stop() const;  //停止
 
@@ -23,10 +23,10 @@ namespace BeastEngine
 
 		[[nodiscard]] bool Is_Playing() const; //再生中か
 
-		void Set_Volume(float volume) const;                      //音量を設定する
+		void Set_Volume(float volume);                      //音量を設定する
 		[[nodiscard]] float Get_Volume() const { return volume; } //音量を取得する
 
-		void Set_Pitch(float pitch) const;                        //再生時のピッチを設定する
+		void Set_Pitch(float pitch);                        //再生時のピッチを設定する
 		[[nodiscard]] float Get_Pitch() const { return pitch; }   //再生時のピッチを取得する
 
 		bool play_on_awake = true; //アクティブ化時に自動再生するか

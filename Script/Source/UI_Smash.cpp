@@ -16,16 +16,16 @@ void UI_Smash::Set_State(const int value)
 		state = value;
 		switch (state)
 		{
-			case 0:
+			case 0: //表示開始
 				gameobject->Set_Active(true);
 				sprite_main.lock()->color = start_color;
 				transform->Set_Scale(Vector3(1, 1, 1));
 				timer = 0;
 				break;
-			case 1:
+			case 1: //ボタン押下
 				is_playing = true;
 				break;
-			case 2:
+			case 2: //再生終了
 				if(!is_playing)	gameobject->Set_Active(false);
 				break;
 			default:
@@ -38,6 +38,7 @@ void UI_Smash::LateUpdate()
 {
 	if (is_playing)
 	{
+		//押下アニメーションを再生
 		const auto& sprite = sprite_main.lock();
 		timer += Time::delta_time;
 		const float rate = timer / inactive_time;

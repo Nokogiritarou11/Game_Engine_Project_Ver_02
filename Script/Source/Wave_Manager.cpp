@@ -14,6 +14,7 @@ void Wave_Manager::Update()
 		const auto& manager = enemy_manager.lock();
 		if (!wave_finished)
 		{
+			//ウェーブ待機時間を待ってから登録されたエネミーを出現させる
 			wave_timer += Time::delta_time;
 			if (const auto& wave = wave_data[wave_count]; wave.instance_delay <= wave_timer)
 			{
@@ -23,21 +24,28 @@ void Wave_Manager::Update()
 				}
 				wave_finished = true;
 				wave_timer = 0;
-				++wave_count;
 			}
 		}
 		else
 		{
+			//現在のウェーブのエネミーが居なくなったら次のウェーブをチェック
 			if (manager->enemy_list.empty())
 			{
+				//ウェーブが残っている場合
 				if (++wave_count < static_cast<int>(wave_data.size()))
 				{
 					wave_finished = false;
 				}
+				//全ウェーブが終了したためコールバックを呼ぶ
 				else
 				{
-					for (const auto& f : wave_end_callback) f();
-					gameobject->Set_Active(false);
+					wave_timer += Time::delta_time;
+					if(end_delay_time <= wave_timer)
+					{
+						for (const auto& f : wave_end_callback) f();
+						gameobject->Set_Active(false);
+						wave_timer = 0;
+					}
 				}
 			}
 		}
@@ -56,6 +64,7 @@ void Wave_Manager::Add_Callback_End(const std::function<void()>& callback)
 
 void Wave_Manager::OnTrigger_Enter(Collision& collision)
 {
+	//判定に触れたらコールバックを呼んでウェーブを開始
 	++wave_count;
 	for (const auto& f : wave_start_callback) f();
 	Get_Component<Collider>()->Set_Enabled(false);
@@ -129,6 +138,8 @@ bool Wave_Manager::Draw_ImGui()
 			}
 			ImGui::TreePop();
 		}
+
+		ImGui::LeftText_DragFloat(u8"終了ディレイ", "##end_delay_time", &end_delay_time, window_center);
 	}
 	return true;
 }

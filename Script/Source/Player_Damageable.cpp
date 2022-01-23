@@ -8,6 +8,7 @@
 #include "Object_Pool.h"
 #include "Time_Manager.h"
 #include "UI_Manager.h"
+#include "Main_Scene_Manager.h"
 
 using namespace std;
 using namespace BeastEngine;
@@ -83,10 +84,13 @@ bool Player_Damageable::Take_Damage(const shared_ptr<Damage_Collision>& damage_c
 
 	if(param->hp <= 0)
 	{
+		//’vŽ€Žž
 		anim->Set_Trigger("Death");
+		GameObject::Find("Main_Scene_Manager").lock()->Get_Component<Main_Scene_Manager>()->Game_Clear(5);
 	}
 	else
 	{
+		//’Êíƒ_ƒ[ƒW
 		anim->Set_Trigger("Damage");
 		anim->Set_Int("Damage_State", static_cast<int>(damage_collision->damage_type));
 	}

@@ -131,6 +131,7 @@ void Enemy_Boss_01_Move::Move_Update()
 	if (anim->Get_Bool("No_Collision") != no_collision_old)
 	{
 		no_collision_old = !no_collision_old;
+		//ƒŒƒCƒ„[‚ÌØ‚è‘Ö‚¦
 		if (no_collision_old)
 		{
 			collider.lock()->Set_Layer(5);

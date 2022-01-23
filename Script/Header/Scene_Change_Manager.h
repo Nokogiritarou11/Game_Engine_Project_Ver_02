@@ -9,6 +9,8 @@ namespace BeastEngine
 		void Change_Scene(const std::string& scene_name);
 
 	private:
+		enum class Fade_State { Before_Fade, Fade_In, Fade_Out, Fade_End };
+
 		void Awake() override;
 		void Update() override;
 		bool Draw_ImGui() override;
@@ -16,7 +18,8 @@ namespace BeastEngine
 		std::weak_ptr<Sprite_Renderer> fade_sprite;
 		std::weak_ptr<GameObject> loading_object;
 		std::string next_scene;
-		int fade_state = 0;
+		Fade_State fade_state = Fade_State::Before_Fade;
+		int fade_frame = 0;
 		float fade_timer = 0;
 		float fade_time = 0;
 

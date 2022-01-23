@@ -49,6 +49,7 @@ namespace BeastEngine
 		int wave_count = -1;
 		float wave_timer = 0;
 		bool wave_finished = false;
+		float end_delay_time = 0;
 		std::vector<Wave_Data> wave_data{};
 		std::vector<std::function<void()>> wave_start_callback{};
 		std::vector<std::function<void()>> wave_end_callback{};
@@ -59,7 +60,14 @@ namespace BeastEngine
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<MonoBehaviour>(this), wave_data);
+			if (version <= 1)
+			{
+				archive(cereal::base_class<MonoBehaviour>(this), wave_data);
+			}
+			else
+			{
+				archive(cereal::base_class<MonoBehaviour>(this), wave_data, end_delay_time);
+			}
 		}
 	};
 }
@@ -69,4 +77,4 @@ CEREAL_REGISTER_TYPE(BeastEngine::Wave_Manager)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BeastEngine::MonoBehaviour, BeastEngine::Wave_Manager)
 CEREAL_CLASS_VERSION(BeastEngine::Instance_Enemy_Data, 1)
 CEREAL_CLASS_VERSION(BeastEngine::Wave_Data, 1)
-CEREAL_CLASS_VERSION(BeastEngine::Wave_Manager, 1)
+CEREAL_CLASS_VERSION(BeastEngine::Wave_Manager, 2)
