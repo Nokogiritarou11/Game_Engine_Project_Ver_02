@@ -96,27 +96,30 @@ void Animator::Inactivate()
 
 void Animator::Set_Default_Pose()
 {
-	for (const auto& state : controller->state_machines)
+	if (controller)
 	{
-		if (state->clip)
+		for (const auto& state : controller->state_machines)
 		{
-			//各アニメーション対象の現在の姿勢を保存する
-			for (auto& anim : state->clip->animations)
+			if (state->clip)
 			{
-				if (const auto& t_trans = transform->Find(anim.target_path).lock())
+				//各アニメーション対象の現在の姿勢を保存する
+				for (auto& anim : state->clip->animations)
 				{
-					if (const auto it = pose_default.find(anim.target_path); it == pose_default.end())
+					if (const auto& t_trans = transform->Find(anim.target_path).lock())
 					{
-						const Animation_Target t = { t_trans, t_trans->Get_Local_Position(),t_trans->Get_Local_Rotation(),t_trans->Get_Local_Scale() };
-						pose_default[anim.target_path] = t;
+						if (const auto it = pose_default.find(anim.target_path); it == pose_default.end())
+						{
+							const Animation_Target t = { t_trans, t_trans->Get_Local_Position(),t_trans->Get_Local_Rotation(),t_trans->Get_Local_Scale() };
+							pose_default[anim.target_path] = t;
+						}
 					}
 				}
 			}
 		}
+		pose_playing = pose_default;
+		pose_next = pose_default;
+		pose_interrupt.clear();
 	}
-	pose_playing = pose_default;
-	pose_next = pose_default;
-	pose_interrupt.clear();
 }
 
 void Animator::Set_Int(const string& key, const int& value) const

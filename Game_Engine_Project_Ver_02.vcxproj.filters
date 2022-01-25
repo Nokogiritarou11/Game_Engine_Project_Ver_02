@@ -143,6 +143,7 @@
     <ClCompile Include="Script\Source\Sound_Manager.cpp" />
     <ClCompile Include="Script\Source\Main_Scene_Manager.cpp" />
     <ClCompile Include="Script\Source\Instant_Play_SE.cpp" />
+    <ClCompile Include="Script\Source\Character_Sounds.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Header_File\Object.h" />
@@ -383,6 +384,7 @@
     <ClInclude Include="Script\Header\Sound_Manager.h" />
     <ClInclude Include="Script\Header\Main_Scene_Manager.h" />
     <ClInclude Include="Script\Header\Instant_Play_SE.h" />
+    <ClInclude Include="Script\Header\Character_Sounds.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Scene_Constants.hlsli" />

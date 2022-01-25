@@ -23,6 +23,7 @@ namespace BeastEngine
 		float fade_timer = 0;
 		std::weak_ptr<Collider> collider;
 		std::weak_ptr<Transform> wall_obj;
+		std::weak_ptr<AudioSource> move_se;
 
 		// シリアライズ関数
 		friend class cereal::access;

@@ -360,7 +360,7 @@ void Render_Manager::Render_3D(const shared_ptr<Camera>& camera)
 	alpha_list.clear();
 }
 
-void Render_Manager::Render_2D()
+void Render_Manager::Render_2D() const
 {
 	if (!renderer_2D_list.empty())
 	{

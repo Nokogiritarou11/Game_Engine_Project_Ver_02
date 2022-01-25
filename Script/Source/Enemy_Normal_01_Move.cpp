@@ -17,6 +17,13 @@ void Enemy_Normal_01_Move::Awake()
 void Enemy_Normal_01_Move::OnEnable()
 {
 	collider.lock()->Set_Layer(2);
+
+	const auto& target = target_transform.lock();
+	Vector3 target_position = target->Get_Position();
+	target_position.y = transform->Get_Position().y;
+	//ƒvƒŒƒCƒ„[•ûŒü‚É•ûŒü“]Š·
+	transform->Set_Local_Rotation(transform->Look_At(target_position));
+
 }
 
 void Enemy_Normal_01_Move::Move_Normal()

@@ -50,6 +50,7 @@ namespace BeastEngine
 		void Change_Attack_State();
 
 		void Awake() override;
+		void OnEnable() override;
 		bool Draw_ImGui() override;
 
 		std::weak_ptr<Animator> animator;

@@ -18,6 +18,7 @@ namespace BeastEngine
 
 	private:
 		void Awake() override;
+		void OnEnable() override;
 		bool Draw_ImGui() override;
 
 		void Attack_Melee() const;

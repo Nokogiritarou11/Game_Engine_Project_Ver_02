@@ -86,7 +86,7 @@ bool Player_Damageable::Take_Damage(const shared_ptr<Damage_Collision>& damage_c
 	{
 		//’vŽ€Žž
 		anim->Set_Trigger("Death");
-		GameObject::Find("Main_Scene_Manager").lock()->Get_Component<Main_Scene_Manager>()->Game_Clear(5);
+		GameObject::Find("Main_Scene_Manager").lock()->Get_Component<Main_Scene_Manager>()->Game_Over(5);
 	}
 	else
 	{

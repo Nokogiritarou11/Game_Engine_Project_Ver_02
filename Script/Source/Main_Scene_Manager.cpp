@@ -52,6 +52,7 @@ void Main_Scene_Manager::Game_Over(const float delay_time)
 	state = Game_State::Game_Over;
 	wait_time = delay_time;
 	fade_sprite = over_sprite;
+	fade_sprite.lock()->gameobject->Set_Active(true);
 }
 
 void Main_Scene_Manager::Game_Clear(const float delay_time)
@@ -59,6 +60,7 @@ void Main_Scene_Manager::Game_Clear(const float delay_time)
 	state = Game_State::Game_Clear;
 	wait_time = delay_time;
 	fade_sprite = clear_sprite;
+	fade_sprite.lock()->gameobject->Set_Active(true);
 }
 
 bool Main_Scene_Manager::Draw_ImGui()

@@ -304,6 +304,7 @@
     <ClCompile Include="Script\Source\Character_Hit_Stop_Manager.cpp" />
     <ClCompile Include="Script\Source\Character_Particles.cpp" />
     <ClCompile Include="Script\Source\Character_Ground_Checker.cpp" />
+    <ClCompile Include="Script\Source\Character_Sounds.cpp" />
     <ClCompile Include="Script\Source\Cut_Scene_Smash_01.cpp" />
     <ClCompile Include="Script\Source\Cut_Scene_Smash_03.cpp" />
     <ClCompile Include="Script\Source\Damage_Collision.cpp" />
@@ -849,6 +850,7 @@
     <ClInclude Include="Script\Header\Character_Hit_Stop_Manager.h" />
     <ClInclude Include="Script\Header\Character_Particles.h" />
     <ClInclude Include="Script\Header\Character_Ground_Checker.h" />
+    <ClInclude Include="Script\Header\Character_Sounds.h" />
     <ClInclude Include="Script\Header\Cut_Scene_Smash_01.h" />
     <ClInclude Include="Script\Header\Cut_Scene_Smash_03.h" />
     <ClInclude Include="Script\Header\Damage_Collision.h" />

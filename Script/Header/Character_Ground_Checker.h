@@ -11,6 +11,7 @@ namespace BeastEngine
 
 	private:
 		void Awake() override;
+		void OnEnable() override;
 		void Update() override;
 		bool Draw_ImGui() override;
 

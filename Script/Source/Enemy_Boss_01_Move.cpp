@@ -14,6 +14,15 @@ void Enemy_Boss_01_Move::Awake()
 	target_transform = GameObject::Find_With_Tag("player").lock()->transform;
 }
 
+void Enemy_Boss_01_Move::OnEnable()
+{
+	const auto& target = target_transform.lock();
+	Vector3 target_position = target->Get_Position();
+	target_position.y = transform->Get_Position().y;
+	//ƒvƒŒƒCƒ„[•ûŒü‚É•ûŒü“]Š·
+	transform->Set_Local_Rotation(transform->Look_At(target_position));
+}
+
 void Enemy_Boss_01_Move::Move_Normal()
 {
 	const auto& target = target_transform.lock();

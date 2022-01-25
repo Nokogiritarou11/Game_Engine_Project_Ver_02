@@ -11,6 +11,22 @@ void Character_Ground_Checker::Awake()
 	animator = Get_Component<Animator>();
 }
 
+void Character_Ground_Checker::OnEnable()
+{
+	//自身の原点(足元)から少し上の座標をレイの原点とする
+	Vector3 from = transform->Get_Position();
+	from.y += 0.1f;
+	Vector3 to = from;
+	to.y -= ray_distance;
+
+	Vector3 hit_pos;
+	//レイキャストのヒット判定
+	const bool ground = Physics::Raycast(from, to, hit_pos);
+	ground_old = ground;
+	parameter.lock()->is_ground = ground;
+	animator.lock()->Set_Bool("Is_Ground", ground);
+}
+
 void Character_Ground_Checker::Update()
 {
 	//自身の原点(足元)から少し上の座標をレイの原点とする
@@ -21,7 +37,8 @@ void Character_Ground_Checker::Update()
 
 	Vector3 hit_pos;
 	//レイキャストのヒット判定
-	if (const bool ground = Physics::Raycast(from, to, hit_pos); ground != ground_old)
+	const bool ground = Physics::Raycast(from, to, hit_pos);
+	if (ground != ground_old)
 	{
 		//ヒットした場合は接地していると判断する
 		ground_old = ground;

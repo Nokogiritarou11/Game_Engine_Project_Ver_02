@@ -6,6 +6,7 @@ using namespace BeastEngine;
 void Wall::Awake()
 {
 	collider = Get_Component<Collider>();
+	move_se = Get_Component<AudioSource>();
 	wall_obj = transform->Find("Wall_Object");
 
 	const function<void()> callback_up = [this]() {this->Wall_Up(); };
@@ -56,6 +57,8 @@ void Wall::Wall_Up()
 {
 	state = Wall_State::Up;
 	fade_timer = 0;
+	const auto& se = move_se.lock();
+	se->Play_OneShot(se->Get_Volume(), se->Get_Pitch());
 	collider.lock()->Set_Enabled(true);
 }
 
@@ -63,6 +66,8 @@ void Wall::Wall_Down()
 {
 	state = Wall_State::Down;
 	fade_timer = 0;
+	const auto& se = move_se.lock();
+	se->Play_OneShot(se->Get_Volume(), se->Get_Pitch());
 	collider.lock()->Set_Enabled(false);
 }
 

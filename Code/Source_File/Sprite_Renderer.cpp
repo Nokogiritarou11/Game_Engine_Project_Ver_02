@@ -64,15 +64,8 @@ void Sprite_Renderer::Set_Active(const bool value)
 	{
 		if (!is_called)
 		{
-			if (gameobject->Get_Active_In_Hierarchy())
-			{
-				if (Get_Enabled())
-				{
-					//初回のみマネージャーに登録
-					Engine::render_manager->Add(static_pointer_cast<Sprite_Renderer>(shared_from_this()));
-					is_called = true;
-				}
-			}
+			Engine::render_manager->Add(static_pointer_cast<Sprite_Renderer>(shared_from_this()));
+			is_called = true;
 		}
 	}
 }

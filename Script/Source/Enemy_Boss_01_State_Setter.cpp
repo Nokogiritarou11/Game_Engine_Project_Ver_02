@@ -5,6 +5,7 @@
 #include "Engine.h"
 #include "Object_Pool.h"
 #include "Main_Scene_Manager.h"
+#include "Sound_Manager.h"
 
 using namespace std;
 using namespace BeastEngine;
@@ -18,6 +19,11 @@ void Enemy_Boss_01_State_Setter::Awake()
 	enemy_manager = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Enemy_Manager>();
 	pool = enemy_manager.lock()->Get_Component<Object_Pool>();
 	Change_Attack_State();
+}
+
+void Enemy_Boss_01_State_Setter::OnEnable()
+{
+	GameObject::Find("Sound_Manager").lock()->Get_Component<Sound_Manager>()->Play_BGM(BGM_Name::Boss_Battle);
 }
 
 void Enemy_Boss_01_State_Setter::Set_State()

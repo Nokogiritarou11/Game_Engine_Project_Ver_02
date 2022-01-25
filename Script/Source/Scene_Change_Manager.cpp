@@ -62,8 +62,8 @@ void Scene_Change_Manager::Update()
 
 void Scene_Change_Manager::Change_Scene(const std::string& scene_name)
 {
-	//フェード中は無効化
-	if (fade_state == Fade_State::Before_Fade)
+	//フェード終了後以外は無効化
+	if (fade_state == Fade_State::Fade_Out)
 	{
 		next_scene = scene_name;
 		fade_state = Fade_State::Fade_In;

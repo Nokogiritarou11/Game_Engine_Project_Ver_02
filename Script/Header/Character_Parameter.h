@@ -23,7 +23,7 @@ namespace BeastEngine
 		bool damaging = false;
 		bool guarding = false;
 
-		bool is_ground = true;
+		bool is_ground = false;
 		bool is_invincible = false;
 
 	protected:
@@ -39,7 +39,6 @@ namespace BeastEngine
 			attacking = false;
 			damaging = false;
 			guarding = false;
-			is_ground = true;
 			is_invincible = false;
 		}
 

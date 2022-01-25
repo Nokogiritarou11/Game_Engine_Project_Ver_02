@@ -97,7 +97,7 @@ namespace BeastEngine
 		void Render_Shadow(const std::shared_ptr<Transform>& camera_transform); //シャドウマップの描画実行
 		void Render_Shadow_Directional(const Vector3& color, const float& intensity, const std::shared_ptr<Transform>& light_transform, const std::shared_ptr<Transform>& camera_transform); //ディレクショナルライトの描画実行
 		void Render_3D(const std::shared_ptr<Camera>& camera); //3Dオブジェクトのレンダリング
-		void Render_2D(); //2Dオブジェクトのレンダリング
+		void Render_2D() const; //2Dオブジェクトのレンダリング
 
 		void Update_Constant_Buffer() const; //コンスタントバッファの更新
 	};
