@@ -127,7 +127,15 @@ void Enemy_Boss_01_State_Setter::Change_Attack_State()
 	const auto& param = parameter.lock();
 
 	//s“®‚ğ‘I‘ğ‚·‚é
-	const int state = Mathf::Random_Range(0, 3);
+	int state = 0;
+	if (Mathf::Probability(melee_probability))
+	{
+		state = Mathf::Random_Range(0, 1);
+	}
+	else
+	{
+		state = Mathf::Random_Range(2, 3);
+	}
 	param->attack_state = state;
 	attack_state = static_cast<Attack_State>(state);
 	const auto& action = attack_action[state];
@@ -223,6 +231,8 @@ bool Enemy_Boss_01_State_Setter::Draw_ImGui()
 
 			ImGui::TreePop();
 		}
+
+		ImGui::LeftText_DragFloat(u8"‹ßÚUŒ‚Šm—¦", "##melee_probability", &melee_probability, window_center);
 	}
 	return true;
 }

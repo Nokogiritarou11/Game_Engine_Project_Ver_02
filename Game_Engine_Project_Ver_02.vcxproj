@@ -332,6 +332,7 @@
     <ClCompile Include="Script\Source\Sound_Manager.cpp" />
     <ClCompile Include="Script\Source\Time_Manager.cpp" />
     <ClCompile Include="Script\Source\Title.cpp" />
+    <ClCompile Include="Script\Source\Tutorial_Stage.cpp" />
     <ClCompile Include="Script\Source\UI_Health_Bar.cpp" />
     <ClCompile Include="Script\Source\UI_Manager.cpp" />
     <ClCompile Include="Script\Source\UI_Smash.cpp" />
@@ -883,6 +884,7 @@
     <ClInclude Include="Script\Header\Sound_Manager.h" />
     <ClInclude Include="Script\Header\Time_Manager.h" />
     <ClInclude Include="Script\Header\Title.h" />
+    <ClInclude Include="Script\Header\Tutorial_Stage.h" />
     <ClInclude Include="Script\Header\UI_Health_Bar.h" />
     <ClInclude Include="Script\Header\UI_Manager.h" />
     <ClInclude Include="Script\Header\UI_Smash.h" />

@@ -6,6 +6,7 @@ using namespace BeastEngine;
 
 void Title::Awake()
 {
+	push_se = Get_Component<AudioSource>();
 	start_sprite = transform->Find("Start_Sprite").lock()->Get_Component<Sprite_Renderer>();
 	scene_change_manager = GameObject::Find("Scene_Change_Manager").lock()->Get_Component<Scene_Change_Manager>();
 	GameObject::Find("Sound_Manager").lock()->Get_Component<Sound_Manager>()->Play_BGM(BGM_Name::Title);
@@ -32,7 +33,7 @@ void Title::Update()
 	}
 	else if (state == 1)
 	{
-		if(timer >= 0.5f)
+		if (timer >= 0.5f)
 		{
 			timer = 0;
 			++state;
@@ -53,9 +54,11 @@ void Title::Update()
 	}
 
 	//スタートボタンが押されたら暗転後シーン切り替え
-	if(Input::Get_Pad_Button_Down(Button_Code::Start))
+	if (!is_pushed && Input::Get_Pad_Button_Down(Button_Code::Start))
 	{
-		scene_change_manager.lock()->Change_Scene("Assets\\Scene\\Main_Stage.bin");
+		is_pushed = true;
+		push_se.lock()->Play();
+		scene_change_manager.lock()->Change_Scene("Assets\\Scene\\Tutorial.bin");
 	}
 }
 

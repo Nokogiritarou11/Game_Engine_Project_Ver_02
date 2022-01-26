@@ -42,8 +42,20 @@ void UI_Targeting::LateUpdate()
 	const auto& param = parameter.lock();
 	const auto& target = param->target.lock()->lock_on_marker.lock();
 	const auto& sprite = sprite_target.lock();
-	const Vector2 target_view_pos = camera.lock()->World_To_Screen_Point(target->Get_Position());
-	sprite->transform->Set_Position(Vector3(target_view_pos.x - sprite->size.x * 0.5f, target_view_pos.y - sprite->size.y * 0.5f, 0));
+	const auto& cam = camera.lock();
+
+	Vector3 vec = target->Get_Position() - cam->transform->Get_Position();
+	vec.Normalize();
+	if (vec.Dot(cam->transform->Get_Forward()) >= 0)
+	{
+		const Vector2 target_view_pos = cam->World_To_Screen_Point(target->Get_Position());
+		sprite->transform->Set_Position(Vector3(target_view_pos.x - sprite->size.x * 0.5f, target_view_pos.y - sprite->size.y * 0.5f, 0));
+	}
+	else
+	{
+		//画面外でもカメラの真後ろだとスクリーン座標変換が成功してしまうので、カメラの前かどうかを判定し、そうでなければ画面外へ
+		sprite->transform->Set_Position(Vector3(-500, -500, 0));
+	}
 }
 
 bool UI_Targeting::Draw_ImGui()

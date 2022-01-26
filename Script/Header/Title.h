@@ -14,8 +14,10 @@ namespace BeastEngine
 
 		std::weak_ptr<Sprite_Renderer> start_sprite;
 		std::weak_ptr<Scene_Change_Manager> scene_change_manager;
+		std::weak_ptr<AudioSource> push_se;
 		float timer = 0;
 		int state = 0;
+		bool is_pushed = false;
 
 		// シリアライズ関数
 		friend class cereal::access;

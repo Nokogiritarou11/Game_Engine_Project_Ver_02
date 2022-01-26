@@ -99,7 +99,14 @@ void Player_Camera_Controller::LateUpdate()
 	//ƒJƒƒ‰‚Ì‚ß‚èž‚Ý‘Îô
 	if (Vector3 hit_pos; Physics::Raycast(player_transform.lock()->Get_Position() + Vector3(0, 0.25f, 0), camera_trans->Get_Position(), hit_pos, 1 << 0))
 	{
-		camera_trans->Set_Position(hit_pos.x, camera_trans->Get_Position().y, hit_pos.z);
+		if (const float camera_y = camera_trans->Get_Position().y; hit_pos.y >= camera_y)
+		{
+			camera_trans->Set_Position(hit_pos.x, hit_pos.y + 0.1f, hit_pos.z);
+		}
+		else
+		{
+			camera_trans->Set_Position(hit_pos.x, camera_y, hit_pos.z);
+		}
 	}
 }
 

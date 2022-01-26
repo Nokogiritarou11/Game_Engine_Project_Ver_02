@@ -158,7 +158,7 @@ void Engine::Update()
 	render_manager->Render();
 #endif
 
-	DxSystem::Flip(1);
+	DxSystem::Flip();
 }
 
 void Engine::Get_Handle(const UINT msg, WPARAM w_param, LPARAM l_param)

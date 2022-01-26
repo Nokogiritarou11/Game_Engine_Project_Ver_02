@@ -61,19 +61,20 @@ namespace BeastEngine
 		std::weak_ptr<Enemy_Manager> enemy_manager;
 		std::weak_ptr<Object_Pool> pool;
 
-		std::vector<Attack_Action> attack_action;
+		std::vector<Attack_Action> attack_action{};
 
 		Action_State action_state = Action_State::Preparation;
 		Preparation_State preparation_state = Preparation_State::Chase;
 		Attack_State attack_state = Attack_State::Melee_3_Combo;
 		float preparation_distance = 0;
+		float melee_probability = 0;
 
 		// シリアライズ関数
 		friend class cereal::access;
 		template<class Archive>
 		void serialize(Archive& archive, std::uint32_t const version)
 		{
-			archive(cereal::base_class<MonoBehaviour>(this), spine_transform, flash_particle, attack_action);
+			archive(cereal::base_class<MonoBehaviour>(this), spine_transform, flash_particle, attack_action, melee_probability);
 		}
 	};
 }
