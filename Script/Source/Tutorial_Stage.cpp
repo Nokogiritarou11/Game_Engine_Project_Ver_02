@@ -1,7 +1,7 @@
 #include "Tutorial_Stage.h"
 #include "Sound_Manager.h"
 #include "Scene_Change_Manager.h"
-#include "Player_Input.h"
+#include "Character_Condition_Manager.h"
 #include "Enemy_Manager.h"
 #include "Engine.h"
 #include "Editor.h"
@@ -13,7 +13,7 @@ void Tutorial_Stage::Awake()
 {
 	GameObject::Find("Sound_Manager").lock()->Get_Component<Sound_Manager>()->Play_BGM(BGM_Name::Normal_Battle);
 	enemy_manager = GameObject::Find_With_Tag("Game_Manager").lock()->Get_Component<Enemy_Manager>();
-	player_input = GameObject::Find_With_Tag("player").lock()->Get_Component<Player_Input>();
+	condition_manager = GameObject::Find_With_Tag("player").lock()->Get_Component<Character_Condition_Manager>();
 }
 
 void Tutorial_Stage::Update()
@@ -42,8 +42,9 @@ void Tutorial_Stage::Update()
 				if (wait_time <= timer)
 				{
 					stop_sprite[static_cast<int>(tutorial_state)].lock()->Set_Active(true);
-					player_input.lock()->Set_Enabled(false);
+					condition_manager.lock()->Set_Enabled(false);
 					view_state = View_State::Stop;
+					Time::time_scale = 0;
 					timer = 0;
 				}
 			}
@@ -54,10 +55,16 @@ void Tutorial_Stage::Update()
 				{
 					stop_sprite[static_cast<int>(tutorial_state)].lock()->Set_Active(false);
 					playing_sprite[static_cast<int>(tutorial_state)].lock()->Set_Active(true);
-					player_input.lock()->Set_Enabled(true);
+					Time::time_scale = 1;
 					enemy_manager.lock()->Instance_Enemy(Enemy_Type::Enemy_Normal_01, transform->Get_Position(), transform->Get_Rotation());
-					view_state = View_State::Playing;
+					view_state = View_State::Close;
 				}
+			}
+			break;
+			case View_State::Close:
+			{
+				condition_manager.lock()->Set_Enabled(true);
+				view_state = View_State::Playing;
 			}
 			break;
 			case View_State::Playing:
@@ -69,6 +76,7 @@ void Tutorial_Stage::Update()
 					{
 						timer = 0;
 						view_state = View_State::Wait;
+						playing_sprite[static_cast<int>(tutorial_state)].lock()->Set_Active(false);
 						if (tutorial_state == Tutorial_State::Move) tutorial_state = Tutorial_State::Parry;
 						else if (tutorial_state == Tutorial_State::Parry) tutorial_state = Tutorial_State::Scene_Change;
 					}
@@ -116,7 +124,7 @@ bool Tutorial_Stage::Draw_ImGui()
 						{
 							if (const auto& drag = Engine::editor->Get_Drag_Object())
 							{
-								playing_sprite[i] = drag;
+								stop_sprite[i] = drag;
 							}
 							ImGui::EndDragDropTarget();
 						}

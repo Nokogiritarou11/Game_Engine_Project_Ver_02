@@ -121,6 +121,9 @@ void Player_Move::Move_Update()
 {
 	const auto& anim = animator.lock();
 	const auto& param = parameter.lock();
+	const auto& rb = rigidbody.lock();
+
+	rb->Set_Angular_Velocity(Vector3::Zero);
 
 	if (param->is_ground)
 	{
