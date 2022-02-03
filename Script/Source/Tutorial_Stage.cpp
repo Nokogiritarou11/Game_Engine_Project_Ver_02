@@ -87,6 +87,7 @@ void Tutorial_Stage::Update()
 	}
 	else if (tutorial_state == Tutorial_State::Scene_Change && !is_changing)
 	{
+		Time::time_scale = 1;
 		is_changing = true;
 		GameObject::Find("Scene_Change_Manager").lock()->Get_Component<Scene_Change_Manager>()->Change_Scene("Assets\\Scene\\Main_Stage.bin");
 	}
